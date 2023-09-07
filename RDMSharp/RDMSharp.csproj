@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<Version>0.0.1</Version>
+		<RepositoryUrl>https://github.com/DMXControl/RDMSharp</RepositoryUrl>
+		<PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
+		<PackageTags>RDM; RDMnet; ArtNet; E1.20; E1.33; E1.37-1; E1.37-2; E1.37-7</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>RDMSharp.png</PackageIcon>
+		<ApplicationIcon>Icons\RDMSharp.ico</ApplicationIcon>
+		<Description>This library abstracts the communication using RDM in C# and takes a lot of work off the developer, as well as enables a standardized use of RDM in C#</Description>
+		<Company>DMXControl-Projects e.V.</Company>
+		<Authors>Patrick Grote</Authors>
+		<Title>$(AssemblyName)</Title>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Include="Icons\RDMSharp.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="Icons\RDMSharp.png" Pack="true" PackagePath="" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
+	</ItemGroup>
+</Project>
