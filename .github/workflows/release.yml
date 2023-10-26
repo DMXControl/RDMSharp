@@ -21,7 +21,7 @@ jobs:
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.1
       with:
-        path: RDMSharp/bin/Release/net6.0/RDMSharp.dll
+        path: RDMSharp/bin/Release/netstandard2.0/RDMSharp.dll
     - name: Publish RDMSharp
       uses: brandedoutcast/publish-nuget@v2.5.2
       with:

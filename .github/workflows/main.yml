@@ -22,7 +22,9 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --configuration Release --no-restore
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.1
       with:
-        path: NanoleafAPI/bin/Release/net6.0/RDMSharp.dll
+        path: RDMSharp/bin/Release/netstandard2.0/RDMSharp.dll
