@@ -272,12 +272,9 @@ namespace RDMSharpTest.RDM
         }
         ulong ULongRandom(Random rand)
         {
-            ulong result = (uint)rand.Next((int)(int.MinValue >> 32), (int)(int.MaxValue >> 32));
-            result = (result << 32);
-#pragma warning disable IDE0054 // Verbundzuweisung verwenden
-            result = result | (ulong)rand.Next((int)int.MinValue, (int)int.MaxValue);
-#pragma warning restore IDE0054 // Verbundzuweisung verwenden
-            return result;
+            uint result1 = (uint)rand.Next(int.MinValue, int.MaxValue);
+            uint result2 = (uint)rand.Next(int.MinValue, int.MaxValue);
+            return  (result1 << 32) + result2;
         }
     }
 }
