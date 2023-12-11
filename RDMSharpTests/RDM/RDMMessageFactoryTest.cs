@@ -10,30 +10,30 @@ namespace RDMSharpTest.RDM
         [Test]
         public void TestBuildDIscUniqueBranchResponse_Corrupt()
         {
-            Assert.IsNull(RDMMessageFactory.BuildDiscUniqueBranchResponse(null));
-            Assert.IsNull(RDMMessageFactory.BuildDiscUniqueBranchResponse(new byte[12]));
-            Assert.IsNull(RDMMessageFactory.BuildDiscUniqueBranchResponse(new byte[23]));
+            Assert.That(RDMMessageFactory.BuildDiscUniqueBranchResponse(null), Is.Null);
+            Assert.That(RDMMessageFactory.BuildDiscUniqueBranchResponse(new byte[12]), Is.Null);
+            Assert.That(RDMMessageFactory.BuildDiscUniqueBranchResponse(new byte[23]), Is.Null);
 
             var b = BuildMessage();
             //Corrupt Checksum
             b[18]++;
 
-            Assert.IsNull(RDMMessageFactory.BuildDiscUniqueBranchResponse(b));
+            Assert.That(RDMMessageFactory.BuildDiscUniqueBranchResponse(b), Is.Null);
 
             b = BuildMessage();
             //Corrupt Data
             b[14]++;
-            Assert.IsNull(RDMMessageFactory.BuildDiscUniqueBranchResponse(b));
+            Assert.That(RDMMessageFactory.BuildDiscUniqueBranchResponse(b), Is.Null);
 
             b = BuildMessage();
             //Remove Preample seperator
             b[3] = 0;
-            Assert.IsNull(RDMMessageFactory.BuildDiscUniqueBranchResponse(b));
+            Assert.That(RDMMessageFactory.BuildDiscUniqueBranchResponse(b), Is.Null);
 
             //Cut Message
             b = BuildMessage();
             b = b.Take(b.Length - 3).ToArray();
-            Assert.IsNull(RDMMessageFactory.BuildDiscUniqueBranchResponse(b));
+            Assert.That(RDMMessageFactory.BuildDiscUniqueBranchResponse(b), Is.Null);
         }
 
         [Test]
@@ -42,11 +42,11 @@ namespace RDMSharpTest.RDM
             var b = BuildMessage();
             RDMMessage m = RDMMessageFactory.BuildDiscUniqueBranchResponse(b);
 
-            Assert.IsNotNull(m);
-            Assert.AreEqual(ERDM_Command.DISCOVERY_COMMAND_RESPONSE, m.Command);
-            Assert.AreEqual(ERDM_Parameter.DISC_UNIQUE_BRANCH, (ERDM_Parameter)m.Parameter);
-            Assert.AreEqual((ushort)0xACBD, m.SourceUID.ManufacturerID);
-            Assert.AreEqual(0x12345678u, m.SourceUID.DeviceID);
+            Assert.That(m, Is.Not.Null);
+            Assert.That(m.Command, Is.EqualTo(ERDM_Command.DISCOVERY_COMMAND_RESPONSE));
+            Assert.That(m.Parameter, Is.EqualTo(ERDM_Parameter.DISC_UNIQUE_BRANCH));
+            Assert.That(m.SourceUID.ManufacturerID, Is.EqualTo((ushort)0xACBD));
+            Assert.That(m.SourceUID.DeviceID, Is.EqualTo(0x12345678u));
         }
 
         [Test]
@@ -55,11 +55,11 @@ namespace RDMSharpTest.RDM
             var b = BuildMessage().Skip(3).ToArray();
             RDMMessage m = RDMMessageFactory.BuildDiscUniqueBranchResponse(b);
 
-            Assert.IsNotNull(m);
-            Assert.AreEqual(ERDM_Command.DISCOVERY_COMMAND_RESPONSE, m.Command);
-            Assert.AreEqual(ERDM_Parameter.DISC_UNIQUE_BRANCH, (ERDM_Parameter)m.Parameter);
-            Assert.AreEqual((ushort)0xACBD, m.SourceUID.ManufacturerID);
-            Assert.AreEqual(0x12345678u, m.SourceUID.DeviceID);
+            Assert.That(m, Is.Not.Null);
+            Assert.That(m.Command, Is.EqualTo(ERDM_Command.DISCOVERY_COMMAND_RESPONSE));
+            Assert.That(m.Parameter,Is.EqualTo(ERDM_Parameter.DISC_UNIQUE_BRANCH));
+            Assert.That(m.SourceUID.ManufacturerID,Is.EqualTo((ushort)0xACBD));
+            Assert.That(m.SourceUID.DeviceID, Is.EqualTo(0x12345678u));
         }
 
         private byte[] BuildMessage()

@@ -26,7 +26,7 @@ namespace RDMSharpTest.RDM
 
             GetBindingAndControlFieldsRequest resultGetBindingAndControlFieldsRequest = GetBindingAndControlFieldsRequest.FromMessage(message);
 
-            Assert.AreEqual(getBindingAndControlFieldsRequest, resultGetBindingAndControlFieldsRequest);
+            Assert.That(resultGetBindingAndControlFieldsRequest, Is.EqualTo(getBindingAndControlFieldsRequest));
 
             GetBindingAndControlFieldsResponse getBindingAndControlFieldsResponse = new GetBindingAndControlFieldsResponse(1, new RDMUID(1213,34444),1234, new RDMUID(542, 476436));
             data = getBindingAndControlFieldsResponse.ToPayloadData();
@@ -41,7 +41,7 @@ namespace RDMSharpTest.RDM
 
             GetBindingAndControlFieldsResponse resultGetBindingAndControlFieldsResponse = GetBindingAndControlFieldsResponse.FromMessage(message);
 
-            Assert.AreEqual(getBindingAndControlFieldsResponse, resultGetBindingAndControlFieldsResponse);
+            Assert.That(resultGetBindingAndControlFieldsResponse, Is.EqualTo(getBindingAndControlFieldsResponse));
         }
     }
 }

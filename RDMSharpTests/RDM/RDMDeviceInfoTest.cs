@@ -25,7 +25,7 @@ namespace RDMSharpTest.RDM
 
             RDMDeviceInfo resultDeviceInfo = RDMDeviceInfo.FromMessage(message);
 
-            Assert.AreEqual(deviceInfo, resultDeviceInfo);
+            Assert.That(deviceInfo, Is.EqualTo(resultDeviceInfo));
         }
     }
 }

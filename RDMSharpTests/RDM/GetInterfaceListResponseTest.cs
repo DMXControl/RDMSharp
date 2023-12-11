@@ -37,7 +37,7 @@ namespace RDMSharpTest.RDM
 
             GetInterfaceListResponse resultGetInterfaceListResponse = GetInterfaceListResponse.FromMessage(message);
 
-            Assert.AreEqual(getInterfaceListResponse, resultGetInterfaceListResponse);
+            Assert.That(resultGetInterfaceListResponse, Is.EqualTo(getInterfaceListResponse));
         }
     }
 }

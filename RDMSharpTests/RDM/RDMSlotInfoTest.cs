@@ -19,7 +19,7 @@ namespace RDMSharpTest.RDM
 
             RDMSlotInfo resultStatusMessage = RDMSlotInfo.FromPayloadData(data);
 
-            Assert.AreEqual(statusMessage, resultStatusMessage);
+            Assert.That(resultStatusMessage, Is.EqualTo(statusMessage));
         }
     }
 }

@@ -26,7 +26,7 @@ namespace RDMSharpTest.RDM
 
             GetEndpointResponderListChangeResponse resultGetEndpointResponderListChangeResponse = GetEndpointResponderListChangeResponse.FromMessage(message);
 
-            Assert.AreEqual(getEndpointResponderListChangeResponse, resultGetEndpointResponderListChangeResponse);
+            Assert.That(resultGetEndpointResponderListChangeResponse, Is.EqualTo(getEndpointResponderListChangeResponse));
         }
     }
 }

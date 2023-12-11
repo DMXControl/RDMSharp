@@ -26,7 +26,7 @@ namespace RDMSharpTest.RDM
 
             RDMOutputResponseTime resultOutputResponseTime = RDMOutputResponseTime.FromMessage(message);
 
-            Assert.AreEqual(outputResponseTime, resultOutputResponseTime);
+            Assert.That(resultOutputResponseTime, Is.EqualTo(outputResponseTime));
         }
     }
 }

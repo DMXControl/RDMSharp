@@ -27,7 +27,7 @@ namespace RDMSharpTest.RDM
 
             RDMSensorValue resultSensorValue = RDMSensorValue.FromMessage(message);
 
-            Assert.AreEqual(sensorValue, resultSensorValue);
+            Assert.That(resultSensorValue, Is.EqualTo(sensorValue));
         }
     }
 }

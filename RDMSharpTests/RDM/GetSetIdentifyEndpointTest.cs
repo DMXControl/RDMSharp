@@ -26,7 +26,7 @@ namespace RDMSharpTest.RDM
 
             GetSetIdentifyEndpoint resultGetSetIPv4StaticAddress = GetSetIdentifyEndpoint.FromMessage(message);
 
-            Assert.AreEqual(getSetIPv4StaticAddress, resultGetSetIPv4StaticAddress);
+            Assert.That(resultGetSetIPv4StaticAddress, Is.EqualTo(getSetIPv4StaticAddress));
         }
     }
 }

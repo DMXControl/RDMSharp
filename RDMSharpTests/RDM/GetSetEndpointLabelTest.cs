@@ -26,13 +26,13 @@ namespace RDMSharpTest.RDM
 
             GetSetEndpointLabel resultGetSetEndpointLabel = GetSetEndpointLabel.FromMessage(message);
 
-            Assert.AreEqual(getSetEndpointLabel, resultGetSetEndpointLabel);
+            Assert.That(resultGetSetEndpointLabel, Is.EqualTo(getSetEndpointLabel));
         }
         [Test]
         public void DescriptionCharLimitTest()
         {
             GetSetEndpointLabel resultGetSetEndpointLabel = new GetSetEndpointLabel(endpointLabel: "Pseudo Endpoint Label 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
-            Assert.AreEqual(32, resultGetSetEndpointLabel.EndpointLabel.Length);
+            Assert.That(resultGetSetEndpointLabel.EndpointLabel.Length, Is.EqualTo(32));
         }
     }
 }

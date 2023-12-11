@@ -25,7 +25,7 @@ namespace RDMSharpTest.RDM
 
             RDMPresetInfo resultPresetInfo = RDMPresetInfo.FromMessage(message);
 
-            Assert.AreEqual(presetInfo, resultPresetInfo);
+            Assert.That(presetInfo, Is.EqualTo(resultPresetInfo));
         }
     }
 }

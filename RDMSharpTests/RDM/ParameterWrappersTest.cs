@@ -168,38 +168,38 @@ namespace RDMSharpTest.RDM
         {
             var parameterLeft = parameters.Except(e1_20Parameters).Except(e1_37_1Parameters).Except(e1_37_2Parameters).Except(e1_37_7Parameters).Except(e1_33Parameters).Except(sgmParameters).ToList();
 
-            Assert.AreEqual(notUsableParameters.Length, parameterLeft.Count);
-            Assert.AreEqual(0, notUsableParameters.Except(parameterLeft).ToList().Count);
+            Assert.That(parameterLeft.Count, Is.EqualTo(notUsableParameters.Length));
+            Assert.That(notUsableParameters.Except(parameterLeft).ToList().Count, Is.EqualTo(0));
         }
         [Test]
         public void CheckE1_20WrappersDefined()
         {
             var notDefinedParameters = e1_20Parameters.Except(parameterWrappers.Select(pw => pw.Parameter)).ToArray();
-            Assert.AreEqual(0, notDefinedParameters.Length, $"The not defined Parameters:{Environment.NewLine}{ParametersToString(notDefinedParameters)}");
+            Assert.That(notDefinedParameters.Length, Is.EqualTo(0), $"The not defined Parameters:{Environment.NewLine}{ParametersToString(notDefinedParameters)}");
         }
         [Test]
         public void CheckE1_37_1WrappersDefined()
         {
             var notDefinedParameters = e1_37_1Parameters.Except(parameterWrappers.Select(pw => pw.Parameter)).ToArray();
-            Assert.AreEqual(0, notDefinedParameters.Length, $"The not defined Parameters:{Environment.NewLine}{ParametersToString(notDefinedParameters)}");
+            Assert.That(notDefinedParameters.Length, Is.EqualTo(0), $"The not defined Parameters:{Environment.NewLine}{ParametersToString(notDefinedParameters)}");
         }
         [Test]
         public void CheckE1_37_2WrappersDefined()
         {
             var notDefinedParameters = e1_37_2Parameters.Except(parameterWrappers.Select(pw => pw.Parameter)).ToArray();
-            Assert.AreEqual(0, notDefinedParameters.Length, $"The not defined Parameters:{Environment.NewLine}{ParametersToString(notDefinedParameters)}");
+            Assert.That(notDefinedParameters.Length, Is.EqualTo(0), $"The not defined Parameters:{Environment.NewLine}{ParametersToString(notDefinedParameters)}");
         }
         [Test]
         public void CheckE1_37_7WrappersDefined()
         {
             var notDefinedParameters = e1_37_7Parameters.Except(parameterWrappers.Select(pw => pw.Parameter)).ToArray();
-            Assert.AreEqual(0, notDefinedParameters.Length, $"The not defined Parameters:{Environment.NewLine}{ParametersToString(notDefinedParameters)}");
+            Assert.That(notDefinedParameters.Length, Is.EqualTo(0), $"The not defined Parameters:{Environment.NewLine}{ParametersToString(notDefinedParameters)}");
         }
         [Test]
         public void CheckE1_33WrappersDefined()
         {
             var notDefinedParameters = e1_33Parameters.Except(parameterWrappers.Select(pw => pw.Parameter)).ToArray();
-            Assert.AreEqual(0, notDefinedParameters.Length, $"The not defined Parameters:{Environment.NewLine}{ParametersToString(notDefinedParameters)}");
+            Assert.That(notDefinedParameters.Length, Is.EqualTo(0), $"The not defined Parameters:{Environment.NewLine}{ParametersToString(notDefinedParameters)}");
         }
 
         [Test]
@@ -207,32 +207,32 @@ namespace RDMSharpTest.RDM
         {
             foreach (IRDMParameterWrapper pW in parameterWrappers)
             {
-                Assert.IsFalse(pW.Name.EndsWith(" "), $"{pW.Name} Name is not Vaild");
-                Assert.IsFalse(pW.Name.StartsWith(" "), $"{pW.Name} Name is not Vaild");
-                Assert.IsFalse(pW.Description.EndsWith(" "), $"{pW.Name} Description is not Vaild");
-                Assert.IsFalse(pW.Description.StartsWith(" "), $"{pW.Name} Description is not Vaild");
-                Assert.IsTrue(pW.Description.EndsWith("."), $"{pW.Name} Description should end with a \".\"");
+                Assert.That(pW.Name.EndsWith(" "), Is.False, $"{pW.Name} Name is not Vaild");
+                Assert.That(pW.Name.StartsWith(" "), Is.False, $"{pW.Name} Name is not Vaild");
+                Assert.That(pW.Description.EndsWith(" "), Is.False, $"{pW.Name} Description is not Vaild");
+                Assert.That(pW.Description.StartsWith(" "), Is.False, $"{pW.Name} Description is not Vaild");
+                Assert.That(pW.Description.EndsWith("."), Is.True, $"{pW.Name} Description should end with a \".\"");
             }
 
             foreach (ERDM_Parameter parameter in e1_20Parameters)
-                Assert.AreEqual(1, parameterWrappers.Count(pw => pw.Parameter == parameter), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
+                Assert.That(parameterWrappers.Count(pw => pw.Parameter == parameter), Is.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
 
             foreach (ERDM_Parameter parameter in e1_37_1Parameters)
-                Assert.AreEqual(1, parameterWrappers.Count(pw => pw.Parameter == parameter), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
+                Assert.That(parameterWrappers.Count(pw => pw.Parameter == parameter), Is.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
 
             foreach (ERDM_Parameter parameter in e1_37_2Parameters)
-                Assert.AreEqual(1, parameterWrappers.Count(pw => pw.Parameter == parameter), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
+                Assert.That(parameterWrappers.Count(pw => pw.Parameter == parameter), Is.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
 
             foreach (ERDM_Parameter parameter in e1_37_7Parameters)
-                Assert.AreEqual(1, parameterWrappers.Count(pw => pw.Parameter == parameter), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
+                Assert.That(parameterWrappers.Count(pw => pw.Parameter == parameter), Is.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
 
             foreach (ERDM_Parameter parameter in e1_33Parameters)
-                Assert.AreEqual(1, parameterWrappers.Count(pw => pw.Parameter == parameter), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
+                Assert.That(parameterWrappers.Count(pw => pw.Parameter == parameter), Is.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
             
             foreach (ERDM_Parameter parameter in sgmParameters)
-                Assert.AreEqual(1, parameterWrappers.Count(pw => pw.Parameter == parameter), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
+                Assert.That(parameterWrappers.Count(pw => pw.Parameter == parameter), Is.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
 
-            Assert.AreEqual(e1_20Parameters.Length + e1_37_1Parameters.Length + e1_37_2Parameters.Length + e1_37_7Parameters.Length + e1_33Parameters.Length + sgmParameters.Length, parameterWrappers.Count);
+            Assert.That(e1_20Parameters.Length + e1_37_1Parameters.Length + e1_37_2Parameters.Length + e1_37_7Parameters.Length + e1_33Parameters.Length + sgmParameters.Length, Is.EqualTo(parameterWrappers.Count));
         }
 
         private string ParametersToString(params ERDM_Parameter[] parameters)

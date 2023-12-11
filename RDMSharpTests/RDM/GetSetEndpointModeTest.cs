@@ -26,7 +26,7 @@ namespace RDMSharpTest.RDM
 
             GetSetEndpointMode resultGetSetEndpointMode = GetSetEndpointMode.FromMessage(message);
 
-            Assert.AreEqual(getSetEndpointMode, resultGetSetEndpointMode);
+            Assert.That(resultGetSetEndpointMode, Is.EqualTo(getSetEndpointMode));
         }
     }
 }

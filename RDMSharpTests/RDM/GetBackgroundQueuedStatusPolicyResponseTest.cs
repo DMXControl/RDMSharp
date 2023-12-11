@@ -26,7 +26,7 @@ namespace RDMSharpTest.RDM
 
             GetBackgroundQueuedStatusPolicyResponse resultGetBackgroundQueuedStatusPolicyResponse = GetBackgroundQueuedStatusPolicyResponse.FromMessage(message);
 
-            Assert.AreEqual(getBackgroundQueuedStatusPolicyResponse, resultGetBackgroundQueuedStatusPolicyResponse);
+            Assert.That(resultGetBackgroundQueuedStatusPolicyResponse, Is.EqualTo(getBackgroundQueuedStatusPolicyResponse));
         }
     }
 }

@@ -25,7 +25,7 @@ namespace RDMSharpTest.RDM
 
             RDMPresetStatus resultPresetStatus = RDMPresetStatus.FromMessage(message);
 
-            Assert.AreEqual(presetStatus, resultPresetStatus);
+            Assert.That(presetStatus, Is.EqualTo(resultPresetStatus));
         }
     }
 }

@@ -25,14 +25,14 @@ namespace RDMSharpTest.RDM
 
             RDMSelfTestDescription resultSelfTestDescription  = RDMSelfTestDescription.FromMessage(message);
 
-            Assert.AreEqual(selfTestDescription, resultSelfTestDescription);
+            Assert.That(resultSelfTestDescription, Is.EqualTo(selfTestDescription));
         }
 
         [Test]
         public void DescriptionCharLimitTest()
         {
             RDMSelfTestDescription parameterDescription = new RDMSelfTestDescription(description: "Pseudo Selftest 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
-            Assert.AreEqual(32, parameterDescription.Description.Length);
+            Assert.That(parameterDescription.Description.Length, Is.EqualTo(32));
         }
     }
 }

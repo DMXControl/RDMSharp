@@ -27,14 +27,14 @@ namespace RDMSharpTest.RDM
 
             RDMSensorDefinition resultSensorDefinition = RDMSensorDefinition.FromMessage(message);
 
-            Assert.AreEqual(sensorDefinition, resultSensorDefinition);
+            Assert.That(resultSensorDefinition, Is.EqualTo(sensorDefinition));
         }
 
         [Test]
         public void DescriptionCharLimitTest()
         {
             RDMSensorDefinition sensorDefinition = new RDMSensorDefinition(description: "Pseudo Sensor 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
-            Assert.AreEqual(32, sensorDefinition.Description.Length);
+            Assert.That(sensorDefinition.Description.Length, Is.EqualTo(32));
         }
     }
 }

@@ -27,7 +27,7 @@ namespace RDMSharpTest.RDM
 
             GetSetEndpointBackgroundDiscovery resultGetSetEndpointBackgroundDiscovery = GetSetEndpointBackgroundDiscovery.FromMessage(message);
 
-            Assert.AreEqual(getSetEndpointBackgroundDiscovery, resultGetSetEndpointBackgroundDiscovery);
+            Assert.That(resultGetSetEndpointBackgroundDiscovery, Is.EqualTo(getSetEndpointBackgroundDiscovery));
         }
     }
 }

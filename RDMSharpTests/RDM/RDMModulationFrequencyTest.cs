@@ -25,7 +25,7 @@ namespace RDMSharpTest.RDM
 
             RDMModulationFrequency resultModulationFrequency = RDMModulationFrequency.FromMessage(message);
 
-            Assert.AreEqual(modulationFrequency, resultModulationFrequency);
+            Assert.That(modulationFrequency, Is.EqualTo(resultModulationFrequency));
         }
     }
 }

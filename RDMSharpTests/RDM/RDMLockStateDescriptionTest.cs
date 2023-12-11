@@ -25,13 +25,13 @@ namespace RDMSharpTest.RDM
 
             RDMLockStateDescription resultLockStateDescription = RDMLockStateDescription.FromMessage(message);
 
-            Assert.AreEqual(lockStateDescription, resultLockStateDescription);
+            Assert.That(resultLockStateDescription, Is.EqualTo(lockStateDescription));
         }
         [Test]
         public void DescriptionCharLimitTest()
         {
             RDMLockStateDescription resultLockStateDescription = new RDMLockStateDescription(description: "Pseudo LockState 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
-            Assert.AreEqual(32, resultLockStateDescription.Description.Length);
+            Assert.That(resultLockStateDescription.Description.Length, Is.EqualTo(32));
         }
     }
 }

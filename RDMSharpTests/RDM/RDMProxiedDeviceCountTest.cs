@@ -27,7 +27,7 @@ namespace RDMSharpTest.RDM
 
             RDMProxiedDeviceCount resultProxiedDeviceCount = RDMProxiedDeviceCount.FromMessage(message);
 
-            Assert.AreEqual(proxiedDeviceCount, resultProxiedDeviceCount);
+            Assert.That(resultProxiedDeviceCount, Is.EqualTo(proxiedDeviceCount));
         }
     }
 }

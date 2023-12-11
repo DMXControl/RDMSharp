@@ -9,19 +9,19 @@ namespace RDMSharpTest.RDM
         {
             RDMMessage m = new RDMMessage();
 
-            Assert.AreEqual(0, m.ParameterData.Length);
-            Assert.AreEqual(0, m.PDL);
-            Assert.AreEqual(24, m.MessageLength);
+            Assert.That(m.ParameterData.Length, Is.EqualTo(0));
+            Assert.That(m.PDL, Is.EqualTo(0));
+            Assert.That(m.MessageLength, Is.EqualTo(24));
 
             m.ParameterData = new byte[5];
-            Assert.AreEqual(5, m.ParameterData.Length);
-            Assert.AreEqual(5, m.PDL);
-            Assert.AreEqual(29, m.MessageLength);
+            Assert.That(m.ParameterData.Length, Is.EqualTo(5));
+            Assert.That(m.PDL, Is.EqualTo(5));
+            Assert.That(m.MessageLength, Is.EqualTo(29));
 
             m.ParameterData = new byte[231];
-            Assert.AreEqual(231, m.ParameterData.Length);
-            Assert.AreEqual(231, m.PDL);
-            Assert.AreEqual(255, m.MessageLength);
+            Assert.That(m.ParameterData.Length, Is.EqualTo(231));
+            Assert.That(m.PDL, Is.EqualTo(231));
+            Assert.That(m.MessageLength, Is.EqualTo(255));
 
             Assert.Throws<ArgumentException>(() => m.ParameterData = new byte[232]);
         }
@@ -33,8 +33,8 @@ namespace RDMSharpTest.RDM
 
             m.ParameterData = new byte[17];
 
-            Assert.AreEqual(17, m.PDL);
-            Assert.AreEqual(24 + 17, m.MessageLength);
+            Assert.That(m.PDL, Is.EqualTo(17));
+            Assert.That(m.MessageLength,Is.EqualTo(24 + 17));
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace RDMSharpTest.RDM
                 ParameterData = new byte[] {0x04}
             };
 
-            Assert.AreEqual(0x66A, m.Checksum);
+            Assert.That(m.Checksum, Is.EqualTo(0x66A));
         }
 
         [Test]
@@ -67,7 +67,7 @@ namespace RDMSharpTest.RDM
                 ParameterData = new byte[] {0x00, 0x42}
             };
 
-            Assert.AreEqual(0x5CE, m.Checksum);
+            Assert.That(m.Checksum, Is.EqualTo(0x5CE));
         }
 
         [Test]
@@ -83,7 +83,7 @@ namespace RDMSharpTest.RDM
                 ParameterData = Enumerable.Range(0, 200).Select(c => (byte)0xFE).ToArray()
             };
 
-            Assert.AreEqual(0xCF34, m.Checksum);
+            Assert.That(m.Checksum, Is.EqualTo(0xCF34));
         }
 
         [Test]
@@ -106,44 +106,43 @@ namespace RDMSharpTest.RDM
                 0x22, 0x33, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x02, 0x00, 0x04, 0x79
             };
 
-            Assert.IsTrue(erg.SequenceEqual(expected));
+            Assert.That(erg.SequenceEqual(expected), Is.True);
         }
 
         [Test]
         public void RDMUID_ToString()
         {
-            Assert.AreEqual("FFFF:ABCDEF98", new RDMUID(0xFFFF, 0xABCDEF98).ToString());
-            Assert.AreEqual("A053:00335612", new RDMUID(0xA053, 0x00335612).ToString());
-            Assert.AreEqual("0000:12345678", new RDMUID(0x0000, 0x12345678).ToString());
-            Assert.AreEqual("0001:00000002", new RDMUID(1, 2).ToString());
-            Assert.AreEqual("0000:00000000", new RDMUID(0, 0).ToString());
+            Assert.That(new RDMUID(0xFFFF, 0xABCDEF98).ToString(), Is.EqualTo("FFFF:ABCDEF98"));
+            Assert.That(new RDMUID(0xA053, 0x00335612).ToString(), Is.EqualTo("A053:00335612"));
+            Assert.That(new RDMUID(0x0000, 0x12345678).ToString(), Is.EqualTo("0000:12345678"));
+            Assert.That(new RDMUID(1, 2).ToString(), Is.EqualTo("0001:00000002"));
+            Assert.That(new RDMUID(0, 0).ToString(), Is.EqualTo("0000:00000000"));
         }
 
         [Test]
         public void RDMUID_FromULong()
         {
-            Assert.AreEqual(new RDMUID(0xFFFF, 0xABCDEF98), RDMUID.FromULong(0xFFFFABCDEF98));
-            Assert.AreEqual(new RDMUID(0xFF1F, 0xABCD0F98), RDMUID.FromULong(0xFF1FABCD0F98));
+            Assert.That(new RDMUID(0xFFFF, 0xABCDEF98), Is.EqualTo(RDMUID.FromULong(0xFFFFABCDEF98)));
+            Assert.That(new RDMUID(0xFF1F, 0xABCD0F98), Is.EqualTo(RDMUID.FromULong(0xFF1FABCD0F98)));
 
-            Assert.AreEqual(new RDMUID(0, 1), RDMUID.FromULong(0x0001));
+            Assert.That(new RDMUID(0, 1), Is.EqualTo(RDMUID.FromULong(0x0001)));
         }
 
         [Test]
         public void RDMUID_CastToULong()
         {
-            Assert.AreEqual(0xFFFFABCDEF98u, (ulong)new RDMUID(0xFFFF, 0xABCDEF98));
-            Assert.AreEqual(0xFF1FABCD0F98u, (ulong)new RDMUID(0xFF1F, 0xABCD0F98));
+            Assert.That((ulong)new RDMUID(0xFFFF, 0xABCDEF98), Is.EqualTo(0xFFFFABCDEF98u));
+            Assert.That((ulong)new RDMUID(0xFF1F, 0xABCD0F98), Is.EqualTo(0xFF1FABCD0F98u));
 
-            Assert.AreEqual(0x0001u, (ulong)new RDMUID(0, 1));
+            Assert.That((ulong)new RDMUID(0, 1), Is.EqualTo(0x0001u));
         }
 
         [Test]
         public void RDMUID_Equals()
         {
-            Assert.AreEqual(RDMUID.Empty, new RDMUID());
-            Assert.AreEqual(RDMUID.Empty, new RDMUID(0, 0));
-            Assert.AreEqual(RDMUID.Broadcast, new RDMUID(ushort.MaxValue, uint.MaxValue));
-
+            Assert.That(new RDMUID(), Is.EqualTo(RDMUID.Empty));
+            Assert.That(new RDMUID(0, 0), Is.EqualTo(RDMUID.Empty));
+            Assert.That(new RDMUID(ushort.MaxValue, uint.MaxValue), Is.EqualTo(RDMUID.Broadcast));
         }
     }
 }

@@ -26,13 +26,13 @@ namespace RDMSharpTest.RDM
 
             GetEndpointTimingDescriptionResponse resultGetEndpointTimingDescriptionResponse = GetEndpointTimingDescriptionResponse.FromMessage(message);
 
-            Assert.AreEqual(getGetEndpointTimingDescriptionResponse, resultGetEndpointTimingDescriptionResponse);
+            Assert.That(resultGetEndpointTimingDescriptionResponse, Is.EqualTo(getGetEndpointTimingDescriptionResponse));
         }
         [Test]
         public void DescriptionCharLimitTest()
         {
             GetEndpointTimingDescriptionResponse resultGetEndpointTimingDescriptionResponse = new GetEndpointTimingDescriptionResponse(description: "Pseudo Endpoint Timing Description 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
-            Assert.AreEqual(32, resultGetEndpointTimingDescriptionResponse.Description.Length);
+            Assert.That(resultGetEndpointTimingDescriptionResponse.Description.Length, Is.EqualTo(32));
         }
     }
 }

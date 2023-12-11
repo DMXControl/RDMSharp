@@ -25,7 +25,7 @@ namespace RDMSharpTest.RDM
 
             RDMModulationFrequencyDescription resultModulationFrequencyDescription = RDMModulationFrequencyDescription.FromMessage(message);
 
-            Assert.AreEqual(modulationFrequencyDescription, resultModulationFrequencyDescription);
+            Assert.That(modulationFrequencyDescription, Is.EqualTo(resultModulationFrequencyDescription));
 
             modulationFrequencyDescription = new RDMModulationFrequencyDescription(1, uint.MaxValue, "Pseudo ModulationFrequency");
             data = modulationFrequencyDescription.ToPayloadData();
@@ -40,7 +40,7 @@ namespace RDMSharpTest.RDM
 
             resultModulationFrequencyDescription = RDMModulationFrequencyDescription.FromMessage(message);
 
-            Assert.AreEqual(modulationFrequencyDescription, resultModulationFrequencyDescription);
+            Assert.That(modulationFrequencyDescription, Is.EqualTo(resultModulationFrequencyDescription));
         }
         [Test]
         public void ToPayloadAndFromMessageTest()
@@ -58,13 +58,13 @@ namespace RDMSharpTest.RDM
 
             RDMModulationFrequencyDescription resultModulationFrequencyDescription = RDMModulationFrequencyDescription.FromMessage(message);
 
-            Assert.AreEqual(modulationFrequencyDescription, resultModulationFrequencyDescription);
+            Assert.That(modulationFrequencyDescription, Is.EqualTo(resultModulationFrequencyDescription));
         }
         [Test]
         public void DescriptionCharLimitTest()
         {
             RDMModulationFrequencyDescription resultModulationFrequencyDescription = new RDMModulationFrequencyDescription(description: "Pseudo ModulationFrequency 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
-            Assert.AreEqual(32, resultModulationFrequencyDescription.Description.Length);
+            Assert.That(resultModulationFrequencyDescription.Description.Length,Is.EqualTo(32));
         }
     }
 }

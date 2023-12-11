@@ -27,7 +27,7 @@ namespace RDMSharpTest.RDM
 
             RDMCommunicationStatus resultCommunicationStatus = RDMCommunicationStatus.FromMessage(message);
 
-            Assert.AreEqual(communicationStatus, resultCommunicationStatus);
+            Assert.That(resultCommunicationStatus, Is.EqualTo(communicationStatus));
         }
     }
 }

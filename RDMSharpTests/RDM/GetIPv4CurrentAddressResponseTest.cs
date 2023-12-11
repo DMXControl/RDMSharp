@@ -27,7 +27,7 @@ namespace RDMSharpTest.RDM
 
             GetIPv4CurrentAddressResponse resultGetIPv4CurrentAddressResponse = GetIPv4CurrentAddressResponse.FromMessage(message);
 
-            Assert.AreEqual(getIPv4CurrentAddressResponse, resultGetIPv4CurrentAddressResponse);
+            Assert.That(resultGetIPv4CurrentAddressResponse, Is.EqualTo(getIPv4CurrentAddressResponse));
         }
     }
 }

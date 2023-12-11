@@ -28,7 +28,8 @@ namespace RDMSharpTest.RDM
 
             GetSetComponentScope resultSensorValue = GetSetComponentScope.FromMessage(message);
 
-            Assert.AreEqual(sensorValue, resultSensorValue); sensorValue = new GetSetComponentScope(0, "Pseudo Scope String", IPAddress.Parse("2001:db8:0:0:0:0:1428:57ab"), 2347);
+            Assert.That(resultSensorValue, Is.EqualTo(sensorValue));
+            sensorValue = new GetSetComponentScope(0, "Pseudo Scope String", IPAddress.Parse("2001:db8:0:0:0:0:1428:57ab"), 2347);
 
             data = sensorValue.ToPayloadData();
 
@@ -42,13 +43,13 @@ namespace RDMSharpTest.RDM
 
             resultSensorValue = GetSetComponentScope.FromMessage(message);
 
-            Assert.AreEqual(sensorValue, resultSensorValue);
+            Assert.That(resultSensorValue, Is.EqualTo(sensorValue));
         }
         [Test]
         public void DescriptionCharLimitTest()
         {
             GetSetComponentScope resultGetSetComponentScope = new GetSetComponentScope(0, "Pseudo Scope String 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0", IPAddress.Parse("192.168.2.1"), 2347);
-            Assert.AreEqual(62, resultGetSetComponentScope.ScopeString.Length);
+            Assert.That(resultGetSetComponentScope.ScopeString.Length, Is.EqualTo(62));
         }
     }
 }

@@ -26,7 +26,7 @@ namespace RDMSharpTest.RDM
 
             GetSetEndpointToUniverse resultGetSetEndpointToUniverse = GetSetEndpointToUniverse.FromMessage(message);
 
-            Assert.AreEqual(getSetEndpointToUniverse, resultGetSetEndpointToUniverse);
+            Assert.That(resultGetSetEndpointToUniverse, Is.EqualTo(getSetEndpointToUniverse));
         }
     }
 }

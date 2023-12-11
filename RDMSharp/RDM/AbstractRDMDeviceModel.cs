@@ -1,12 +1,9 @@
 ﻿using RDMSharp.ParameterWrapper;
-using RDMSharp.ParameterWrapper.SGM;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.Common;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace RDMSharp
@@ -44,6 +41,7 @@ namespace RDMSharp
                     return;
 
                 this.parameterValues[ERDM_Parameter.DEVICE_INFO] = value;
+                PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(DeviceInfo)));
             }
         }
 
@@ -267,16 +265,21 @@ namespace RDMSharp
 
         public RDMSensorDefinition[] GetSensorDefinitions()
         {
-            if (!this.parameterValues.ContainsKey(ERDM_Parameter.SENSOR_DEFINITION))
-                return new RDMSensorDefinition[0];
-            else
+            try
             {
-                var definitions = this.parameterValues[ERDM_Parameter.SENSOR_DEFINITION] as HashSet<object>;
-                return definitions.Cast<RDMSensorDefinition>().ToArray();
+                if (!this.parameterValues.ContainsKey(ERDM_Parameter.SENSOR_DEFINITION))
+                    return new RDMSensorDefinition[0];
+                else
+                {
+                    var definitions = this.parameterValues[ERDM_Parameter.SENSOR_DEFINITION] as HashSet<object>;
+                    return definitions.Cast<RDMSensorDefinition>().ToArray();
+                }
+            }
+            catch 
+            {
+                
             }
             return new RDMSensorDefinition[0];
         }
-
-
     }
 }

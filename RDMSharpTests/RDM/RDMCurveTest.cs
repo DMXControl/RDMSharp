@@ -25,7 +25,7 @@ namespace RDMSharpTest.RDM
 
             RDMCurve resultCurve = RDMCurve.FromMessage(message);
 
-            Assert.AreEqual(curve, resultCurve);
+            Assert.That(curve, Is.EqualTo(resultCurve));
         }
     }
 }

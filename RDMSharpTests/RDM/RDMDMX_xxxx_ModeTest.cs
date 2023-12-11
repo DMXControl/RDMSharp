@@ -27,7 +27,7 @@ namespace RDMSharpTest.RDM
 
             RDMDMX_xxxx_Mode resultDMXFailMode = RDMDMX_xxxx_Mode.FromMessage(message);
 
-            Assert.AreEqual(dmxFailMode, resultDMXFailMode);
+            Assert.That(resultDMXFailMode, Is.EqualTo(dmxFailMode));
         }
     }
 }

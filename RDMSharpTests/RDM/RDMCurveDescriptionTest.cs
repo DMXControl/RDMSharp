@@ -25,13 +25,13 @@ namespace RDMSharpTest.RDM
 
             RDMCurveDescription resultCurveDescription = RDMCurveDescription.FromMessage(message);
 
-            Assert.AreEqual(curveDescription, resultCurveDescription);
+            Assert.That(curveDescription, Is.EqualTo(resultCurveDescription));
         }
         [Test]
         public void DescriptionCharLimitTest()
         {
             RDMCurveDescription resultCurveDescription = new RDMCurveDescription(description: "Pseudo Curve 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
-            Assert.AreEqual(32, resultCurveDescription.Description.Length);
+            Assert.That(resultCurveDescription.Description.Length, Is.EqualTo(32));
         }
     }
 }

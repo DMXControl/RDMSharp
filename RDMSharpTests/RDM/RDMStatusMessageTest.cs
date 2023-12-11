@@ -19,7 +19,7 @@ namespace RDMSharpTest.RDM
 
             RDMStatusMessage resultStatusMessage = RDMStatusMessage.FromPayloadData(data);
 
-            Assert.AreEqual(statusMessage, resultStatusMessage);
+            Assert.That(resultStatusMessage, Is.EqualTo(statusMessage));
         }
     }
 }

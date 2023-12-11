@@ -25,13 +25,13 @@ namespace RDMSharpTest.RDM
 
             RDMOutputResponseTimeDescription resultOutputResponseTimeDescription = RDMOutputResponseTimeDescription.FromMessage(message);
 
-            Assert.AreEqual(outputResponseTimeDescription, resultOutputResponseTimeDescription);
+            Assert.That(outputResponseTimeDescription, Is.EqualTo(resultOutputResponseTimeDescription));
         }
         [Test]
         public void DescriptionCharLimitTest()
         {
             RDMCurveDescription resultOutputResponseTimeDescription = new RDMCurveDescription(description: "Pseudo OutputResponseTime 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
-            Assert.AreEqual(32, resultOutputResponseTimeDescription.Description.Length);
+            Assert.That(resultOutputResponseTimeDescription.Description.Length, Is.EqualTo(32));
         }
     }
 }
