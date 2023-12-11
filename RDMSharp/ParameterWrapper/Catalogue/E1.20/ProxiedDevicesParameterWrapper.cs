@@ -7,7 +7,7 @@
         {
         }
         public override string Name => "Proxied Devices";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to retrieve the UIDs from a device identified as a proxy during discovery. " +
             "The response to this parameter contains a packed list of 48 - bit UIDs for all devices represented " +
             "by the proxy.";

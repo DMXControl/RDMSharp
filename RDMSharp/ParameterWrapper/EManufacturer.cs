@@ -5,7 +5,7 @@ namespace RDMSharp.ParameterWrapper
     public enum EManufacturer : ushort
     {
         [Description("DMXControl-Projects e.V.")]
-        DMXControlProjects_eV  = 0x02b0,
+        DMXControlProjects_eV = 0x02b0,
         [Description("SGM Technology For Lighting SPA")]
         SGM_Technology_For_Lighting_SPA = 5347,
         [Description("Wireless Solution Sweden AB")]

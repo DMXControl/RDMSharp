@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Endpoint Responder List Change";
-        public override string Description => 
+        public override string Description =>
             "This parameter returns a unique List Change Number as a means for Controllers to identify if the " +
             "Endpoint Responder List has changed.";
 

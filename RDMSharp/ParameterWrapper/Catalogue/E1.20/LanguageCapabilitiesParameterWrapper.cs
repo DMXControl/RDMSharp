@@ -9,12 +9,12 @@ namespace RDMSharp.ParameterWrapper
         {
         }
         public override string Name => "Language Capabilities";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to identify languages that the device supports for using the Language" +
             "parameter. The response contains a packed message of 2 character Language Codes as defined" +
             "by ISO 639 - 1. International Standard ISO 639 - 1, Code for the representation of names of" +
             "languages - Part 1: Alpha 2 code.";
-        
+
         protected override string[] getResponseParameterDataToValue(byte[] parameterData)
         {
             List<string> languages = new List<string>();

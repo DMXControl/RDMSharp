@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "IPv4 Static Address";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to statically configure the IPv4 address and network mask on an " +
             "interface. Changes to the IPv4 Static Address will not take effect until the " +
             "Interface Apply Configuration message is received by the interface.";

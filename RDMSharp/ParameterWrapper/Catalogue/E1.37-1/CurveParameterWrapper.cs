@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Curve";
-        public override string Description => 
+        public override string Description =>
             "Sometimes called dimmer laws, curves set a relationship between the control level and the output level. " +
             "This is useful when matching different loads, or when matching different dimmer types. " +
             "On more advanced dimmers, it may be possible to program user-defined curves. " +

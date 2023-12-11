@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Lock PIN";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to get and set the PIN code for devices that support locking. The lock state is set using the Lock State message.\r\n\r\n" +
             "The PIN format depends on the capabilities of the device.";
 

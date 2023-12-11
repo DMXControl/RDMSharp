@@ -11,7 +11,7 @@ namespace RDMSharp
         {
             if (ReferenceEquals(obj, null)) return false;
 
-            return obj is IRDMPayloadObject o 
+            return obj is IRDMPayloadObject o
                 && o.GetType() == this.GetType()
                 && o.ToPayloadData().SequenceEqual(ToPayloadData());
         }

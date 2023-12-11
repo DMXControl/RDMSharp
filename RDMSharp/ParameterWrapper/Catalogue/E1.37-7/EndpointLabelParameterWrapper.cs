@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Endpoint Label";
-        public override string Description => 
+        public override string Description =>
             "This parameter provides a means of setting a descriptive label for each Endpoint on a device. " +
             "This may be used to specify the purpose of that Endpoint or the origination source for the data.";
 

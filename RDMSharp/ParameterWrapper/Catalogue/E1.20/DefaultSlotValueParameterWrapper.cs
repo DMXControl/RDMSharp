@@ -9,7 +9,7 @@ namespace RDMSharp.ParameterWrapper
         {
         }
         public override string Name => "Default Slot Value";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used for requesting the default values for the given DMX512 slot offsets " +
             "for a device. The response is a packed message containing both the slot offsets and their default " +
             "value.";

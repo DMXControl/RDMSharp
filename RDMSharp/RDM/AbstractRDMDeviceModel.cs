@@ -48,7 +48,7 @@ namespace RDMSharp
         private ConcurrentDictionary<ERDM_Parameter, bool> supportedParameters = new ConcurrentDictionary<ERDM_Parameter, bool>();
         public IReadOnlyCollection<ERDM_Parameter> SupportedParameters
         {
-            get { return this.supportedParameters.Where(sp=>sp.Value).Select(sp=>sp.Key).Where(p => ((ushort)p > 0x000F)).ToArray().AsReadOnly(); }
+            get { return this.supportedParameters.Where(sp => sp.Value).Select(sp => sp.Key).Where(p => ((ushort)p > 0x000F)).ToArray().AsReadOnly(); }
         }
         public IReadOnlyCollection<ERDM_Parameter> SupportedBlueprintParameters
         {
@@ -61,7 +61,7 @@ namespace RDMSharp
 
         public IReadOnlyCollection<ERDM_Parameter> KnownNotSupportedParameters
         {
-            get { return this.supportedParameters.Where(sp => !sp.Value).Select(sp=>sp.Key).ToArray().AsReadOnly(); }
+            get { return this.supportedParameters.Where(sp => !sp.Value).Select(sp => sp.Key).ToArray().AsReadOnly(); }
         }
 
 
@@ -173,24 +173,24 @@ namespace RDMSharp
                     break;
 
                 case IRDMBlueprintDescriptionListParameterWrapper blueprintDL:
-                        HashSet<object> list = null;
-                        if (parameterValues.ContainsKey(rdmMessage.Parameter))
-                            list = parameterValues[rdmMessage.Parameter] as HashSet<object>;
+                    HashSet<object> list = null;
+                    if (parameterValues.ContainsKey(rdmMessage.Parameter))
+                        list = parameterValues[rdmMessage.Parameter] as HashSet<object>;
 
-                        if (list == null)
-                            parameterValues[rdmMessage.Parameter] = list = new HashSet<object>();
+                    if (list == null)
+                        parameterValues[rdmMessage.Parameter] = list = new HashSet<object>();
 
-                        if (list == null)
-                            return;
+                    if (list == null)
+                        return;
 
-                        if (rdmMessage.Value == null)
-                            return;
+                    if (rdmMessage.Value == null)
+                        return;
 
-                        list.Add(rdmMessage.Value);
+                    list.Add(rdmMessage.Value);
 
                     break;
                 case IRDMBlueprintParameterWrapper blueprint:
-                        parameterValues[rdmMessage.Parameter] = rdmMessage.Value;
+                    parameterValues[rdmMessage.Parameter] = rdmMessage.Value;
                     break;
                 default:
                     if (rdmMessage.Value is IRDMPayloadObjectOneOf oneOf)
@@ -245,7 +245,7 @@ namespace RDMSharp
                 return false;
             }
             return true;
-        } 
+        }
 
         internal void AddParameterToKnownNotSupportedParameters(ERDM_Parameter parameter)
         {
@@ -275,9 +275,9 @@ namespace RDMSharp
                     return definitions.Cast<RDMSensorDefinition>().ToArray();
                 }
             }
-            catch 
+            catch
             {
-                
+
             }
             return new RDMSensorDefinition[0];
         }

@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Device Power Cycles";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to retrieve or set the number of Power-up cycles for the device. Some " +
             "devices may only support the retrieval of this parameter and not allow the device’s " +
             "power - up cycles to be set.";

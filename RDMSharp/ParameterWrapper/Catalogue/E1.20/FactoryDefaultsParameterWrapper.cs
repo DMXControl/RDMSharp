@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Factory Defaults";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to instruct a device to revert to its Factory Default user settings or " +
             "configuration as determined by the Manufacturer.";
 

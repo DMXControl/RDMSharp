@@ -45,6 +45,6 @@
         FIXTURE_SPEED = 0x0503,
         MACRO = 0x0504,
 
-        SD_UNDEFINED=0xFFFF
+        SD_UNDEFINED = 0xFFFF
     }
 }

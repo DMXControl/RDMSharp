@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Component Scope";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to read and modify the Scopes and static Broker configurations of a Component.\r\n\r\n" +
             "Each Component that supports this parameter maintain a Scope List, numbered " +
             "sequentially, starting with one (0x0001). Devices and Brokers only support a single Scope and, " +

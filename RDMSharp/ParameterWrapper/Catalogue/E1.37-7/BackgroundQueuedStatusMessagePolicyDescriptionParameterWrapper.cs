@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Background Queued/Status Message Policy Description";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to get a descriptive ASCII text label for a given Background Collection " +
             "Policy Number. The label may be up to 32 characters.";
         public ERDM_Parameter ValueParameterID => ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY;
@@ -16,7 +16,7 @@
 
         protected override ushort getRequestParameterDataToValue(byte[] parameterData)
         {
-           return Tools.DataToUShort(ref parameterData);
+            return Tools.DataToUShort(ref parameterData);
         }
 
         protected override byte[] getRequestValueToParameterData(ushort endpointId)

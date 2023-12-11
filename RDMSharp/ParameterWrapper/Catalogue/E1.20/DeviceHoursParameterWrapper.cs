@@ -6,11 +6,11 @@
         {
         }
         public override string Name => "Device Hours";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to retrieve or set the number of hours of operation the device has been in " +
             "use. Some devices may only support the retrieval of this parameter and not allow the " +
             "device’s hours to be set.";
-            
+
         protected override uint getResponseParameterDataToValue(byte[] parameterData)
         {
             return Tools.DataToUInt(ref parameterData);

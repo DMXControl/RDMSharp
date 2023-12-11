@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Preset Merge Mode";
-        public override string Description => 
+        public override string Description =>
             "Normally a preset started with the PRESET_PLAYBACK message has priority over a DMX512 input signal. " +
             "On some devices this may not be the desired effect, and other merge modes may be offered.\r\n\r\n" +
             "This parameter is used to retrieve or change the preset merge mode.";

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace RDMSharp
 {
@@ -80,7 +78,7 @@ namespace RDMSharp
             else
                 data.AddRange(Tools.ValueToData(uint.MaxValue));
 
-            data.AddRange(Tools.ValueToData(this.Description,32));
+            data.AddRange(Tools.ValueToData(this.Description, 32));
             return data.ToArray();
         }
     }

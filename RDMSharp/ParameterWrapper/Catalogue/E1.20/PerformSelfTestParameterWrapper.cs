@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Perform Self Test";
-        public override string Description => 
+        public override string Description =>
             "This message is used to execute any built in Self-Test routine that may " +
             "be present. The test may run continuously until receiving a message with a " +
             "SELF_TEST_OFF value, or may exit upon completion.";

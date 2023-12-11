@@ -2,7 +2,7 @@
 {
     public enum EDimMode : byte
     {
-        STANDARD=0,
-        MAX_POWER=1
+        STANDARD = 0,
+        MAX_POWER = 1
     }
 }

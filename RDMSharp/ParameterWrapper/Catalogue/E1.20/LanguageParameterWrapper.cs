@@ -8,7 +8,7 @@ namespace RDMSharp.ParameterWrapper
         {
         }
         public override string Name => "Language";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to change the language of the messages from the device. Supported " +
             "languages of the device can be determined by the Language Capabilities.";
 

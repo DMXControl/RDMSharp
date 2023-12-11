@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Power-On Self Test";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to get or set the Power-On Self Test mode parameter. " +
             "This allows devices to enable or disable a power-on self test mode that executes automatically on power up.";
         protected override bool getResponseParameterDataToValue(byte[] parameterData)

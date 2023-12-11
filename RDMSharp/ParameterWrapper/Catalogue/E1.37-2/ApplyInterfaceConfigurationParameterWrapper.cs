@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Apply Interface Configuration";
-        public override string Description => 
+        public override string Description =>
             "This parameter applies the stored configuration to an interface. The configuration of an interface " +
             "shall include, but is not limited to, the settings in IPV4 Static Address, " +
             "IPV4 DHCP Mode(if supported) and IPV4 Zeroconf Mode(if supported).";

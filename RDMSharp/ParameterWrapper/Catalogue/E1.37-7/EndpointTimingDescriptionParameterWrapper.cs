@@ -8,7 +8,7 @@ namespace RDMSharp.ParameterWrapper
         {
         }
         public override string Name => "Endpoint Timing Description";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to get a descriptive ASCII text label for a given Endpoint timing setting. " +
             "The label may be up to 32 ASCII characters.";
         public ERDM_Parameter ValueParameterID => ERDM_Parameter.ENDPOINT_TIMING;

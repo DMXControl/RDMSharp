@@ -6,8 +6,8 @@
         {
         }
         public override string Name => "DMX512 Fail Mode";
-        public override string Description => 
-            "This parameter defines the behavior of the device when the DMX512 control signal is lost.\r\n\r\n" + 
+        public override string Description =>
+            "This parameter defines the behavior of the device when the DMX512 control signal is lost.\r\n\r\n" +
             "A scene that is triggered by a DMX512 Loss of Signal condition usually ignores the Wait Time stored " +
             "using the CAPTURE_PRESET PID and instead use the Hold Time included with this PID.";
 

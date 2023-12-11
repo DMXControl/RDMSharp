@@ -6,10 +6,10 @@
         {
         }
         public override string Name => "Device Label";
-        public override string Description => 
+        public override string Description =>
             "This parameter provides a means of setting a descriptive label for each device. This may be used" +
             "for identifying a dimmer rack number or specifying the device’s location.";
-        
+
         protected override string getResponseParameterDataToValue(byte[] parameterData)
         {
             return Tools.DataToString(ref parameterData);

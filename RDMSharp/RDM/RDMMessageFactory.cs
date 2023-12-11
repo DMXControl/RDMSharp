@@ -26,7 +26,7 @@ namespace RDMSharp
             return m;
         }
 
-        public static RDMMessage BuildDiscUniqueBranch(in RDMUID startUid,in RDMUID endUid)
+        public static RDMMessage BuildDiscUniqueBranch(in RDMUID startUid, in RDMUID endUid)
         {
             var m = new RDMMessage()
             {
@@ -44,17 +44,20 @@ namespace RDMSharp
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public static RDMMessage BuildResponse(in byte[] data) {
+        public static RDMMessage BuildResponse(in byte[] data)
+        {
             if (data == null || data.Length < 26) return null;
 
             //Check startcode and sub-startcode
-            if (data[0] != 0xCC || data[1] != 0x01) {
+            if (data[0] != 0xCC || data[1] != 0x01)
+            {
                 return null;
             }
 
             byte length = data[2];
 
-            if (data.Length < length + 2) {
+            if (data.Length < length + 2)
+            {
                 return null;
             }
 
@@ -72,7 +75,8 @@ namespace RDMSharp
 
             byte paramLength = data[23];
 
-            var m = new RDMMessage() {
+            var m = new RDMMessage()
+            {
                 SourceUID = new RDMUID(manIdSource, devIdSource),
                 DestUID = new RDMUID(manIdDest, devIdDest),
                 TransactionCounter = data[15],
@@ -104,7 +108,7 @@ namespace RDMSharp
                 return null;
 
             //Calc Checksum
-            ushort cs = (ushort)  (((data[dataIndex + 13] & data[dataIndex + 14]) << 8) |
+            ushort cs = (ushort)(((data[dataIndex + 13] & data[dataIndex + 14]) << 8) |
                                     (data[dataIndex + 15] & data[dataIndex + 16]));
 
             ushort cs2 = (ushort)data.Skip(dataIndex + 1).Take(12).Sum(c => (int)c);
@@ -115,7 +119,7 @@ namespace RDMSharp
             ushort manId = (ushort)(((data[dataIndex + 1] & data[dataIndex + 2]) << 8) |
                                      (data[dataIndex + 3] & data[dataIndex + 4]));
 
-            uint devId =     (uint)(((data[dataIndex + 5] & data[dataIndex + 6]) << 24) |
+            uint devId = (uint)(((data[dataIndex + 5] & data[dataIndex + 6]) << 24) |
                                     ((data[dataIndex + 7] & data[dataIndex + 8]) << 16) |
                                     ((data[dataIndex + 9] & data[dataIndex + 10]) << 8) |
                                      (data[dataIndex + 11] & data[dataIndex + 12]));

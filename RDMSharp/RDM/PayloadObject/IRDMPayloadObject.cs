@@ -7,13 +7,13 @@ namespace RDMSharp
     {
         byte[] ToPayloadData();
     }
-    public interface IRDMPayloadObjectOneOf: IRDMPayloadObjectIndex
+    public interface IRDMPayloadObjectOneOf : IRDMPayloadObjectIndex
     {
         Type IndexType { get; }
         object Count { get; }
         ERDM_Parameter DescriptorParameter { get; }
     }
-    public interface IRDMPayloadObjectIndex: IRDMPayloadObject
+    public interface IRDMPayloadObjectIndex : IRDMPayloadObject
     {
         object MinIndex { get; }
         object Index { get; }
@@ -30,7 +30,7 @@ namespace RDMSharp
             this.End = end;
         }
 
-        public  IEnumerable<T> ToEnumerator()
+        public IEnumerable<T> ToEnumerator()
         {
             ulong start = Convert.ToUInt64(this.Start);
             ulong end = Convert.ToUInt64(this.End);

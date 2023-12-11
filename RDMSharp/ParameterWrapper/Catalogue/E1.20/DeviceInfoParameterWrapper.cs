@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Device Info";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to retrieve a variety of information about the device that is normally " +
             "required by a controller.";
 

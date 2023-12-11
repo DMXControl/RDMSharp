@@ -8,7 +8,7 @@ namespace RDMSharp.ParameterWrapper
         {
         }
         public override string Name => "TCP Communication Status";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to collect information that may be useful in analyzing the performance and " +
             "system behavior for the active TCP communication channels.";
 

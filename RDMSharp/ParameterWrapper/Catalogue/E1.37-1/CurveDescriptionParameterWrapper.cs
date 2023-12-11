@@ -8,7 +8,7 @@ namespace RDMSharp.ParameterWrapper
         {
         }
         public override string Name => "Curve Description";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to get a descriptive ASCII text label for a given Curve number. " +
             "The label may be up to 32 characters.";
 

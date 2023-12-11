@@ -61,7 +61,7 @@ namespace RDMSharp
         public static TCPCommsEntry FromPayloadData(byte[] data)
         {
             if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
-            var scopeString = Tools.DataToString(ref data, 63).Replace("\u0000","");
+            var scopeString = Tools.DataToString(ref data, 63).Replace("\u0000", "");
             byte[] ipv4Bytes = data.Take(4).ToArray();
             byte[] ipv6Bytes = data.Skip(4).Take(16).ToArray();
             data = data.Skip(20).ToArray();
@@ -87,7 +87,7 @@ namespace RDMSharp
             return i;
         }
         public override byte[] ToPayloadData()
-        { 
+        {
             List<byte> scopeStringBytes = new List<byte>();
             scopeStringBytes.AddRange(Tools.ValueToData(this.ScopeString, 62));
             while (scopeStringBytes.Count < 63)

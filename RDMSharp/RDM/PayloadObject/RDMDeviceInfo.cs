@@ -116,20 +116,20 @@ namespace RDMSharp
 
         public RDMDeviceInfo ToTemplate()
         {
-            return new RDMDeviceInfo() 
+            return new RDMDeviceInfo()
             {
-                RdmProtocolVersionMajor=this.RdmProtocolVersionMajor,
-                RdmProtocolVersionMinor=this.RdmProtocolVersionMinor,
-                DeviceModelId=this.DeviceModelId,
-                ProductCategoryCoarse=this.ProductCategoryCoarse,
-                ProductCategoryFine=this.ProductCategoryFine,
-                SoftwareVersionId=this.SoftwareVersionId,
-                Dmx512NumberOfPersonalities=this.Dmx512NumberOfPersonalities,
-                SubDeviceCount=this.SubDeviceCount,
+                RdmProtocolVersionMajor = this.RdmProtocolVersionMajor,
+                RdmProtocolVersionMinor = this.RdmProtocolVersionMinor,
+                DeviceModelId = this.DeviceModelId,
+                ProductCategoryCoarse = this.ProductCategoryCoarse,
+                ProductCategoryFine = this.ProductCategoryFine,
+                SoftwareVersionId = this.SoftwareVersionId,
+                Dmx512NumberOfPersonalities = this.Dmx512NumberOfPersonalities,
+                SubDeviceCount = this.SubDeviceCount,
                 SensorCount = this.SensorCount,
-                Dmx512CurrentPersonality=null,
+                Dmx512CurrentPersonality = null,
                 Dmx512Footprint = null,
-                Dmx512StartAddress =null
+                Dmx512StartAddress = null
             };
         }
     }

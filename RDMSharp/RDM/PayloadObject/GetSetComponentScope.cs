@@ -50,10 +50,10 @@ namespace RDMSharp
             ushort scopeSlot = default,
             string scopeString = default,
             IPAddress staticBroker = default,
-            ushort staticBrokerPort = default):this(
+            ushort staticBrokerPort = default) : this(
                 scopeSlot: scopeSlot,
                 scopeString: scopeString,
-                staticConfigType:getStaticConfig(staticBroker),
+                staticConfigType: getStaticConfig(staticBroker),
                 staticBrokerIPv4: staticBroker?.AddressFamily == AddressFamily.InterNetwork ? staticBroker : null,
                 staticBrokerIPv6: staticBroker?.AddressFamily == AddressFamily.InterNetworkV6 ? staticBroker : null,
                 staticBrokerPort: staticBrokerPort)
@@ -108,7 +108,7 @@ namespace RDMSharp
         {
             if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
             var scopeSlot = Tools.DataToUShort(ref data);
-            var scopeString = Tools.DataToString(ref data, 63).Replace("\u0000","");
+            var scopeString = Tools.DataToString(ref data, 63).Replace("\u0000", "");
             var staticConfigType = Tools.DataToEnum<ERDM_StaticConfig>(ref data);
             IPAddress staticBrokerIPv4 = null;
             IPAddress staticBrokerIPv6 = null;
@@ -143,7 +143,7 @@ namespace RDMSharp
             return i;
         }
         public override byte[] ToPayloadData()
-        { 
+        {
             List<byte> scopeStringBytes = new List<byte>();
             scopeStringBytes.AddRange(Tools.ValueToData(this.ScopeString, 62));
             while (scopeStringBytes.Count < 63)

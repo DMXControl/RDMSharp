@@ -59,7 +59,7 @@ namespace RDMSharp
         {
             List<byte> data = new List<byte>();
             data.AddRange(Tools.ValueToData(this.SlotId));
-            data.AddRange(Tools.ValueToData(this.Description,32));
+            data.AddRange(Tools.ValueToData(this.Description, 32));
             return data.ToArray();
         }
     }

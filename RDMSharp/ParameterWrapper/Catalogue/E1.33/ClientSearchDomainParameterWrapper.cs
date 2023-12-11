@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Client Search Domain";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to read and modify the DNS search domain name configuration used by " +
             "Clients when locating a Broker.";
 

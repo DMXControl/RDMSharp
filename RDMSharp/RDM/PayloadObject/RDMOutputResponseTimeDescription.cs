@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace RDMSharp
 {
@@ -65,7 +63,7 @@ namespace RDMSharp
         {
             List<byte> data = new List<byte>();
             data.AddRange(Tools.ValueToData(this.OutputResponseTimeId));
-            data.AddRange(Tools.ValueToData(this.Description,32));
+            data.AddRange(Tools.ValueToData(this.Description, 32));
             return data.ToArray();
         }
     }

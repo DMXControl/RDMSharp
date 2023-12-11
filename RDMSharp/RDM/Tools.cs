@@ -22,7 +22,7 @@ namespace RDMSharp
             return hash;
         }
 
-        public static double GetNormalizedValue(in ERDM_UnitPrefix prefix,in int value)
+        public static double GetNormalizedValue(in ERDM_UnitPrefix prefix, in int value)
         {
             switch (prefix)
             {
@@ -53,7 +53,7 @@ namespace RDMSharp
                     return value;
             }
         }
-        
+
         public static string GetUnitSymbol(in ERDM_SensorUnit unit)
         {
             switch (unit)
@@ -75,7 +75,7 @@ namespace RDMSharp
                 case ERDM_SensorUnit.METERS_SQUARED: return "m²";
                 case ERDM_SensorUnit.LUMEN: return "lm";
                 case ERDM_SensorUnit.CANDELA: return "cd";
-                
+
                 case ERDM_SensorUnit.OHM: return "Ω";
                 case ERDM_SensorUnit.METERS_CUBED: return "m³";
                 case ERDM_SensorUnit.KILOGRAMMES_PER_METER_CUBED: return "kg/m³";
@@ -97,7 +97,7 @@ namespace RDMSharp
             }
         }
 
-        public static string GetStatusMessage(in ERDM_StatusMessage status,in ushort dataValue1 = 0,in ushort dataValue2 = 0)
+        public static string GetStatusMessage(in ERDM_StatusMessage status, in ushort dataValue1 = 0, in ushort dataValue2 = 0)
         {
             switch (status)
             {
@@ -166,9 +166,9 @@ namespace RDMSharp
 
         public static byte[] ValueToData(params bool[] bits)
         {
-            return ValueToData(bits, trim:0);
+            return ValueToData(bits, trim: 0);
         }
-        public static byte[] ValueToData(object value, int trim=32)
+        public static byte[] ValueToData(object value, int trim = 32)
         {
             if (value == null)
                 return new byte[0];
@@ -221,7 +221,7 @@ namespace RDMSharp
                 case bool[] @boolArray:
                     int byteCount = (int)Math.Ceiling(@boolArray.Length / 8.0);
                     byte[] _resArray = new byte[byteCount];
-                    for(int bitIndex = 0; bitIndex < @boolArray.Length; bitIndex++)
+                    for (int bitIndex = 0; bitIndex < @boolArray.Length; bitIndex++)
                     {
                         int byteIndex = bitIndex / 8;
                         int bitInByteIndex = bitIndex % 8;
@@ -250,7 +250,7 @@ namespace RDMSharp
 
                         return ipAddress.GetAddressBytes(); //In case the Bytes are in reverse order use .Reverse().ToArray();
                     }
-                    else if(@ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
+                    else if (@ipAddress.AddressFamily == AddressFamily.InterNetworkV6)
                     {
                         return @ipAddress.GetAddressBytes();
                     }
@@ -383,7 +383,7 @@ namespace RDMSharp
             const int length = 6;
             if (data.Length < length)
                 throw new IndexOutOfRangeException();
-            
+
             return new RDMUID(DataToUShort(ref data), DataToUInt(ref data)); ;
         }
 

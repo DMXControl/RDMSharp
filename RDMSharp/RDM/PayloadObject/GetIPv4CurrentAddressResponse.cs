@@ -50,7 +50,7 @@ namespace RDMSharp
                 interfaceId: Tools.DataToUInt(ref data),
                 ipAddress: Tools.DataToIPAddressIPv4(ref data),
                 netmask: Tools.DataToByte(ref data),
-                dhcpStatus: Tools.DataToEnum<ERDM_DHCPStatusMode>(ref data));            
+                dhcpStatus: Tools.DataToEnum<ERDM_DHCPStatusMode>(ref data));
 
             if (data.Length != 0)
                 throw new Exception("After deserialization data should be empty!");

@@ -9,7 +9,7 @@ namespace RDMSharp.ParameterWrapper
         {
         }
         public override string Name => "Slot Info";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to retrieve basic information about the functionality of the DMX512 slots " +
             "used to control the device. The response is a packed list of Slot Label ID’s referencing into the " +
             "Slot Labels table.";

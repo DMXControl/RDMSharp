@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace RDMSharp
@@ -92,7 +91,7 @@ namespace RDMSharp
         {
             if (data.Length < PDL_MIN) throw new Exception($"PDL {data.Length} < {PDL_MIN}");
             if (data.Length > PDL_MAX) throw new Exception($"PDL {data.Length} > {PDL_MAX}");
-            
+
             var sensorId = Tools.DataToByte(ref data);
             var type = Tools.DataToEnum<ERDM_SensorType>(ref data);
             var unit = Tools.DataToEnum<ERDM_SensorUnit>(ref data);

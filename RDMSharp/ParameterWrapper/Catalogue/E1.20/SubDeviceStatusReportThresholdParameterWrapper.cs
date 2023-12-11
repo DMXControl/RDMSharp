@@ -8,7 +8,7 @@
         {
         }
         public override string Name => "Sub-Device Status Reporting Threshold";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to set the verbosity of Sub-Device reporting using the Status Type codes. " +
             "This feature is used to inhibit reports from, for example, a specific dimmer in a rack that is generating repeated errors.";
 

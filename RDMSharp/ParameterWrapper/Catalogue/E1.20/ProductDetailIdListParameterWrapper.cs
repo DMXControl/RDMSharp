@@ -8,7 +8,7 @@ namespace RDMSharp.ParameterWrapper
         {
         }
         public override string Name => "Product Detail ID List";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used for requesting technology details for a device. The response is a " +
             "packed message containing up to six product detail identifications.";
 

@@ -13,7 +13,7 @@ namespace RDMSharp
         {
             this.InterfaceId = interfaceId;
             this.IPAddress = ipAddress;
-            if(netmask > 32)
+            if (netmask > 32)
                 throw new Exception($"The valid range of {nameof(netmask)} is from 0 to 32");
 
             this.Netmask = netmask;
@@ -46,7 +46,7 @@ namespace RDMSharp
             var i = new GetSetIPv4StaticAddress(
                 interfaceId: Tools.DataToUInt(ref data),
                 ipAddress: Tools.DataToIPAddressIPv4(ref data),
-                netmask: Tools.DataToByte(ref data));            
+                netmask: Tools.DataToByte(ref data));
 
             if (data.Length != 0)
                 throw new Exception("After deserialization data should be empty!");

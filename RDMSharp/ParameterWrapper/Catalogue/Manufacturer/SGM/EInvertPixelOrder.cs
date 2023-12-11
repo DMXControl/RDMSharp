@@ -2,7 +2,7 @@
 {
     public enum EInvertPixelOrder : byte
     {
-        STANDARD=0,
-        INVERT=1
+        STANDARD = 0,
+        INVERT = 1
     }
 }

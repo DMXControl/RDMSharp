@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "DHCP";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to retrieve or change the Dynamic Host Configuration Protocol " +
             "[DHCPv4] mode for an interface. Changes to the DHCP mode will not take effect until the " +
             "Interface Apply Configuration message is received by the interface.";

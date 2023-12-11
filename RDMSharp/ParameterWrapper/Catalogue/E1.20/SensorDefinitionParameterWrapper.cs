@@ -8,7 +8,7 @@ namespace RDMSharp.ParameterWrapper
         {
         }
         public override string Name => "Sensor Definition";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to retrieve the definition of a specific sensor. When this parameter is " +
             "directed to a Sub - Device, the reply is identical for any given sensor number in all Sub - " +
             "Devices owned by a specific Root Device.";

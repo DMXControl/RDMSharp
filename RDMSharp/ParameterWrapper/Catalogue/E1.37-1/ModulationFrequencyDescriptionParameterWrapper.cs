@@ -8,7 +8,7 @@ namespace RDMSharp.ParameterWrapper
         {
         }
         public override string Name => "Modulation Frequency Description";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to get a descriptive ASCII text label for a response time setting. " +
             "The label may be up to 32 characters.";
         public ERDM_Parameter ValueParameterID => ERDM_Parameter.MODULATION_FREQUENCY;

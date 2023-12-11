@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Zeroconf Mode";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to retrieve or change the IPv4 Link Local Addressing (Zeroconf) [IPv4LL] " +
             "mode on an interface. Changes to the Zeroconf mode will not take effect until the " +
             "Interface Apply Configuration message is received by the interface.";

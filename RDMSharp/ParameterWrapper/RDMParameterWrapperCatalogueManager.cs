@@ -31,7 +31,7 @@ namespace RDMSharp.ParameterWrapper
                 .SelectMany(s => s.GetTypes())
                 .Where(p => type.IsAssignableFrom(p) && !p.IsAbstract && !p.IsInterface);
             foreach (Type t in types)
-                    this.RegisterParameterWrapper(t);
+                this.RegisterParameterWrapper(t);
         }
         public IRDMParameterWrapper GetRDMParameterWrapperByID(ERDM_Parameter parameter, EManufacturer? manufacturer = null, ushort? deviceModelId = null)
         {
@@ -42,7 +42,7 @@ namespace RDMSharp.ParameterWrapper
             {
                 var wrappers = parameterWrappers.OfType<IRDMManufacturerParameterWrapper>().Where(pw => pw.Manufacturer == manufacturer && pw.Parameter == parameter);
                 if (deviceModelId.HasValue)
-                    return wrappers.OfType<IRDMDeviceModelIdParameterWrapper>().SingleOrDefault(pw=>pw.DeviceModelIds.Contains(deviceModelId.Value));
+                    return wrappers.OfType<IRDMDeviceModelIdParameterWrapper>().SingleOrDefault(pw => pw.DeviceModelIds.Contains(deviceModelId.Value));
                 else
                     return wrappers.SingleOrDefault();
             }

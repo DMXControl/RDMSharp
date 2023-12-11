@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Binding and Control Fields";
-        public override string Description => 
+        public override string Description =>
             "This parameter allows a Controller to retrieve the Binding UID and Control Field information that " +
             "is sent as part of the Discovery Mute(Disc Mute) message. This allows an RDMnet Device to retrieve these fields that are not " +
             "otherwise available within RDMnet. The Disc Mute message is disallowed within RDMnet.";

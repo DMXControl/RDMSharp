@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Manufacturer Label";
-        public override string Description => 
+        public override string Description =>
             "This parameter provides an ASCII text response with the Manufacturer name for the device of up " +
             "to 32 characters.";
 

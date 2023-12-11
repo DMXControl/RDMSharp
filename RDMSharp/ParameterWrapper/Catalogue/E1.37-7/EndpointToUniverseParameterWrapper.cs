@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Endpoint to Universe";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to assign an Endpoint on a device to a specific sACN DMX512 Universe. " +
             "It may also be used within a Splitter to assign inputs to outputs.";
 

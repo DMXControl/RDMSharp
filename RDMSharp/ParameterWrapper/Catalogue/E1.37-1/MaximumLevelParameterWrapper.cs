@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Maximum Level";
-        public override string Description => 
+        public override string Description =>
             "Maximum Level sets the highest level that the output may go to in response to the control signal - DMX512, Preset Playback or otherwise. " +
             "This can be used to provide Topset functionality.";
 

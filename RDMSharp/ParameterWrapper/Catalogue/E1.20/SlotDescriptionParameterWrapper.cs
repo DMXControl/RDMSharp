@@ -46,7 +46,7 @@ namespace RDMSharp.ParameterWrapper
                 return new RequestRange<ushort>(0, 511);
 
             ushort max = 0;
-            if(value is IEnumerable<object> @enumerable)
+            if (value is IEnumerable<object> @enumerable)
             {
                 var slotInfos = enumerable.OfType<RDMSlotInfo>();
                 var defaultSlotValues = enumerable.OfType<RDMDefaultSlotValue>();

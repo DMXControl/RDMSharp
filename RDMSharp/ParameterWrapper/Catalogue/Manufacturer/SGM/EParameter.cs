@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.ParameterWrapper.SGM
 {
-    public enum EParameter: ushort
+    public enum EParameter : ushort
     {
         SERIAL_NUMBER = 0x8060,
         REFRESH_RATE = 0x8620,

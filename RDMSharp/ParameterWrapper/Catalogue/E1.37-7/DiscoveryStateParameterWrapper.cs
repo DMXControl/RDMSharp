@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Discovery State";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to initiate E1.20 RDM Discovery ([RDM] Section 7) of RDM Responders " +
             "connected to the specified Endpoint or to get the status of the discovery process.";
 

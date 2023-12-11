@@ -9,7 +9,7 @@ namespace RDMSharp.ParameterWrapper
         {
         }
         public override string Name => "Parameter Description";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to retrieve the definition of some manufacturer-specific PIDs. The purpose" +
             "of this parameter is to allow a controller to retrieve enough information about the manufacturer -" +
             "specific PID to generate Get and Set commands.";

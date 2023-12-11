@@ -2,7 +2,7 @@
 {
     public enum EBatteryExtension : byte
     {
-        DISABLED=0,
+        DISABLED = 0,
         _1H = 1,
         _2H = 2,
         _3H = 3,

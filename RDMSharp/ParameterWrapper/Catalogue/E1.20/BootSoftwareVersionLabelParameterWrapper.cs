@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Boot Software Version Label";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to get a descriptive ASCII text label for the Boot Version of the software " +
             "for Devices that support this functionality. The label may be up to 32 characters.";
 

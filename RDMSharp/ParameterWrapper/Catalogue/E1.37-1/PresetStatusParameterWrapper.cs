@@ -8,7 +8,7 @@ namespace RDMSharp.ParameterWrapper
         {
         }
         public override string Name => "Preset Status";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to determine if a preset scene is programmed and to retrieve the timing information stored with that scene (Get). " +
             "It also allows a preset scene to be cleared or to change the timing information stored with that scene (Set).";
 

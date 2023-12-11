@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Minimum Level";
-        public override string Description => 
+        public override string Description =>
             "Minimum Level sets the lowest level that the output may go to in response to the control signal - DMX512, Preset Playback or otherwise. " +
             "By setting the On Below Minimum value, this can be used to provide Preheat functionality for incandescent lamps.";
 

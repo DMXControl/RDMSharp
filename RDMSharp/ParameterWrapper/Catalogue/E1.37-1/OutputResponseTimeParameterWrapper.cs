@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Output Response Time";
-        public override string Description => 
+        public override string Description =>
             "Dimmers often have a variable response time that smoothes fades that might otherwise exhibit a stepping behavior between levels. " +
             "The consequence of smoothing fades using this method is that the dimmer may not turn on or off as quickly as it would without the slowed response. " +
             "Dimmers with variable response times allow the user to achieve a balance between speed and smoothness in fades.";

@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "DMX512 Personality";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to set the responder’s DMX512 Personality. Many devices such as " +
             "moving lights have different DMX512 “Personalities”. Many RDM parameters may be affected by" +
             "changing personality.";

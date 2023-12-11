@@ -10,7 +10,7 @@ namespace RDMSharp.ParameterWrapper
         {
         }
         public override string Name => "Endpoint Timing";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to get and set the timing profile on Endpoints that support selecting " +
             "different timing and refresh profiles.";
 

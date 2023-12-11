@@ -60,7 +60,7 @@ namespace RDMSharp
                     var res = Tools.DataToEnum<ERDM_NackReason>(ref _parameterData);
                     reasons.Add(res);
                 }
-                nackReason= reasons.ToArray();
+                nackReason = reasons.ToArray();
                 return nackReason;
             }
         }
@@ -112,14 +112,18 @@ namespace RDMSharp
             }
         }
 
-        public ERDM_ResponseType ResponseType {
-            get {
+        public ERDM_ResponseType ResponseType
+        {
+            get
+            {
                 return (ERDM_ResponseType)PortID_or_Responsetype;
             }
         }
 
-        public bool IsAck {
-            get {
+        public bool IsAck
+        {
+            get
+            {
                 ERDM_ResponseType resp = ResponseType;
                 return resp == ERDM_ResponseType.ACK || resp == ERDM_ResponseType.ACK_OVERFLOW || resp == ERDM_ResponseType.ACK_TIMER;
             }

@@ -32,7 +32,7 @@ namespace RDMSharp.ParameterWrapper
 
         protected override byte[] setRequestValueToParameterData(string value)
         {
-            if(string.IsNullOrWhiteSpace(value))
+            if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentNullException("value is not Valid");
             if (value.Length > 231)
                 throw new ArgumentException("value is to long (231 chars are allowed)");

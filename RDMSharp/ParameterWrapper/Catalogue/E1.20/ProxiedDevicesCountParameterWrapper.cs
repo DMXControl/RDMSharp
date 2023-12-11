@@ -7,7 +7,7 @@
         {
         }
         public override string Name => "Proxied Devices Count";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to identify the number of devices being represented by a proxy and " +
             "whether the list of represented device UIDs has changed.";
 

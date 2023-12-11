@@ -2,7 +2,7 @@
 {
     public enum EDimmingCurve : byte
     {
-        RAW=0,
-        GAMMA_CORRECTED=1
+        RAW = 0,
+        GAMMA_CORRECTED = 1
     }
 }

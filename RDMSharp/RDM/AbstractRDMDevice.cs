@@ -6,11 +6,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml;
 
 namespace RDMSharp
 {
-    public abstract class AbstractRDMDevice<T_RDMDeviceModel> : IRDMDevice where T_RDMDeviceModel: AbstractRDMDeviceModel
+    public abstract class AbstractRDMDevice<T_RDMDeviceModel> : IRDMDevice where T_RDMDeviceModel : AbstractRDMDeviceModel
     {
         private static ILogger Logger = null;
         private static RDMParameterWrapperCatalogueManager pmManager => RDMParameterWrapperCatalogueManager.GetInstance();
@@ -380,7 +379,7 @@ namespace RDMSharp
 
             try
             {
-                this.pendingSensorValuesUpdateRequest.Add(sensorId);                
+                this.pendingSensorValuesUpdateRequest.Add(sensorId);
                 await processMessage(await requestParameter(sensorValueParameterWrapper.BuildGetRequestMessage(sensorId)));
             }
             catch (Exception e)

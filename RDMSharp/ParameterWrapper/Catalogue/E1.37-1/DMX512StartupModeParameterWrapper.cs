@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "DMX512 Startup Mode";
-        public override string Description => 
+        public override string Description =>
             "This parameter defines the behavior of the device when it starts up and the DMX512 control signal is absent.\r\n" +
             "The DMX512 signal is considered absent when standard DMX packets are not received for a period of greater than 1.25 seconds.";
 

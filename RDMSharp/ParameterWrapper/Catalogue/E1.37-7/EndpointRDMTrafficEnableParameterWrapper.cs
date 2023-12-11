@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Enable RDM Traffic on Endpoint";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to enable or disable the RDM Traffic on a specified Endpoint. This shall " +
             "only affect traffic using the defined RDM Start Code and will not affect the traffic for normal " +
             "DMX packets or any other alternate packet types.";

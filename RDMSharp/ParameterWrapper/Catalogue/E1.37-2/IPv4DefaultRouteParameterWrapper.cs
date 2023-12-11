@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "IPv4 Default Route";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to get and set the default IPv4 route for a device. The default route is a global property of a device. " +
             "If a default route exists, it may point to a gateway or, in the case of a point - to - point link, to an " +
             "interface without a gateway. If a gateway is used, the device may be able to provide the " +

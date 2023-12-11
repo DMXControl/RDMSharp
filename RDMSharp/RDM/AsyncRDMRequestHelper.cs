@@ -7,7 +7,7 @@ namespace RDMSharp
 {
     public class AsyncRDMRequestHelper
     {
-        ConcurrentDictionary<RDMMessage, RDMMessage> buffer= new ConcurrentDictionary<RDMMessage, RDMMessage> ();
+        ConcurrentDictionary<RDMMessage, RDMMessage> buffer = new ConcurrentDictionary<RDMMessage, RDMMessage>();
         Action<RDMMessage> _sendMethode;
         public AsyncRDMRequestHelper(Action<RDMMessage> sendMethode)
         {
@@ -34,7 +34,7 @@ namespace RDMSharp
             _sendMethode.Invoke(requerst);
             do
             {
-                buffer.TryGetValue(requerst, out resopnse );
+                buffer.TryGetValue(requerst, out resopnse);
                 await Task.Delay(10);
             }
             while (resopnse == null);

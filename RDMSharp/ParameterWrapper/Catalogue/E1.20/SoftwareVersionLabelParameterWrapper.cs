@@ -6,7 +6,7 @@
         {
         }
         public override string Name => "Software Version Label";
-        public override string Description => 
+        public override string Description =>
             "This parameter is used to get a descriptive ASCII text label for the device’s operating software " +
             "version. The label may be up to 32 characters.";
 
