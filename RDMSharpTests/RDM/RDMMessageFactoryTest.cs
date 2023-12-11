@@ -1,8 +1,4 @@
-﻿using RDMSharp;
-using NUnit.Framework;
-using System.Linq;
-
-namespace RDMSharpTest.RDM
+﻿namespace RDMSharpTest.RDM
 {
     public class RDMMessageFactoryTest
     {
@@ -57,8 +53,8 @@ namespace RDMSharpTest.RDM
 
             Assert.That(m, Is.Not.Null);
             Assert.That(m.Command, Is.EqualTo(ERDM_Command.DISCOVERY_COMMAND_RESPONSE));
-            Assert.That(m.Parameter,Is.EqualTo(ERDM_Parameter.DISC_UNIQUE_BRANCH));
-            Assert.That(m.SourceUID.ManufacturerID,Is.EqualTo((ushort)0xACBD));
+            Assert.That(m.Parameter, Is.EqualTo(ERDM_Parameter.DISC_UNIQUE_BRANCH));
+            Assert.That(m.SourceUID.ManufacturerID, Is.EqualTo((ushort)0xACBD));
             Assert.That(m.SourceUID.DeviceID, Is.EqualTo(0x12345678u));
         }
 

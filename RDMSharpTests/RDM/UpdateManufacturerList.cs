@@ -1,7 +1,3 @@
-using RDMSharp;
-using NUnit.Framework;
-using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Xml;
 
@@ -34,11 +30,11 @@ namespace RDMSharpTest.RDM
                 website = website.Replace("GmbH", "");
                 website = website.Replace(",", "");
                 XmlReader reader = XmlReader.Create(new StringReader(website), new XmlReaderSettings() { DtdProcessing = DtdProcessing.Parse });
-                Dictionary<string, string> dict= new Dictionary<string, string>();
+                Dictionary<string, string> dict = new Dictionary<string, string>();
                 while (reader.ReadToFollowing("table"))
                 {
                     var id = reader.GetAttribute("id");
-                    if(string.Equals(id, "main_table"))
+                    if (string.Equals(id, "main_table"))
                     {
                         reader.ReadToFollowing("tr");
                         reader.ReadToFollowing("tr");

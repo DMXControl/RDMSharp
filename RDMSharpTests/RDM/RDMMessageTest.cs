@@ -1,6 +1,4 @@
-﻿using RDMSharp;
-
-namespace RDMSharpTest.RDM
+﻿namespace RDMSharpTest.RDM
 {
     public class RDMMessageTest
     {
@@ -34,7 +32,7 @@ namespace RDMSharpTest.RDM
             m.ParameterData = new byte[17];
 
             Assert.That(m.PDL, Is.EqualTo(17));
-            Assert.That(m.MessageLength,Is.EqualTo(24 + 17));
+            Assert.That(m.MessageLength, Is.EqualTo(24 + 17));
         }
 
         [Test]
@@ -48,7 +46,7 @@ namespace RDMSharpTest.RDM
                 PortID_or_Responsetype = 1,
                 Command = ERDM_Command.GET_COMMAND,
                 Parameter = ERDM_Parameter.STATUS_MESSAGES,
-                ParameterData = new byte[] {0x04}
+                ParameterData = new byte[] { 0x04 }
             };
 
             Assert.That(m.Checksum, Is.EqualTo(0x66A));
@@ -64,7 +62,7 @@ namespace RDMSharpTest.RDM
                 PortID_or_Responsetype = 1,
                 Command = ERDM_Command.SET_COMMAND,
                 Parameter = ERDM_Parameter.DMX_START_ADDRESS,
-                ParameterData = new byte[] {0x00, 0x42}
+                ParameterData = new byte[] { 0x00, 0x42 }
             };
 
             Assert.That(m.Checksum, Is.EqualTo(0x5CE));
@@ -102,7 +100,7 @@ namespace RDMSharpTest.RDM
 
             byte[] expected = new byte[]
             {
-                0xcc, 0x01, 0x18, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0x02, 0xb0, 0x00, 0x11, 
+                0xcc, 0x01, 0x18, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0x02, 0xb0, 0x00, 0x11,
                 0x22, 0x33, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x02, 0x00, 0x04, 0x79
             };
 

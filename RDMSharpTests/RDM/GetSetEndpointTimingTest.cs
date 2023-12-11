@@ -1,6 +1,3 @@
-using RDMSharp;
-using NUnit.Framework;
-
 namespace RDMSharpTest.RDM
 {
     public class GetSetEndpointTimingTest
@@ -13,7 +10,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            GetEndpointTimingResponse getEndpointTimingResponse = new GetEndpointTimingResponse(1, 123,254);
+            GetEndpointTimingResponse getEndpointTimingResponse = new GetEndpointTimingResponse(1, 123, 254);
             byte[] data = getEndpointTimingResponse.ToPayloadData();
 
             RDMMessage message = new RDMMessage()

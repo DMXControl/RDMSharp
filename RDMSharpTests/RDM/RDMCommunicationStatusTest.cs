@@ -1,6 +1,3 @@
-using RDMSharp;
-using NUnit.Framework;
-
 namespace RDMSharpTest.RDM
 {
     public class RDMCommunicationStatusTest
@@ -13,7 +10,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            RDMCommunicationStatus communicationStatus = new RDMCommunicationStatus(55,42,11880);
+            RDMCommunicationStatus communicationStatus = new RDMCommunicationStatus(55, 42, 11880);
 
             byte[] data = communicationStatus.ToPayloadData();
 

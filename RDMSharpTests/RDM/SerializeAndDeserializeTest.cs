@@ -1,9 +1,3 @@
-using RDMSharp;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace RDMSharpTest.RDM
 {
     public class SerializeAndDeserializeTest
@@ -33,7 +27,7 @@ namespace RDMSharpTest.RDM
         public void _0TestBool()
         {
             byte[]? serialized = null;
-            for (bool b = false; b != true; b=true)
+            for (bool b = false; b != true; b = true)
             {
                 serialized = Tools.ValueToData(b);
                 Assert.That(serialized.Length, Is.EqualTo(1));
@@ -75,7 +69,7 @@ namespace RDMSharpTest.RDM
         {
             byte[]? serialized = null;
 
-            foreach(ERDM_Parameter eParameter in Enum.GetValues(typeof(ERDM_Parameter)))
+            foreach (ERDM_Parameter eParameter in Enum.GetValues(typeof(ERDM_Parameter)))
             {
                 serialized = Tools.ValueToData(eParameter);
                 Assert.That(serialized.Length, Is.EqualTo(2));

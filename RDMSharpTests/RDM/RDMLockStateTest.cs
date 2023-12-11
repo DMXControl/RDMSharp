@@ -1,5 +1,3 @@
-using RDMSharp;
-
 namespace RDMSharpTest.RDM
 {
     public class RDMLockStateTest

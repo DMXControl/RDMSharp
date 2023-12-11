@@ -1,5 +1,3 @@
-using RDMSharp;
-
 namespace RDMSharpTest.RDM
 {
     public class RDMModulationFrequencyDescriptionTest
@@ -12,7 +10,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTestWithoutFrequency()
         {
-            RDMModulationFrequencyDescription modulationFrequencyDescription = new RDMModulationFrequencyDescription(1,null,"Pseudo ModulationFrequency");
+            RDMModulationFrequencyDescription modulationFrequencyDescription = new RDMModulationFrequencyDescription(1, null, "Pseudo ModulationFrequency");
             byte[] data = modulationFrequencyDescription.ToPayloadData();
 
             RDMMessage message = new RDMMessage()
@@ -64,7 +62,7 @@ namespace RDMSharpTest.RDM
         public void DescriptionCharLimitTest()
         {
             RDMModulationFrequencyDescription resultModulationFrequencyDescription = new RDMModulationFrequencyDescription(description: "Pseudo ModulationFrequency 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
-            Assert.That(resultModulationFrequencyDescription.Description.Length,Is.EqualTo(32));
+            Assert.That(resultModulationFrequencyDescription.Description.Length, Is.EqualTo(32));
         }
     }
 }

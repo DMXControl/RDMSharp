@@ -1,7 +1,3 @@
-using RDMSharp;
-using NUnit.Framework;
-using System;
-
 namespace RDMSharpTest.RDM
 {
     public class RDMRealTimeClockTest

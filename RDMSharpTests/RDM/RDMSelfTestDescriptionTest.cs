@@ -1,5 +1,3 @@
-using RDMSharp;
-
 namespace RDMSharpTest.RDM
 {
     public class RDMSelfTestDescriptionTest
@@ -23,7 +21,7 @@ namespace RDMSharpTest.RDM
                 ParameterData = data,
             };
 
-            RDMSelfTestDescription resultSelfTestDescription  = RDMSelfTestDescription.FromMessage(message);
+            RDMSelfTestDescription resultSelfTestDescription = RDMSelfTestDescription.FromMessage(message);
 
             Assert.That(resultSelfTestDescription, Is.EqualTo(selfTestDescription));
         }

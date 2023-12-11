@@ -1,10 +1,6 @@
-using RDMSharp;
-using NUnit.Framework;
-using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using RDMSharp.ParameterWrapper;
+using System.Collections.ObjectModel;
+using System.Text;
 
 namespace RDMSharpTest.RDM
 {
@@ -151,7 +147,7 @@ namespace RDMSharpTest.RDM
             ERDM_Parameter.WIRELESS_DMX,
             ERDM_Parameter.CRMX_BRIDGE_MODE
         };
-        
+
         private RDMParameterWrapperCatalogueManager manager;
         private ERDM_Parameter[] parameters;
         private ReadOnlyCollection<IRDMParameterWrapper> parameterWrappers;
@@ -228,7 +224,7 @@ namespace RDMSharpTest.RDM
 
             foreach (ERDM_Parameter parameter in e1_33Parameters)
                 Assert.That(parameterWrappers.Count(pw => pw.Parameter == parameter), Is.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
-            
+
             foreach (ERDM_Parameter parameter in sgmParameters)
                 Assert.That(parameterWrappers.Count(pw => pw.Parameter == parameter), Is.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
 

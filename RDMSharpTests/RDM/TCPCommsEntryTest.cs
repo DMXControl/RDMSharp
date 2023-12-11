@@ -1,5 +1,3 @@
-using RDMSharp;
-using NUnit.Framework;
 using System.Net;
 
 namespace RDMSharpTest.RDM
@@ -14,7 +12,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            TCPCommsEntry tcpCommsEntryTest = new TCPCommsEntry("Pseudo TCPCommsEntryTest", IPAddress.Parse("192.168.2.1"), 2347,77);
+            TCPCommsEntry tcpCommsEntryTest = new TCPCommsEntry("Pseudo TCPCommsEntryTest", IPAddress.Parse("192.168.2.1"), 2347, 77);
 
             byte[] data = tcpCommsEntryTest.ToPayloadData();
 
@@ -28,7 +26,7 @@ namespace RDMSharpTest.RDM
 
             TCPCommsEntry resultTCPCommsEntryTest = TCPCommsEntry.FromMessage(message);
 
-            Assert.That(resultTCPCommsEntryTest, Is.EqualTo(tcpCommsEntryTest)); tcpCommsEntryTest = new TCPCommsEntry("Pseudo TCPCommsEntryTest", IPAddress.Parse("2001:db8:0:0:0:0:1428:57ab"), 2347,99);
+            Assert.That(resultTCPCommsEntryTest, Is.EqualTo(tcpCommsEntryTest)); tcpCommsEntryTest = new TCPCommsEntry("Pseudo TCPCommsEntryTest", IPAddress.Parse("2001:db8:0:0:0:0:1428:57ab"), 2347, 99);
 
             data = tcpCommsEntryTest.ToPayloadData();
 

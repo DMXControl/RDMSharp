@@ -1,6 +1,3 @@
-using RDMSharp;
-using NUnit.Framework;
-
 namespace RDMSharpTest.RDM
 {
     public class RDMDMX_xxxx_ModeTest
@@ -13,7 +10,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            RDMDMX_xxxx_Mode dmxFailMode = new RDMDMX_xxxx_Mode(55,42,11880);
+            RDMDMX_xxxx_Mode dmxFailMode = new RDMDMX_xxxx_Mode(55, 42, 11880);
 
             byte[] data = dmxFailMode.ToPayloadData();
 

@@ -1,5 +1,3 @@
-using RDMSharp;
-
 namespace RDMSharpTest.RDM
 {
     public class RDMCurveDescriptionTest
@@ -12,7 +10,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            RDMCurveDescription curveDescription = new RDMCurveDescription(1,"Pseudo Curve");
+            RDMCurveDescription curveDescription = new RDMCurveDescription(1, "Pseudo Curve");
             byte[] data = curveDescription.ToPayloadData();
 
             RDMMessage message = new RDMMessage()

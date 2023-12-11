@@ -1,6 +1,3 @@
-using RDMSharp;
-using NUnit.Framework;
-
 namespace RDMSharpTest.RDM
 {
     public class GetSetEndpointLabelTest
@@ -13,7 +10,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            GetSetEndpointLabel getSetEndpointLabel = new GetSetEndpointLabel(1,"Pseudo Endpoint Label");
+            GetSetEndpointLabel getSetEndpointLabel = new GetSetEndpointLabel(1, "Pseudo Endpoint Label");
             byte[] data = getSetEndpointLabel.ToPayloadData();
 
             RDMMessage message = new RDMMessage()

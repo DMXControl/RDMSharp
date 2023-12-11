@@ -1,6 +1,3 @@
-using RDMSharp;
-using NUnit.Framework;
-
 namespace RDMSharpTest.RDM
 {
     public class RDMProxiedDeviceCountTest
@@ -13,7 +10,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            RDMProxiedDeviceCount proxiedDeviceCount = new RDMProxiedDeviceCount(10,true);
+            RDMProxiedDeviceCount proxiedDeviceCount = new RDMProxiedDeviceCount(10, true);
 
             byte[] data = proxiedDeviceCount.ToPayloadData();
 

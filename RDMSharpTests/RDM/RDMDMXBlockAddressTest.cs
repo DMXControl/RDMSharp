@@ -1,6 +1,3 @@
-using RDMSharp;
-using NUnit.Framework;
-
 namespace RDMSharpTest.RDM
 {
     public class RDMDMXBlockAddressTEst
@@ -13,7 +10,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            RDMDMXBlockAddress dmxBlockAddress = new RDMDMXBlockAddress(3,443);
+            RDMDMXBlockAddress dmxBlockAddress = new RDMDMXBlockAddress(3, 443);
 
             byte[] data = dmxBlockAddress.ToPayloadData();
 

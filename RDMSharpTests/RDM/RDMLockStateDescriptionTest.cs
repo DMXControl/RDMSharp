@@ -1,5 +1,3 @@
-using RDMSharp;
-
 namespace RDMSharpTest.RDM
 {
     public class RDMLockStateDescriptionTest
@@ -12,7 +10,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            RDMLockStateDescription lockStateDescription = new RDMLockStateDescription(1,"Pseudo LockState");
+            RDMLockStateDescription lockStateDescription = new RDMLockStateDescription(1, "Pseudo LockState");
             byte[] data = lockStateDescription.ToPayloadData();
 
             RDMMessage message = new RDMMessage()

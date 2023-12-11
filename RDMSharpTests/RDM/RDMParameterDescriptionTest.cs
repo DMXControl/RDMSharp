@@ -1,5 +1,3 @@
-using RDMSharp;
-
 namespace RDMSharpTest.RDM
 {
     public class RDMParameterDescriptionTest
@@ -12,7 +10,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            RDMParameterDescription parameterDescription = new RDMParameterDescription(32, 0, ERDM_DataType.SIGNED_WORD, ERDM_CommandClass.GET| ERDM_CommandClass.SET, 0, ERDM_SensorUnit.NEWTON, ERDM_UnitPrefix.KILO, 0, 5666669, 100, "Pseudo Parameter");
+            RDMParameterDescription parameterDescription = new RDMParameterDescription(32, 0, ERDM_DataType.SIGNED_WORD, ERDM_CommandClass.GET | ERDM_CommandClass.SET, 0, ERDM_SensorUnit.NEWTON, ERDM_UnitPrefix.KILO, 0, 5666669, 100, "Pseudo Parameter");
             byte[] data = parameterDescription.ToPayloadData();
 
             RDMMessage message = new RDMMessage()

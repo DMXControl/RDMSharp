@@ -1,6 +1,3 @@
-using RDMSharp;
-using NUnit.Framework;
-
 namespace RDMSharpTest.RDM
 {
     public class GetBindingAndControlFieldsTest
@@ -13,7 +10,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            GetBindingAndControlFieldsRequest getBindingAndControlFieldsRequest = new GetBindingAndControlFieldsRequest(1, new RDMUID(1233,4231414));
+            GetBindingAndControlFieldsRequest getBindingAndControlFieldsRequest = new GetBindingAndControlFieldsRequest(1, new RDMUID(1233, 4231414));
             byte[] data = getBindingAndControlFieldsRequest.ToPayloadData();
 
             RDMMessage message = new RDMMessage()
@@ -28,7 +25,7 @@ namespace RDMSharpTest.RDM
 
             Assert.That(resultGetBindingAndControlFieldsRequest, Is.EqualTo(getBindingAndControlFieldsRequest));
 
-            GetBindingAndControlFieldsResponse getBindingAndControlFieldsResponse = new GetBindingAndControlFieldsResponse(1, new RDMUID(1213,34444),1234, new RDMUID(542, 476436));
+            GetBindingAndControlFieldsResponse getBindingAndControlFieldsResponse = new GetBindingAndControlFieldsResponse(1, new RDMUID(1213, 34444), 1234, new RDMUID(542, 476436));
             data = getBindingAndControlFieldsResponse.ToPayloadData();
 
             message = new RDMMessage()

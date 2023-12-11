@@ -1,6 +1,3 @@
-using RDMSharp;
-using NUnit.Framework;
-
 namespace RDMSharpTest.RDM
 {
     public class GetHardwareAddressResponseTest
@@ -13,7 +10,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            GetHardwareAddressResponse getHardwareAddressResponse = new GetHardwareAddressResponse(1,MACAddress.Parse("02:42:c0:a8:01:09"));
+            GetHardwareAddressResponse getHardwareAddressResponse = new GetHardwareAddressResponse(1, MACAddress.Parse("02:42:c0:a8:01:09"));
             byte[] data = getHardwareAddressResponse.ToPayloadData();
 
             RDMMessage message = new RDMMessage()

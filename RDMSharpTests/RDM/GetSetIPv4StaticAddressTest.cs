@@ -1,5 +1,3 @@
-using RDMSharp;
-using NUnit.Framework;
 using System.Net;
 
 namespace RDMSharpTest.RDM

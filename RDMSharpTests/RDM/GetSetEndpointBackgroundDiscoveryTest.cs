@@ -1,7 +1,3 @@
-
-using RDMSharp;
-using NUnit.Framework;
-
 namespace RDMSharpTest.RDM
 {
     public class GetSetEndpointBackgroundDiscoveryTest
