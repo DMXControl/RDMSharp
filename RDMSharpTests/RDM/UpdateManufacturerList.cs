@@ -1,4 +1,3 @@
-using System.Net;
 using System.Xml;
 
 namespace RDMSharpTest.RDM
@@ -11,11 +10,11 @@ namespace RDMSharpTest.RDM
         }
 
         [Test]
-        public void UpdateManufacturerListMethode()
+        public async Task UpdateManufacturerListMethode()
         {
-            using (var client = new WebClient())
+            using (var client = new HttpClient())
             {
-                var website = client.DownloadString("https://tsp.esta.org/tsp/working_groups/CP/mfctrIDs.php");
+                var website = await client.GetStringAsync("https://tsp.esta.org/tsp/working_groups/CP/mfctrIDs.php");
                 website = website.Substring(website.IndexOf("<table id=\'main_table\'"));
                 website = website.Remove(website.IndexOf("</table>")) + "</table>";
                 website = website.Replace("<p>", "");
