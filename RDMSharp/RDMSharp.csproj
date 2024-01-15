@@ -14,7 +14,6 @@
 		<Authors>Patrick Grote</Authors>
 		<Title>$(AssemblyName)</Title>
 	</PropertyGroup>
-
 	<ItemGroup>
 		<Content Include="Icons\RDMSharp.ico" />
 	</ItemGroup>

@@ -49,6 +49,21 @@ namespace RDMSharp
             B6 = byte.Parse(match.Groups[6].Value, System.Globalization.NumberStyles.HexNumber);
         }
 
+        public MACAddress(IEnumerable<byte> enumerable)
+        {
+            if (enumerable.Count() != 6)
+            {
+                throw new ArgumentOutOfRangeException("bytes should be an array with a length of 6");
+            }
+
+            B1 = enumerable.ElementAt(0);
+            B2 = enumerable.ElementAt(1);
+            B3 = enumerable.ElementAt(2);
+            B4 = enumerable.ElementAt(3);
+            B5 = enumerable.ElementAt(4);
+            B6 = enumerable.ElementAt(5);
+        }
+
 
         public override string ToString()
         {
