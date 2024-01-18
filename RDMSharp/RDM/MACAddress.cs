@@ -39,14 +39,29 @@ namespace RDMSharp
         }
         public MACAddress(in string macAddress) : this()
         {
-            Regex regex = new Regex(@"^([A-Fa-f0-9]{1,2})\:([A-Fa-f0-9]{1,2})\:([A-Fa-f0-9]{1,2})\:([A-Fa-f0-9]{1,2})\:([A-Fa-f0-9]{1,2})\:([A-Fa-f0-9]{1,2})$");
-            var match = regex.Match(macAddress);
-            B1 = byte.Parse(match.Groups[1].Value, System.Globalization.NumberStyles.HexNumber);
-            B2 = byte.Parse(match.Groups[2].Value, System.Globalization.NumberStyles.HexNumber);
-            B3 = byte.Parse(match.Groups[3].Value, System.Globalization.NumberStyles.HexNumber);
-            B4 = byte.Parse(match.Groups[4].Value, System.Globalization.NumberStyles.HexNumber);
-            B5 = byte.Parse(match.Groups[5].Value, System.Globalization.NumberStyles.HexNumber);
-            B6 = byte.Parse(match.Groups[6].Value, System.Globalization.NumberStyles.HexNumber);
+            Regex regex6g = new Regex(@"^([A-Fa-f0-9]{1,2})[\:\-\s]([A-Fa-f0-9]{1,2})[\:\-\s]([A-Fa-f0-9]{1,2})[\:\-\s]([A-Fa-f0-9]{1,2})[\:\-\s]([A-Fa-f0-9]{1,2})[\:\-\s]([A-Fa-f0-9]{1,2})$");
+            var match = regex6g.Match(macAddress);
+            if (!match.Success)
+            {
+                Regex regex3g = new Regex(@"^([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})\.([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})\.([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})$");
+                match = regex3g.Match(macAddress);
+            }
+            if (!match.Success)
+            {
+                Regex regex0g = new Regex(@"^([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})([0-9A-Fa-f]{2})$");
+                match = regex0g.Match(macAddress);
+            }
+            if (match.Success)
+            {
+                B1 = byte.Parse(match.Groups[1].Value, System.Globalization.NumberStyles.HexNumber);
+                B2 = byte.Parse(match.Groups[2].Value, System.Globalization.NumberStyles.HexNumber);
+                B3 = byte.Parse(match.Groups[3].Value, System.Globalization.NumberStyles.HexNumber);
+                B4 = byte.Parse(match.Groups[4].Value, System.Globalization.NumberStyles.HexNumber);
+                B5 = byte.Parse(match.Groups[5].Value, System.Globalization.NumberStyles.HexNumber);
+                B6 = byte.Parse(match.Groups[6].Value, System.Globalization.NumberStyles.HexNumber);
+            }
+            else
+                throw new Exception($"The given string\"{macAddress}\" is not matchable to any known MAC-Address format");
         }
 
         public MACAddress(IEnumerable<byte> enumerable)
