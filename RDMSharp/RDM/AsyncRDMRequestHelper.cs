@@ -32,10 +32,16 @@ namespace RDMSharp
             buffer.TryAdd(requerst, null);
             RDMMessage resopnse = null;
             _sendMethode.Invoke(requerst);
+            int count = 0;
             do
             {
                 buffer.TryGetValue(requerst, out resopnse);
                 await Task.Delay(10);
+                count++;
+                if (count % 300 == 299)
+                    _sendMethode.Invoke(requerst);
+                if(count == 3000)
+                    throw new TimeoutException();
             }
             while (resopnse == null);
             buffer.TryRemove(requerst, out resopnse);
