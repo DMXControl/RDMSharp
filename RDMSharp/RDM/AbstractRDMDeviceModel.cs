@@ -1,4 +1,5 @@
 ﻿using RDMSharp.ParameterWrapper;
+using RDMSharp.ParameterWrapper.Generic;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -23,6 +24,8 @@ namespace RDMSharp
         public bool IsInitialized { get; private set; } = false;
 
         private AsyncRDMRequestHelper asyncRDMRequestHelper;
+
+        private ConcurrentDictionary<ushort, IRDMParameterWrapper> manufacturerParameter = new ConcurrentDictionary<ushort, IRDMParameterWrapper>();
 
 
 
@@ -172,6 +175,41 @@ namespace RDMSharp
                     }
                     break;
 
+                case ParameterDescriptionParameterWrapper _parameterDescription when rdmMessage.Value is RDMParameterDescription pd:
+                    if (manufacturerParameter.ContainsKey(pd.ParameterId))
+                        break;
+                    switch (pd.DataType)
+                    {
+                        case ERDM_DataType.ASCII:
+                            manufacturerParameter.TryAdd(pd.ParameterId, new ASCIIParameterWrapper(pd));
+                            break;
+                        case ERDM_DataType.SIGNED_BYTE:
+                            manufacturerParameter.TryAdd(pd.ParameterId, new SignedByteParameterWrapper(pd));
+                            break;
+                        case ERDM_DataType.UNSIGNED_BYTE:
+                            manufacturerParameter.TryAdd(pd.ParameterId, new UnsignedByteParameterWrapper(pd));
+                            break;
+                        case ERDM_DataType.SIGNED_WORD:
+                            manufacturerParameter.TryAdd(pd.ParameterId, new SignedWordParameterWrapper(pd));
+                            break;
+                        case ERDM_DataType.UNSIGNED_WORD:
+                            manufacturerParameter.TryAdd(pd.ParameterId, new UnsignedWordParameterWrapper(pd));
+                            break;
+                        case ERDM_DataType.SIGNED_DWORD:
+                            manufacturerParameter.TryAdd(pd.ParameterId, new SignedDWordParameterWrapper(pd));
+                            break;
+                        case ERDM_DataType.UNSIGNED_DWORD:
+                            manufacturerParameter.TryAdd(pd.ParameterId, new UnsignedDWordParameterWrapper(pd));
+                            break;
+
+                        case ERDM_DataType.BIT_FIELD:
+                        default:
+                            manufacturerParameter.TryAdd(pd.ParameterId, new NotDefinedParameterWrapper(pd));
+                            break;
+
+                    }
+                    break;
+
                 case IRDMBlueprintDescriptionListParameterWrapper blueprintDL:
                     HashSet<object> list = null;
                     if (parameterValues.ContainsKey(rdmMessage.Parameter))
@@ -280,6 +318,17 @@ namespace RDMSharp
 
             }
             return new RDMSensorDefinition[0];
+        }
+
+        public IRDMParameterWrapper GetRDMParameterWrapperByID(ushort parameter)
+        {
+            if (this.manufacturerParameter.TryGetValue(parameter, out var result))
+                return result;
+            return null;
+        }
+        public override string ToString()
+        {
+            return $"{Enum.GetName(typeof(EManufacturer),Manufacturer)}";
         }
     }
 }

@@ -7,7 +7,7 @@ namespace RDMSharp
     public class RDMParameterDescription : AbstractRDMPayloadObject
     {
         public RDMParameterDescription(
-            short parameterId = 0,
+            ushort parameterId = 0,
             byte pdlSize = 0,
             ERDM_DataType dataType = ERDM_DataType.NOT_DEFINED,
             ERDM_CommandClass commandClass = ERDM_CommandClass.GET,
@@ -38,7 +38,7 @@ namespace RDMSharp
             this.Description = description;
         }
 
-        public short ParameterId { get; private set; }
+        public ushort ParameterId { get; private set; }
         public byte PDLSize { get; private set; }
         public ERDM_DataType DataType { get; private set; }
         public ERDM_CommandClass CommandClass { get; private set; }
@@ -81,7 +81,7 @@ namespace RDMSharp
             if (data.Length > PDL_MAX) throw new Exception($"PDL {data.Length} > {PDL_MAX}");
 
             var i = new RDMParameterDescription(
-                parameterId: Tools.DataToShort(ref data),
+                parameterId: Tools.DataToUShort(ref data),
                 pdlSize: Tools.DataToByte(ref data),
                 dataType: Tools.DataToEnum<ERDM_DataType>(ref data),
                 commandClass: Tools.DataToEnum<ERDM_CommandClass>(ref data),

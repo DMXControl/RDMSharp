@@ -125,8 +125,22 @@ namespace RDMSharp
             if (rdmMessage.Parameter != ERDM_Parameter.DEVICE_INFO && (this.DeviceModel?.SupportedBlueprintParameters.Contains(rdmMessage.Parameter) ?? false))
                 return;
 
+            if (rdmMessage.NackReason != null)
+                if (rdmMessage.NackReason.Length != 0)
+                    return;
+
             var pm = pmManager.GetRDMParameterWrapperByID(rdmMessage.Parameter);
-            object value = rdmMessage.Value;
+            object value = null;
+            try
+            {
+                value = rdmMessage.Value;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(string.Empty, ex);
+            }
+            if (value == null)
+                return;
             switch (pm)
             {
                 case DeviceInfoParameterWrapper _deviceInfoParameterWrapper:
@@ -281,9 +295,18 @@ namespace RDMSharp
             }
 
             var pm = pmManager.GetRDMParameterWrapperByID(parameterId);
-            if (!pm.CommandClass.HasFlag(ERDM_CommandClass.GET))
-                return;
             if (pm == null && Enum.IsDefined(typeof(ERDM_Parameter), parameterId))
+                return;
+
+            if(pm==null)
+                pm = deviceModel.GetRDMParameterWrapperByID((ushort)parameterId);
+            if (pm == null)
+            { 
+                Logger.LogDebug("Not Implemented Parameter");
+                return;
+            }
+
+            if (!pm.CommandClass.HasFlag(ERDM_CommandClass.GET))
                 return;
 
             this.pendingParametersUpdateRequest.Add(parameterId);
@@ -328,6 +351,12 @@ namespace RDMSharp
                         foreach (var r in @uintGetRequest.GetRequestRange(val).ToEnumerator())
                             tasks.Add(processMessage(await requestParameter(@uintGetRequest.BuildGetRequestMessage(r))));
 
+                        break;
+
+                    case StatusMessageParameterWrapper statusMessageParameter:
+                        tasks.Add(processMessage(await requestParameter(statusMessageParameter.BuildGetRequestMessage(ERDM_Status.ADVISORY))));
+                        break;
+                    default:
                         break;
                 }
                 await Task.WhenAny(Task.WhenAll(tasks), Task.Delay(TimeSpan.FromSeconds(10)));
@@ -502,6 +531,11 @@ namespace RDMSharp
         protected virtual void OnDispose()
         {
 
+        }
+
+        public override string ToString()
+        {
+            return $"[{UID}] {this.DeviceModel}";
         }
     }
 }

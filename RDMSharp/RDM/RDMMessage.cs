@@ -161,7 +161,14 @@ namespace RDMSharp
         {
             get
             {
-                return RDMParameterWrapperCatalogueManager.GetInstance().ParameterDataObjectFromMessage(this);
+                try
+                {
+                    return RDMParameterWrapperCatalogueManager.GetInstance().ParameterDataObjectFromMessage(this);
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RDMSharp.ParameterWrapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,6 +11,7 @@ namespace RDMSharp
         public static readonly RDMUID Broadcast = new RDMUID(0xFFFF, 0xFFFFFFFF);
 
         public readonly ushort ManufacturerID;
+        public EManufacturer Manufacturer => (EManufacturer)ManufacturerID;
         public readonly uint DeviceID;
 
         public RDMUID(in ushort manId, in uint deviceId)

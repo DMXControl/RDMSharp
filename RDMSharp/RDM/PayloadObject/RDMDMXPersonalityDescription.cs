@@ -50,6 +50,9 @@ namespace RDMSharp
         }
         public static RDMDMXPersonalityDescription FromPayloadData(byte[] data)
         {
+            if (data.Length == 0)
+                return null;
+
             if (data.Length < PDL_MIN) throw new Exception($"PDL {data.Length} < {PDL_MIN}");
             if (data.Length > PDL_MAX) throw new Exception($"PDL {data.Length} > {PDL_MAX}");
 

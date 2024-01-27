@@ -52,6 +52,8 @@ namespace RDMSharp.ParameterWrapper
 
         public void RegisterParameterWrapper(Type type)
         {
+            if (type.GetConstructor(Type.EmptyTypes) == null)
+                return;
             if (typeof(IRDMParameterWrapper).IsAssignableFrom(type))
                 this.parameterWrappers.Add((IRDMParameterWrapper)Activator.CreateInstance(type));
         }

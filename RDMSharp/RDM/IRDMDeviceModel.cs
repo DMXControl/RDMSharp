@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RDMSharp.ParameterWrapper;
+using System;
 using System.Collections.Generic;
 
 namespace RDMSharp
@@ -11,6 +12,9 @@ namespace RDMSharp
         IReadOnlyCollection<ERDM_Parameter> KnownNotSupportedParameters { get; }
         RDMSensorDefinition[] GetSensorDefinitions();
         IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues { get; }
+
+        IRDMParameterWrapper GetRDMParameterWrapperByID(ushort parameter);
+
         bool IsDisposing { get; }
         bool IsDisposed { get; }
     }

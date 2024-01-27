@@ -937,5 +937,10 @@ namespace RDMSharp.ParameterWrapper
         {
             return this.Parameter.GetHashCode();
         }
+
+        public override string ToString()
+        {
+            return this.Name;
+        }
     }
 }
