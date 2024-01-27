@@ -11,6 +11,7 @@ namespace RDMSharp
 {
     public abstract class AbstractRDMDeviceModel : IRDMDeviceModel
     {
+        private static Random random = new Random();
         private static RDMParameterWrapperCatalogueManager pmManager => RDMParameterWrapperCatalogueManager.GetInstance();
         private static DeviceInfoParameterWrapper deviceInfoParameterWrapper => (DeviceInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.DEVICE_INFO);
         private static SupportedParametersParameterWrapper supportedParametersParameterWrapper => (SupportedParametersParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SUPPORTED_PARAMETERS);
@@ -132,10 +133,10 @@ namespace RDMSharp
         }
 
 
-        private void sendRDMMessage(RDMMessage rdmMessage)
+        private async Task sendRDMMessage(RDMMessage rdmMessage)
         {
             rdmMessage.DestUID = CurrentUsedUID;
-            _ = SendRDMMessage(rdmMessage);
+            await SendRDMMessage(rdmMessage);
         }
 
         protected abstract Task SendRDMMessage(RDMMessage rdmMessage);
@@ -154,11 +155,23 @@ namespace RDMSharp
             await processMessage(rdmMessage);
         }
 
-        private async Task<RDMMessage> requestParameter(RDMMessage rdmMessage)
+        private async Task<RequestResult> requestParameter(RDMMessage rdmMessage)
         {
             return await asyncRDMRequestHelper.RequestParameter(rdmMessage);
         }
 
+        private async Task processMessage(RequestResult result)
+        {
+            if (result.Success)
+                await processMessage(result.Response);
+            else if (result.Cancel)
+                return;
+            else
+            {
+                await Task.Delay(TimeSpan.FromTicks(random.Next(4500, 5500)));
+                await processMessage(await requestParameter(result.Request));
+            }
+        }
         private async Task processMessage(RDMMessage rdmMessage)
         {
             var pw = pmManager.GetRDMParameterWrapperByID(rdmMessage.Parameter);

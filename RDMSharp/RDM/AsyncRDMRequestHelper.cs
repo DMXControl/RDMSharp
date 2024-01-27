@@ -7,9 +7,10 @@ namespace RDMSharp
 {
     public class AsyncRDMRequestHelper
     {
+        private static Random random = new Random();
         ConcurrentDictionary<RDMMessage, RDMMessage> buffer = new ConcurrentDictionary<RDMMessage, RDMMessage>();
-        Action<RDMMessage> _sendMethode;
-        public AsyncRDMRequestHelper(Action<RDMMessage> sendMethode)
+        Func<RDMMessage, Task> _sendMethode;
+        public AsyncRDMRequestHelper(Func<RDMMessage,Task> sendMethode)
         {
             _sendMethode = sendMethode;
         }
@@ -27,11 +28,11 @@ namespace RDMSharp
         }
 
 
-        public async Task<RDMMessage> RequestParameter(RDMMessage requerst)
+        public async Task<RequestResult> RequestParameter(RDMMessage requerst)
         {
             buffer.TryAdd(requerst, null);
             RDMMessage resopnse = null;
-            _sendMethode.Invoke(requerst);
+            await _sendMethode.Invoke(requerst);
             int count = 0;
             do
             {
@@ -39,13 +40,17 @@ namespace RDMSharp
                 await Task.Delay(10);
                 count++;
                 if (count % 300 == 299)
-                    _sendMethode.Invoke(requerst);
-                if(count == 3000)
-                    throw new TimeoutException();
+                {
+                    await Task.Delay(TimeSpan.FromTicks(random.Next(33,777)));
+                    await _sendMethode.Invoke(requerst);
+                    await Task.Delay(TimeSpan.FromTicks(random.Next(33, 777)));
+                }
+                if (count == 3000)
+                    return new RequestResult(requerst);
             }
             while (resopnse == null);
             buffer.TryRemove(requerst, out resopnse);
-            return resopnse;
+            return new RequestResult(requerst, resopnse);
         }
     }
 }

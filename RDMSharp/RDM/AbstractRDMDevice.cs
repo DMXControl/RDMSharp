@@ -11,6 +11,7 @@ namespace RDMSharp
 {
     public abstract class AbstractRDMDevice<T_RDMDeviceModel> : IRDMDevice where T_RDMDeviceModel : AbstractRDMDeviceModel
     {
+        private static Random random = new Random();
         private static ILogger Logger = null;
         private static RDMParameterWrapperCatalogueManager pmManager => RDMParameterWrapperCatalogueManager.GetInstance();
         private static DeviceInfoParameterWrapper deviceInfoParameterWrapper => (DeviceInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.DEVICE_INFO);
@@ -67,15 +68,15 @@ namespace RDMSharp
             UID = uid;
             initialize();
         }
-        private void initialize()
+        private async void initialize()
         {
-            sendRDMMessage(deviceInfoParameterWrapper.BuildGetRequestMessage());
+            await sendRDMMessage(deviceInfoParameterWrapper.BuildGetRequestMessage());
         }
 
-        private void sendRDMMessage(RDMMessage rdmMessage)
+        private async Task sendRDMMessage(RDMMessage rdmMessage)
         {
             rdmMessage.DestUID = UID;
-            _ = SendRDMMessage(rdmMessage);
+            await SendRDMMessage(rdmMessage);
         }
 
         protected abstract Task SendRDMMessage(RDMMessage rdmMessage);
@@ -101,7 +102,7 @@ namespace RDMSharp
 
             await processMessage(rdmMessage);
         }
-        private async Task<RDMMessage> requestParameter(RDMMessage rdmMessage)
+        private async Task<RequestResult> requestParameter(RDMMessage rdmMessage)
         {
             return await asyncRDMRequestHelper.RequestParameter(rdmMessage);
         }
@@ -112,13 +113,23 @@ namespace RDMSharp
         }
         private async Task collectAllParameters()
         {
-            List<Task> tasks = new List<Task>();
-            tasks.Add(UpdateParameterValues());
-            tasks.Add(UpdateSensorValues());
-            tasks.Add(UpdateSlotInfo());
-            tasks.Add(UpdateDefaultSlotValue());
-            tasks.Add(UpdateSlotDescriptions());
-            await Task.WhenAny(Task.WhenAll(tasks), Task.Delay(TimeSpan.FromSeconds(30)));
+            await UpdateParameterValues();
+            await UpdateSensorValues();
+            await UpdateSlotInfo();
+            await UpdateDefaultSlotValue();
+            await UpdateSlotDescriptions();
+        }
+        private async Task processMessage(RequestResult result)
+        {
+            if (result.Success)
+                await processMessage(result.Response);
+            else if (result.Cancel)
+                return;
+            else
+            {
+                await Task.Delay(TimeSpan.FromTicks(random.Next(4500, 5500)));
+                await processMessage(await requestParameter(result.Request));
+            }
         }
         private async Task processMessage(RDMMessage rdmMessage)
         {
@@ -265,11 +276,8 @@ namespace RDMSharp
 
             try
             {
-                List<Task> tasks = new List<Task>();
                 foreach (ERDM_Parameter parameter in this.DeviceModel.SupportedNonBlueprintParameters)
-                    tasks.Add(this.UpdateParameterValue(parameter));
-
-                await Task.WhenAny(Task.WhenAll(tasks), Task.Delay(TimeSpan.FromSeconds(20)));
+                    await this.UpdateParameterValue(parameter);
             }
             catch (Exception e)
             {
@@ -357,6 +365,7 @@ namespace RDMSharp
                         tasks.Add(processMessage(await requestParameter(statusMessageParameter.BuildGetRequestMessage(ERDM_Status.ADVISORY))));
                         break;
                     default:
+                        Logger?.LogDebug($"No Wrapper for Parameter: {parameterId} for UID: {this.UID}");
                         break;
                 }
                 await Task.WhenAny(Task.WhenAll(tasks), Task.Delay(TimeSpan.FromSeconds(10)));
@@ -427,13 +436,18 @@ namespace RDMSharp
 
             try
             {
-                RDMMessage response = null;
+                RequestResult? result = null;
                 do
                 {
-                    response = await requestParameter(slotInfoParameterWrapper.BuildGetRequestMessage());
-                    await processMessage(response);
+                    result = await requestParameter(slotInfoParameterWrapper.BuildGetRequestMessage());
+                    if (result.Value.Success)
+                        await processMessage(result.Value.Response);
+                    else if (result.Value.Cancel)
+                        return;
+                    else
+                        await Task.Delay(TimeSpan.FromTicks(random.Next(2500, 3500)));
                 }
-                while (response?.ResponseType == ERDM_ResponseType.ACK_OVERFLOW);
+                while (result?.Response?.ResponseType == ERDM_ResponseType.ACK_OVERFLOW || result?.Response == null);
             }
             catch (Exception e)
             {
@@ -450,13 +464,18 @@ namespace RDMSharp
 
             try
             {
-                RDMMessage response = null;
+                RequestResult? result = null;
                 do
                 {
-                    response = await requestParameter(defaultSlotValueParameterWrapper.BuildGetRequestMessage());
-                    await processMessage(response);
+                    result = await requestParameter(defaultSlotValueParameterWrapper.BuildGetRequestMessage());
+                    if (result.Value.Success)
+                        await processMessage(result.Value.Response);
+                    else if (result.Value.Cancel)
+                        return;
+                    else
+                        await Task.Delay(TimeSpan.FromTicks(random.Next(2500, 3500)));
                 }
-                while (response?.ResponseType == ERDM_ResponseType.ACK_OVERFLOW);
+                while (result?.Response?.ResponseType == ERDM_ResponseType.ACK_OVERFLOW || result?.Response == null);
             }
             catch (Exception e)
             {
