@@ -137,7 +137,7 @@ namespace RDMSharp
             }
             catch (Exception ex)
             {
-                Logger.LogError(string.Empty, ex);
+                Logger?.LogError(string.Empty, ex);
             }
             if (value == null)
                 return;
@@ -167,9 +167,9 @@ namespace RDMSharp
                     if (!(value is RDMSlotDescription description))
                     {
                         if (value != null)
-                            Logger.LogError($"The response does not contain the expected data {typeof(RDMSlotDescription)}!{Environment.NewLine}{rdmMessage}");
+                            Logger?.LogError($"The response does not contain the expected data {typeof(RDMSlotDescription)}!{Environment.NewLine}{rdmMessage}");
                         else
-                            Logger.LogTrace($"No response received");
+                            Logger?.LogTrace($"No response received");
                         return;
                     }
                     Slot slot;
@@ -188,7 +188,7 @@ namespace RDMSharp
                         if (rdmMessage.NackReason.Contains(ERDM_NackReason.ACTION_NOT_SUPPORTED))
                             this.slots = null; //Set to null, to Deactivate this UpdateSlotInfo
 
-                        Logger.LogError($"The response does not contain the expected data {typeof(RDMSlotInfo[])}!{Environment.NewLine}{rdmMessage}");
+                        Logger?.LogError($"The response does not contain the expected data {typeof(RDMSlotInfo[])}!{Environment.NewLine}{rdmMessage}");
                         return;
                     }
 
@@ -209,7 +209,7 @@ namespace RDMSharp
                 case DefaultSlotValueParameterWrapper _defaultSlotValueParameterWrapper:
                     if (!(value is RDMDefaultSlotValue[] defaultSlotValues))
                     {
-                        Logger.LogError($"The response does not contain the expected data {typeof(RDMDefaultSlotValue[])}!{Environment.NewLine}{rdmMessage}");
+                        Logger?.LogError($"The response does not contain the expected data {typeof(RDMDefaultSlotValue[])}!{Environment.NewLine}{rdmMessage}");
                         return;
                     }
 
@@ -229,9 +229,9 @@ namespace RDMSharp
                     if (!(value is RDMSensorValue sensorValue))
                     {
                         if (value != null)
-                            Logger.LogError($"The response does not contain the expected data {typeof(RDMSensorValue)}!{Environment.NewLine}{rdmMessage}");
+                            Logger?.LogError($"The response does not contain the expected data {typeof(RDMSensorValue)}!{Environment.NewLine}{rdmMessage}");
                         else
-                            Logger.LogError($"No response received");
+                            Logger?.LogError($"No response received");
                         return;
                     }
                     sensorValues.AddOrUpdate(sensorValue.SensorId, sensorValue, (x, y) => sensorValue);
@@ -273,7 +273,7 @@ namespace RDMSharp
             }
             catch (Exception e)
             {
-                Logger.LogError($"Not able to get UpdateParameterValues for UID: {this.UID}", e);
+                Logger?.LogError($"Not able to get UpdateParameterValues for UID: {this.UID}", e);
             }
         }
         public async Task UpdateParameterValue(ERDM_Parameter parameterId)
@@ -302,7 +302,7 @@ namespace RDMSharp
                 pm = deviceModel.GetRDMParameterWrapperByID((ushort)parameterId);
             if (pm == null)
             { 
-                Logger.LogDebug("Not Implemented Parameter");
+                Logger?.LogDebug("Not Implemented Parameter");
                 return;
             }
 
@@ -363,7 +363,7 @@ namespace RDMSharp
             }
             catch (Exception e)
             {
-                Logger.LogError($"Not able to update ParameterValue of Parameter: {parameterId} for UID: {this.UID}", e);
+                Logger?.LogError($"Not able to update ParameterValue of Parameter: {parameterId} for UID: {this.UID}", e);
             }
             this.pendingParametersUpdateRequest.Remove(parameterId);
         }
@@ -391,7 +391,7 @@ namespace RDMSharp
             }
             catch (Exception e)
             {
-                Logger.LogError($"Not able to update SensorValues for UID: {this.UID}", e);
+                Logger?.LogError($"Not able to update SensorValues for UID: {this.UID}", e);
             }
         }
         public async Task UpdateSensorValue(byte sensorId)
@@ -413,7 +413,7 @@ namespace RDMSharp
             }
             catch (Exception e)
             {
-                Logger.LogError($"Not able to update SensorValue of Sensor: {sensorId} for UID: {this.UID}", e);
+                Logger?.LogError($"Not able to update SensorValue of Sensor: {sensorId} for UID: {this.UID}", e);
             }
             this.pendingSensorValuesUpdateRequest.Remove(sensorId);
         }
@@ -437,7 +437,7 @@ namespace RDMSharp
             }
             catch (Exception e)
             {
-                Logger.LogError($"Not able to update SlotInfo for UID: {this.UID}", e);
+                Logger?.LogError($"Not able to update SlotInfo for UID: {this.UID}", e);
             }
         }
         public async Task UpdateDefaultSlotValue()
@@ -460,7 +460,7 @@ namespace RDMSharp
             }
             catch (Exception e)
             {
-                Logger.LogError($"Not able to update DefaultSlotValue for UID: {this.UID}", e);
+                Logger?.LogError($"Not able to update DefaultSlotValue for UID: {this.UID}", e);
             }
         }
         public async Task UpdateSlotDescriptions()
@@ -484,7 +484,7 @@ namespace RDMSharp
             }
             catch (Exception e)
             {
-                Logger.LogError($"Not able to update SlotDescriptions for UID: {this.UID}", e);
+                Logger?.LogError($"Not able to update SlotDescriptions for UID: {this.UID}", e);
             }
         }
         public async Task UpdateSlotDescription(ushort slotId)
@@ -507,7 +507,7 @@ namespace RDMSharp
             }
             catch (Exception e)
             {
-                Logger.LogError($"Not able to update SlotDescription of Slot: {slotId} for UID: {this.UID}", e);
+                Logger?.LogError($"Not able to update SlotDescription of Slot: {slotId} for UID: {this.UID}", e);
             }
             this.pendingSlotDescriptionsUpdateRequest.Remove(slotId);
         }
