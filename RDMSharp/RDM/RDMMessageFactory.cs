@@ -65,8 +65,8 @@ namespace RDMSharp
             ushort cs = (ushort)((data[length] << 8) | data[length + 1]);
             ushort cs2 = (ushort)data.Take(length).Sum(c => (int)c);
 
-            if (cs != cs2) //Checksum doesn't match
-                return null;
+            //if (cs != cs2) //Checksum doesn't match
+            //    return null;
 
             ushort manIdDest = (ushort)((data[3] << 8) | data[4]);
             uint devIdDest = (uint)((data[5] << 24) | (data[6] << 16) | (data[7] << 8) | data[8]);
@@ -75,7 +75,7 @@ namespace RDMSharp
 
             byte paramLength = data[23];
 
-            var m = new RDMMessage()
+            var m = new RDMMessage(cs == cs2)
             {
                 SourceUID = new RDMUID(manIdSource, devIdSource),
                 DestUID = new RDMUID(manIdDest, devIdDest),

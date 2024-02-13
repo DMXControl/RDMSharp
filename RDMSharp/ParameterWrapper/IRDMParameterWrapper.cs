@@ -70,10 +70,8 @@ namespace RDMSharp.ParameterWrapper
         object SetRequestParameterDataToObject(byte[] parameterData);
         byte[] SetRequestObjectToParameterData(object value);
     }
-    public interface IRDMSetParameterWrapperRequest<TRequest> : IRDMSetParameterWrapperRequest
+    public interface IRDMSetParameterWrapperRequest<TRequest> : IRDMSetParameterWrapperRequestContravariance<TRequest>
     {
-        RDMMessage BuildSetRequestMessage(TRequest value);
-        byte[] SetRequestValueToParameterData(TRequest value);
         TRequest SetRequestParameterDataToValue(byte[] parameterData);
     }
     public interface IRDMSetParameterWrapperWithEmptySetRequest : IRDMParameterWrapper
@@ -87,10 +85,8 @@ namespace RDMSharp.ParameterWrapper
         object SetResponseParameterDataToObject(byte[] parameterData);
         byte[] SetResponseObjectToParameterData(object value);
     }
-    public interface IRDMSetParameterWrapperResponse<TResponse> : IRDMSetParameterWrapperResponse
+    public interface IRDMSetParameterWrapperResponse<TResponse> : IRDMSetParameterWrapperSetResponseContravariance<TResponse>
     {
-        RDMMessage BuildSetResponseMessage(TResponse value);
-        byte[] SetResponseValueToParameterData(TResponse value);
         TResponse SetResponseParameterDataToValue(byte[] parameterData);
     }
     public interface IRDMSetParameterWrapperWithEmptySetResponse : IRDMParameterWrapper
@@ -122,5 +118,16 @@ namespace RDMSharp.ParameterWrapper
     public interface IRDMDeviceModelIdParameterWrapper : IRDMManufacturerParameterWrapper
     {
         ushort[] DeviceModelIds { get; }
+    }
+    public interface IRDMSetParameterWrapperRequestContravariance<in TRequest> : IRDMSetParameterWrapperRequest
+    {
+        RDMMessage BuildSetRequestMessage(TRequest value);
+        byte[] SetRequestValueToParameterData(TRequest value);
+    }
+
+    public interface IRDMSetParameterWrapperSetResponseContravariance<in TResponse>: IRDMSetParameterWrapperResponse
+    {
+        RDMMessage BuildSetResponseMessage(TResponse value);
+        byte[] SetResponseValueToParameterData(TResponse value);
     }
 }

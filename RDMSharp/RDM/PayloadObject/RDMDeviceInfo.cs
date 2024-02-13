@@ -7,7 +7,7 @@ namespace RDMSharp
     public class RDMDeviceInfo : AbstractRDMPayloadObject
     {
         public RDMDeviceInfo(
-            byte rdmProtocolVersionMajor = 0,
+            byte rdmProtocolVersionMajor = 1,
             byte rdmProtocolVersionMinor = 0,
             ushort deviceModelId = 0,
             ERDM_ProductCategoryCoarse productCategoryCoarse = ERDM_ProductCategoryCoarse.NOT_DECLARED,

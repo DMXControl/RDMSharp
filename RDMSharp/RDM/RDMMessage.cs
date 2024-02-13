@@ -14,6 +14,19 @@ namespace RDMSharp
         {
 
         }
+        public RDMMessage(params ERDM_NackReason[] nackReasons)
+        {
+            if (nackReasons == null)
+                return;
+            if (nackReasons.Length == 0)
+                return;
+
+            nackReason = nackReasons;
+        }
+        internal RDMMessage(bool checksumValid)
+        {
+            ChecksumValid = checksumValid;
+        }
 
         public byte MessageLength
         {
@@ -111,12 +124,24 @@ namespace RDMSharp
                 return (ushort)(sum % 0x10000);
             }
         }
+        public bool ChecksumValid { get; private set; }
 
-        public ERDM_ResponseType ResponseType
+        public ERDM_ResponseType? ResponseType
         {
             get
             {
-                return (ERDM_ResponseType)PortID_or_Responsetype;
+                if (this.Command.HasFlag(ERDM_Command.RESPONSE))
+                    return (ERDM_ResponseType)PortID_or_Responsetype;
+                return null;
+            }
+        }
+        public byte? PortID
+        {
+            get
+            {
+                if (!this.Command.HasFlag(ERDM_Command.RESPONSE))
+                    return PortID_or_Responsetype;
+                return null;
             }
         }
 
@@ -124,7 +149,10 @@ namespace RDMSharp
         {
             get
             {
-                ERDM_ResponseType resp = ResponseType;
+                if (!ResponseType.HasValue)
+                    return false;
+
+                ERDM_ResponseType resp = ResponseType.Value;
                 return resp == ERDM_ResponseType.ACK || resp == ERDM_ResponseType.ACK_OVERFLOW || resp == ERDM_ResponseType.ACK_TIMER;
             }
         }
@@ -178,10 +206,24 @@ namespace RDMSharp
             b.AppendLine("DestUID: " + DestUID);
             b.AppendLine("SourceUID: " + SourceUID);
             b.AppendLine("MessageCounter: " + MessageCounter);
-            b.AppendLine("PortID / Responsetype: " + ResponseType);
+            if (ResponseType.HasValue)
+                b.AppendLine("Responsetype: " + ResponseType);
+            if (PortID.HasValue)
+                b.AppendLine("PortID: " + PortID);
             b.AppendLine("SubDevice: " + SubDevice);
             b.AppendLine("Command: " + Command);
-            b.Append("Parameter: " + ((ERDM_Parameter)Parameter).ToString());
+            b.AppendLine("Parameter: " + ((ERDM_Parameter)Parameter).ToString());
+            if(
+                Command == ERDM_Command.GET_COMMAND_RESPONSE ||
+                Command == ERDM_Command.SET_COMMAND ||
+                Command == ERDM_Command.SET_COMMAND_RESPONSE)
+            {
+                var pm = RDMParameterWrapperCatalogueManager.GetInstance().GetRDMParameterWrapperByID(Parameter);
+                if (!(pm is IRDMSetParameterWrapperWithEmptySetResponse ||
+                    pm is IRDMSetParameterWrapperWithEmptySetRequest ||
+                    pm is IRDMGetParameterWrapperWithEmptyGetResponse))
+                    b.AppendLine("Value: " + Value);
+            }
             //Add More if required
 
             return b.ToString();
@@ -229,7 +271,6 @@ namespace RDMSharp
             hashCode = hashCode * -1521134295 + PDL.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<byte[]>.Default.GetHashCode(ParameterData);
             hashCode = hashCode * -1521134295 + Checksum.GetHashCode();
-            hashCode = hashCode * -1521134295 + ResponseType.GetHashCode();
             hashCode = hashCode * -1521134295 + IsAck.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<object>.Default.GetHashCode(Value);
             return hashCode;
