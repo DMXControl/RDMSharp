@@ -20,7 +20,15 @@ namespace RDMSharp
 
         public bool ReceiveMethode(RDMMessage rdmMessage)
         {
-            var obj = buffer.FirstOrDefault(b => b.Value == null && rdmMessage.TransactionCounter == b.Key.TransactionCounter && b.Key.DestUID == rdmMessage.SourceUID && b.Key.SourceUID == rdmMessage.DestUID);
+            //None Queued Parameters
+            var obj = buffer.Where(b=>b.Key.Parameter!= ERDM_Parameter.QUEUED_MESSAGE).FirstOrDefault(b => b.Value == null && rdmMessage.Parameter == b.Key.Parameter && rdmMessage.TransactionCounter == b.Key.TransactionCounter && b.Key.DestUID == rdmMessage.SourceUID && b.Key.SourceUID == rdmMessage.DestUID);
+            if (obj.Key != null)
+            {
+                buffer.AddOrUpdate(obj.Key, rdmMessage, (x, y) => rdmMessage);
+                return true;
+            }
+            //Queued Parameters
+            obj = buffer.Where(b => b.Key.Parameter == ERDM_Parameter.QUEUED_MESSAGE).FirstOrDefault(b => b.Value == null && rdmMessage.TransactionCounter == b.Key.TransactionCounter && b.Key.DestUID == rdmMessage.SourceUID && b.Key.SourceUID == rdmMessage.DestUID);
             if (obj.Key != null)
             {
                 buffer.AddOrUpdate(obj.Key, rdmMessage, (x, y) => rdmMessage);

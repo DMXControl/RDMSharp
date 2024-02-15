@@ -11,7 +11,6 @@ namespace RDMSharp
         bool Present { get; }
 
         RDMDeviceInfo DeviceInfo { get; }
-        IRDMDeviceModel DeviceModel { get; }
 
         IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues { get; }
         IReadOnlyDictionary<byte, RDMSensorValue> SensorValues { get; }

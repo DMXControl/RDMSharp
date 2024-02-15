@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp
 {
-    public abstract class AbstractRDMDevice<T_RDMDeviceModel> : IRDMDevice where T_RDMDeviceModel : AbstractRDMDeviceModel
+    public abstract class AbstractRDMDevice : IRDMDevice
     {
         private static Random random = new Random();
         private static ILogger Logger = null;
@@ -22,17 +22,7 @@ namespace RDMSharp
         private static StatusMessageParameterWrapper statusMessageParameterWrapper => (StatusMessageParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.STATUS_MESSAGES);
 
 
-        private static List<T_RDMDeviceModel> knownDeviceModels = new List<T_RDMDeviceModel>();
-        public static IReadOnlyCollection<T_RDMDeviceModel> KnownDeviceModels => knownDeviceModels.AsReadOnly();
-        private static T_RDMDeviceModel getDeviceModel(RDMUID uid, RDMDeviceInfo deviceInfo)
-        {
-            var kdm = knownDeviceModels.FirstOrDefault(dm => dm.IsModelOf(uid, deviceInfo));
-            if (kdm == null)
-                kdm = (T_RDMDeviceModel)Activator.CreateInstance(typeof(T_RDMDeviceModel), uid, deviceInfo);
-
-            return kdm;
-
-        }
+        
         private AsyncRDMRequestHelper asyncRDMRequestHelper;
 
 
@@ -44,8 +34,8 @@ namespace RDMSharp
 
         public RDMDeviceInfo DeviceInfo { get; private set; }
 
-        private T_RDMDeviceModel deviceModel;
-        public IRDMDeviceModel DeviceModel => deviceModel;
+        private RDMDeviceModel deviceModel;
+        public RDMDeviceModel DeviceModel => deviceModel;
 
         private ConcurrentDictionary<ERDM_Parameter, object> parameterValues = new ConcurrentDictionary<ERDM_Parameter, object>();
         public IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues => parameterValues.AsReadOnly();
@@ -62,7 +52,8 @@ namespace RDMSharp
         public bool IsDisposing { get; private set; }
 
         public bool IsDisposed { get; private set; }
-        public virtual bool IsGenerated { get; protected set; }
+        public virtual bool IsGenerated { get; protected internal set; }
+        public bool AllDataPulled { get; private set; }
 
         public AbstractRDMDevice(RDMUID uid)
         {
@@ -84,7 +75,7 @@ namespace RDMSharp
             {
                 case ERDM_Parameter.DEVICE_INFO when value is RDMDeviceInfo deviceInfo:
                     DeviceInfo = deviceInfo;
-                    return;
+                    goto default;
 
                 default:
                     parameterValues.AddOrUpdate(parameter, value, (o, p) => value);
@@ -107,6 +98,17 @@ namespace RDMSharp
         protected abstract Task SendRDMMessage(RDMMessage rdmMessage);
         protected async Task ReceiveRDMMessage(RDMMessage rdmMessage)
         {
+            try
+            {
+                if (!IsGenerated)
+                    if (deviceModel != null)
+                        await deviceModel?.ReceiveRDMMessage(rdmMessage);
+            }
+            catch (Exception e)
+            {
+                Logger?.LogError(e, string.Empty);
+            }
+
             if ((rdmMessage.DestUID.IsBroadcast || rdmMessage.DestUID == UID) && !rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
             {
                 await processRequestMessage(rdmMessage);
@@ -149,15 +151,15 @@ namespace RDMSharp
             await UpdateSlotInfo();
             await UpdateDefaultSlotValue();
             await UpdateSlotDescriptions();
+            AllDataPulled = true;
         }
         private async Task processRequestMessage(RDMMessage rdmMessage)
         {
-            await Task.Delay(200);
+            //await Task.Delay(200);
             var pm = pmManager.GetRDMParameterWrapperByID(rdmMessage.Parameter);
             object responseValue = null;
             parameterValues.TryGetValue(rdmMessage.Parameter, out responseValue);
             RDMMessage? response = null;
-            Console.WriteLine(rdmMessage);
             if (rdmMessage.Command == ERDM_Command.GET_COMMAND)
             {
                 switch (pm)
@@ -177,17 +179,57 @@ namespace RDMSharp
                         break;
 
 
-                    case IRDMGetParameterWrapperResponse<string> getParameterWrapperResponseString when responseValue is string _string:
+                    case IRDMGetParameterWrapperResponse<string> getParameterWrapperResponseString
+                    when responseValue is string _string:
                         response = getParameterWrapperResponseString.BuildGetResponseMessage(_string);
                         break;
-                    case IRDMGetParameterWrapperResponse<bool> getParameterWrapperResponseBool when responseValue is bool _bool:
+                    case IRDMGetParameterWrapperResponse<bool> getParameterWrapperResponseBool
+                    when responseValue is bool _bool:
                         response = getParameterWrapperResponseBool.BuildGetResponseMessage(_bool);
                         break;
-                    case IRDMGetParameterWrapperResponse<byte> getParameterWrapperResponseByte when responseValue is byte _byte:
+                    case IRDMGetParameterWrapperResponse<byte> getParameterWrapperResponseByte
+                    when responseValue is byte _byte:
                         response = getParameterWrapperResponseByte.BuildGetResponseMessage(_byte);
                         break;
-                    case IRDMGetParameterWrapperResponse<sbyte> getParameterWrapperResponseSByte when responseValue is sbyte _sbyte:
+                    case IRDMGetParameterWrapperResponse<sbyte> getParameterWrapperResponseSByte
+                    when responseValue is sbyte _sbyte:
                         response = getParameterWrapperResponseSByte.BuildGetResponseMessage(_sbyte);
+                        break;
+                    case IRDMGetParameterWrapperResponse<short> getParameterWrapperResponseShort
+                    when responseValue is short _short:
+                        response = getParameterWrapperResponseShort.BuildGetResponseMessage(_short);
+                        break;
+                    case IRDMGetParameterWrapperResponse<ushort> getParameterWrapperResponseUShort
+                    when responseValue is ushort _ushort:
+                        response = getParameterWrapperResponseUShort.BuildGetResponseMessage(_ushort);
+                        break;
+                    case IRDMGetParameterWrapperResponse<int> getParameterWrapperResponseInt
+                    when responseValue is int _int:
+                        response = getParameterWrapperResponseInt.BuildGetResponseMessage(_int);
+                        break;
+                    case IRDMGetParameterWrapperResponse<uint> getParameterWrapperResponseUInt
+                    when responseValue is uint _uint:
+                        response = getParameterWrapperResponseUInt.BuildGetResponseMessage(_uint);
+                        break;
+                    case IRDMGetParameterWrapperResponse<long> getParameterWrapperResponseLong
+                    when responseValue is long _long:
+                        response = getParameterWrapperResponseLong.BuildGetResponseMessage(_long);
+                        break;
+                    case IRDMGetParameterWrapperResponse<ulong> getParameterWrapperResponseULong
+                    when responseValue is ulong _ulong:
+                        response = getParameterWrapperResponseULong.BuildGetResponseMessage(_ulong);
+                        break;
+                    case IRDMGetParameterWrapperResponse<double> getParameterWrapperResponseDouble
+                    when responseValue is double _double:
+                        response = getParameterWrapperResponseDouble.BuildGetResponseMessage(_double);
+                        break;
+                    case IRDMGetParameterWrapperResponse<float> getParameterWrapperResponseFloat
+                    when responseValue is float _float:
+                        response = getParameterWrapperResponseFloat.BuildGetResponseMessage(_float);
+                        break;
+                    case DMX512StartingAddressParameterWrapper dmx512StartingAddressParameterWrapper
+                        when responseValue is ushort _ushort:
+                        response = dmx512StartingAddressParameterWrapper.BuildGetResponseMessage(_ushort);
                         break;
                 }
             }
@@ -340,12 +382,12 @@ namespace RDMSharp
             if (rdmMessage.DestUID.IsBroadcast) // no Response on Broadcast
                 return;
             if (response == null)
-                response = new RDMMessage(ERDM_NackReason.UNKNOWN_PID);
+                response = new RDMMessage(ERDM_NackReason.UNKNOWN_PID) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
 
             response.TransactionCounter = rdmMessage.TransactionCounter;
             response.SourceUID = rdmMessage.DestUID;
             response.DestUID = rdmMessage.SourceUID;
-            await Task.Delay(33);
+            //await Task.Delay(33);
             await SendRDMMessage(response);
         }
 
@@ -399,7 +441,7 @@ namespace RDMSharp
                     if (deviceModel != null)
                         break;
 
-                    deviceModel = getDeviceModel(UID, deviceInfo);
+                    deviceModel = RDMDeviceModel.getDeviceModel(UID, deviceInfo, new Func<RDMMessage,Task>(SendRDMMessage));
                     if (!deviceModel.IsInitialized)
                     {
                         deviceModel.Initialized += DeviceModel_Initialized;
@@ -791,6 +833,16 @@ namespace RDMSharp
             this.pendingSlotDescriptionsUpdateRequest.Remove(slotId);
         }
 
+        public IReadOnlyDictionary<ERDM_Parameter, object> GetAllParameterValues() 
+        {
+            if (this.DeviceModel != null)
+                return this.DeviceModel.ParameterValues
+                    .Concat(this.ParameterValues)
+                    .ToLookup(x => x.Key, x => x.Value)
+                    .ToDictionary(x => x.Key, g => g.First());
+            else
+                return this.ParameterValues;
+        }
         public void Dispose()
         {
             if (IsDisposing || IsDisposed)
@@ -815,6 +867,13 @@ namespace RDMSharp
         public override string ToString()
         {
             return $"[{UID}] {this.DeviceModel}";
+        }
+    }
+    public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
+    {
+        public sealed override bool IsGenerated => true;
+        public AbstractGeneratedRDMDevice(RDMUID uid) : base(uid)
+        {
         }
     }
 }

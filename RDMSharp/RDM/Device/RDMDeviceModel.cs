@@ -9,8 +9,25 @@ using System.Threading.Tasks;
 
 namespace RDMSharp
 {
-    public abstract class AbstractRDMDeviceModel : IRDMDeviceModel
+    public sealed class RDMDeviceModel : IRDMDeviceModel
     {
+        private static ConcurrentDictionary<int, RDMDeviceModel> knownDeviceModels;
+        public static IReadOnlyCollection<RDMDeviceModel> KnownDeviceModels => knownDeviceModels.Values.ToList();
+        internal static RDMDeviceModel getDeviceModel(RDMUID uid, RDMDeviceInfo deviceInfo, Func<RDMMessage,Task> sendRdmFunktion)
+        {
+            if (knownDeviceModels == null)
+                knownDeviceModels = new ConcurrentDictionary<int, RDMDeviceModel>();
+            var kdm = knownDeviceModels.Values.FirstOrDefault(dm => dm.IsModelOf(uid, deviceInfo));
+            if (kdm == null)
+            {
+                kdm = new RDMDeviceModel(uid, deviceInfo, sendRdmFunktion);
+                knownDeviceModels.TryAdd(kdm.GetHashCode(), kdm);
+            }
+
+            return kdm;
+
+        }
+
         private static Random random = new Random();
         private static RDMParameterWrapperCatalogueManager pmManager => RDMParameterWrapperCatalogueManager.GetInstance();
         private static DeviceInfoParameterWrapper deviceInfoParameterWrapper => (DeviceInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.DEVICE_INFO);
@@ -74,9 +91,11 @@ namespace RDMSharp
 
 
         public event PropertyChangedEventHandler PropertyChanged;
+        private readonly Func<RDMMessage, Task> sendRdmFunktion;
 
-        protected AbstractRDMDeviceModel(RDMUID uid, RDMDeviceInfo deviceInfo)
+        protected RDMDeviceModel(RDMUID uid, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
         {
+            this.sendRdmFunktion = sendRdmFunktion;
             DeviceInfo = deviceInfo;
             this.CurrentUsedUID = uid;
             ManufacturerID = uid.ManufacturerID;
@@ -136,12 +155,10 @@ namespace RDMSharp
         private async Task sendRDMMessage(RDMMessage rdmMessage)
         {
             rdmMessage.DestUID = CurrentUsedUID;
-            await SendRDMMessage(rdmMessage);
+            await sendRdmFunktion.Invoke(rdmMessage);
         }
 
-        protected abstract Task SendRDMMessage(RDMMessage rdmMessage);
-
-        protected async void ReceiveRDMMessage(RDMMessage rdmMessage)
+        internal async Task ReceiveRDMMessage(RDMMessage rdmMessage)
         {
             if (rdmMessage.SourceUID != CurrentUsedUID)
                 return;

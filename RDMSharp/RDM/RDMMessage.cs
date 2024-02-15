@@ -22,6 +22,7 @@ namespace RDMSharp
                 return;
 
             nackReason = nackReasons;
+            PortID_or_Responsetype = (byte)ERDM_ResponseType.NACK_REASON;
         }
         internal RDMMessage(bool checksumValid)
         {
@@ -203,8 +204,9 @@ namespace RDMSharp
         public override string ToString()
         {
             StringBuilder b = new StringBuilder(128);
-            b.AppendLine("DestUID: " + DestUID);
-            b.AppendLine("SourceUID: " + SourceUID);
+            b.AppendLine("Dest: " + DestUID);
+            b.AppendLine("Source: " + SourceUID);
+            b.AppendLine("Transaction: " + TransactionCounter);
             b.AppendLine("MessageCounter: " + MessageCounter);
             if (ResponseType.HasValue)
                 b.AppendLine("Responsetype: " + ResponseType);
@@ -213,16 +215,27 @@ namespace RDMSharp
             b.AppendLine("SubDevice: " + SubDevice);
             b.AppendLine("Command: " + Command);
             b.AppendLine("Parameter: " + ((ERDM_Parameter)Parameter).ToString());
-            if(
+            if (
                 Command == ERDM_Command.GET_COMMAND_RESPONSE ||
                 Command == ERDM_Command.SET_COMMAND ||
                 Command == ERDM_Command.SET_COMMAND_RESPONSE)
             {
                 var pm = RDMParameterWrapperCatalogueManager.GetInstance().GetRDMParameterWrapperByID(Parameter);
-                if (!(pm is IRDMSetParameterWrapperWithEmptySetResponse ||
-                    pm is IRDMSetParameterWrapperWithEmptySetRequest ||
-                    pm is IRDMGetParameterWrapperWithEmptyGetResponse))
-                    b.AppendLine("Value: " + Value);
+                switch (Command)
+                {
+                    case ERDM_Command.SET_COMMAND_RESPONSE
+                        when !(pm is IRDMSetParameterWrapperWithEmptySetResponse):
+                        b.AppendLine("Value: " + Value);
+                        break;
+                    case ERDM_Command.GET_COMMAND_RESPONSE
+                        when !(pm is IRDMGetParameterWrapperWithEmptyGetResponse):
+                        b.AppendLine("Value: " + Value);
+                        break;
+                    case ERDM_Command.SET_COMMAND
+                        when !(pm is IRDMSetParameterWrapperWithEmptySetRequest):
+                        b.AppendLine("Value: " + Value);
+                        break;
+                }
             }
             //Add More if required
 
