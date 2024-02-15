@@ -153,7 +153,7 @@ namespace RDMSharp
             await UpdateSlotDescriptions();
             AllDataPulled = true;
         }
-        private async Task processRequestMessage(RDMMessage rdmMessage)
+        protected async Task<RDMMessage> processRequestMessage(RDMMessage rdmMessage)
         {
             //await Task.Delay(200);
             var pm = pmManager.GetRDMParameterWrapperByID(rdmMessage.Parameter);
@@ -380,15 +380,14 @@ namespace RDMSharp
                 }
             }
             if (rdmMessage.DestUID.IsBroadcast) // no Response on Broadcast
-                return;
+                return null;
             if (response == null)
                 response = new RDMMessage(ERDM_NackReason.UNKNOWN_PID) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
 
             response.TransactionCounter = rdmMessage.TransactionCounter;
             response.SourceUID = rdmMessage.DestUID;
             response.DestUID = rdmMessage.SourceUID;
-            //await Task.Delay(33);
-            await SendRDMMessage(response);
+            return response;
         }
 
         private async Task processResponseMessage(RequestResult result)

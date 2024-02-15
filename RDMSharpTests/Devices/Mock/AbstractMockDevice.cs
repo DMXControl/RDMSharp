@@ -2,12 +2,6 @@
 
 namespace RDMSharpTests.Devices.Mock
 {
-    internal sealed class MockDevice1 : AbstractMockDevice
-    {
-        public MockDevice1(RDMUID uid) : base(uid)
-        {
-        }
-    }
     internal abstract class AbstractMockDevice : AbstractRDMDevice
     {
         private ConcurrentDictionary<long, RDMMessage> identifyer = new ConcurrentDictionary<long, RDMMessage>();

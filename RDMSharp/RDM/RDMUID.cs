@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace RDMSharp
 {
-    public readonly struct RDMUID : IEquatable<RDMUID>
+    public readonly struct RDMUID : IEquatable<RDMUID>, IComparer<RDMUID>, IComparable<RDMUID>
     {
         public static readonly RDMUID Empty = new RDMUID(0, 0);
         public static readonly RDMUID Broadcast = new RDMUID(0xFFFF, 0xFFFFFFFF);
@@ -118,6 +118,16 @@ namespace RDMSharp
         public override int GetHashCode()
         {
             return ManufacturerID.GetHashCode() + 17 * DeviceID.GetHashCode();
+        }
+
+
+        public int CompareTo(RDMUID other)
+        {
+            return ((ulong)this).CompareTo((ulong)other);
+        }
+        public int Compare(RDMUID x, RDMUID y)
+        {
+            return x.CompareTo(y);
         }
 
         public bool IsBroadcast

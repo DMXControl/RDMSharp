@@ -18,7 +18,7 @@ namespace RDMSharpTest.RDM.Devices
             sw.Start();
             var uid = new RDMUID(0x9fff, 1);
             var generated = new MockGeneratedDevice1(uid);
-            var remote = new MockDevice1(uid);
+            var remote = new MockDevice(uid);
             while (remote.DeviceModel?.IsInitialized != true || !remote.AllDataPulled)
             {
                 await Task.Delay(10);
@@ -30,20 +30,24 @@ namespace RDMSharpTest.RDM.Devices
                         Assert.Fail("Timeouted because AllDataPulled not true");
                 }
             }
+            testAllValues();
 
-            var parameterValuesRemote = remote.GetAllParameterValues();
-            var parameterValuesGenerated = generated.GetAllParameterValues();
-            foreach (var parameter in parameterValuesGenerated.Keys)
+            void testAllValues()
             {
-                Assert.That(parameterValuesRemote.Keys, Contains.Item(parameter));
-                Assert.That(parameterValuesGenerated[parameter], Is.EqualTo(parameterValuesRemote[parameter]));
+                var parameterValuesRemote = remote.GetAllParameterValues();
+                var parameterValuesGenerated = generated.GetAllParameterValues();
+                foreach (var parameter in parameterValuesGenerated.Keys)
+                {
+                    Assert.That(parameterValuesRemote.Keys, Contains.Item(parameter));
+                    Assert.That(parameterValuesGenerated[parameter], Is.EqualTo(parameterValuesRemote[parameter]));
+                }
+                foreach (var parameter in parameterValuesRemote.Keys)
+                {
+                    Assert.That(parameterValuesGenerated.Keys, Contains.Item(parameter));
+                    Assert.That(parameterValuesRemote[parameter], Is.EqualTo(parameterValuesGenerated[parameter]));
+                }
+                Assert.That(parameterValuesRemote.Count, Is.EqualTo(parameterValuesGenerated.Count));
             }
-            foreach (var parameter in parameterValuesRemote.Keys)
-            {
-                Assert.That(parameterValuesGenerated.Keys, Contains.Item(parameter));
-                Assert.That(parameterValuesRemote[parameter], Is.EqualTo(parameterValuesGenerated[parameter]));
-            }
-            Assert.That(parameterValuesRemote.Count, Is.EqualTo(parameterValuesGenerated.Count));
         }
     }
 }
