@@ -49,7 +49,7 @@ namespace RDMSharp
         {
             List<byte> data = new List<byte>();
             data.AddRange(Tools.ValueToData(this.InterfaceId));
-            data.AddRange(this.HardwareAddress.ToBytes());
+            data.AddRange((byte[])this.HardwareAddress);
             return data.ToArray();
         }
     }

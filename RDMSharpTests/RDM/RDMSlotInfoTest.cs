@@ -10,13 +10,19 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            RDMSlotInfo statusMessage = new RDMSlotInfo(3, ERDM_SlotType.SEC_ROTATION, ERDM_SlotCategory.INTENSITY);
+            RDMSlotInfo slotInfo = new RDMSlotInfo(3, ERDM_SlotType.SEC_ROTATION, ERDM_SlotCategory.INTENSITY);
 
-            byte[] data = statusMessage.ToPayloadData();
+            byte[] data = slotInfo.ToPayloadData();
 
-            RDMSlotInfo resultStatusMessage = RDMSlotInfo.FromPayloadData(data);
+            RDMSlotInfo resultSlotInfo = RDMSlotInfo.FromPayloadData(data);
 
-            Assert.That(resultStatusMessage, Is.EqualTo(statusMessage));
+            Assert.That(resultSlotInfo, Is.EqualTo(slotInfo));
+
+            var res = resultSlotInfo.ToString();
+            var src = slotInfo.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+
 namespace RDMSharpTest.RDM
 {
     public class RDMDeviceInfoTest
@@ -23,7 +25,13 @@ namespace RDMSharpTest.RDM
 
             RDMDeviceInfo resultDeviceInfo = RDMDeviceInfo.FromMessage(message);
 
-            Assert.That(deviceInfo, Is.EqualTo(resultDeviceInfo));
+            Assert.That(resultDeviceInfo, Is.EqualTo(deviceInfo));
+
+            var res = resultDeviceInfo.ToString();
+            var src = deviceInfo.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

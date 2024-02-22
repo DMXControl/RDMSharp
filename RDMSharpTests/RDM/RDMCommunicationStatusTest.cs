@@ -25,6 +25,12 @@ namespace RDMSharpTest.RDM
             RDMCommunicationStatus resultCommunicationStatus = RDMCommunicationStatus.FromMessage(message);
 
             Assert.That(resultCommunicationStatus, Is.EqualTo(communicationStatus));
+
+            var res = resultCommunicationStatus.ToString();
+            var src = communicationStatus.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

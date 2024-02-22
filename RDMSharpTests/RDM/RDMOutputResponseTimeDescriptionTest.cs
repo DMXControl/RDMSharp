@@ -23,7 +23,13 @@ namespace RDMSharpTest.RDM
 
             RDMOutputResponseTimeDescription resultOutputResponseTimeDescription = RDMOutputResponseTimeDescription.FromMessage(message);
 
-            Assert.That(outputResponseTimeDescription, Is.EqualTo(resultOutputResponseTimeDescription));
+            Assert.That(resultOutputResponseTimeDescription, Is.EqualTo(outputResponseTimeDescription));
+
+            var res = resultOutputResponseTimeDescription.ToString();
+            var src = outputResponseTimeDescription.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
         [Test]
         public void DescriptionCharLimitTest()

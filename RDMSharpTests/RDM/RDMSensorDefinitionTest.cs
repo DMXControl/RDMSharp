@@ -25,6 +25,12 @@ namespace RDMSharpTest.RDM
             RDMSensorDefinition resultSensorDefinition = RDMSensorDefinition.FromMessage(message);
 
             Assert.That(resultSensorDefinition, Is.EqualTo(sensorDefinition));
+
+            var res = resultSensorDefinition.ToString();
+            var src = sensorDefinition.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
 
         [Test]

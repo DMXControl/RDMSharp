@@ -61,7 +61,7 @@ namespace RDMSharp
                 B6 = byte.Parse(match.Groups[6].Value, System.Globalization.NumberStyles.HexNumber);
             }
             else
-                throw new Exception($"The given string\"{macAddress}\" is not matchable to any known MAC-Address format");
+                throw new FormatException($"The given string\"{macAddress}\" is not matchable to any known MAC-Address format");
         }
 
         public MACAddress(IEnumerable<byte> enumerable)
@@ -91,45 +91,6 @@ namespace RDMSharp
         public static implicit operator MACAddress(byte[] bytes)
         {
             return new MACAddress(bytes);
-        }
-
-        public static MACAddress Parse(string uid)
-        {
-            if (!uid.Contains(':')) return MACAddress.Empty;
-            string[] parts = uid.Split(':');
-            if (parts.Length != 6) return MACAddress.Empty;
-            foreach (var part in parts)
-                if (part.Length != 2) return MACAddress.Empty;
-
-            byte b1;
-            byte b2;
-            byte b3;
-            byte b4;
-            byte b5;
-            byte b6;
-            try
-            {
-                b1 = Convert.ToByte(parts[0], 16);
-                b2 = Convert.ToByte(parts[1], 16);
-                b3 = Convert.ToByte(parts[2], 16);
-                b4 = Convert.ToByte(parts[3], 16);
-                b5 = Convert.ToByte(parts[4], 16);
-                b6 = Convert.ToByte(parts[5], 16);
-            }
-            catch
-            {
-                return MACAddress.Empty;
-            }
-            return new MACAddress(b1, b2, b3, b4, b5, b6);
-        }
-        public IEnumerable<byte> ToBytes()
-        {
-            yield return this.B1;
-            yield return this.B2;
-            yield return this.B3;
-            yield return this.B4;
-            yield return this.B5;
-            yield return this.B6;
         }
 
         public static bool operator ==(MACAddress a, MACAddress b)

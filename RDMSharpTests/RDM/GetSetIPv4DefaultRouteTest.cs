@@ -26,6 +26,12 @@ namespace RDMSharpTest.RDM
             GetSetIPv4DefaultRoute resultGetSetIPv4DefaultRoute = GetSetIPv4DefaultRoute.FromMessage(message);
 
             Assert.That(resultGetSetIPv4DefaultRoute, Is.EqualTo(getSetIPv4DefaultRoute));
+
+            var res = resultGetSetIPv4DefaultRoute.ToString();
+            var src = getSetIPv4DefaultRoute.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

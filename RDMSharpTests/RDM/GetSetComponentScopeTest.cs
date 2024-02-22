@@ -42,6 +42,12 @@ namespace RDMSharpTest.RDM
             resultSensorValue = GetSetComponentScope.FromMessage(message);
 
             Assert.That(resultSensorValue, Is.EqualTo(sensorValue));
+
+            var res = resultSensorValue.ToString();
+            var src = sensorValue.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
         [Test]
         public void DescriptionCharLimitTest()

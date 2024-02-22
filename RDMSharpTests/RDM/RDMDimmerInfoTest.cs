@@ -23,7 +23,13 @@ namespace RDMSharpTest.RDM
 
             RDMDimmerInfo resultDimmerInfo = RDMDimmerInfo.FromMessage(message);
 
-            Assert.That(dimmerInfo, Is.EqualTo(resultDimmerInfo));
+            Assert.That(resultDimmerInfo, Is.EqualTo(dimmerInfo));
+
+            var res = resultDimmerInfo.ToString();
+            var src = dimmerInfo.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

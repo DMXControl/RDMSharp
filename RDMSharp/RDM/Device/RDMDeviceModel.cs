@@ -93,7 +93,7 @@ namespace RDMSharp
         public event PropertyChangedEventHandler PropertyChanged;
         private readonly Func<RDMMessage, Task> sendRdmFunktion;
 
-        protected RDMDeviceModel(RDMUID uid, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
+        internal RDMDeviceModel(RDMUID uid, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
         {
             this.sendRdmFunktion = sendRdmFunktion;
             DeviceInfo = deviceInfo;

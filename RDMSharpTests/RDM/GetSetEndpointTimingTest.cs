@@ -25,6 +25,12 @@ namespace RDMSharpTest.RDM
 
             Assert.That(resultGetEndpointTimingResponse, Is.EqualTo(getEndpointTimingResponse));
 
+            var res = resultGetEndpointTimingResponse.ToString();
+            var src = getEndpointTimingResponse.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
+
             SetEndpointTimingRequest setEndpointTimingRequest = new SetEndpointTimingRequest(1, 42);
             data = setEndpointTimingRequest.ToPayloadData();
 
@@ -39,6 +45,12 @@ namespace RDMSharpTest.RDM
             SetEndpointTimingRequest resultSetEndpointTimingRequest = SetEndpointTimingRequest.FromMessage(message);
 
             Assert.That(resultSetEndpointTimingRequest, Is.EqualTo(setEndpointTimingRequest));
+
+            res = resultSetEndpointTimingRequest.ToString();
+            src = setEndpointTimingRequest.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

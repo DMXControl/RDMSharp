@@ -26,7 +26,15 @@ namespace RDMSharpTest.RDM
 
             TCPCommsEntry resultTCPCommsEntryTest = TCPCommsEntry.FromMessage(message);
 
-            Assert.That(resultTCPCommsEntryTest, Is.EqualTo(tcpCommsEntryTest)); tcpCommsEntryTest = new TCPCommsEntry("Pseudo TCPCommsEntryTest", IPAddress.Parse("2001:db8:0:0:0:0:1428:57ab"), 2347, 99);
+            Assert.That(resultTCPCommsEntryTest, Is.EqualTo(tcpCommsEntryTest));
+
+            var res = resultTCPCommsEntryTest.ToString();
+            var src = tcpCommsEntryTest.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
+
+            tcpCommsEntryTest = new TCPCommsEntry("Pseudo TCPCommsEntryTest", IPAddress.Parse("2001:db8:0:0:0:0:1428:57ab"), 2347, 99);
 
             data = tcpCommsEntryTest.ToPayloadData();
 
@@ -41,6 +49,12 @@ namespace RDMSharpTest.RDM
             resultTCPCommsEntryTest = TCPCommsEntry.FromMessage(message);
 
             Assert.That(resultTCPCommsEntryTest, Is.EqualTo(tcpCommsEntryTest));
+
+            res = resultTCPCommsEntryTest.ToString();
+            src = tcpCommsEntryTest.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
         [Test]
         public void DescriptionCharLimitTest()

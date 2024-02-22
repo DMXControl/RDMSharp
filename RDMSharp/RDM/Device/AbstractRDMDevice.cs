@@ -111,7 +111,7 @@ namespace RDMSharp
 
             if ((rdmMessage.DestUID.IsBroadcast || rdmMessage.DestUID == UID) && !rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
             {
-                await SendRDMMessage(await processRequestMessage(rdmMessage));
+                await SendRDMMessage(processRequestMessage(rdmMessage));
                 return;
             }
 
@@ -153,13 +153,12 @@ namespace RDMSharp
             await UpdateSlotDescriptions();
             AllDataPulled = true;
         }
-        protected async Task<RDMMessage> processRequestMessage(RDMMessage rdmMessage)
+        protected RDMMessage processRequestMessage(RDMMessage rdmMessage)
         {
-            //await Task.Delay(200);
             var pm = pmManager.GetRDMParameterWrapperByID(rdmMessage.Parameter);
             object responseValue = null;
             parameterValues.TryGetValue(rdmMessage.Parameter, out responseValue);
-            RDMMessage? response = null;
+            RDMMessage response = null;
             if (rdmMessage.Command == ERDM_Command.GET_COMMAND)
             {
                 switch (pm)

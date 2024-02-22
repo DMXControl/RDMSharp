@@ -26,7 +26,7 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Test
-      run: dotnet test --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+      run: dotnet test --no-restore --verbosity normal
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.1
       with:

@@ -1,4 +1,5 @@
-﻿using RDMSharp.ParameterWrapper;
+﻿using Microsoft.Extensions.Logging;
+using RDMSharp.ParameterWrapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ namespace RDMSharp
 {
     public class RDMMessage : IEquatable<RDMMessage>
     {
+        private static ILogger Logger = null;
         private byte[] _parameterData = new byte[0];
 
         public RDMMessage()
@@ -196,6 +198,9 @@ namespace RDMSharp
                 }
                 catch (Exception ex)
                 {
+#if DEBUG
+                    Logger?.LogError(string.Empty, ex);
+#endif
                     return null;
                 }
             }
@@ -266,6 +271,15 @@ namespace RDMSharp
                    ResponseType == other.ResponseType &&
                    IsAck == other.IsAck &&
                    EqualityComparer<object>.Default.Equals(Value, other.Value);
+        }
+        public static bool operator ==(RDMMessage a, RDMMessage b)
+        {
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(RDMMessage a, RDMMessage b)
+        {
+            return !a.Equals(b);
         }
 
         public override int GetHashCode()

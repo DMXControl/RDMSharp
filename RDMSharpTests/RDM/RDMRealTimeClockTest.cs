@@ -25,6 +25,12 @@ namespace RDMSharpTest.RDM
             RDMRealTimeClock resultRealTimeClock = RDMRealTimeClock.FromMessage(message);
 
             Assert.That(resultRealTimeClock, Is.EqualTo(realTimeClock));
+
+            var res = resultRealTimeClock.ToString();
+            var src = realTimeClock.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

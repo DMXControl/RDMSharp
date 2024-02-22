@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace RDMSharp
 {
-    internal static class EventTools
+    public static class EventTools
     {
         [DebuggerHidden]
         public static int InvokeFailSafe(this EventHandler @event, object sender, EventArgs args)

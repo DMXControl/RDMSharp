@@ -24,6 +24,12 @@ namespace RDMSharpTest.RDM
             GetSetIPV4_xxx_Mode resultGetSetDHCPMode = GetSetIPV4_xxx_Mode.FromMessage(message);
 
             Assert.That(resultGetSetDHCPMode, Is.EqualTo(getSetDHCPMode));
+
+            var res = resultGetSetDHCPMode.ToString();
+            var src = getSetDHCPMode.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

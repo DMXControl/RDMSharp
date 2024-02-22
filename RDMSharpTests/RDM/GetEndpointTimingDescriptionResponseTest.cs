@@ -24,6 +24,12 @@ namespace RDMSharpTest.RDM
             GetEndpointTimingDescriptionResponse resultGetEndpointTimingDescriptionResponse = GetEndpointTimingDescriptionResponse.FromMessage(message);
 
             Assert.That(resultGetEndpointTimingDescriptionResponse, Is.EqualTo(getGetEndpointTimingDescriptionResponse));
+
+            var res = resultGetEndpointTimingDescriptionResponse.ToString();
+            var src = getGetEndpointTimingDescriptionResponse.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
         [Test]
         public void DescriptionCharLimitTest()

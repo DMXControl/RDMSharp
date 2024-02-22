@@ -24,6 +24,12 @@ namespace RDMSharpTest.RDM
             RDMDMXPersonality resultRdmDmxPersonality = RDMDMXPersonality.FromMessage(message);
 
             Assert.That(resultRdmDmxPersonality, Is.EqualTo(rdmDmxPersonality));
+
+            var res = resultRdmDmxPersonality.ToString();
+            var src = rdmDmxPersonality.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

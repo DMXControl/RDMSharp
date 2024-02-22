@@ -24,6 +24,12 @@ namespace RDMSharpTest.RDM
             RDMLockStateDescription resultLockStateDescription = RDMLockStateDescription.FromMessage(message);
 
             Assert.That(resultLockStateDescription, Is.EqualTo(lockStateDescription));
+
+            var res = resultLockStateDescription.ToString();
+            var src = lockStateDescription.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
         [Test]
         public void DescriptionCharLimitTest()

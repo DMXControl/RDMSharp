@@ -24,6 +24,12 @@ namespace RDMSharpTest.RDM
             GetSetEndpointRDMTrafficEnable resultGetSetEndpointRDMTrafficEnable = GetSetEndpointRDMTrafficEnable.FromMessage(message);
 
             Assert.That(resultGetSetEndpointRDMTrafficEnable, Is.EqualTo(getSetEndpointRDMTrafficEnabled));
+
+            var res = resultGetSetEndpointRDMTrafficEnable.ToString();
+            var src = getSetEndpointRDMTrafficEnabled.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

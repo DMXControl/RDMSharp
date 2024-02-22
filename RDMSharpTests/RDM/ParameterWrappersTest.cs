@@ -208,6 +208,9 @@ namespace RDMSharpTest.RDM
                 Assert.That(pW.Description.EndsWith(" "), Is.False, $"{pW.Name} Description is not Vaild");
                 Assert.That(pW.Description.StartsWith(" "), Is.False, $"{pW.Name} Description is not Vaild");
                 Assert.That(pW.Description.EndsWith("."), Is.True, $"{pW.Name} Description should end with a \".\"");
+                var toString = pW.ToString();
+                Assert.That(toString, Is.Not.Null);
+                Assert.That(toString.StartsWith("{"), Is.False);
             }
 
             foreach (ERDM_Parameter parameter in e1_20Parameters)

@@ -24,6 +24,12 @@ namespace RDMSharpTest.RDM
             GetBrokerStatusResponse resultGetBrokerStatusResponse = GetBrokerStatusResponse.FromMessage(message);
 
             Assert.That(resultGetBrokerStatusResponse, Is.EqualTo(getBrokerStatusResponse));
+
+            var res = resultGetBrokerStatusResponse.ToString();
+            var src = getBrokerStatusResponse.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

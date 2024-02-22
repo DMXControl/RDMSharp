@@ -23,7 +23,13 @@ namespace RDMSharpTest.RDM
 
             RDMMinimumLevel resultMinimumLevel = RDMMinimumLevel.FromMessage(message);
 
-            Assert.That(minimumLevel, Is.EqualTo(resultMinimumLevel));
+            Assert.That(resultMinimumLevel, Is.EqualTo(minimumLevel));
+
+            var res = resultMinimumLevel.ToString();
+            var src = minimumLevel.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

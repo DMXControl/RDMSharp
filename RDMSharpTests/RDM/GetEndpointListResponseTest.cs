@@ -35,6 +35,12 @@ namespace RDMSharpTest.RDM
             GetEndpointListResponse resultGetEndpointListResponse = GetEndpointListResponse.FromMessage(message);
 
             Assert.That(resultGetEndpointListResponse, Is.EqualTo(getEndpointListResponse));
+
+            var res = resultGetEndpointListResponse.ToString();
+            var src = getEndpointListResponse.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

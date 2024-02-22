@@ -24,6 +24,12 @@ namespace RDMSharpTest.RDM
             GetSetEndpointLabel resultGetSetEndpointLabel = GetSetEndpointLabel.FromMessage(message);
 
             Assert.That(resultGetSetEndpointLabel, Is.EqualTo(getSetEndpointLabel));
+
+            var res = resultGetSetEndpointLabel.ToString();
+            var src = getSetEndpointLabel.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
         [Test]
         public void DescriptionCharLimitTest()

@@ -24,6 +24,12 @@ namespace RDMSharpTest.RDM
             GetLockStateResponse resultLockState = GetLockStateResponse.FromMessage(message);
 
             Assert.That(resultLockState, Is.EqualTo(lockState));
+
+            var res = resultLockState.ToString();
+            var src = lockState.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

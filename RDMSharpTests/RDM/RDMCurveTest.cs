@@ -23,7 +23,13 @@ namespace RDMSharpTest.RDM
 
             RDMCurve resultCurve = RDMCurve.FromMessage(message);
 
-            Assert.That(curve, Is.EqualTo(resultCurve));
+            Assert.That(resultCurve, Is.EqualTo(curve));
+
+            var res = resultCurve.ToString();
+            var src = curve.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

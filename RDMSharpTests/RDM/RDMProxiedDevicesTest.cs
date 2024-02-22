@@ -30,6 +30,12 @@ namespace RDMSharpTest.RDM
             RDMProxiedDevices resultproxiedDevices = RDMProxiedDevices.FromMessage(message);
 
             Assert.That(resultproxiedDevices, Is.EqualTo(proxiedDevices));
+
+            var res = resultproxiedDevices.ToString();
+            var src = proxiedDevices.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

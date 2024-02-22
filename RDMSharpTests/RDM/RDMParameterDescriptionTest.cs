@@ -23,7 +23,13 @@ namespace RDMSharpTest.RDM
 
             RDMParameterDescription resultParameterDescription = RDMParameterDescription.FromMessage(message);
 
-            Assert.That(parameterDescription, Is.EqualTo(resultParameterDescription));
+            Assert.That(resultParameterDescription, Is.EqualTo(parameterDescription));
+
+            var res = resultParameterDescription.ToString();
+            var src = parameterDescription.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
 
         [Test]

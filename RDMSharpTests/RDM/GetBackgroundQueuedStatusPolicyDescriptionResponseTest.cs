@@ -24,6 +24,12 @@ namespace RDMSharpTest.RDM
             GetBackgroundQueuedStatusPolicyDescriptionResponse resultGetBackgroundQueuedStatusPolicyDescriptionResponse = GetBackgroundQueuedStatusPolicyDescriptionResponse.FromMessage(message);
 
             Assert.That(resultGetBackgroundQueuedStatusPolicyDescriptionResponse, Is.EqualTo(getBackgroundQueuedStatusPolicyDescriptionResponse));
+
+            var res = resultGetBackgroundQueuedStatusPolicyDescriptionResponse.ToString();
+            var src = getBackgroundQueuedStatusPolicyDescriptionResponse.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
         [Test]
         public void DescriptionCharLimitTest()

@@ -23,7 +23,13 @@ namespace RDMSharpTest.RDM
 
             RDMModulationFrequencyDescription resultModulationFrequencyDescription = RDMModulationFrequencyDescription.FromMessage(message);
 
-            Assert.That(modulationFrequencyDescription, Is.EqualTo(resultModulationFrequencyDescription));
+            Assert.That(resultModulationFrequencyDescription, Is.EqualTo(modulationFrequencyDescription));
+
+            var res = resultModulationFrequencyDescription.ToString();
+            var src = modulationFrequencyDescription.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
 
             modulationFrequencyDescription = new RDMModulationFrequencyDescription(1, uint.MaxValue, "Pseudo ModulationFrequency");
             data = modulationFrequencyDescription.ToPayloadData();
@@ -38,7 +44,13 @@ namespace RDMSharpTest.RDM
 
             resultModulationFrequencyDescription = RDMModulationFrequencyDescription.FromMessage(message);
 
-            Assert.That(modulationFrequencyDescription, Is.EqualTo(resultModulationFrequencyDescription));
+            Assert.That(resultModulationFrequencyDescription, Is.EqualTo(modulationFrequencyDescription));
+
+            res = resultModulationFrequencyDescription.ToString();
+            src = modulationFrequencyDescription.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
         [Test]
         public void ToPayloadAndFromMessageTest()
@@ -56,7 +68,13 @@ namespace RDMSharpTest.RDM
 
             RDMModulationFrequencyDescription resultModulationFrequencyDescription = RDMModulationFrequencyDescription.FromMessage(message);
 
-            Assert.That(modulationFrequencyDescription, Is.EqualTo(resultModulationFrequencyDescription));
+            Assert.That(resultModulationFrequencyDescription, Is.EqualTo(modulationFrequencyDescription));
+
+            var res = resultModulationFrequencyDescription.ToString();
+            var src = modulationFrequencyDescription.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
         [Test]
         public void DescriptionCharLimitTest()

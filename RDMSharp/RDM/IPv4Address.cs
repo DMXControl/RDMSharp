@@ -13,7 +13,7 @@ namespace RDMSharp
         public readonly byte B3;
         public readonly byte B4;
 
-        public static IPv4Address Default { get => new IPv4Address(0, 0, 0, 0); }
+        public static IPv4Address LocalHost { get => new IPv4Address(127, 0, 0, 1); }
 
         public IPv4Address(in byte block1, in byte block2, in byte block3, in byte block4)
         {
@@ -26,6 +26,8 @@ namespace RDMSharp
         {
             Regex regex = new Regex(@"^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$");
             var match = regex.Match(ipAddress);
+            if (!match.Success)
+                throw new FormatException("The given string is not a IPv4Address");
             B1 = byte.Parse(match.Groups[1].Value);
             B2 = byte.Parse(match.Groups[2].Value);
             B3 = byte.Parse(match.Groups[3].Value);
