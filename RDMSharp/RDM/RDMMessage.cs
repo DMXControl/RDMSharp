@@ -272,15 +272,6 @@ namespace RDMSharp
                    IsAck == other.IsAck &&
                    EqualityComparer<object>.Default.Equals(Value, other.Value);
         }
-        public static bool operator ==(RDMMessage a, RDMMessage b)
-        {
-            return a.Equals(b);
-        }
-
-        public static bool operator !=(RDMMessage a, RDMMessage b)
-        {
-            return !a.Equals(b);
-        }
 
         public override int GetHashCode()
         {

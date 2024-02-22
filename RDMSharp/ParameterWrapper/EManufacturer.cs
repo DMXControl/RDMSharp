@@ -4,6 +4,8 @@ namespace RDMSharp.ParameterWrapper
 {
     public enum EManufacturer : ushort
     {
+        [Description("ESTA")]
+        ESTA = 0x0000,
         [Description("DMXControl-Projects e.V.")]
         DMXControlProjects_eV = 0x02b0,
         [Description("Martin Professional A/S")]

@@ -106,55 +106,5 @@
 
             Assert.That(erg.SequenceEqual(expected), Is.True);
         }
-
-        [Test]
-        public void RDMUID_ToString()
-        {
-            Assert.That(new RDMUID(0xFFFF, 0xABCDEF98).ToString(), Is.EqualTo("FFFF:ABCDEF98"));
-            Assert.That(new RDMUID(0xA053, 0x00335612).ToString(), Is.EqualTo("A053:00335612"));
-            Assert.That(new RDMUID(0x0000, 0x12345678).ToString(), Is.EqualTo("0000:12345678"));
-            Assert.That(new RDMUID(1, 2).ToString(), Is.EqualTo("0001:00000002"));
-            Assert.That(new RDMUID(0, 0).ToString(), Is.EqualTo("0000:00000000"));
-        }
-
-        [Test]
-        public void RDMUID_FromULong()
-        {
-            Assert.That(new RDMUID(0xFFFF, 0xABCDEF98), Is.EqualTo(RDMUID.FromULong(0xFFFFABCDEF98)));
-            Assert.That(new RDMUID(0xFF1F, 0xABCD0F98), Is.EqualTo(RDMUID.FromULong(0xFF1FABCD0F98)));
-
-            Assert.That(new RDMUID(0, 1), Is.EqualTo(RDMUID.FromULong(0x0001)));
-        }
-
-        [Test]
-        public void RDMUID_CastToULong()
-        {
-            Assert.That((ulong)new RDMUID(0xFFFF, 0xABCDEF98), Is.EqualTo(0xFFFFABCDEF98u));
-            Assert.That((ulong)new RDMUID(0xFF1F, 0xABCD0F98), Is.EqualTo(0xFF1FABCD0F98u));
-
-            Assert.That((ulong)new RDMUID(0, 1), Is.EqualTo(0x0001u));
-        }
-
-        [Test]
-        public void RDMUID_Equals()
-        {
-            Assert.That(new RDMUID(), Is.EqualTo(RDMUID.Empty));
-            Assert.That(new RDMUID(0, 0), Is.EqualTo(RDMUID.Empty));
-            Assert.That(new RDMUID(0, 0), Is.Not.EqualTo(null));
-            Assert.That(new RDMUID(0, 0), Is.Not.EqualTo(new RDMUID(0xFFFF, 0xABCDEF98)));
-            Assert.That(new RDMUID(ushort.MaxValue, uint.MaxValue), Is.EqualTo(RDMUID.Broadcast));
-
-            var uid = new RDMUID(0xFFFF, 0xABCDEF98);
-            Assert.That((object)uid, Is.EqualTo((object)new RDMUID(0xFFFF, 0xABCDEF98)));
-            Assert.That((object)uid, Is.Not.EqualTo((object)new RDMUID(0xF4FF, 0xABCD3F98)));
-            Assert.That((object)uid, Is.Not.EqualTo(null));
-
-            Assert.That(uid == new RDMUID(0xFFFF, 0xABCDEF98), Is.True);
-            Assert.That(uid != new RDMUID(0xFFFF, 0x4BCD3F98), Is.True);
-            Assert.That(new RDMUID(0xFFFF, 0x4BCD3F98) < new RDMUID(0xFFFF, 0xABCD3F98), Is.True);
-            Assert.That(new RDMUID(0xFFFF, 0x4BCD3F98) <= new RDMUID(0xFFFF, 0xABCD3F98), Is.True);
-            Assert.That(new RDMUID(0xFFFF, 0xFBCD3F98) > new RDMUID(0xFFFF, 0xABCD3F98), Is.True);
-            Assert.That(new RDMUID(0xFFFF, 0xFBCD3F98) >= new RDMUID(0xFFFF, 0xABCD3F98), Is.True);
-        }
     }
 }
