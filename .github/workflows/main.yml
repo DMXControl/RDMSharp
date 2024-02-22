@@ -30,7 +30,15 @@ jobs:
     - name: Code Coverage Summary Report
       uses: irongut/CodeCoverageSummary@v1.3.0
       with:
-        filename: coverage.cobertura.xml
+        filename: coverage/**/coverage.cobertura.xml
+        badge: true
+        fail_below_min: true
+        format: markdown
+        hide_branch_rate: false
+        hide_complexity: true
+        indicators: true
+        output: both
+        thresholds: '60 80'
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.1
       with:
