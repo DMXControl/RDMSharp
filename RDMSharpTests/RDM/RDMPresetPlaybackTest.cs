@@ -1,6 +1,6 @@
 namespace RDMSharpTest.RDM
 {
-    public class RDMStatusMessageTest
+    public class RDMPresetPlaybackTest
     {
         [SetUp]
         public void Setup()
@@ -10,24 +10,23 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            RDMStatusMessage statusMessage = new RDMStatusMessage(0, ERDM_Status.ERROR, ERDM_StatusMessage.UNDERCURRENT, 2, 20);
-
-            byte[] data = statusMessage.ToPayloadData();
+            RDMPresetPlayback presetPlayback = new RDMPresetPlayback(3333, 125);
+            byte[] data = presetPlayback.ToPayloadData();
 
             RDMMessage message = new RDMMessage()
             {
                 PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK,
                 Command = ERDM_Command.GET_COMMAND_RESPONSE,
-                Parameter = ERDM_Parameter.STATUS_MESSAGES,
+                Parameter = ERDM_Parameter.PRESET_PLAYBACK,
                 ParameterData = data,
             };
 
-            RDMStatusMessage resultStatusMessage = RDMStatusMessage.FromMessage(message);
+            RDMPresetPlayback resultPresetPlayback = RDMPresetPlayback.FromMessage(message);
 
-            Assert.That(resultStatusMessage, Is.EqualTo(statusMessage));
+            Assert.That(resultPresetPlayback, Is.EqualTo(presetPlayback));
 
-            var res = resultStatusMessage.ToString();
-            var src = statusMessage.ToString();
+            var res = resultPresetPlayback.ToString();
+            var src = presetPlayback.ToString();
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
             Assert.That(res, Is.EqualTo(src));

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
@@ -25,6 +26,7 @@ namespace RDMSharp
         public ERDM_StatusMessage StatusMessage { get; private set; }
         public short DataValue1 { get; private set; }
         public short DataValue2 { get; private set; }
+        public const int PDL = 9;
 
         public override string ToString()
         {
@@ -38,9 +40,19 @@ namespace RDMSharp
 
             return b.ToString();
         }
+        public static RDMStatusMessage FromMessage(RDMMessage msg)
+        {
+            if (msg == null) throw new ArgumentNullException($"Argument {nameof(msg)} can't be null");
+            if (msg.Command != ERDM_Command.GET_COMMAND_RESPONSE) return null;
+            if (msg.Parameter != ERDM_Parameter.STATUS_MESSAGES) return null;
+            if (msg.PDL != PDL) return null;
 
+            return FromPayloadData(msg.ParameterData);
+        }
         public static RDMStatusMessage FromPayloadData(byte[] data)
         {
+            if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
+
             var i = new RDMStatusMessage(
                 subDeviceId: Tools.DataToUShort(ref data),
                 statusType: Tools.DataToEnum<ERDM_Status>(ref data),

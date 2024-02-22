@@ -1,6 +1,6 @@
 namespace RDMSharpTest.RDM
 {
-    public class RDMStatusMessageTest
+    public class RDMDefaultSlotValueTest
     {
         [SetUp]
         public void Setup()
@@ -10,24 +10,24 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            RDMStatusMessage statusMessage = new RDMStatusMessage(0, ERDM_Status.ERROR, ERDM_StatusMessage.UNDERCURRENT, 2, 20);
+            RDMDefaultSlotValue defaultSlotValue = new RDMDefaultSlotValue(3, 250);
 
-            byte[] data = statusMessage.ToPayloadData();
+            byte[] data = defaultSlotValue.ToPayloadData();
 
             RDMMessage message = new RDMMessage()
             {
                 PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK,
                 Command = ERDM_Command.GET_COMMAND_RESPONSE,
-                Parameter = ERDM_Parameter.STATUS_MESSAGES,
+                Parameter = ERDM_Parameter.DEFAULT_SLOT_VALUE,
                 ParameterData = data,
             };
 
-            RDMStatusMessage resultStatusMessage = RDMStatusMessage.FromMessage(message);
+            RDMDefaultSlotValue resultDefaultSlotValue = RDMDefaultSlotValue.FromMessage(message);
 
-            Assert.That(resultStatusMessage, Is.EqualTo(statusMessage));
+            Assert.That(resultDefaultSlotValue, Is.EqualTo(defaultSlotValue));
 
-            var res = resultStatusMessage.ToString();
-            var src = statusMessage.ToString();
+            var res = resultDefaultSlotValue.ToString();
+            var src = defaultSlotValue.ToString();
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
             Assert.That(res, Is.EqualTo(src));

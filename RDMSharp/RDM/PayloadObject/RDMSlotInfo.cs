@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
@@ -18,6 +19,7 @@ namespace RDMSharp
         public ushort SlotOffset { get; private set; }
         public ERDM_SlotType SlotType { get; private set; }
         public ERDM_SlotCategory SlotLabelId { get; private set; }
+        public const int PDL = 5;
 
         public override string ToString()
         {
@@ -29,9 +31,19 @@ namespace RDMSharp
 
             return b.ToString();
         }
+        public static RDMSlotInfo FromMessage(RDMMessage msg)
+        {
+            if (msg == null) throw new ArgumentNullException($"Argument {nameof(msg)} can't be null");
+            if (msg.Command != ERDM_Command.GET_COMMAND_RESPONSE) return null;
+            if (msg.Parameter != ERDM_Parameter.SLOT_INFO) return null;
+            if (msg.PDL != PDL) return null;
 
+            return FromPayloadData(msg.ParameterData);
+        }
         public static RDMSlotInfo FromPayloadData(byte[] data)
         {
+            if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
+
             var i = new RDMSlotInfo(
                 slotOffset: Tools.DataToUShort(ref data),
                 slotType: Tools.DataToEnum<ERDM_SlotType>(ref data),

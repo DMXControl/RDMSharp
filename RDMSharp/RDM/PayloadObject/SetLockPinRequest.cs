@@ -16,7 +16,7 @@ namespace RDMSharp
 
         public ushort NewPinCode { get; private set; }
         public ushort CurrentPinCode { get; private set; }
-        public const int PDL = 3;
+        public const int PDL = 4;
 
         public override string ToString()
         {
@@ -34,6 +34,7 @@ namespace RDMSharp
         public static SetLockPinRequest FromPayloadData(byte[] data)
         {
             if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
+            
             var i = new SetLockPinRequest(
                 newPinCode: Tools.DataToUShort(ref data),
                 currentPinCode: Tools.DataToUShort(ref data));

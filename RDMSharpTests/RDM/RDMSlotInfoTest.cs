@@ -14,7 +14,15 @@ namespace RDMSharpTest.RDM
 
             byte[] data = slotInfo.ToPayloadData();
 
-            RDMSlotInfo resultSlotInfo = RDMSlotInfo.FromPayloadData(data);
+            RDMMessage message = new RDMMessage()
+            {
+                PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK,
+                Command = ERDM_Command.GET_COMMAND_RESPONSE,
+                Parameter = ERDM_Parameter.SLOT_INFO,
+                ParameterData = data,
+            };
+
+            RDMSlotInfo resultSlotInfo = RDMSlotInfo.FromMessage(message);
 
             Assert.That(resultSlotInfo, Is.EqualTo(slotInfo));
 

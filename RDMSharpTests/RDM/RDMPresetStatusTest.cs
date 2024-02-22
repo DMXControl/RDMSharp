@@ -22,6 +22,7 @@ namespace RDMSharpTest.RDM
             };
 
             RDMPresetStatus resultPresetStatus = RDMPresetStatus.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { RDMPresetStatus.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultPresetStatus, Is.EqualTo(presetStatus));
 

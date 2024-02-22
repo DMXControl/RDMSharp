@@ -71,9 +71,6 @@ namespace RDMSharp
                 waitTime: Tools.DataToUShort(ref data),
                 programmed: Tools.DataToEnum<ERDM_PresetProgrammed>(ref data));
 
-            if (data.Length != 0)
-                throw new Exception("After deserialization data should be empty!");
-
             return i;
         }
         public override byte[] ToPayloadData()

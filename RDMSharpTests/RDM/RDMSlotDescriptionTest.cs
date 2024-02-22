@@ -1,6 +1,6 @@
 namespace RDMSharpTest.RDM
 {
-    public class RDMStatusMessageTest
+    public class RDMSlotDescriptionTest
     {
         [SetUp]
         public void Setup()
@@ -10,24 +10,24 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            RDMStatusMessage statusMessage = new RDMStatusMessage(0, ERDM_Status.ERROR, ERDM_StatusMessage.UNDERCURRENT, 2, 20);
+            RDMSlotDescription slotDescription = new RDMSlotDescription(3, "Pseudo Desctiption");
 
-            byte[] data = statusMessage.ToPayloadData();
+            byte[] data = slotDescription.ToPayloadData();
 
             RDMMessage message = new RDMMessage()
             {
                 PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK,
                 Command = ERDM_Command.GET_COMMAND_RESPONSE,
-                Parameter = ERDM_Parameter.STATUS_MESSAGES,
+                Parameter = ERDM_Parameter.SLOT_DESCRIPTION,
                 ParameterData = data,
             };
 
-            RDMStatusMessage resultStatusMessage = RDMStatusMessage.FromMessage(message);
+            RDMSlotDescription resultSlotDescription = RDMSlotDescription.FromMessage(message);
 
-            Assert.That(resultStatusMessage, Is.EqualTo(statusMessage));
+            Assert.That(resultSlotDescription, Is.EqualTo(slotDescription));
 
-            var res = resultStatusMessage.ToString();
-            var src = statusMessage.ToString();
+            var res = resultSlotDescription.ToString();
+            var src = slotDescription.ToString();
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
             Assert.That(res, Is.EqualTo(src));

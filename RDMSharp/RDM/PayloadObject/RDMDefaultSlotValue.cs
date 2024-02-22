@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
@@ -15,6 +16,7 @@ namespace RDMSharp
 
         public ushort SlotOffset { get; private set; }
         public byte DefaultSlotValue { get; private set; }
+        public const int PDL = 3;
 
         public override string ToString()
         {
@@ -26,8 +28,19 @@ namespace RDMSharp
             return b.ToString();
         }
 
+        public static RDMDefaultSlotValue FromMessage(RDMMessage msg)
+        {
+            if (msg == null) throw new ArgumentNullException($"Argument {nameof(msg)} can't be null");
+            if (msg.Command != ERDM_Command.GET_COMMAND_RESPONSE) return null;
+            if (msg.Parameter != ERDM_Parameter.DEFAULT_SLOT_VALUE) return null;
+            if (msg.PDL != PDL) return null;
+
+            return FromPayloadData(msg.ParameterData);
+        }
         public static RDMDefaultSlotValue FromPayloadData(byte[] data)
         {
+            if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
+
             var i = new RDMDefaultSlotValue(
                 slotOffset: Tools.DataToUShort(ref data),
                 defaultSlotValue: Tools.DataToByte(ref data));
