@@ -50,9 +50,6 @@ namespace RDMSharp
                 slotId: Tools.DataToUShort(ref data),
                 description: Tools.DataToString(ref data));
 
-            if (data.Length != 0)
-                throw new Exception("After deserialization data should be empty!");
-
             return i;
         }
         public override byte[] ToPayloadData()

@@ -22,6 +22,7 @@ namespace RDMSharpTest.RDM
             };
 
             GetInterfaceNameResponse resultGetInterfaceNameResponse = GetInterfaceNameResponse.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { GetInterfaceNameResponse.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
 
             Assert.That(resultGetInterfaceNameResponse, Is.EqualTo(getInterfaceNameResponse));
             

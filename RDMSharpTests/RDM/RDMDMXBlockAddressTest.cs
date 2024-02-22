@@ -23,6 +23,7 @@ namespace RDMSharpTest.RDM
             };
 
             RDMDMXBlockAddress resultDMXBlockAddress = RDMDMXBlockAddress.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { RDMDMXBlockAddress.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultDMXBlockAddress, Is.EqualTo(dmxBlockAddress));
 

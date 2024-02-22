@@ -23,6 +23,7 @@ namespace RDMSharpTest.RDM
             };
 
             RDMCommunicationStatus resultCommunicationStatus = RDMCommunicationStatus.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { RDMCommunicationStatus.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultCommunicationStatus, Is.EqualTo(communicationStatus));
 

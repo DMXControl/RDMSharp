@@ -22,6 +22,7 @@ namespace RDMSharpTest.RDM
             };
 
             GetSetEndpointMode resultGetSetEndpointMode = GetSetEndpointMode.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { GetSetEndpointMode.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetSetEndpointMode, Is.EqualTo(getSetEndpointMode));
 

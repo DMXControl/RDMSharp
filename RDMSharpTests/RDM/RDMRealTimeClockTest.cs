@@ -23,6 +23,7 @@ namespace RDMSharpTest.RDM
             };
 
             RDMRealTimeClock resultRealTimeClock = RDMRealTimeClock.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { RDMRealTimeClock.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultRealTimeClock, Is.EqualTo(realTimeClock));
 

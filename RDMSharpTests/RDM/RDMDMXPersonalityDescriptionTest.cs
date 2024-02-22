@@ -22,6 +22,7 @@ namespace RDMSharpTest.RDM
             };
 
             RDMDMXPersonalityDescription resultRdmDmxPersonalityDescription = RDMDMXPersonalityDescription.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { RDMDMXPersonalityDescription.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
 
             Assert.That(resultRdmDmxPersonalityDescription, Is.EqualTo(rdmDmxPersonalityDescription));
 

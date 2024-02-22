@@ -44,9 +44,6 @@ namespace RDMSharp
                 deviceCount: Tools.DataToUShort(ref data),
                 discoveryState: Tools.DataToEnum<ERDM_DiscoveryState>(ref data));
 
-            if (data.Length != 0)
-                throw new Exception("After deserialization data should be empty!");
-
             return i;
         }
 

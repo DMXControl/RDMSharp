@@ -22,6 +22,7 @@ namespace RDMSharpTest.RDM
             };
 
             RDMOutputResponseTime resultOutputResponseTime = RDMOutputResponseTime.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { RDMOutputResponseTime.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultOutputResponseTime, Is.EqualTo(outputResponseTime));
 

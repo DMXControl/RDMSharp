@@ -23,6 +23,7 @@ namespace RDMSharpTest.RDM
             };
 
             RDMSensorDefinition resultSensorDefinition = RDMSensorDefinition.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { RDMSensorDefinition.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
 
             Assert.That(resultSensorDefinition, Is.EqualTo(sensorDefinition));
 

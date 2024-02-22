@@ -22,6 +22,7 @@ namespace RDMSharpTest.RDM
             };
 
             RDMMinimumLevel resultMinimumLevel = RDMMinimumLevel.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { RDMMinimumLevel.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultMinimumLevel, Is.EqualTo(minimumLevel));
 

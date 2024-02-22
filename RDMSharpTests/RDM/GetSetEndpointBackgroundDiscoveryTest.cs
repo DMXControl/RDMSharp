@@ -22,6 +22,7 @@ namespace RDMSharpTest.RDM
             };
 
             GetSetEndpointBackgroundDiscovery resultGetSetEndpointBackgroundDiscovery = GetSetEndpointBackgroundDiscovery.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { GetSetEndpointBackgroundDiscovery.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetSetEndpointBackgroundDiscovery, Is.EqualTo(getSetEndpointBackgroundDiscovery));
 

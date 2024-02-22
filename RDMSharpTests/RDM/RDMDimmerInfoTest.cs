@@ -22,6 +22,7 @@ namespace RDMSharpTest.RDM
             };
 
             RDMDimmerInfo resultDimmerInfo = RDMDimmerInfo.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { RDMDimmerInfo.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultDimmerInfo, Is.EqualTo(dimmerInfo));
 

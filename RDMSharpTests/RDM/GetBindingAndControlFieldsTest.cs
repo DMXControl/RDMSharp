@@ -22,6 +22,7 @@ namespace RDMSharpTest.RDM
             };
 
             GetBindingAndControlFieldsRequest resultGetBindingAndControlFieldsRequest = GetBindingAndControlFieldsRequest.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { GetBindingAndControlFieldsRequest.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetBindingAndControlFieldsRequest, Is.EqualTo(getBindingAndControlFieldsRequest));
 
@@ -43,6 +44,7 @@ namespace RDMSharpTest.RDM
             };
 
             GetBindingAndControlFieldsResponse resultGetBindingAndControlFieldsResponse = GetBindingAndControlFieldsResponse.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { GetBindingAndControlFieldsResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetBindingAndControlFieldsResponse, Is.EqualTo(getBindingAndControlFieldsResponse));
 

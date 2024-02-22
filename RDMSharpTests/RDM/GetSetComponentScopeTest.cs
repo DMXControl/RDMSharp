@@ -25,6 +25,7 @@ namespace RDMSharpTest.RDM
             };
 
             GetSetComponentScope resultSensorValue = GetSetComponentScope.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { GetSetComponentScope.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultSensorValue, Is.EqualTo(sensorValue));
             sensorValue = new GetSetComponentScope(0, "Pseudo Scope String", IPAddress.Parse("2001:db8:0:0:0:0:1428:57ab"), 2347);
@@ -40,6 +41,7 @@ namespace RDMSharpTest.RDM
             };
 
             resultSensorValue = GetSetComponentScope.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { GetSetComponentScope.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultSensorValue, Is.EqualTo(sensorValue));
 

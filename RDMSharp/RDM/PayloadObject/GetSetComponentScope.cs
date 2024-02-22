@@ -137,9 +137,6 @@ namespace RDMSharp
                 staticBrokerIPv6: staticBrokerIPv6,
                 staticBrokerPort: staticBrokerPort);
 
-            if (data.Length != 0)
-                throw new Exception("After deserialization data should be empty!");
-
             return i;
         }
         public override byte[] ToPayloadData()

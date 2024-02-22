@@ -48,9 +48,6 @@ namespace RDMSharp
                 controlField: Tools.DataToUShort(ref data),
                 bindingUID: Tools.DataToRDMUID(ref data));
 
-            if (data.Length != 0)
-                throw new Exception("After deserialization data should be empty!");
-
             return i;
         }
 

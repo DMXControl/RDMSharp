@@ -25,6 +25,7 @@ namespace RDMSharpTest.RDM
             };
 
             TCPCommsEntry resultTCPCommsEntryTest = TCPCommsEntry.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { TCPCommsEntry.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultTCPCommsEntryTest, Is.EqualTo(tcpCommsEntryTest));
 
@@ -47,6 +48,7 @@ namespace RDMSharpTest.RDM
             };
 
             resultTCPCommsEntryTest = TCPCommsEntry.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { TCPCommsEntry.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultTCPCommsEntryTest, Is.EqualTo(tcpCommsEntryTest));
 

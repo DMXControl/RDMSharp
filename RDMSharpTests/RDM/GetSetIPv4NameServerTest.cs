@@ -24,6 +24,7 @@ namespace RDMSharpTest.RDM
             };
 
             GetSetIPv4NameServer resultGetSetIPv4NameServer = GetSetIPv4NameServer.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { GetSetIPv4NameServer.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetSetIPv4NameServer, Is.EqualTo(getSetIPv4NameServer));
 

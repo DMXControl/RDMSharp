@@ -40,9 +40,6 @@ namespace RDMSharp
                 interfaceId: Tools.DataToUInt(ref data),
                 hardwareAddress: new MACAddress(data));
 
-            if (data.Length != 6)
-                throw new Exception("After deserialization data should be empty!");
-
             return i;
         }
         public override byte[] ToPayloadData()

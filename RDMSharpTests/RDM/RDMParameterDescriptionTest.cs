@@ -22,6 +22,7 @@ namespace RDMSharpTest.RDM
             };
 
             RDMParameterDescription resultParameterDescription = RDMParameterDescription.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { RDMParameterDescription.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
 
             Assert.That(resultParameterDescription, Is.EqualTo(parameterDescription));
 

@@ -22,6 +22,7 @@ namespace RDMSharpTest.RDM
             };
 
             GetHardwareAddressResponse resultGetHardwareAddressResponse = GetHardwareAddressResponse.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { GetHardwareAddressResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetHardwareAddressResponse, Is.EqualTo(getHardwareAddressResponse));
 

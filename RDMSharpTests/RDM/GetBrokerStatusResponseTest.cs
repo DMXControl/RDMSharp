@@ -22,6 +22,7 @@ namespace RDMSharpTest.RDM
             };
 
             GetBrokerStatusResponse resultGetBrokerStatusResponse = GetBrokerStatusResponse.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { GetBrokerStatusResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetBrokerStatusResponse, Is.EqualTo(getBrokerStatusResponse));
 

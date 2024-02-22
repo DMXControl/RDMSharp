@@ -22,6 +22,7 @@ namespace RDMSharpTest.RDM
             };
 
             RDMSelfTestDescription resultSelfTestDescription = RDMSelfTestDescription.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { RDMSelfTestDescription.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
 
             Assert.That(resultSelfTestDescription, Is.EqualTo(selfTestDescription));
 

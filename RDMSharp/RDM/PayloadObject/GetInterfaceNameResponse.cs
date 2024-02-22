@@ -50,9 +50,6 @@ namespace RDMSharp
                 interfaceId: Tools.DataToUInt(ref data),
                 label: Tools.DataToString(ref data));
 
-            if (data.Length != 0)
-                throw new Exception("After deserialization data should be empty!");
-
             return i;
         }
         public override byte[] ToPayloadData()

@@ -41,9 +41,6 @@ namespace RDMSharp
                 interfaceId: Tools.DataToUInt(ref data),
                 ipAddress: Tools.DataToIPAddressIPv4(ref data));
 
-            if (data.Length != 0)
-                throw new Exception("After deserialization data should be empty!");
-
             return i;
         }
 

@@ -52,9 +52,6 @@ namespace RDMSharp
                 netmask: Tools.DataToByte(ref data),
                 dhcpStatus: Tools.DataToEnum<ERDM_DHCPStatusMode>(ref data));
 
-            if (data.Length != 0)
-                throw new Exception("After deserialization data should be empty!");
-
             return i;
         }
         public override byte[] ToPayloadData()

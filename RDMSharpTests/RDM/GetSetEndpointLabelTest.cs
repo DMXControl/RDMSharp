@@ -22,6 +22,7 @@ namespace RDMSharpTest.RDM
             };
 
             GetSetEndpointLabel resultGetSetEndpointLabel = GetSetEndpointLabel.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { GetSetEndpointLabel.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
 
             Assert.That(resultGetSetEndpointLabel, Is.EqualTo(getSetEndpointLabel));
 

@@ -33,6 +33,7 @@ namespace RDMSharpTest.RDM
             };
 
             GetEndpointListResponse resultGetEndpointListResponse = GetEndpointListResponse.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { GetEndpointListResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetEndpointListResponse, Is.EqualTo(getEndpointListResponse));
 

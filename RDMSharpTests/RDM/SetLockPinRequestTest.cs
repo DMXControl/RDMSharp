@@ -23,6 +23,7 @@ namespace RDMSharpTest.RDM
             };
 
             SetLockPinRequest resultSetLockPinRequest = SetLockPinRequest.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { SetLockPinRequest.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultSetLockPinRequest, Is.EqualTo(setLockPinRequest));
 

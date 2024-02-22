@@ -117,9 +117,6 @@ namespace RDMSharp
                 description: description
             );
 
-            if (data.Length != 0)
-                throw new Exception("After deserialization data should be empty!");
-
             return i;
         }
         public override byte[] ToPayloadData()

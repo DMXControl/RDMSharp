@@ -22,6 +22,7 @@ namespace RDMSharpTest.RDM
             };
 
             RDMPresetPlayback resultPresetPlayback = RDMPresetPlayback.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { RDMPresetPlayback.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultPresetPlayback, Is.EqualTo(presetPlayback));
 

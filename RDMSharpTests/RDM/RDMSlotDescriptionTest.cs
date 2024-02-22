@@ -23,6 +23,7 @@ namespace RDMSharpTest.RDM
             };
 
             RDMSlotDescription resultSlotDescription = RDMSlotDescription.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { RDMSlotDescription.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
 
             Assert.That(resultSlotDescription, Is.EqualTo(slotDescription));
 

@@ -23,6 +23,7 @@ namespace RDMSharpTest.RDM
             };
 
             SetLockStateRequest resultSetLockStateRequest = SetLockStateRequest.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { SetLockStateRequest.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultSetLockStateRequest, Is.EqualTo(setLockStateRequest));
 

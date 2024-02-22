@@ -40,9 +40,6 @@ namespace RDMSharp
                 setAllowed: Tools.DataToBool(ref data),
                 brokerStatus: Tools.DataToEnum<ERDM_BrokerStatus>(ref data));
 
-            if (data.Length != 0)
-                throw new Exception("After deserialization data should be empty!");
-
             return i;
         }
 

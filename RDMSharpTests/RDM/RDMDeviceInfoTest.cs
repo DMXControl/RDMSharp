@@ -24,6 +24,7 @@ namespace RDMSharpTest.RDM
             };
 
             RDMDeviceInfo resultDeviceInfo = RDMDeviceInfo.FromMessage(message);
+            Assert.Throws(typeof(Exception), () => { RDMDeviceInfo.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultDeviceInfo, Is.EqualTo(deviceInfo));
 
