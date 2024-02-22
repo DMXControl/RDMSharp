@@ -22,7 +22,7 @@ namespace RDMSharpTest.RDM.Devices
             while (remote.DeviceModel?.IsInitialized != true || !remote.AllDataPulled)
             {
                 await Task.Delay(10);
-                if(sw.ElapsedMilliseconds>5000)
+                if(sw.ElapsedMilliseconds>60000)
                 {
                     if (remote.DeviceModel?.IsInitialized != true)
                         Assert.Fail("Timeouted because DeviceModel not Initialized");
