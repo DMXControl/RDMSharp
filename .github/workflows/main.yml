@@ -31,8 +31,6 @@ jobs:
       uses: irongut/CodeCoverageSummary@v1.3.0
       with:
         filename: coverage.cobertura.xml
-
-
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.1
       with:
