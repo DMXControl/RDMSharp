@@ -111,7 +111,7 @@ namespace RDMSharp
 
             if ((rdmMessage.DestUID.IsBroadcast || rdmMessage.DestUID == UID) && !rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
             {
-                await processRequestMessage(rdmMessage);
+                await SendRDMMessage(await processRequestMessage(rdmMessage));
                 return;
             }
 
