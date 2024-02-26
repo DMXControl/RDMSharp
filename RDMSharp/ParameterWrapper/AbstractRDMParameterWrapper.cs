@@ -57,32 +57,48 @@ namespace RDMSharp.ParameterWrapper
         {
             return this.setResponseValueToParameterData(value);
         }
+        #endregion
+
+        #region Build RDMMessage
         public RDMMessage BuildGetRequestMessage(object getRequestValue)
         {
-            return this.buildGetRequestMessage((GetRequest)getRequestValue);
+            return this.BuildGetRequestMessage((GetRequest)getRequestValue);
         }
         public RDMMessage BuildGetRequestMessage(GetRequest getRequestValue)
         {
             return this.buildGetRequestMessage(getRequestValue);
         }
 
+        public RDMMessage BuildGetResponseMessage(object getResponseValue)
+        {
+            return this.BuildGetResponseMessage((GetResponse)getResponseValue);
+        }
         public RDMMessage BuildGetResponseMessage(GetResponse getResponseValue)
         {
             return this.buildGetResponseMessage(getResponseValue);
         }
 
+        public RDMMessage BuildSetRequestMessage(object setRequestValue)
+        {
+            return this.BuildSetRequestMessage((SetRequest)setRequestValue);
+        }
         public RDMMessage BuildSetRequestMessage(SetRequest setRequestValue)
         {
             return this.buildSetRequestMessage(setRequestValue);
+        }
+
+        public RDMMessage BuildSetResponseMessage(object setResponseValue)
+        {
+            return this.BuildSetResponseMessage((SetResponse)setResponseValue);
         }
 
         public RDMMessage BuildSetResponseMessage(SetResponse setResponseValue)
         {
             return this.buildSetResponseMessage(setResponseValue);
         }
+        #endregion
 
         public abstract RequestRange<GetRequest> GetRequestRange(object value);
-        #endregion
     }
     public abstract class AbstractRDMGetSetParameterWrapperEmptyGetRequestSetResponse<GetResponse, SetRequest> : AbstractRDMParameterWrapper<Empty, GetResponse, SetRequest, Empty>, IRDMGetParameterWrapperResponse<GetResponse>, IRDMSetParameterWrapperRequest<SetRequest>, IRDMGetParameterWrapperWithEmptyGetRequest, IRDMSetParameterWrapperWithEmptySetResponse
     {
@@ -138,11 +154,22 @@ namespace RDMSharp.ParameterWrapper
             throw new NotSupportedException();
         }
 
+        #endregion
+
+        #region Build RDMMessage
+        public RDMMessage BuildGetResponseMessage(object getResponseValue)
+        {
+            return this.BuildGetResponseMessage((GetResponse)getResponseValue);
+        }
         public RDMMessage BuildGetResponseMessage(GetResponse getResponseValue)
         {
             return this.buildGetResponseMessage(getResponseValue);
         }
 
+        public RDMMessage BuildSetRequestMessage(object setRequestValue)
+        {
+            return this.BuildSetRequestMessage((SetRequest)setRequestValue);
+        }
         public RDMMessage BuildSetRequestMessage(SetRequest setRequestValue)
         {
             return this.buildSetRequestMessage(setRequestValue);
@@ -152,7 +179,6 @@ namespace RDMSharp.ParameterWrapper
         {
             return this.buildGetRequestMessage();
         }
-
         public RDMMessage BuildSetResponseMessage()
         {
             return this.buildSetResponseMessage();
@@ -212,7 +238,13 @@ namespace RDMSharp.ParameterWrapper
         {
             throw new NotSupportedException();
         }
+        #endregion
 
+        #region Build RDMMessage
+        public RDMMessage BuildGetResponseMessage(object getResponseValue)
+        {
+            return this.BuildGetResponseMessage((GetResponse)getResponseValue);
+        }
         public RDMMessage BuildGetResponseMessage(GetResponse getResponseValue)
         {
             return this.buildGetResponseMessage(getResponseValue);
@@ -291,6 +323,13 @@ namespace RDMSharp.ParameterWrapper
             throw new NotSupportedException();
         }
 
+        #endregion
+
+        #region Build RDMMessage
+        public RDMMessage BuildSetRequestMessage(object setRequestValue)
+        {
+            return this.BuildSetRequestMessage((SetRequest)setRequestValue);
+        }
         public RDMMessage BuildSetRequestMessage(SetRequest setRequestValue)
         {
             return this.buildSetRequestMessage(setRequestValue);
@@ -303,13 +342,17 @@ namespace RDMSharp.ParameterWrapper
 
         public RDMMessage BuildGetRequestMessage(object getRequestValue)
         {
-            return this.buildGetRequestMessage((GetRequest)getRequestValue);
+            return this.BuildGetRequestMessage((GetRequest)getRequestValue);
         }
         public RDMMessage BuildGetRequestMessage(GetRequest getRequestValue)
         {
             return this.buildGetRequestMessage(getRequestValue);
         }
 
+        public RDMMessage BuildGetResponseMessage(object getResponseValue)
+        {
+            return this.BuildGetResponseMessage((GetResponse)getResponseValue);
+        }
         public RDMMessage BuildGetResponseMessage(GetResponse getResponseValue)
         {
             return this.buildGetResponseMessage(getResponseValue);
@@ -374,9 +417,21 @@ namespace RDMSharp.ParameterWrapper
             throw new NotSupportedException();
         }
 
+        #endregion
+
+        #region Build RDMMessage
+        public RDMMessage BuildGetRequestMessage(object getRequestValue)
+        {
+            return this.BuildGetRequestMessage((GetRequest)getRequestValue);
+        }
         public RDMMessage BuildGetRequestMessage(GetRequest getRequestValue)
         {
             return this.buildGetRequestMessage(getRequestValue);
+        }
+
+        public RDMMessage BuildGetResponseMessage(object getResponseValue)
+        {
+            return this.BuildGetResponseMessage((GetResponse)getResponseValue);
         }
 
         public RDMMessage BuildGetResponseMessage(GetResponse getResponseValue)
@@ -441,6 +496,13 @@ namespace RDMSharp.ParameterWrapper
             throw new NotSupportedException();
         }
 
+        #endregion
+
+        #region Build RDMMessage
+        public RDMMessage BuildGetResponseMessage(object getResponseValue)
+        {
+            return this.BuildGetResponseMessage((GetResponse)getResponseValue);
+        }
         public RDMMessage BuildGetResponseMessage(GetResponse getResponseValue)
         {
             return this.buildGetResponseMessage(getResponseValue);
@@ -506,6 +568,9 @@ namespace RDMSharp.ParameterWrapper
         {
             throw new NotSupportedException();
         }
+        #endregion
+
+        #region Build RDMMessage
 
         public RDMMessage BuildGetRequestMessage()
         {
@@ -571,9 +636,21 @@ namespace RDMSharp.ParameterWrapper
             return this.setResponseValueToParameterData(value);
         }
 
+        #endregion
+
+        #region Build RDMMessage
+        public RDMMessage BuildSetRequestMessage(object setRequestValue)
+        {
+            return this.BuildSetRequestMessage((SetRequest)setRequestValue);
+        }
         public RDMMessage BuildSetRequestMessage(SetRequest setRequestValue)
         {
             return this.buildSetRequestMessage(setRequestValue);
+        }
+
+        public RDMMessage BuildSetResponseMessage(object setResponseValue)
+        {
+            return this.BuildSetResponseMessage((SetResponse)setResponseValue);
         }
 
         public RDMMessage BuildSetResponseMessage(SetResponse setResponseValue)
@@ -634,6 +711,14 @@ namespace RDMSharp.ParameterWrapper
         protected override sealed Empty setResponseParameterDataToValue(byte[] parameterData)
         {
             throw new NotSupportedException();
+        }
+        #endregion
+
+        #region Build RDMMessage
+
+        public RDMMessage BuildSetRequestMessage(object setRequestValue)
+        {
+            return this.BuildSetRequestMessage((SetRequest)setRequestValue);
         }
 
         public RDMMessage BuildSetRequestMessage(SetRequest setRequestValue)
@@ -700,6 +785,9 @@ namespace RDMSharp.ParameterWrapper
             throw new NotSupportedException();
         }
 
+        #endregion
+
+        #region Build RDMMessage
         public RDMMessage BuildSetRequestMessage()
         {
             return this.buildSetRequestMessage();
@@ -762,7 +850,7 @@ namespace RDMSharp.ParameterWrapper
         protected abstract GetRequest getRequestParameterDataToValue(byte[] parameterData);
         protected abstract GetResponse getResponseParameterDataToValue(byte[] parameterData);
         protected abstract byte[] getResponseValueToParameterData(GetResponse value);
-        protected RDMMessage buildGetRequestMessage()
+        private protected RDMMessage buildGetRequestMessage()
         {
             if (!this.CommandClass.HasFlag(ERDM_CommandClass.GET))
                 throw new NotSupportedException($"This parameter is not allowed to GET");
@@ -775,7 +863,7 @@ namespace RDMSharp.ParameterWrapper
 
             return message;
         }
-        protected RDMMessage buildGetRequestMessage(in GetRequest getRequestValue)
+        private protected RDMMessage buildGetRequestMessage(in GetRequest getRequestValue)
         {
             if (!this.CommandClass.HasFlag(ERDM_CommandClass.GET))
                 throw new NotSupportedException($"This parameter is not allowed to GET");
@@ -791,7 +879,7 @@ namespace RDMSharp.ParameterWrapper
 
             return message;
         }
-        protected RDMMessage buildGetResponseMessage()
+        private protected RDMMessage buildGetResponseMessage()
         {
             if (!this.CommandClass.HasFlag(ERDM_CommandClass.GET))
                 throw new NotSupportedException($"This parameter is not allowed to GET");
@@ -804,7 +892,7 @@ namespace RDMSharp.ParameterWrapper
 
             return message;
         }
-        protected RDMMessage buildGetResponseMessage(in GetResponse getResponseValue)
+        private protected RDMMessage buildGetResponseMessage(in GetResponse getResponseValue)
         {
             if (!this.CommandClass.HasFlag(ERDM_CommandClass.GET))
                 throw new NotSupportedException($"This parameter is not allowed to GET");
@@ -844,6 +932,9 @@ namespace RDMSharp.ParameterWrapper
         protected abstract SetResponse setResponseParameterDataToValue(byte[] parameterData);
         protected abstract byte[] setResponseValueToParameterData(SetResponse value);
 
+        #endregion
+
+        #region Build RDMMessage
         protected RDMMessage buildSetRequestMessage()
         {
             if (!this.CommandClass.HasFlag(ERDM_CommandClass.SET))

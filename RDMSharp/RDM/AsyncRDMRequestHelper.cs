@@ -49,6 +49,8 @@ namespace RDMSharp
                 do
                 {
                     buffer.TryGetValue(requerst, out resopnse);
+                    if (resopnse != null)
+                        break;
                     await Task.Delay(10);
                     count++;
                     if (count % 300 == 299)

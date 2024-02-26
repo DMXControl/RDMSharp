@@ -48,6 +48,19 @@ namespace RDMSharpTest.RDM.Devices
                 }
                 Assert.That(parameterValuesRemote.Count, Is.EqualTo(parameterValuesGenerated.Count));
             }
+
+            await remote.SetParameter(ERDM_Parameter.DMX_START_ADDRESS, (ushort)512);
+            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(512));
+            Assert.That(generated.DMXAddress, Is.EqualTo(512));
+
+            await remote.SetParameter(ERDM_Parameter.DMX_PERSONALITY, (byte)3);
+            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY], Is.EqualTo(3));
+            Assert.That(generated.CurrentPersonality, Is.EqualTo(3));
+
+            string label = "Changed Device Label";
+            await remote.SetParameter(ERDM_Parameter.DEVICE_LABEL, label);
+            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(label));
+            Assert.That(generated.DeviceLabel, Is.EqualTo(label));
         }
     }
 }

@@ -4,7 +4,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace RDMSharp
@@ -12,19 +14,16 @@ namespace RDMSharp
     public abstract class AbstractRDMDevice : IRDMDevice
     {
         private static Random random = new Random();
-        private static ILogger Logger = null;
-        private static RDMParameterWrapperCatalogueManager pmManager => RDMParameterWrapperCatalogueManager.GetInstance();
-        private static DeviceInfoParameterWrapper deviceInfoParameterWrapper => (DeviceInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.DEVICE_INFO);
-        private static SensorValueParameterWrapper sensorValueParameterWrapper => (SensorValueParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SENSOR_VALUE);
-        private static SlotInfoParameterWrapper slotInfoParameterWrapper => (SlotInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SLOT_INFO);
-        private static SlotInfoParameterWrapper defaultSlotValueParameterWrapper => (SlotInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.DEFAULT_SLOT_VALUE);
-        private static SlotDescriptionParameterWrapper slotDescriptionParameterWrapper => (SlotDescriptionParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SLOT_DESCRIPTION);
-        private static StatusMessageParameterWrapper statusMessageParameterWrapper => (StatusMessageParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.STATUS_MESSAGES);
-
-
+        private protected static ILogger Logger = null;
+        private protected static RDMParameterWrapperCatalogueManager pmManager => RDMParameterWrapperCatalogueManager.GetInstance();
+        private protected static DeviceInfoParameterWrapper deviceInfoParameterWrapper => (DeviceInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.DEVICE_INFO);
+        private protected static SensorValueParameterWrapper sensorValueParameterWrapper => (SensorValueParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SENSOR_VALUE);
+        private protected static SlotInfoParameterWrapper slotInfoParameterWrapper => (SlotInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SLOT_INFO);
+        private protected static SlotInfoParameterWrapper defaultSlotValueParameterWrapper => (SlotInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.DEFAULT_SLOT_VALUE);
+        private protected static SlotDescriptionParameterWrapper slotDescriptionParameterWrapper => (SlotDescriptionParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SLOT_DESCRIPTION);
+        private protected static StatusMessageParameterWrapper statusMessageParameterWrapper => (StatusMessageParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.STATUS_MESSAGES);
         
         private AsyncRDMRequestHelper asyncRDMRequestHelper;
-
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -32,7 +31,7 @@ namespace RDMSharp
         public DateTime LastSeen { get; private set; }
         public bool Present { get; internal set; }
 
-        public RDMDeviceInfo DeviceInfo { get; private set; }
+        public virtual RDMDeviceInfo DeviceInfo { get; private protected set; }
 
         private RDMDeviceModel deviceModel;
         public RDMDeviceModel DeviceModel => deviceModel;
@@ -52,7 +51,7 @@ namespace RDMSharp
         public bool IsDisposing { get; private set; }
 
         public bool IsDisposed { get; private set; }
-        public virtual bool IsGenerated { get; protected internal set; }
+        public virtual bool IsGenerated { get; private protected set; }
         public bool AllDataPulled { get; private set; }
 
         public AbstractRDMDevice(RDMUID uid)
@@ -67,7 +66,7 @@ namespace RDMSharp
                 await sendRDMRequestMessage(deviceInfoParameterWrapper.BuildGetRequestMessage());
         }
 
-        protected void SetGeneratedParameterValue(ERDM_Parameter parameter, object value)
+        private protected void SetGeneratedParameterValue(ERDM_Parameter parameter, object value)
         {
             if (!IsGenerated)
                 return;
@@ -82,11 +81,46 @@ namespace RDMSharp
                     return;
             }
         }
-        protected void SetGeneratedSensorValue(RDMSensorValue value)
+        private protected void SetGeneratedSensorValue(RDMSensorValue value)
         {
             if (!IsGenerated)
                 return;
             sensorValues.AddOrUpdate(value.SensorId, value, (o, p) => value);
+        }
+        public async Task<bool> SetParameter(ERDM_Parameter parameter, object value=null)
+        {
+            try
+            {
+                var pm = pmManager.GetRDMParameterWrapperByID(parameter);
+                RDMMessage request = null;
+
+                switch (pm)
+                {
+                    case IRDMSetParameterWrapperWithEmptySetRequest emptySetRequest:
+                        request = emptySetRequest.BuildSetRequestMessage();
+                        break;
+                    case IRDMSetParameterWrapperRequest setRequest:
+                        request = setRequest.BuildSetRequestMessage(value);
+                        value = setRequest.SetRequestParameterDataToObject(request.ParameterData);
+                        break;
+                }
+
+                if (request != null)
+                {
+                    var result = await requestParameter(request);
+                    if (result.Success)
+                        if (result.Response.ResponseType != ERDM_ResponseType.NACK_REASON)
+                        {
+                            parameterValues[parameter] = value;
+                            return true;
+                        }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger?.LogError(string.Empty, e);
+            }
+            return false;
         }
 
         private async Task sendRDMRequestMessage(RDMMessage rdmMessage)
@@ -156,228 +190,216 @@ namespace RDMSharp
         protected RDMMessage processRequestMessage(RDMMessage rdmMessage)
         {
             var pm = pmManager.GetRDMParameterWrapperByID(rdmMessage.Parameter);
-            object responseValue = null;
-            parameterValues.TryGetValue(rdmMessage.Parameter, out responseValue);
             RDMMessage response = null;
-            if (rdmMessage.Command == ERDM_Command.GET_COMMAND)
+            try
             {
-                switch (pm)
+                if (rdmMessage.Command == ERDM_Command.GET_COMMAND)
                 {
-                    case DeviceInfoParameterWrapper _deviceInfoParameterWrapper:
-                        response = _deviceInfoParameterWrapper.BuildGetResponseMessage(DeviceInfo);
-                        break;
+                    object responseValue = null;
+                    parameterValues.TryGetValue(rdmMessage.Parameter, out responseValue);
+                    switch (pm)
+                    {
+                        case DeviceInfoParameterWrapper _deviceInfoParameterWrapper:
+                            response = _deviceInfoParameterWrapper.BuildGetResponseMessage(DeviceInfo);
+                            break;
 
-                    case SupportedParametersParameterWrapper _supportedParametersParameterWrapper:
-                        List<ERDM_Parameter> sp = new List<ERDM_Parameter>();
-                        sp.Add(ERDM_Parameter.DEVICE_INFO);
-                        sp.AddRange(parameterValues.Keys);
-                        response = _supportedParametersParameterWrapper.BuildGetResponseMessage(sp.ToArray());
-                        break;
-                    case QueuedMessageParameterWrapper _queuedMessageParameterWrapper:
-                        response = statusMessageParameterWrapper.BuildGetResponseMessage([]);
-                        break;
+                        case SupportedParametersParameterWrapper _supportedParametersParameterWrapper:
+                            List<ERDM_Parameter> sp = new List<ERDM_Parameter>();
+                            sp.Add(ERDM_Parameter.DEVICE_INFO);
+                            sp.AddRange(parameterValues.Keys);
+                            response = _supportedParametersParameterWrapper.BuildGetResponseMessage(sp.ToArray());
+                            break;
+                        case QueuedMessageParameterWrapper _queuedMessageParameterWrapper:
+                            response = statusMessageParameterWrapper.BuildGetResponseMessage([]);
+                            break;
 
+                        case IRDMDescriptionParameterWrapper _descriptionParameterWrapper:
+                            var index = _descriptionParameterWrapper.GetRequestParameterDataToObject(rdmMessage.ParameterData);
+                            if (index == null)
+                                break;
 
-                    case IRDMGetParameterWrapperResponse<string> getParameterWrapperResponseString
-                    when responseValue is string _string:
-                        response = getParameterWrapperResponseString.BuildGetResponseMessage(_string);
-                        break;
-                    case IRDMGetParameterWrapperResponse<bool> getParameterWrapperResponseBool
-                    when responseValue is bool _bool:
-                        response = getParameterWrapperResponseBool.BuildGetResponseMessage(_bool);
-                        break;
-                    case IRDMGetParameterWrapperResponse<byte> getParameterWrapperResponseByte
-                    when responseValue is byte _byte:
-                        response = getParameterWrapperResponseByte.BuildGetResponseMessage(_byte);
-                        break;
-                    case IRDMGetParameterWrapperResponse<sbyte> getParameterWrapperResponseSByte
-                    when responseValue is sbyte _sbyte:
-                        response = getParameterWrapperResponseSByte.BuildGetResponseMessage(_sbyte);
-                        break;
-                    case IRDMGetParameterWrapperResponse<short> getParameterWrapperResponseShort
-                    when responseValue is short _short:
-                        response = getParameterWrapperResponseShort.BuildGetResponseMessage(_short);
-                        break;
-                    case IRDMGetParameterWrapperResponse<ushort> getParameterWrapperResponseUShort
-                    when responseValue is ushort _ushort:
-                        response = getParameterWrapperResponseUShort.BuildGetResponseMessage(_ushort);
-                        break;
-                    case IRDMGetParameterWrapperResponse<int> getParameterWrapperResponseInt
-                    when responseValue is int _int:
-                        response = getParameterWrapperResponseInt.BuildGetResponseMessage(_int);
-                        break;
-                    case IRDMGetParameterWrapperResponse<uint> getParameterWrapperResponseUInt
-                    when responseValue is uint _uint:
-                        response = getParameterWrapperResponseUInt.BuildGetResponseMessage(_uint);
-                        break;
-                    case IRDMGetParameterWrapperResponse<long> getParameterWrapperResponseLong
-                    when responseValue is long _long:
-                        response = getParameterWrapperResponseLong.BuildGetResponseMessage(_long);
-                        break;
-                    case IRDMGetParameterWrapperResponse<ulong> getParameterWrapperResponseULong
-                    when responseValue is ulong _ulong:
-                        response = getParameterWrapperResponseULong.BuildGetResponseMessage(_ulong);
-                        break;
-                    case IRDMGetParameterWrapperResponse<double> getParameterWrapperResponseDouble
-                    when responseValue is double _double:
-                        response = getParameterWrapperResponseDouble.BuildGetResponseMessage(_double);
-                        break;
-                    case IRDMGetParameterWrapperResponse<float> getParameterWrapperResponseFloat
-                    when responseValue is float _float:
-                        response = getParameterWrapperResponseFloat.BuildGetResponseMessage(_float);
-                        break;
-                    case DMX512StartingAddressParameterWrapper dmx512StartingAddressParameterWrapper
-                        when responseValue is ushort _ushort:
-                        response = dmx512StartingAddressParameterWrapper.BuildGetResponseMessage(_ushort);
-                        break;
+                            ConcurrentDictionary<object, object> list = null;
+                            if (parameterValues.ContainsKey(rdmMessage.Parameter))
+                                list = parameterValues[rdmMessage.Parameter] as ConcurrentDictionary<object, object>;
+
+                            if (list == null && !IsGenerated)
+                                parameterValues[rdmMessage.Parameter] = DeviceModel.ParameterValues[rdmMessage.Parameter];
+
+                            if (list == null)
+                                break;
+
+                            list.TryGetValue(index, out responseValue);
+                            response = _descriptionParameterWrapper.BuildGetResponseMessage(responseValue);
+                            break;
+
+                        case DMX512StartingAddressParameterWrapper dmx512StartingAddressParameterWrapper
+                            when responseValue is ushort _ushort:
+                            response = dmx512StartingAddressParameterWrapper.BuildGetResponseMessage(_ushort);
+                            break;
+                        case IRDMGetParameterWrapperResponse getParameterWrapperResponse:
+                            response = getParameterWrapperResponse.BuildGetResponseMessage(responseValue);
+                            break;
+                    }
+                }
+                else if (rdmMessage.Command == ERDM_Command.SET_COMMAND)
+                {
+                    bool success = false;
+                    //Handle set Requerst
+                    switch (pm)
+                    {
+                        case IRDMSetParameterWrapperRequestContravariance<bool> setParameterWrapperRequestContravarianceBool
+                        when setParameterWrapperRequestContravarianceBool.SetRequestParameterDataToObject(rdmMessage.ParameterData) is bool _bool:
+                            success = updateParametrerValueCache(rdmMessage.Parameter, _bool);
+                            break;
+
+                        case IRDMSetParameterWrapperRequestContravariance<string> setParameterWrapperRequestContravarianceString
+                        when setParameterWrapperRequestContravarianceString.SetRequestParameterDataToObject(rdmMessage.ParameterData) is string _string:
+                            success = updateParametrerValueCache(rdmMessage.Parameter, _string);
+                            break;
+
+                        case IRDMSetParameterWrapperRequestContravariance<byte> setParameterWrapperRequestContravarianceByte
+                        when setParameterWrapperRequestContravarianceByte.SetRequestParameterDataToObject(rdmMessage.ParameterData) is byte _byte:
+                            success = updateParametrerValueCache(rdmMessage.Parameter, _byte);
+                            break;
+
+                        case IRDMSetParameterWrapperRequestContravariance<sbyte> setParameterWrapperRequestContravarianceSByte
+                        when setParameterWrapperRequestContravarianceSByte.SetRequestParameterDataToObject(rdmMessage.ParameterData) is sbyte _sbyte:
+                            success = updateParametrerValueCache(rdmMessage.Parameter, _sbyte);
+                            break;
+
+                        case IRDMSetParameterWrapperRequestContravariance<short> setParameterWrapperRequestContravarianceShort
+                        when setParameterWrapperRequestContravarianceShort.SetRequestParameterDataToObject(rdmMessage.ParameterData) is short _short:
+                            success = updateParametrerValueCache(rdmMessage.Parameter, _short);
+                            break;
+
+                        case IRDMSetParameterWrapperRequestContravariance<ushort> setParameterWrapperRequestContravarianceUShort
+                        when setParameterWrapperRequestContravarianceUShort.SetRequestParameterDataToObject(rdmMessage.ParameterData) is ushort _ushort:
+                            success = updateParametrerValueCache(rdmMessage.Parameter, _ushort);
+                            break;
+
+                        case IRDMSetParameterWrapperRequestContravariance<int> setParameterWrapperRequestContravarianceInt
+                        when setParameterWrapperRequestContravarianceInt.SetRequestParameterDataToObject(rdmMessage.ParameterData) is int _int:
+                            success = updateParametrerValueCache(rdmMessage.Parameter, _int);
+                            break;
+
+                        case IRDMSetParameterWrapperRequestContravariance<uint> setParameterWrapperRequestContravarianceUInt
+                        when setParameterWrapperRequestContravarianceUInt.SetRequestParameterDataToObject(rdmMessage.ParameterData) is uint _uint:
+                            success = updateParametrerValueCache(rdmMessage.Parameter, _uint);
+                            break;
+
+                        case IRDMSetParameterWrapperRequestContravariance<long> setParameterWrapperRequestContravarianceLong
+                        when setParameterWrapperRequestContravarianceLong.SetRequestParameterDataToObject(rdmMessage.ParameterData) is long _long:
+                            success = updateParametrerValueCache(rdmMessage.Parameter, _long);
+                            break;
+
+                        case IRDMSetParameterWrapperRequestContravariance<ulong> setParameterWrapperRequestContravarianceULong
+                        when setParameterWrapperRequestContravarianceULong.SetRequestParameterDataToObject(rdmMessage.ParameterData) is ulong _ulong:
+                            success = updateParametrerValueCache(rdmMessage.Parameter, _ulong);
+                            break;
+
+                        case IRDMSetParameterWrapperRequestContravariance<double> setParameterWrapperRequestContravarianceDouble
+                        when setParameterWrapperRequestContravarianceDouble.SetRequestParameterDataToObject(rdmMessage.ParameterData) is double _double:
+                            success = updateParametrerValueCache(rdmMessage.Parameter, _double);
+                            break;
+
+                        case IRDMSetParameterWrapperRequestContravariance<float> setParameterWrapperRequestContravarianceFloat
+                        when setParameterWrapperRequestContravarianceFloat.SetRequestParameterDataToObject(rdmMessage.ParameterData) is float _float:
+                            success = updateParametrerValueCache(rdmMessage.Parameter, _float);
+                            break;
+                    }
+                    if (!success)
+                    {
+                        response = new RDMMessage(ERDM_NackReason.FORMAT_ERROR) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
+                        goto FAIL;
+                    }
+                    //Do set Response
+                    object val = null;
+                    switch (pm)
+                    {
+                        case IRDMSetParameterWrapperWithEmptySetResponse setParameterWrapperResponseContravarianceEmpty:
+                            response = setParameterWrapperResponseContravarianceEmpty.BuildSetResponseMessage();
+                            break;
+
+                        case IRDMSetParameterWrapperSetResponseContravariance<bool> setParameterWrapperResponseContravarianceBool:
+                            parameterValues.TryGetValue(rdmMessage.Parameter, out val);
+                            if (val is bool _bool)
+                                response = setParameterWrapperResponseContravarianceBool.BuildSetResponseMessage(_bool);
+                            break;
+
+                        case IRDMSetParameterWrapperSetResponseContravariance<string> setParameterWrapperResponseContravarianceString:
+                            parameterValues.TryGetValue(rdmMessage.Parameter, out val);
+                            if (val is string _string)
+                                response = setParameterWrapperResponseContravarianceString.BuildSetResponseMessage(_string);
+                            break;
+
+                        case IRDMSetParameterWrapperSetResponseContravariance<byte> setParameterWrapperResponseContravarianceByte:
+                            parameterValues.TryGetValue(rdmMessage.Parameter, out val);
+                            if (val is byte _byte)
+                                response = setParameterWrapperResponseContravarianceByte.BuildSetResponseMessage(_byte);
+                            break;
+
+                        case IRDMSetParameterWrapperSetResponseContravariance<sbyte> setParameterWrapperResponseContravarianceSByte:
+                            parameterValues.TryGetValue(rdmMessage.Parameter, out val);
+                            if (val is sbyte _sbyte)
+                                response = setParameterWrapperResponseContravarianceSByte.BuildSetResponseMessage(_sbyte);
+                            break;
+
+                        case IRDMSetParameterWrapperSetResponseContravariance<short> setParameterWrapperResponseContravarianceShort:
+                            parameterValues.TryGetValue(rdmMessage.Parameter, out val);
+                            if (val is short _short)
+                                response = setParameterWrapperResponseContravarianceShort.BuildSetResponseMessage(_short);
+                            break;
+
+                        case IRDMSetParameterWrapperSetResponseContravariance<ushort> setParameterWrapperResponseContravarianceUShort:
+                            parameterValues.TryGetValue(rdmMessage.Parameter, out val);
+                            if (val is ushort _ushort)
+                                response = setParameterWrapperResponseContravarianceUShort.BuildSetResponseMessage(_ushort);
+                            break;
+
+                        case IRDMSetParameterWrapperSetResponseContravariance<int> setParameterWrapperResponseContravarianceInt:
+                            parameterValues.TryGetValue(rdmMessage.Parameter, out val);
+                            if (val is int _int)
+                                response = setParameterWrapperResponseContravarianceInt.BuildSetResponseMessage(_int);
+                            break;
+
+                        case IRDMSetParameterWrapperSetResponseContravariance<uint> setParameterWrapperResponseContravarianceUInt:
+                            parameterValues.TryGetValue(rdmMessage.Parameter, out val);
+                            if (val is uint _uint)
+                                response = setParameterWrapperResponseContravarianceUInt.BuildSetResponseMessage(_uint);
+                            break;
+
+                        case IRDMSetParameterWrapperSetResponseContravariance<long> setParameterWrapperResponseContravarianceLong:
+                            parameterValues.TryGetValue(rdmMessage.Parameter, out val);
+                            if (val is long _long)
+                                response = setParameterWrapperResponseContravarianceLong.BuildSetResponseMessage(_long);
+                            break;
+
+                        case IRDMSetParameterWrapperSetResponseContravariance<ulong> setParameterWrapperResponseContravarianceULong:
+                            parameterValues.TryGetValue(rdmMessage.Parameter, out val);
+                            if (val is ulong _ulong)
+                                response = setParameterWrapperResponseContravarianceULong.BuildSetResponseMessage(_ulong);
+                            break;
+
+                        case IRDMSetParameterWrapperSetResponseContravariance<double> setParameterWrapperResponseContravarianceDouble:
+                            parameterValues.TryGetValue(rdmMessage.Parameter, out val);
+                            if (val is double _double)
+                                response = setParameterWrapperResponseContravarianceDouble.BuildSetResponseMessage(_double);
+                            break;
+
+                        case IRDMSetParameterWrapperSetResponseContravariance<float> setParameterWrapperResponseContravarianceFloat:
+                            parameterValues.TryGetValue(rdmMessage.Parameter, out val);
+                            if (val is float _float)
+                                response = setParameterWrapperResponseContravarianceFloat.BuildSetResponseMessage(_float);
+                            break;
+                    }
                 }
             }
-            else if (rdmMessage.Command == ERDM_Command.SET_COMMAND)
+            catch(Exception e)
             {
-                //Handle set Requerst
-                switch (pm)
-                {
-                    case IRDMSetParameterWrapperRequestContravariance<bool> setParameterWrapperRequestContravarianceBool
-                    when setParameterWrapperRequestContravarianceBool.SetRequestParameterDataToObject(rdmMessage.ParameterData) is bool _bool:
-                        parameterValues.AddOrUpdate(rdmMessage.Parameter, _bool, (x, y) => _bool);
-                        break;
 
-                    case IRDMSetParameterWrapperRequestContravariance<string> setParameterWrapperRequestContravarianceString
-                    when setParameterWrapperRequestContravarianceString.SetRequestParameterDataToObject(rdmMessage.ParameterData) is string _string:
-                        parameterValues.AddOrUpdate(rdmMessage.Parameter, _string, (x, y) => _string);
-                        break;
-
-                    case IRDMSetParameterWrapperRequestContravariance<byte> setParameterWrapperRequestContravarianceByte
-                    when setParameterWrapperRequestContravarianceByte.SetRequestParameterDataToObject(rdmMessage.ParameterData) is byte _byte:
-                        parameterValues.AddOrUpdate(rdmMessage.Parameter, _byte, (x, y) => _byte);
-                        break;
-
-                    case IRDMSetParameterWrapperRequestContravariance<sbyte> setParameterWrapperRequestContravarianceSByte
-                    when setParameterWrapperRequestContravarianceSByte.SetRequestParameterDataToObject(rdmMessage.ParameterData) is sbyte _sbyte:
-                        parameterValues.AddOrUpdate(rdmMessage.Parameter, _sbyte, (x, y) => _sbyte);
-                        break;
-
-                    case IRDMSetParameterWrapperRequestContravariance<short> setParameterWrapperRequestContravarianceShort
-                    when setParameterWrapperRequestContravarianceShort.SetRequestParameterDataToObject(rdmMessage.ParameterData) is short _short:
-                        parameterValues.AddOrUpdate(rdmMessage.Parameter, _short, (x, y) => _short);
-                        break;
-
-                    case IRDMSetParameterWrapperRequestContravariance<ushort> setParameterWrapperRequestContravarianceUShort
-                    when setParameterWrapperRequestContravarianceUShort.SetRequestParameterDataToObject(rdmMessage.ParameterData) is ushort _ushort:
-                        parameterValues.AddOrUpdate(rdmMessage.Parameter, _ushort, (x, y) => _ushort);
-                        break;
-
-                    case IRDMSetParameterWrapperRequestContravariance<int> setParameterWrapperRequestContravarianceInt
-                    when setParameterWrapperRequestContravarianceInt.SetRequestParameterDataToObject(rdmMessage.ParameterData) is int _int:
-                        parameterValues.AddOrUpdate(rdmMessage.Parameter, _int, (x, y) => _int);
-                        break;
-
-                    case IRDMSetParameterWrapperRequestContravariance<uint> setParameterWrapperRequestContravarianceUInt
-                    when setParameterWrapperRequestContravarianceUInt.SetRequestParameterDataToObject(rdmMessage.ParameterData) is uint _uint:
-                        parameterValues.AddOrUpdate(rdmMessage.Parameter, _uint, (x, y) => _uint);
-                        break;
-
-                    case IRDMSetParameterWrapperRequestContravariance<long> setParameterWrapperRequestContravarianceLong
-                    when setParameterWrapperRequestContravarianceLong.SetRequestParameterDataToObject(rdmMessage.ParameterData) is long _long:
-                        parameterValues.AddOrUpdate(rdmMessage.Parameter, _long, (x, y) => _long);
-                        break;
-
-                    case IRDMSetParameterWrapperRequestContravariance<ulong> setParameterWrapperRequestContravarianceULong
-                    when setParameterWrapperRequestContravarianceULong.SetRequestParameterDataToObject(rdmMessage.ParameterData) is ulong _ulong:
-                        parameterValues.AddOrUpdate(rdmMessage.Parameter, _ulong, (x, y) => _ulong);
-                        break;
-
-                    case IRDMSetParameterWrapperRequestContravariance<double> setParameterWrapperRequestContravarianceDouble
-                    when setParameterWrapperRequestContravarianceDouble.SetRequestParameterDataToObject(rdmMessage.ParameterData) is double _double:
-                        parameterValues.AddOrUpdate(rdmMessage.Parameter, _double, (x, y) => _double);
-                        break;
-
-                    case IRDMSetParameterWrapperRequestContravariance<float> setParameterWrapperRequestContravarianceFloat
-                    when setParameterWrapperRequestContravarianceFloat.SetRequestParameterDataToObject(rdmMessage.ParameterData) is float _float:
-                        parameterValues.AddOrUpdate(rdmMessage.Parameter, _float, (x, y) => _float);
-                        break;
-                }
-                //Do set Response
-                object val = null;
-                switch (pm)
-                {
-                    case IRDMSetParameterWrapperWithEmptySetResponse setParameterWrapperResponseContravarianceEmpty:
-                        response = setParameterWrapperResponseContravarianceEmpty.BuildSetResponseMessage();
-                        break;
-
-                    case IRDMSetParameterWrapperSetResponseContravariance<bool> setParameterWrapperResponseContravarianceBool:
-                        parameterValues.TryGetValue(rdmMessage.Parameter, out val);
-                        if (val is bool _bool)
-                            response = setParameterWrapperResponseContravarianceBool.BuildSetResponseMessage(_bool);
-                        break;
-
-                    case IRDMSetParameterWrapperSetResponseContravariance<string> setParameterWrapperResponseContravarianceString:
-                        parameterValues.TryGetValue(rdmMessage.Parameter, out val);
-                        if (val is string _string)
-                            response = setParameterWrapperResponseContravarianceString.BuildSetResponseMessage(_string);
-                        break;
-
-                    case IRDMSetParameterWrapperSetResponseContravariance<byte> setParameterWrapperResponseContravarianceByte:
-                        parameterValues.TryGetValue(rdmMessage.Parameter, out val);
-                        if (val is byte _byte)
-                            response = setParameterWrapperResponseContravarianceByte.BuildSetResponseMessage(_byte);
-                        break;
-
-                    case IRDMSetParameterWrapperSetResponseContravariance<sbyte> setParameterWrapperResponseContravarianceSByte:
-                        parameterValues.TryGetValue(rdmMessage.Parameter, out val);
-                        if (val is sbyte _sbyte)
-                            response = setParameterWrapperResponseContravarianceSByte.BuildSetResponseMessage(_sbyte);
-                        break;
-
-                    case IRDMSetParameterWrapperSetResponseContravariance<short> setParameterWrapperResponseContravarianceShort:
-                        parameterValues.TryGetValue(rdmMessage.Parameter, out val);
-                        if (val is short _short)
-                            response = setParameterWrapperResponseContravarianceShort.BuildSetResponseMessage(_short);
-                        break;
-
-                    case IRDMSetParameterWrapperSetResponseContravariance<ushort> setParameterWrapperResponseContravarianceUShort:
-                        parameterValues.TryGetValue(rdmMessage.Parameter, out val);
-                        if (val is ushort _ushort)
-                            response = setParameterWrapperResponseContravarianceUShort.BuildSetResponseMessage(_ushort);
-                        break;
-
-                    case IRDMSetParameterWrapperSetResponseContravariance<int> setParameterWrapperResponseContravarianceInt:
-                        parameterValues.TryGetValue(rdmMessage.Parameter, out val);
-                        if (val is int _int)
-                            response = setParameterWrapperResponseContravarianceInt.BuildSetResponseMessage(_int);
-                        break;
-
-                    case IRDMSetParameterWrapperSetResponseContravariance<uint> setParameterWrapperResponseContravarianceUInt:
-                        parameterValues.TryGetValue(rdmMessage.Parameter, out val);
-                        if (val is uint _uint)
-                            response = setParameterWrapperResponseContravarianceUInt.BuildSetResponseMessage(_uint);
-                        break;
-
-                    case IRDMSetParameterWrapperSetResponseContravariance<long> setParameterWrapperResponseContravarianceLong:
-                        parameterValues.TryGetValue(rdmMessage.Parameter, out val);
-                        if (val is long _long)
-                            response = setParameterWrapperResponseContravarianceLong.BuildSetResponseMessage(_long);
-                        break;
-
-                    case IRDMSetParameterWrapperSetResponseContravariance<ulong> setParameterWrapperResponseContravarianceULong:
-                        parameterValues.TryGetValue(rdmMessage.Parameter, out val);
-                        if (val is ulong _ulong)
-                            response = setParameterWrapperResponseContravarianceULong.BuildSetResponseMessage(_ulong);
-                        break;
-
-                    case IRDMSetParameterWrapperSetResponseContravariance<double> setParameterWrapperResponseContravarianceDouble:
-                        parameterValues.TryGetValue(rdmMessage.Parameter, out val);
-                        if (val is double _double)
-                            response = setParameterWrapperResponseContravarianceDouble.BuildSetResponseMessage(_double);
-                        break;
-
-                    case IRDMSetParameterWrapperSetResponseContravariance<float> setParameterWrapperResponseContravarianceFloat:
-                        parameterValues.TryGetValue(rdmMessage.Parameter, out val);
-                        if (val is float _float)
-                            response = setParameterWrapperResponseContravarianceFloat.BuildSetResponseMessage(_float);
-                        break;
-                }
             }
+            FAIL:
+
             if (rdmMessage.DestUID.IsBroadcast) // no Response on Broadcast
                 return null;
             if (response == null)
@@ -466,7 +488,7 @@ namespace RDMSharp
                         slots.TryAdd(slot.SlotId, slot);
                     }
                     slot.Description = description.Description;
-                    this.PropertyChanged.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(this.Slots)));
+                    this.OnPropertyChanged(nameof(this.Slots));
                     break;
 
                 case SlotInfoParameterWrapper _slotInfoParameterWrapper:
@@ -490,7 +512,7 @@ namespace RDMSharp
                         slot1.Type = info.SlotType;
                         slot1.Category = info.SlotLabelId;
                     }
-                    this.PropertyChanged.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(this.Slots)));
+                    this.OnPropertyChanged(nameof(this.Slots));
                     break;
 
                 case DefaultSlotValueParameterWrapper _defaultSlotValueParameterWrapper:
@@ -510,7 +532,7 @@ namespace RDMSharp
                         }
                         slot1.DefaultValue = info.DefaultSlotValue;
                     }
-                    this.PropertyChanged.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(this.Slots)));
+                    this.OnPropertyChanged(nameof(this.Slots));
                     break;
                 case SensorDefinitionParameterWrapper _sensorDefinitionParameterWrapper:
                     if (!(value is RDMSensorValue sensorValue))
@@ -522,7 +544,7 @@ namespace RDMSharp
                         return;
                     }
                     sensorValues.AddOrUpdate(sensorValue.SensorId, sensorValue, (x, y) => sensorValue);
-                    this.PropertyChanged.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(this.SensorValues)));
+                    this.OnPropertyChanged(nameof(this.SensorValues));
                     break;
 
                 case IRDMGetParameterWrapperWithEmptyGetRequest @emptyGetRequest:
@@ -543,6 +565,11 @@ namespace RDMSharp
                     break;
 
             }
+        }
+
+        protected virtual void OnPropertyChanged(string property)
+        {
+            this.PropertyChanged.InvokeFailSafe(this, new PropertyChangedEventArgs(property));
         }
 
         public async Task UpdateParameterValues()
@@ -597,6 +624,9 @@ namespace RDMSharp
             }
 
             if (!pm.CommandClass.HasFlag(ERDM_CommandClass.GET))
+                return;
+
+            if (pm is IRDMBlueprintParameterWrapper)
                 return;
 
             this.pendingParametersUpdateRequest.Add(parameterId);
@@ -831,6 +861,16 @@ namespace RDMSharp
             this.pendingSlotDescriptionsUpdateRequest.Remove(slotId);
         }
 
+        private bool updateParametrerValueCache(ERDM_Parameter parameter, object value)
+        {
+            parameterValues.AddOrUpdate(parameter, value, (x, y) => value);
+            return OnUpdateParametrerValueCache(parameter, value);
+        }
+        protected virtual bool OnUpdateParametrerValueCache(ERDM_Parameter parameter, object value)
+        {
+            return true;
+        }
+
         public IReadOnlyDictionary<ERDM_Parameter, object> GetAllParameterValues() 
         {
             if (this.DeviceModel != null)
@@ -865,13 +905,6 @@ namespace RDMSharp
         public override string ToString()
         {
             return $"[{UID}] {this.DeviceModel}";
-        }
-    }
-    public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
-    {
-        public sealed override bool IsGenerated => true;
-        public AbstractGeneratedRDMDevice(RDMUID uid) : base(uid)
-        {
         }
     }
 }

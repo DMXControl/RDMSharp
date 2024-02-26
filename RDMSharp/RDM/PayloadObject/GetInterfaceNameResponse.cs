@@ -22,7 +22,7 @@ namespace RDMSharp
 
         public uint InterfaceId { get; private set; }
         public string Label { get; private set; }
-        public const int PDL_MIN = 1;
+        public const int PDL_MIN = 4;
         public const int PDL_MAX = PDL_MIN + 32;
 
         public override string ToString()

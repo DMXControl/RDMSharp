@@ -179,6 +179,9 @@ namespace RDMSharp
 
         private async Task processMessage(RequestResult result)
         {
+            if (IsInitialized)
+                return;
+
             if (result.Success)
                 await processMessage(result.Response);
             else if (result.Cancel)
@@ -191,6 +194,9 @@ namespace RDMSharp
         }
         private async Task processMessage(RDMMessage rdmMessage)
         {
+            if (IsInitialized)
+                return;
+
             var pw = pmManager.GetRDMParameterWrapperByID(rdmMessage.Parameter);
             switch (pw)
             {
@@ -241,12 +247,12 @@ namespace RDMSharp
                     break;
 
                 case IRDMBlueprintDescriptionListParameterWrapper blueprintDL:
-                    HashSet<object> list = null;
+                    ConcurrentDictionary<object, object> list = null;
                     if (parameterValues.ContainsKey(rdmMessage.Parameter))
-                        list = parameterValues[rdmMessage.Parameter] as HashSet<object>;
+                        list = parameterValues[rdmMessage.Parameter] as ConcurrentDictionary<object, object>;
 
                     if (list == null)
-                        parameterValues[rdmMessage.Parameter] = list = new HashSet<object>();
+                        parameterValues[rdmMessage.Parameter] = list = new ConcurrentDictionary<object, object>();
 
                     if (list == null)
                         return;
@@ -254,7 +260,8 @@ namespace RDMSharp
                     if (rdmMessage.Value == null)
                         return;
 
-                    list.Add(rdmMessage.Value);
+                    if (rdmMessage.Value is IRDMPayloadObjectIndex indexObject)
+                        list.AddOrUpdate(indexObject.Index, rdmMessage.Value, (o, p) => rdmMessage.Value);
 
                     break;
                 case IRDMBlueprintParameterWrapper blueprint:

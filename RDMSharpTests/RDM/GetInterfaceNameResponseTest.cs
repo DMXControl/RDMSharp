@@ -10,7 +10,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            GetInterfaceNameResponse getInterfaceNameResponse = new GetInterfaceNameResponse(1, "Pseude Interface");
+            GetInterfaceNameResponse getInterfaceNameResponse = new GetInterfaceNameResponse(1, "Pseude Interface 123456789123456789123456789123456");
             byte[] data = getInterfaceNameResponse.ToPayloadData();
 
             RDMMessage message = new RDMMessage()

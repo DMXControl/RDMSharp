@@ -230,16 +230,37 @@ namespace RDMSharp
                 {
                     case ERDM_Command.SET_COMMAND_RESPONSE
                         when !(pm is IRDMSetParameterWrapperWithEmptySetResponse):
-                        b.AppendLine("Value: " + Value);
+                        b.AppendLine("Value: " + valueString());
                         break;
                     case ERDM_Command.GET_COMMAND_RESPONSE
                         when !(pm is IRDMGetParameterWrapperWithEmptyGetResponse):
-                        b.AppendLine("Value: " + Value);
+                        b.AppendLine("Value: " + valueString());
                         break;
                     case ERDM_Command.SET_COMMAND
                         when !(pm is IRDMSetParameterWrapperWithEmptySetRequest):
-                        b.AppendLine("Value: " + Value);
+                        b.AppendLine("Value: " + valueString());
                         break;
+                }
+                string valueString()
+                {
+                    string value = null;
+                    if (Value is Array array)
+                    {
+                        List<string> list = new List<string>();
+                        foreach (var a in array)
+                            list.Add(a.ToString());
+                        value = string.Join("," + Environment.NewLine, list);
+                    }
+                    else if (Value is string str)
+                        value = $"\"{str}\"";
+                    else
+                        value = Value?.ToString() ?? "[NULL]";
+                    if (value.Contains(Environment.NewLine) && !value.StartsWith(Environment.NewLine))
+                    {
+                        value = Environment.NewLine + value;
+                        value = value.Replace(Environment.NewLine, Environment.NewLine + "\t");
+                    }
+                    return value;
                 }
             }
             //Add More if required

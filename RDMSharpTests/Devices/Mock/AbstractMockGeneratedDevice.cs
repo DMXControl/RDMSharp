@@ -7,7 +7,7 @@ namespace RDMSharpTests.Devices.Mock
         private ConcurrentDictionary<long, RDMMessage> identifyer = new ConcurrentDictionary<long, RDMMessage>();
         private bool eventRegistered = false;
         private byte transactionCounter = 0;
-        public AbstractMockGeneratedDevice(RDMUID uid):base(uid)
+        public AbstractMockGeneratedDevice(RDMUID uid, ERDM_Parameter[] parameters, string manufacturer) : base(uid, parameters, manufacturer)
         {
             registerEvent();
         }

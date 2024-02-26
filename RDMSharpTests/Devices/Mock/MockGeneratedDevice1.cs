@@ -1,22 +1,24 @@
-﻿namespace RDMSharpTests.Devices.Mock
+﻿using RDMSharp.ParameterWrapper;
+
+namespace RDMSharpTests.Devices.Mock
 {
     internal sealed class MockGeneratedDevice1 : AbstractMockGeneratedDevice
     {
-        public MockGeneratedDevice1(RDMUID uid) : base(uid)
-        {
-            this.SetGeneratedParameterValue(ERDM_Parameter.DEVICE_INFO, new RDMDeviceInfo(dmx512StartAddress: 1, deviceModelId: 20, dmx512Footprint: 11, productCategoryCoarse: ERDM_ProductCategoryCoarse.CONTROL, productCategoryFine: ERDM_ProductCategoryFine.DATA_CONVERSION, softwareVersionId: 0x1234, sensorCount: 5));
-            this.SetGeneratedParameterValue(ERDM_Parameter.IDENTIFY_DEVICE, false);
-            this.SetGeneratedParameterValue(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION, "Test Model Description");
-            this.SetGeneratedParameterValue(ERDM_Parameter.DEVICE_LABEL, $"Test Device {uid}");
-            this.SetGeneratedParameterValue(ERDM_Parameter.MANUFACTURER_LABEL, $"Dummy Manufacturer");
-            this.SetGeneratedParameterValue(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, $"Dummy Software");
-            this.SetGeneratedParameterValue(ERDM_Parameter.DMX_START_ADDRESS, (ushort)1);
+        public override EManufacturer ManufacturerID => (EManufacturer)0x9fff;
+        public override ushort DeviceModelID => 20;
+        public override ERDM_ProductCategoryCoarse ProductCategoryCoarse => ERDM_ProductCategoryCoarse.CONTROL;
+        public override ERDM_ProductCategoryFine ProductCategoryFine => ERDM_ProductCategoryFine.DATA_CONVERSION;
+        public override uint SoftwareVersionID => 0x1234;
+        public override string DeviceModelDescription => "Test Model Description";
+        public override bool SupportDMXAddress => true;
 
-            this.SetGeneratedSensorValue(new RDMSensorValue(0, 111));
-            this.SetGeneratedSensorValue(new RDMSensorValue(1, 2204));
-            this.SetGeneratedSensorValue(new RDMSensorValue(2, 333));
-            this.SetGeneratedSensorValue(new RDMSensorValue(3, 4444));
-            this.SetGeneratedSensorValue(new RDMSensorValue(4, 15555));
+        private static GeneratedPersonality[] PERSONALITYS = [new GeneratedPersonality(1, 5, "5CH RGB"), new GeneratedPersonality(2, 8, "8CH RGBAWY"), new GeneratedPersonality(3, 9, "9CH RGB 16-Bit")];
+        public override GeneratedPersonality[] Personalities => PERSONALITYS;
+        public MockGeneratedDevice1(RDMUID uid) : base(uid, [ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL],"Dummy Manufacturer 9FFF")
+        {
+            this.DeviceLabel = "Dummy Device 1";
+            this.TrySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, false);
+            this.TrySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, $"Dummy Software");
         }
     }
 }

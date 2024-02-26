@@ -20,6 +20,7 @@ namespace RDMSharp.ParameterWrapper
     public interface IRDMGetParameterWrapperRequest : IRDMParameterWrapper
     {
         Type GetRequestType { get; }
+        RDMMessage BuildGetRequestMessage(object value);
         byte[] GetRequestObjectToParameterData(object value);
         object GetRequestParameterDataToObject(byte[] parameterData);
     }
@@ -31,7 +32,7 @@ namespace RDMSharp.ParameterWrapper
         byte[] GetRequestValueToParameterData(TRequest value);
         TRequest GetRequestParameterDataToValue(byte[] parameterData);
     }
-    public interface IRDMGetParameterWrapperWithEmptyGetRequest : IRDMGetParameterWrapperResponse
+    public interface IRDMGetParameterWrapperWithEmptyGetRequest : IRDMParameterWrapper
     {
         RDMMessage BuildGetRequestMessage();
     }
@@ -40,6 +41,7 @@ namespace RDMSharp.ParameterWrapper
     public interface IRDMGetParameterWrapperResponse : IRDMParameterWrapper
     {
         Type GetResponseType { get; }
+        RDMMessage BuildGetResponseMessage(object value);
         object GetResponseParameterDataToObject(byte[] parameterData);
         byte[] GetResponseObjectToParameterData(object value);
     }
@@ -67,6 +69,7 @@ namespace RDMSharp.ParameterWrapper
     public interface IRDMSetParameterWrapperRequest
     {
         Type SetRequestType { get; }
+        RDMMessage BuildSetRequestMessage(object value);
         object SetRequestParameterDataToObject(byte[] parameterData);
         byte[] SetRequestObjectToParameterData(object value);
     }
@@ -82,6 +85,7 @@ namespace RDMSharp.ParameterWrapper
     public interface IRDMSetParameterWrapperResponse : IRDMParameterWrapper
     {
         Type SetResponseType { get; }
+        RDMMessage BuildSetResponseMessage(object value);
         object SetResponseParameterDataToObject(byte[] parameterData);
         byte[] SetResponseObjectToParameterData(object value);
     }
@@ -105,7 +109,7 @@ namespace RDMSharp.ParameterWrapper
     public interface IRDMBlueprintDescriptionListParameterWrapper : IRDMBlueprintParameterWrapper, IRDMDescriptionParameterWrapper
     {
     }
-    public interface IRDMDescriptionParameterWrapper : IRDMParameterWrapper
+    public interface IRDMDescriptionParameterWrapper : IRDMParameterWrapper, IRDMGetParameterWrapperRequest, IRDMGetParameterWrapperResponse
     {
         ERDM_Parameter ValueParameterID { get; }
     }
