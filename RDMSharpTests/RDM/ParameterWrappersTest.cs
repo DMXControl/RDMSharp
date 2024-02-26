@@ -1,4 +1,5 @@
 using RDMSharp.ParameterWrapper;
+using RDMSharp.ParameterWrapper.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
 
@@ -232,6 +233,54 @@ namespace RDMSharpTest.RDM
                 Assert.That(parameterWrappers.Count(pw => pw.Parameter == parameter), Is.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
 
             Assert.That(e1_20Parameters.Length + e1_37_1Parameters.Length + e1_37_2Parameters.Length + e1_37_7Parameters.Length + e1_33Parameters.Length + sgmParameters.Length, Is.EqualTo(parameterWrappers.Count));
+        }
+        [Test]
+        public void GenericParameterWrapperTest()
+        {
+            List<IRDMGetParameterWrapperWithEmptyGetRequest> wrappers = new();
+            wrappers.Add(new ASCIIParameterWrapper(new RDMParameterDescription(0x1000, 20, ERDM_DataType.ASCII, ERDM_CommandClass.GET | ERDM_CommandClass.SET, description: "ASCII")));
+            wrappers.Add(new SignedByteParameterWrapper(new RDMParameterDescription(0x1000, 1, ERDM_DataType.ASCII, ERDM_CommandClass.GET | ERDM_CommandClass.SET, description: "sbyte")));
+            wrappers.Add(new UnsignedByteParameterWrapper(new RDMParameterDescription(0x1000, 1, ERDM_DataType.ASCII, ERDM_CommandClass.GET | ERDM_CommandClass.SET, description: "byte")));
+            wrappers.Add(new SignedWordParameterWrapper(new RDMParameterDescription(0x1000, 2, ERDM_DataType.ASCII, ERDM_CommandClass.GET | ERDM_CommandClass.SET, description: "short")));
+            wrappers.Add(new UnsignedWordParameterWrapper(new RDMParameterDescription(0x1000, 2, ERDM_DataType.ASCII, ERDM_CommandClass.GET | ERDM_CommandClass.SET, description: "ushort")));
+            wrappers.Add(new SignedDWordParameterWrapper(new RDMParameterDescription(0x1000, 4, ERDM_DataType.ASCII, ERDM_CommandClass.GET | ERDM_CommandClass.SET, description: "int")));
+            wrappers.Add(new UnsignedDWordParameterWrapper(new RDMParameterDescription(0x1000, 4, ERDM_DataType.ASCII, ERDM_CommandClass.GET | ERDM_CommandClass.SET, description: "uint")));
+            wrappers.Add(new NotDefinedParameterWrapper(new RDMParameterDescription(0x1000, 20, ERDM_DataType.ASCII, ERDM_CommandClass.GET | ERDM_CommandClass.SET, description: "NotDefined")));
+            foreach (var wrapper in wrappers)
+            {
+                if (wrapper is IRDMGetParameterWrapperResponse getResponse && wrapper is IRDMSetParameterWrapperRequest setRequest)
+                {
+                    object value = null;
+                    if (getResponse.GetResponseType == typeof(string))
+                        value = "Test String";
+                    if (getResponse.GetResponseType == typeof(sbyte))
+                        value = (sbyte)55;
+                    if (getResponse.GetResponseType == typeof(byte))
+                        value = (byte)99;
+                    if (getResponse.GetResponseType == typeof(short))
+                        value = (short)-0x1234;
+                    if (getResponse.GetResponseType == typeof(ushort))
+                        value = (ushort)1523;
+                    if (getResponse.GetResponseType == typeof(int))
+                        value = (int)-0x123334;
+                    if (getResponse.GetResponseType == typeof(uint))
+                        value = (uint)154523;
+                    if (getResponse.GetResponseType == typeof(byte[]))
+                        value = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+
+                    Assert.That(value, Is.Not.Null);
+                    var data = getResponse.GetResponseObjectToParameterData(value);
+                    var res = getResponse.GetResponseParameterDataToObject(data);
+                    Assert.That(res, Is.EqualTo(value));
+
+                    Assert.That(value, Is.Not.Null);
+                    data = setRequest.SetRequestObjectToParameterData(value);
+                    res = setRequest.SetRequestParameterDataToObject(data);
+                    Assert.That(res, Is.EqualTo(value));
+                }
+                else
+                    Assert.Fail($"{wrapper} is not using Interface");
+            }
         }
 
         private string ParametersToString(params ERDM_Parameter[] parameters)
