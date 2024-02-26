@@ -10,6 +10,9 @@ namespace RDMSharp.ParameterWrapper.SGM
 
         public RefreshRate(in byte rawValue)
         {
+            if (rawValue == 0)
+                return;
+
             this.RawValue = rawValue;
             this.Frequency = FREQUENCY_MULTIPLYER / this.RawValue;
         }

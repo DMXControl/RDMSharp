@@ -196,7 +196,7 @@ namespace RDMSharp
         private bool trySetParameter(ERDM_Parameter parameter, object value)
         {
             if (!this.Parameters.Contains(parameter))
-                return false;
+                throw new NotSupportedException($"The Parameter: {parameter}, is not Supported");
 
             switch (pmManager.GetRDMParameterWrapperByID(parameter))
             {
@@ -248,9 +248,6 @@ namespace RDMSharp
             {
                 case nameof(DeviceInfo):
                     trySetParameter(ERDM_Parameter.DEVICE_INFO, this.DeviceInfo);
-                    break;
-                case nameof(DeviceModelDescription):
-                    trySetParameter(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION, this.DeviceModelDescription);
                     break;
                 case nameof(DMXAddress):
                     trySetParameter(ERDM_Parameter.DMX_START_ADDRESS, this.DMXAddress);

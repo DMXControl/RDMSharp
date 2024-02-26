@@ -194,6 +194,9 @@ namespace RDMSharp
             {
                 try
                 {
+                    if (this.ResponseType == ERDM_ResponseType.ACK_TIMER)
+                        return AcknowledgeTimer.FromPayloadData(this.ParameterData);
+
                     return RDMParameterWrapperCatalogueManager.GetInstance().ParameterDataObjectFromMessage(this);
                 }
                 catch (Exception ex)

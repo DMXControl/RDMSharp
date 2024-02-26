@@ -43,13 +43,13 @@ namespace RDMSharp
             try
             {
                 buffer.TryAdd(requerst, null);
-                RDMMessage resopnse = null;
+                RDMMessage response = null;
                 await _sendMethode.Invoke(requerst);
                 int count = 0;
                 do
                 {
-                    buffer.TryGetValue(requerst, out resopnse);
-                    if (resopnse != null)
+                    buffer.TryGetValue(requerst, out response);
+                    if (response != null)
                         break;
                     await Task.Delay(10);
                     count++;
@@ -62,9 +62,9 @@ namespace RDMSharp
                     if (count == 3000)
                         return new RequestResult(requerst);
                 }
-                while (resopnse == null);
-                buffer.TryRemove(requerst, out resopnse);
-                return new RequestResult(requerst, resopnse);
+                while (response == null);
+                buffer.TryRemove(requerst, out response);
+                return new RequestResult(requerst, response);
             }
             catch( Exception ex)
             {
