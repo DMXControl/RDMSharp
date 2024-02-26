@@ -6,7 +6,7 @@ namespace RDMSharp
     public class GetBackgroundQueuedStatusPolicyDescriptionResponse : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
         public GetBackgroundQueuedStatusPolicyDescriptionResponse(
-            byte policyId = default,
+            byte policyId = 1,
             string description = default)
         {
             this.PolicyId = policyId;

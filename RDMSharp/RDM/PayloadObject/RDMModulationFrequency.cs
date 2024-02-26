@@ -6,7 +6,7 @@ namespace RDMSharp
     public class RDMModulationFrequency : AbstractRDMPayloadObjectOneOf
     {
         public RDMModulationFrequency(
-            byte modulationFrequencyId = 0,
+            byte modulationFrequencyId = 1,
             byte modulationFrequencys = 0)
         {
             this.ModulationFrequencyId = modulationFrequencyId;

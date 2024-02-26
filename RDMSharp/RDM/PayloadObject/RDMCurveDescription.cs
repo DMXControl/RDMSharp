@@ -6,7 +6,7 @@ namespace RDMSharp
     public class RDMCurveDescription : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
         public RDMCurveDescription(
-            byte curveId = 0,
+            byte curveId = 1,
             string description = "")
         {
             this.CurveId = curveId;

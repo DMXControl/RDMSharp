@@ -25,6 +25,11 @@ namespace RDMSharpTest.RDM
             Assert.Throws(typeof(Exception), () => { RDMModulationFrequency.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultModulationFrequency, Is.EqualTo(modulationFrequency));
+            Assert.That(resultModulationFrequency.IndexType, Is.EqualTo(typeof(byte)));
+            Assert.That(resultModulationFrequency.MinIndex, Is.EqualTo(1));
+            Assert.That(resultModulationFrequency.Index, Is.EqualTo(233));
+            Assert.That(resultModulationFrequency.Count, Is.EqualTo(234));
+            Assert.That(resultModulationFrequency.DescriptorParameter, Is.EqualTo(ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION));
 
             var res = resultModulationFrequency.ToString();
             var src = modulationFrequency.ToString();

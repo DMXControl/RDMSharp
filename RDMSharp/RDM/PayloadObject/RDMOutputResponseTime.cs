@@ -6,7 +6,7 @@ namespace RDMSharp
     public class RDMOutputResponseTime : AbstractRDMPayloadObjectOneOf
     {
         public RDMOutputResponseTime(
-            byte currentResponseTimeId = 0,
+            byte currentResponseTimeId = 1,
             byte responseTimes = 0)
         {
             this.CurrentResponseTimeId = currentResponseTimeId;

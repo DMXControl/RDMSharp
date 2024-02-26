@@ -10,7 +10,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            RDMSensorValue sensorValue = new RDMSensorValue(0, 12359, 12347, 10101, 11880);
+            RDMSensorValue sensorValue = new RDMSensorValue(5, 12359, 12347, 10101, 11880);
 
             byte[] data = sensorValue.ToPayloadData();
 
@@ -26,6 +26,8 @@ namespace RDMSharpTest.RDM
             Assert.Throws(typeof(Exception), () => { RDMSensorValue.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultSensorValue, Is.EqualTo(sensorValue));
+            Assert.That(resultSensorValue.MinIndex, Is.EqualTo(0));
+            Assert.That(resultSensorValue.Index, Is.EqualTo(5));
 
             var res = resultSensorValue.ToString();
             var src = sensorValue.ToString();

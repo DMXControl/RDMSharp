@@ -38,6 +38,9 @@ namespace RDMSharpTest.RDM
         {
             RDMSelfTestDescription parameterDescription = new RDMSelfTestDescription(description: "Pseudo Selftest 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
             Assert.That(parameterDescription.Description.Length, Is.EqualTo(32));
+
+            parameterDescription = new RDMSelfTestDescription(4, description: "");
+            Assert.That(string.IsNullOrEmpty(parameterDescription.Description), Is.True);
         }
     }
 }

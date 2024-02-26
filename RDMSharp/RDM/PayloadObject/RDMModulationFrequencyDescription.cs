@@ -6,7 +6,7 @@ namespace RDMSharp
     public class RDMModulationFrequencyDescription : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
         public RDMModulationFrequencyDescription(
-            byte modulationFrequencyId = 0,
+            byte modulationFrequencyId = 1,
             uint? frequency = null,
             string description = "")
         {

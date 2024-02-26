@@ -6,7 +6,7 @@ namespace RDMSharp
     public class RDMDMXPersonalityDescription : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
         public RDMDMXPersonalityDescription(
-            byte personalityId = 0,
+            byte personalityId = 1,
             ushort slots = 0,
             string description = "")
         {

@@ -25,6 +25,11 @@ namespace RDMSharpTest.RDM
             Assert.Throws(typeof(Exception), () => { RDMCurve.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultCurve, Is.EqualTo(curve));
+            Assert.That(resultCurve.IndexType, Is.EqualTo(typeof(byte)));
+            Assert.That(resultCurve.MinIndex, Is.EqualTo(1));
+            Assert.That(resultCurve.Index, Is.EqualTo(1));
+            Assert.That(resultCurve.Count, Is.EqualTo(5));
+            Assert.That(resultCurve.DescriptorParameter, Is.EqualTo(ERDM_Parameter.CURVE_DESCRIPTION));
 
             var res = resultCurve.ToString();
             var src = curve.ToString();

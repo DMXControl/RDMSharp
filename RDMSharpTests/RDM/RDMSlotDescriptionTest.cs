@@ -33,5 +33,14 @@ namespace RDMSharpTest.RDM
             Assert.That(src, Is.Not.Null);
             Assert.That(res, Is.EqualTo(src));
         }
+        [Test]
+        public void DescriptionCharLimitTest()
+        {
+            RDMSlotDescription resultSlotDescription = new RDMSlotDescription(description: "Pseudo SlotDescription 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
+            Assert.That(resultSlotDescription.Description.Length, Is.EqualTo(32));
+
+            resultSlotDescription = new RDMSlotDescription(7, description: "");
+            Assert.That(string.IsNullOrEmpty(resultSlotDescription.Description), Is.True);
+        }
     }
 }

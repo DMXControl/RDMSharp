@@ -12,7 +12,7 @@ namespace RDMSharp
             ushort maximumLevelLowerLimit = 0xFFFF,
             ushort maximumLevelUpperLimit = 0xFFFF,
             byte numberOfSupportedCurves = 0,
-            byte levelsResolution = 0,
+            byte levelsResolution = 1,
             bool minimumLevelSplitLevelsSupported = false)
         {
             if (levelsResolution < 0x01 || levelsResolution > 0x10)

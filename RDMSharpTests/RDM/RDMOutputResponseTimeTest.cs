@@ -10,7 +10,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            RDMOutputResponseTime outputResponseTime = new RDMOutputResponseTime(1, 5);
+            RDMOutputResponseTime outputResponseTime = new RDMOutputResponseTime(14, 5);
             byte[] data = outputResponseTime.ToPayloadData();
 
             RDMMessage message = new RDMMessage()
@@ -25,6 +25,11 @@ namespace RDMSharpTest.RDM
             Assert.Throws(typeof(Exception), () => { RDMOutputResponseTime.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultOutputResponseTime, Is.EqualTo(outputResponseTime));
+            Assert.That(resultOutputResponseTime.IndexType, Is.EqualTo(typeof(byte)));
+            Assert.That(resultOutputResponseTime.MinIndex, Is.EqualTo(1));
+            Assert.That(resultOutputResponseTime.Index, Is.EqualTo(14));
+            Assert.That(resultOutputResponseTime.Count, Is.EqualTo(5));
+            Assert.That(resultOutputResponseTime.DescriptorParameter, Is.EqualTo(ERDM_Parameter.OUTPUT_RESPONSE_TIME_DESCRIPTION));
 
             var res = resultOutputResponseTime.ToString();
             var src = outputResponseTime.ToString();

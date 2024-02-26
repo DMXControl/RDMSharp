@@ -6,7 +6,7 @@ namespace RDMSharp
     public class RDMOutputResponseTimeDescription : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
         public RDMOutputResponseTimeDescription(
-            byte outputResponseTimeId = 0,
+            byte outputResponseTimeId = 1,
             string description = "")
         {
             this.OutputResponseTimeId = outputResponseTimeId;

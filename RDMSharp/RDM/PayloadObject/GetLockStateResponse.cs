@@ -6,7 +6,7 @@ namespace RDMSharp
     public class GetLockStateResponse : AbstractRDMPayloadObjectOneOf
     {
         public GetLockStateResponse(
-            byte currentLockStateId = 0,
+            byte currentLockStateId = 1,
             byte lockStates = 0)
         {
             this.CurrentLockStateId = currentLockStateId;

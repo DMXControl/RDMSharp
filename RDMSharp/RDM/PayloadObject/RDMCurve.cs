@@ -6,7 +6,7 @@ namespace RDMSharp
     public class RDMCurve : AbstractRDMPayloadObjectOneOf
     {
         public RDMCurve(
-            byte currentCurveId = 0,
+            byte currentCurveId = 1,
             byte curves = 0)
         {
             this.CurrentCurveId = currentCurveId;

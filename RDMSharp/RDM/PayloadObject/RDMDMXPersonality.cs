@@ -6,7 +6,7 @@ namespace RDMSharp
     public class RDMDMXPersonality : AbstractRDMPayloadObjectOneOf
     {
         public RDMDMXPersonality(
-            byte currentPersonality = 0,
+            byte currentPersonality = 1,
             byte ofPersonalities = 0)
         {
             this.CurrentPersonality = currentPersonality;

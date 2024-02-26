@@ -10,7 +10,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            GetBackgroundQueuedStatusPolicyResponse getBackgroundQueuedStatusPolicyResponse = new GetBackgroundQueuedStatusPolicyResponse(1, 123);
+            GetBackgroundQueuedStatusPolicyResponse getBackgroundQueuedStatusPolicyResponse = new GetBackgroundQueuedStatusPolicyResponse(9, 123);
             byte[] data = getBackgroundQueuedStatusPolicyResponse.ToPayloadData();
 
             RDMMessage message = new RDMMessage()
@@ -25,6 +25,11 @@ namespace RDMSharpTest.RDM
             Assert.Throws(typeof(Exception), () => { GetBackgroundQueuedStatusPolicyResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetBackgroundQueuedStatusPolicyResponse, Is.EqualTo(getBackgroundQueuedStatusPolicyResponse));
+            Assert.That(resultGetBackgroundQueuedStatusPolicyResponse.IndexType, Is.EqualTo(typeof(byte)));
+            Assert.That(resultGetBackgroundQueuedStatusPolicyResponse.MinIndex, Is.EqualTo(1));
+            Assert.That(resultGetBackgroundQueuedStatusPolicyResponse.Index, Is.EqualTo(9));
+            Assert.That(resultGetBackgroundQueuedStatusPolicyResponse.Count, Is.EqualTo(123));
+            Assert.That(resultGetBackgroundQueuedStatusPolicyResponse.DescriptorParameter, Is.EqualTo(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY_DESCRIPTION));
 
             var res = resultGetBackgroundQueuedStatusPolicyResponse.ToString();
             var src = getBackgroundQueuedStatusPolicyResponse.ToString();

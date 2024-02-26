@@ -37,6 +37,11 @@ namespace RDMSharpTest.RDM
         {
             RDMLockStateDescription resultLockStateDescription = new RDMLockStateDescription(description: "Pseudo LockState 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
             Assert.That(resultLockStateDescription.Description.Length, Is.EqualTo(32));
+
+            resultLockStateDescription = new RDMLockStateDescription(7, description: "");
+            Assert.That(string.IsNullOrEmpty(resultLockStateDescription.Description), Is.True);
+            Assert.That(resultLockStateDescription.MinIndex, Is.EqualTo(1));
+            Assert.That(resultLockStateDescription.Index, Is.EqualTo(7));
         }
     }
 }

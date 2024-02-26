@@ -26,7 +26,7 @@ namespace RDMSharp
         public short HighestValue { get; private set; }
         public short RecordedValue { get; private set; }
 
-        public object MinIndex => (byte)1;
+        public object MinIndex => (byte)0;
 
         public object Index => SensorId;
 

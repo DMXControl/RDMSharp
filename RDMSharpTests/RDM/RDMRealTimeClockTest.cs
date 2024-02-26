@@ -32,6 +32,14 @@ namespace RDMSharpTest.RDM
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
             Assert.That(res, Is.EqualTo(src));
+
+            Assert.Throws(typeof(ArgumentOutOfRangeException), () => { new RDMRealTimeClock(year: 2000); });
+            Assert.Throws(typeof(ArgumentOutOfRangeException), () => { new RDMRealTimeClock(month: 13); });
+            Assert.Throws(typeof(ArgumentOutOfRangeException), () => { new RDMRealTimeClock(day: 32); });
+            Assert.Throws(typeof(ArgumentOutOfRangeException), () => { new RDMRealTimeClock(hour: 25); });
+            Assert.Throws(typeof(ArgumentOutOfRangeException), () => { new RDMRealTimeClock(minute: 60); });
+            Assert.Throws(typeof(ArgumentOutOfRangeException), () => { new RDMRealTimeClock(second: 60); });
+            Assert.Throws(typeof(ArgumentOutOfRangeException), () => { new RDMRealTimeClock(year: 2000, month: 2, day: 30); });
         }
     }
 }

@@ -6,7 +6,7 @@ namespace RDMSharp
     public class RDMLockStateDescription : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
         public RDMLockStateDescription(
-            byte lockStateId = 0,
+            byte lockStateId = 1,
             string description = "")
         {
             this.LockStateId = lockStateId;
