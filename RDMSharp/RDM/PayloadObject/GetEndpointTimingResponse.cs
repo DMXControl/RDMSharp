@@ -7,7 +7,7 @@ namespace RDMSharp
     {
         public GetEndpointTimingResponse(
             ushort endpointId = default,
-            byte timingId = default,
+            byte timingId = 1,
             byte timings = default)
         {
             this.EndpointId = endpointId;

@@ -6,7 +6,7 @@ namespace RDMSharp
     public class GetEndpointTimingDescriptionResponse : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
         public GetEndpointTimingDescriptionResponse(
-            byte timingtId = default,
+            byte timingtId = 1,
             string description = default)
         {
             this.TimingId = timingtId;

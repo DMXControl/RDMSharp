@@ -53,6 +53,15 @@ namespace RDMSharpTest.RDM
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
             Assert.That(res, Is.EqualTo(src));
+
+
+            getEndpointTimingResponse = new GetEndpointTimingResponse(31, 123, 254);
+            Assert.That(getEndpointTimingResponse.IndexType, Is.EqualTo(typeof(byte)));
+            Assert.That(getEndpointTimingResponse.MinIndex, Is.EqualTo(1));
+            Assert.That(getEndpointTimingResponse.EndpointId, Is.EqualTo(31));
+            Assert.That(getEndpointTimingResponse.Index, Is.EqualTo(123));
+            Assert.That(getEndpointTimingResponse.Count, Is.EqualTo(254));
+            Assert.That(getEndpointTimingResponse.DescriptorParameter, Is.EqualTo(ERDM_Parameter.ENDPOINT_TIMING_DESCRIPTION));
         }
     }
 }

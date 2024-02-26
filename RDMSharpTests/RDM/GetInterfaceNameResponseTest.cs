@@ -31,6 +31,10 @@ namespace RDMSharpTest.RDM
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
             Assert.That(res, Is.EqualTo(src));
+
+
+            getInterfaceNameResponse = new GetInterfaceNameResponse(1, "");
+            Assert.That(string.IsNullOrWhiteSpace(getInterfaceNameResponse.Label), Is.True);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace RDMSharp
 {
     public class GetSetComponentScope : AbstractRDMPayloadObject
     {
-        internal GetSetComponentScope(
+        public GetSetComponentScope(
             ushort scopeSlot = default,
             string scopeString = default,
             ERDM_StaticConfig staticConfigType = default,
