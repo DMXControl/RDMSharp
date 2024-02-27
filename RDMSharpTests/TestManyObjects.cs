@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 
 namespace RDMSharpTest
 {
@@ -56,6 +55,8 @@ namespace RDMSharpTest
                             var res = dict.TryAdd(address, address.ToString());
                             Assert.That(res, Is.True);
                         }
+
+            Assert.Throws(typeof(ArgumentException), () => { var ip = (IPv4Address)System.Net.IPAddress.IPv6Any; });
         }
         [Test]
         public void TestMACAddress()
