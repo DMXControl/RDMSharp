@@ -19,7 +19,7 @@
 
         protected override byte[] getResponseValueToParameterData(RefreshRate refreshRate)
         {
-            return Tools.ValueToData(refreshRate);
+            return [refreshRate.RawValue];
         }
 
         protected override RefreshRate setRequestParameterDataToValue(byte[] parameterData)
@@ -29,7 +29,7 @@
 
         protected override byte[] setRequestValueToParameterData(RefreshRate refreshRate)
         {
-            return Tools.ValueToData(refreshRate);
+            return [refreshRate.RawValue];
         }
     }
 }

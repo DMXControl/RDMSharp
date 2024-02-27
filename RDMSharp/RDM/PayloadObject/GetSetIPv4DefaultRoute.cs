@@ -8,14 +8,14 @@ namespace RDMSharp
     {
         public GetSetIPv4DefaultRoute(
             uint interfaceId = 0,
-            IPAddress ipAddress = default)
+            IPv4Address ipAddress = default)
         {
             this.InterfaceId = interfaceId;
             this.IPAddress = ipAddress;
         }
 
         public uint InterfaceId { get; private set; }
-        public IPAddress IPAddress { get; private set; }
+        public IPv4Address IPAddress { get; private set; }
         public const int PDL = 0x08;
 
         public override string ToString()

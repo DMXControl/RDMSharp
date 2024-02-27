@@ -62,7 +62,9 @@ namespace RDMSharp
         }
         public static implicit operator IPv4Address(IPAddress ip)
         {
-            return new IPv4Address(ip.GetAddressBytes());
+            if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                return new IPv4Address(ip.GetAddressBytes());
+            throw new ArgumentException($"{ip} is not a Valid IPv4 and cant be converted");
         }
         public static implicit operator byte[](IPv4Address address)
         {

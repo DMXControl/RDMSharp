@@ -8,7 +8,7 @@ namespace RDMSharp
     {
         public GetSetIPv4StaticAddress(
             uint interfaceId = 0,
-            IPAddress ipAddress = default,
+            IPv4Address ipAddress = default,
             byte netmask = 24)
         {
             this.InterfaceId = interfaceId;
@@ -20,7 +20,7 @@ namespace RDMSharp
         }
 
         public uint InterfaceId { get; private set; }
-        public IPAddress IPAddress { get; private set; }
+        public IPv4Address IPAddress { get; private set; }
         public byte Netmask { get; private set; }
         public const int PDL = 0x09;
 

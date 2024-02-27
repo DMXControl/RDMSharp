@@ -8,7 +8,7 @@ namespace RDMSharp
     {
         public GetIPv4CurrentAddressResponse(
             uint interfaceId = 0,
-            IPAddress ipAddress = default,
+            IPv4Address ipAddress = default,
             byte netmask = 24,
             ERDM_DHCPStatusMode dhcpStatus = ERDM_DHCPStatusMode.UNKNOWN)
         {

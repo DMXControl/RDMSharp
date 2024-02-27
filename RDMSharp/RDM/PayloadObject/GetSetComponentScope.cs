@@ -74,7 +74,7 @@ namespace RDMSharp
         public ushort ScopeSlot { get; private set; }
         public string ScopeString { get; private set; }
         public ERDM_StaticConfig StaticConfigType { get; private set; }
-        public IPAddress StaticBrokerIPv4 { get; private set; }
+        public IPv4Address StaticBrokerIPv4 { get; private set; }
         public IPAddress StaticBrokerIPv6 { get; private set; }
         public ushort StaticBrokerPort { get; private set; }
 
@@ -110,7 +110,7 @@ namespace RDMSharp
             var scopeSlot = Tools.DataToUShort(ref data);
             var scopeString = Tools.DataToString(ref data, 63).Replace("\u0000", "");
             var staticConfigType = Tools.DataToEnum<ERDM_StaticConfig>(ref data);
-            IPAddress staticBrokerIPv4 = null;
+            IPv4Address? staticBrokerIPv4 = null;
             IPAddress staticBrokerIPv6 = null;
             ushort staticBrokerPort = 0;
             switch (staticConfigType)

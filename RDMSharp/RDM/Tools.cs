@@ -238,6 +238,8 @@ namespace RDMSharp
                 case RDMUID @uid:
                     return @uid.ToBytes().ToArray();
 
+                case IPv4Address @ipv4Address:
+                        return (byte[])@ipv4Address;
                 case IPAddress @ipAddress:
                     if (@ipAddress.AddressFamily == AddressFamily.InterNetwork)
                     {
@@ -287,7 +289,7 @@ namespace RDMSharp
                         return new byte[] { 0 };
 
                 default:
-                    throw new NotSupportedException();
+                    throw new NotSupportedException(value.GetType().Name);
             }
 
             //Local Functions
@@ -465,13 +467,13 @@ namespace RDMSharp
                     throw new NotSupportedException();
             }
         }
-        public static IPAddress DataToIPAddressIPv4(ref byte[] @data)
+        public static IPv4Address DataToIPAddressIPv4(ref byte[] @data)
         {
             byte[] bytes = new byte[4];
             for (int i = 0; i < bytes.Length; i++)
                 bytes[i] = Tools.DataToByte(ref data);
 
-            return new IPAddress(bytes);
+            return new IPv4Address(bytes);
         }
         public static IPAddress DataToIPAddressIPv6(ref byte[] @data)
         {

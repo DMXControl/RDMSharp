@@ -89,8 +89,8 @@ namespace RDMSharp
             scopeStringBytes.AddRange(Tools.ValueToData(this.ScopeString, 62));
             while (scopeStringBytes.Count < 63)
                 scopeStringBytes.Add(0);
-            var ipv4Bytes = this.BrokerAdress.AddressFamily == AddressFamily.InterNetwork ? Tools.ValueToData(this.BrokerAdress) : new byte[4];
-            var ipv6Bytes = this.BrokerAdress.AddressFamily == AddressFamily.InterNetworkV6 ? Tools.ValueToData(this.BrokerAdress) : new byte[16];
+            var ipv4Bytes = this.BrokerAdress?.AddressFamily == AddressFamily.InterNetwork ? Tools.ValueToData(this.BrokerAdress) : new byte[4];
+            var ipv6Bytes = this.BrokerAdress?.AddressFamily == AddressFamily.InterNetworkV6 ? Tools.ValueToData(this.BrokerAdress) : new byte[16];
 
             var brokerPortBytes = Tools.ValueToData(this.BrokerPort);
             var unhealthyTCPEventsBytes = Tools.ValueToData(this.UnhealthyTCPEvents);

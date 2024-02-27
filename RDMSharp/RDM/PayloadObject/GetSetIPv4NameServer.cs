@@ -8,14 +8,14 @@ namespace RDMSharp
     {
         public GetSetIPv4NameServer(
             byte nameServerIndex = 0,
-            IPAddress ipAddress = default)
+            IPv4Address ipAddress = default)
         {
             this.NameServerIndex = nameServerIndex;
             this.IPAddress = ipAddress;
         }
 
         public byte NameServerIndex { get; private set; }
-        public IPAddress IPAddress { get; private set; }
+        public IPv4Address IPAddress { get; private set; }
         public const int PDL = 0x05;
 
         public override string ToString()

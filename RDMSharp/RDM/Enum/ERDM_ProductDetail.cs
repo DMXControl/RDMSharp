@@ -37,7 +37,7 @@
         FOGGER_GLYCOL = 0x0300,
         FOGGER_MINERALOIL = 0x0301,
         FOGGER_WATER = 0x0302,
-        C02 = 0x0303,
+        CO2 = 0x0303,
         LN2 = 0x0304,
         BUBBLE = 0x0305,
         FLAME_PROPANE = 0x0306,

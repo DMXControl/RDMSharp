@@ -50,6 +50,9 @@ namespace RDMSharpTests.RDM.PayloadObject
             Assert.Throws(typeof(Exception), () => { SetEndpointTimingRequest.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultSetEndpointTimingRequest, Is.EqualTo(setEndpointTimingRequest));
+            Assert.That(resultSetEndpointTimingRequest.Timings, Is.EqualTo(setEndpointTimingRequest.Timings));
+            Assert.That(resultSetEndpointTimingRequest.TimingId, Is.EqualTo(setEndpointTimingRequest.TimingId));
+            Assert.That(resultSetEndpointTimingRequest.EndpointId, Is.EqualTo(setEndpointTimingRequest.EndpointId));
 
             res = resultSetEndpointTimingRequest.ToString();
             src = setEndpointTimingRequest.ToString();
