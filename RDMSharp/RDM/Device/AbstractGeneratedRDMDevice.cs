@@ -123,6 +123,7 @@ namespace RDMSharp
             var _params = parameters.ToList();
             _params.Add(ERDM_Parameter.DEVICE_INFO);
             _params.Add(ERDM_Parameter.DEVICE_LABEL);
+            _params.Add(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION);
             _params.Add(ERDM_Parameter.MANUFACTURER_LABEL);
             if (SupportDMXAddress)
                 _params.Add(ERDM_Parameter.DMX_START_ADDRESS);
@@ -248,6 +249,9 @@ namespace RDMSharp
             {
                 case nameof(DeviceInfo):
                     trySetParameter(ERDM_Parameter.DEVICE_INFO, this.DeviceInfo);
+                    break;
+                case nameof(DeviceModelDescription):
+                    trySetParameter(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION, this.DeviceModelDescription);
                     break;
                 case nameof(DMXAddress):
                     trySetParameter(ERDM_Parameter.DMX_START_ADDRESS, this.DMXAddress);
