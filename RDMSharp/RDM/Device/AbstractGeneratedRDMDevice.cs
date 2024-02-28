@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace RDMSharp
 {
@@ -131,6 +130,9 @@ namespace RDMSharp
             {
                 _params.Add(ERDM_Parameter.DMX_PERSONALITY);
                 _params.Add(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION);
+                _params.Add(ERDM_Parameter.SLOT_INFO);
+                _params.Add(ERDM_Parameter.SLOT_DESCRIPTION);
+                _params.Add(ERDM_Parameter.DEFAULT_SLOT_VALUE);
             }
 
             Parameters = _params.Distinct().ToArray();
@@ -258,6 +260,20 @@ namespace RDMSharp
                     break;
                 case nameof(CurrentPersonality):
                     trySetParameter(ERDM_Parameter.DMX_PERSONALITY, new RDMDMXPersonality(this.currentPersonality, (byte)(Personalities?.Length ?? 0)));
+
+                    var slotInfos = new ConcurrentDictionary<object, object>();
+                    var slotDesc = new ConcurrentDictionary<object, object>();
+                    var slotDefault = new ConcurrentDictionary<object, object>();
+                    foreach (var s in Personalities.First(p => p.ID == this.currentPersonality).Slots) 
+                    {
+                        Slot slot = s.Value;
+                        slotInfos.TryAdd(slot.SlotId, new RDMSlotInfo(slot.SlotId, slot.Type, slot.Category));
+                        slotDesc.TryAdd(slot.SlotId, new RDMSlotDescription(slot.SlotId,slot.Description));
+                        slotDefault.TryAdd(slot.SlotId, new RDMDefaultSlotValue(slot.SlotId, slot.DefaultValue));
+                    }
+                    trySetParameter(ERDM_Parameter.SLOT_INFO, slotInfos);
+                    trySetParameter(ERDM_Parameter.SLOT_DESCRIPTION, slotDesc);
+                    trySetParameter(ERDM_Parameter.DEFAULT_SLOT_VALUE, slotDefault);
                     break;
                 case nameof(DeviceLabel):
                     trySetParameter(ERDM_Parameter.DEVICE_LABEL, this.DeviceLabel);

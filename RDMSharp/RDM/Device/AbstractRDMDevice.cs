@@ -19,7 +19,7 @@ namespace RDMSharp
         private protected static DeviceInfoParameterWrapper deviceInfoParameterWrapper => (DeviceInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.DEVICE_INFO);
         private protected static SensorValueParameterWrapper sensorValueParameterWrapper => (SensorValueParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SENSOR_VALUE);
         private protected static SlotInfoParameterWrapper slotInfoParameterWrapper => (SlotInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SLOT_INFO);
-        private protected static SlotInfoParameterWrapper defaultSlotValueParameterWrapper => (SlotInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.DEFAULT_SLOT_VALUE);
+        private protected static DefaultSlotValueParameterWrapper defaultSlotValueParameterWrapper => (DefaultSlotValueParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.DEFAULT_SLOT_VALUE);
         private protected static SlotDescriptionParameterWrapper slotDescriptionParameterWrapper => (SlotDescriptionParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SLOT_DESCRIPTION);
         private protected static StatusMessageParameterWrapper statusMessageParameterWrapper => (StatusMessageParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.STATUS_MESSAGES);
         
@@ -196,6 +196,8 @@ namespace RDMSharp
                 if (rdmMessage.Command == ERDM_Command.GET_COMMAND)
                 {
                     object responseValue = null;
+                    ConcurrentDictionary<object, object> list = null;
+                    object index = null;
                     parameterValues.TryGetValue(rdmMessage.Parameter, out responseValue);
                     switch (pm)
                     {
@@ -212,13 +214,35 @@ namespace RDMSharp
                         case QueuedMessageParameterWrapper _queuedMessageParameterWrapper:
                             response = statusMessageParameterWrapper.BuildGetResponseMessage([]);
                             break;
+                        case SlotInfoParameterWrapper slotInfoParameterWrapper:
+                            list = null;
+                            if (parameterValues.ContainsKey(rdmMessage.Parameter))
+                                list = parameterValues[rdmMessage.Parameter] as ConcurrentDictionary<object, object>;
+
+                            if (list == null)
+                                break;
+
+                            var slotInfos = list.Select(s => s.Value).OfType<RDMSlotInfo>().ToArray();
+                            response = slotInfoParameterWrapper.BuildGetResponseMessage(slotInfos);
+                            break;
+                        case DefaultSlotValueParameterWrapper defaultSlotValueParameterWrapper:
+                            list = null;
+                            if (parameterValues.ContainsKey(rdmMessage.Parameter))
+                                list = parameterValues[rdmMessage.Parameter] as ConcurrentDictionary<object, object>;
+
+                            if (list == null)
+                                break;
+
+                            var defaultValues = list.Select(s => s.Value).OfType<RDMDefaultSlotValue>().ToArray();
+                            response = defaultSlotValueParameterWrapper.BuildGetResponseMessage(defaultValues);
+                            break;
 
                         case IRDMDescriptionParameterWrapper _descriptionParameterWrapper:
-                            var index = _descriptionParameterWrapper.GetRequestParameterDataToObject(rdmMessage.ParameterData);
+                            index = _descriptionParameterWrapper.GetRequestParameterDataToObject(rdmMessage.ParameterData);
                             if (index == null)
                                 break;
 
-                            ConcurrentDictionary<object, object> list = null;
+                            list = null;
                             if (parameterValues.ContainsKey(rdmMessage.Parameter))
                                 list = parameterValues[rdmMessage.Parameter] as ConcurrentDictionary<object, object>;
 
@@ -450,6 +474,7 @@ namespace RDMSharp
             }
             if (value == null)
                 return;
+            ConcurrentDictionary<object, object> list = null;
             switch (pm)
             {
                 case DeviceInfoParameterWrapper _deviceInfoParameterWrapper:
@@ -481,6 +506,13 @@ namespace RDMSharp
                             Logger?.LogTrace($"No response received");
                         return;
                     }
+
+
+                    if (parameterValues.ContainsKey(rdmMessage.Parameter))
+                        list = parameterValues[rdmMessage.Parameter] as ConcurrentDictionary<object, object>;
+                    if (list == null)
+                        parameterValues[rdmMessage.Parameter] = list = new ConcurrentDictionary<object, object>();
+                    list.AddOrUpdate(description.SlotId, description, (e, f) => description);
                     Slot slot;
                     if (!slots.TryGetValue(description.SlotId, out slot))
                     {
@@ -501,8 +533,15 @@ namespace RDMSharp
                         return;
                     }
 
+                    if (parameterValues.ContainsKey(rdmMessage.Parameter))
+                        list = parameterValues[rdmMessage.Parameter] as ConcurrentDictionary<object, object>;
+                    if (list == null)
+                        parameterValues[rdmMessage.Parameter] = list = new ConcurrentDictionary<object, object>();
+
                     foreach (RDMSlotInfo info in slotInfos)
                     {
+                        list.AddOrUpdate(info.SlotOffset, info, (e, f) => info);
+
                         Slot slot1;
                         if (!slots.TryGetValue(info.SlotOffset, out slot1))
                         {
@@ -522,8 +561,15 @@ namespace RDMSharp
                         return;
                     }
 
+
+                    if (parameterValues.ContainsKey(rdmMessage.Parameter))
+                        list = parameterValues[rdmMessage.Parameter] as ConcurrentDictionary<object, object>;
+                    if (list == null)
+                        parameterValues[rdmMessage.Parameter] = list = new ConcurrentDictionary<object, object>();
+
                     foreach (RDMDefaultSlotValue info in defaultSlotValues)
                     {
+                        list.AddOrUpdate(info.SlotOffset, info, (e, f) => info);
                         Slot slot1;
                         if (!slots.TryGetValue(info.SlotOffset, out slot1))
                         {
@@ -548,17 +594,17 @@ namespace RDMSharp
                     break;
 
                 case IRDMGetParameterWrapperWithEmptyGetRequest @emptyGetRequest:
-                    parameterValues.AddOrUpdate(rdmMessage.Parameter, value, (x, y) => value);
+                    updateParametrerValueCache(rdmMessage.Parameter, value);
                     break;
 
                 case IRDMGetParameterWrapperRequest<byte> @emptyGetRequest:
-                    parameterValues.AddOrUpdate(rdmMessage.Parameter, value, (x, y) => value);
+                    updateParametrerValueCache(rdmMessage.Parameter, value);
                     break;
                 case IRDMGetParameterWrapperRequest<ushort> @emptyGetRequest:
-                    parameterValues.AddOrUpdate(rdmMessage.Parameter, value, (x, y) => value);
+                    updateParametrerValueCache(rdmMessage.Parameter, value);
                     break;
                 case IRDMGetParameterWrapperRequest<uint> @emptyGetRequest:
-                    parameterValues.AddOrUpdate(rdmMessage.Parameter, value, (x, y) => value);
+                    updateParametrerValueCache(rdmMessage.Parameter, value);
                     break;
 
                 default:
