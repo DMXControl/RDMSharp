@@ -292,6 +292,7 @@ namespace RDMSharpTest.RDM
                 {
                     tested++;
                     object value = getValue(getRequest.GetRequestType);
+                    value.GetHashCode();//For Coverage;
 
                     Assert.That(value, Is.Not.Null);
                     var data = getRequest.GetRequestObjectToParameterData(value);
@@ -302,6 +303,7 @@ namespace RDMSharpTest.RDM
                 {
                     tested++;
                     object value = getValue(getResponse.GetResponseType);
+                    value.GetHashCode();//For Coverage;
 
                     Assert.That(value, Is.Not.Null);
                     var data = getResponse.GetResponseObjectToParameterData(value);
@@ -312,6 +314,7 @@ namespace RDMSharpTest.RDM
                 {
                     tested++;
                     object value = getValue(setRequest.SetRequestType);
+                    value.GetHashCode();//For Coverage;
 
                     Assert.That(value, Is.Not.Null);
                     var data = setRequest.SetRequestObjectToParameterData(value);
@@ -322,6 +325,7 @@ namespace RDMSharpTest.RDM
                 {
                     tested++;
                     object value = getValue(setResponse.SetResponseType);
+                    value.GetHashCode();//For Coverage;
 
                     Assert.That(value, Is.Not.Null);
                     var data = setResponse.SetResponseObjectToParameterData(value);

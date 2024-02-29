@@ -97,7 +97,7 @@ namespace RDMSharp
             }
         }
 
-        public static string GetStatusMessage(in ERDM_StatusMessage status, in ushort dataValue1 = 0, in ushort dataValue2 = 0)
+        public static string GetStatusMessage(in ERDM_StatusMessage status, in short dataValue1 = 0, in short dataValue2 = 0)
         {
             switch (status)
             {
@@ -130,16 +130,16 @@ namespace RDMSharp
                 case ERDM_StatusMessage.UNDERTEMP:
                     return $"Sensor {DecimalNumber(dataValue1)} under temp at {DecimalNumber(dataValue2)} °C.";
                 case ERDM_StatusMessage.SENS_OUT_RANGE:
-                    return $"Sensor {DecimalNumber(dataValue1)} out of range";
+                    return $"Sensor {DecimalNumber(dataValue1)} out of range.";
 
                 case ERDM_StatusMessage.OVERVOLTAGE_PHASE:
                     return $"Phase {DecimalNumber(dataValue1)} over voltage at {DecimalNumber(dataValue2)} V.";
                 case ERDM_StatusMessage.UNDERVOLTAGE_PHASE:
-                    return $"Phase {DecimalNumber(dataValue1)} over voltage at {DecimalNumber(dataValue2)} V.";
+                    return $"Phase {DecimalNumber(dataValue1)} under voltage at {DecimalNumber(dataValue2)} V.";
                 case ERDM_StatusMessage.OVERCURRENT:
                     return $"Phase {DecimalNumber(dataValue1)} over currnet at {DecimalNumber(dataValue2)} A.";
                 case ERDM_StatusMessage.UNDERCURRENT:
-                    return $"Phase {DecimalNumber(dataValue1)} over current at {DecimalNumber(dataValue2)} A.";
+                    return $"Phase {DecimalNumber(dataValue1)} under current at {DecimalNumber(dataValue2)} A.";
                 case ERDM_StatusMessage.PHASE:
                     return $"Phase {DecimalNumber(dataValue1)} is at {DecimalNumber(dataValue2)} degrees.";
                 case ERDM_StatusMessage.PHASE_ERROR:
@@ -199,14 +199,14 @@ namespace RDMSharp
                 case ERDM_StatusMessage.DMXNSC_OK:
                     return $"DMX NSC received OK.";
                 #endregion
+
+                default:
+                    return string.Empty;
             }
 
             //Local Functions
-
-            ushort DecimalNumber(ushort d) => d;
-            ushort SlotLabelCode(ushort s) => s;
-
-            return string.Empty;
+            short DecimalNumber(short d) => d;
+            ERDM_SlotCategory SlotLabelCode(short s) => (ERDM_SlotCategory)(ushort)s;
         }
 
         public static byte[] ValueToData(params bool[] bits)
@@ -487,6 +487,7 @@ namespace RDMSharp
 
             switch (enums.FirstOrDefault()?.GetTypeCode())
             {
+                default:
                 case TypeCode.Byte:
                     return (T)Enum.ToObject(typeof(T), DataToByte(ref data));
                 case TypeCode.SByte:
@@ -507,14 +508,15 @@ namespace RDMSharp
                     return (T)Enum.ToObject(typeof(T), DataToLong(ref data));
                 case TypeCode.UInt64:
                     return (T)Enum.ToObject(typeof(T), DataToULong(ref data));
-
-                default:
-                    throw new NotSupportedException();
             }
         }
         public static IPv4Address DataToIPAddressIPv4(ref byte[] @data)
         {
-            byte[] bytes = new byte[4];
+            const int length = 4;
+            if (data.Length < length)
+                throw new IndexOutOfRangeException();
+
+            byte[] bytes = new byte[length];
             for (int i = 0; i < bytes.Length; i++)
                 bytes[i] = Tools.DataToByte(ref data);
 
@@ -522,7 +524,11 @@ namespace RDMSharp
         }
         public static IPAddress DataToIPAddressIPv6(ref byte[] @data)
         {
-            byte[] bytes = new byte[16];
+            const int length = 16;
+            if (data.Length < length)
+                throw new IndexOutOfRangeException();
+
+            byte[] bytes = new byte[length];
             for (int i = 0; i < bytes.Length; i++)
                 bytes[i] = Tools.DataToByte(ref data);
 

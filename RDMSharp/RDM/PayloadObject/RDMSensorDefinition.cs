@@ -59,16 +59,17 @@ namespace RDMSharp
 
         public override string ToString()
         {
+            string _unit = Tools.GetUnitSymbol(Unit);
             StringBuilder b = new StringBuilder();
             b.AppendLine("RDMSensorDefinition");
             b.AppendLine($"SensorId:                    {SensorId}");
             b.AppendLine($"Type:                        {Type}");
-            b.AppendLine($"Unit:                        {Unit}");
+            b.AppendLine($"Unit:                        {Unit}({_unit})");
             b.AppendLine($"Prefix:                      {Prefix}");
-            b.AppendLine($"RangeMinimum:                {RangeMinimum}");
-            b.AppendLine($"RangeMaximum:                {RangeMaximum}");
-            b.AppendLine($"NormalMinimum:               {NormalMinimum}");
-            b.AppendLine($"NormalMaximum:               {NormalMaximum}");
+            b.AppendLine($"RangeMinimum:                {Tools.GetNormalizedValue(Prefix, RangeMinimum)}{_unit}");
+            b.AppendLine($"RangeMaximum:                {Tools.GetNormalizedValue(Prefix, RangeMaximum)}{_unit}");
+            b.AppendLine($"NormalMinimum:               {Tools.GetNormalizedValue(Prefix, NormalMinimum)}{_unit}");
+            b.AppendLine($"NormalMaximum:               {Tools.GetNormalizedValue(Prefix, NormalMaximum)}{_unit}");
             b.AppendLine($"LowestHighestValueSupported: {LowestHighestValueSupported}");
             b.AppendLine($"RecordedValueSupported:      {RecordedValueSupported}");
             b.AppendLine($"Description:                 {Description}");
