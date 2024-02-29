@@ -21,6 +21,18 @@
         COLOR_CORRECTION = 0x0208,
         COLOR_SCROLL = 0x0209,
         COLOR_SEMAPHORE = 0x0210,
+        # region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
+        COLOR_ADD_AMBER = 0x0211,
+        COLOR_ADD_WHITE = 0x0212,
+        COLOR_ADD_WARM_WHITE = 0x0213,
+        COLOR_ADD_COOL_WHITE = 0x0214,
+        COLOR_SUB_UV = 0x0215,
+        COLOR_HUE = 0x0216,
+        COLOR_SATURATION = 0x0217,
+        CIE_X = 0x0219,
+        CIE_Y = 0x021A,
+        MAGENTA_GREEN_CORRECTION = 0x021B,
+        #endregion
 
         // Image Functions 0x03xx
         STATIC_GOBO_WHEEL = 0x0301,
@@ -44,6 +56,12 @@
         FIXTURE_CONTROL = 0x0502,
         FIXTURE_SPEED = 0x0503,
         MACRO = 0x0504,
+        # region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
+        POWER_CONTROL = 0x0505,
+        FAN_CONTROL = 0x0506,
+        HEATER_CONTROL = 0x0507,
+        FOUNTAIN_CONTROL = 0x0508,
+        #endregion
 
         SD_UNDEFINED = 0xFFFF
     }

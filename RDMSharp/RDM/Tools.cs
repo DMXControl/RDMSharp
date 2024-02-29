@@ -107,11 +107,23 @@ namespace RDMSharp
                     return $"{SlotLabelCode(dataValue1)} sensor not found.";
                 case ERDM_StatusMessage.SENS_ALWAYS_ON:
                     return $"{SlotLabelCode(dataValue1)} sensor always on.";
+                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
+                case ERDM_StatusMessage.FEEDBACK_ERROR:
+                    return $"{SlotLabelCode(dataValue1)} feedback error.";
+                case ERDM_StatusMessage.INDEX_ERROR:
+                    return $"{SlotLabelCode(dataValue1)} index circuit error.";
+                #endregion
 
                 case ERDM_StatusMessage.LAMP_DOUSED:
                     return "Lamp doused.";
                 case ERDM_StatusMessage.LAMP_STRIKE:
                     return "Lamp failed to strike.";
+                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
+                case ERDM_StatusMessage.LAMP_ACCESS_OPEN:
+                    return "Lamp access open.";
+                case ERDM_StatusMessage.LAMP_ALWAYS_ON:
+                    return "Lamp on without command.";
+                #endregion
 
                 case ERDM_StatusMessage.OVERTEMP:
                     return $"Sensor {DecimalNumber(dataValue1)} over temp at {DecimalNumber(dataValue2)} °C.";
@@ -147,6 +159,10 @@ namespace RDMSharp
                     return "Dimmer Failure.";
                 case ERDM_StatusMessage.DIM_PANIC:
                     return "Panic Mode.";
+                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
+                case ERDM_StatusMessage.LOAD_FAILURE:
+                    return "Lamp or cable failure.";
+                #endregion
 
                 case ERDM_StatusMessage.READY:
                     return $"{SlotLabelCode(dataValue1)} ready.";
@@ -154,6 +170,35 @@ namespace RDMSharp
                     return $"{SlotLabelCode(dataValue1)} not ready.";
                 case ERDM_StatusMessage.LOW_FLUID:
                     return $"{SlotLabelCode(dataValue1)} low fluid.";
+
+                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
+                case ERDM_StatusMessage.EEPROM_ERROR:
+                    return $"EEPROM error.";
+                case ERDM_StatusMessage.RAM_ERROR:
+                    return $"RAM error.";
+                case ERDM_StatusMessage.FPGA_ERROR:
+                    return $"FPGA programming error.";
+                #endregion
+
+                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
+                case ERDM_StatusMessage.PROXY_BROADCAST_DROPPED:
+                    return $"Proxy Drop: PID {DecimalNumber(dataValue1)}({(ERDM_Parameter)DecimalNumber(dataValue1)}) at Transaction Number {DecimalNumber(dataValue2)}.";
+                case ERDM_StatusMessage.ASC_RXOK:
+                    return $"DMX ASC {DecimalNumber(dataValue1)} received OK.";
+                case ERDM_StatusMessage.ASC_DROPPED:
+                    return $"DMX ASC {DecimalNumber(dataValue1)} received dropped.";
+                #endregion
+
+                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
+                case ERDM_StatusMessage.DMXNSCNONE:
+                    return $"DMX NSC never received.";
+                case ERDM_StatusMessage.DMXNSCLOSS:
+                    return $"DMX NSC received, now dropped.";
+                case ERDM_StatusMessage.DMXNSCERROR:
+                    return $"DMX NSC timing, or packet error.";
+                case ERDM_StatusMessage.DMXNSC_OK:
+                    return $"DMX NSC received OK.";
+                #endregion
             }
 
             //Local Functions
