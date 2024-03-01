@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -239,7 +240,26 @@ namespace RDMSharp
 
             //Local Functions
             short DecimalNumber(short d) => d;
-            ERDM_SlotCategory SlotLabelCode(short s) => (ERDM_SlotCategory)(ushort)s;
+            string SlotLabelCode(short s)
+            {
+                ERDM_SlotCategory sc = (ERDM_SlotCategory)(ushort)s;
+                return GetEnumDescription(sc);
+            }
+        }
+        public static string GetEnumDescription(Enum value)
+        {
+            DescriptionAttribute attribute = null;
+            
+                if (value == null) { return ""; }
+            try
+            {
+                attribute = value.GetType()
+                        .GetField(value.ToString())
+                        ?.GetCustomAttributes(typeof(DescriptionAttribute), false)
+                        .SingleOrDefault() as DescriptionAttribute;
+            }
+            catch { }
+            return attribute?.Description ?? value.ToString();
         }
 
         public static byte[] ValueToData(params bool[] bits)
