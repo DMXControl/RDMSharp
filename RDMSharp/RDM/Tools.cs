@@ -214,7 +214,8 @@ namespace RDMSharp
 
                 #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
                 case ERDM_StatusMessage.PROXY_BROADCAST_DROPPED:
-                    return $"Proxy Drop: PID {DecimalNumber(dataValue1)}({(ERDM_Parameter)DecimalNumber(dataValue1)}) at Transaction Number {DecimalNumber(dataValue2)}.";
+                    ERDM_Parameter pid = (ERDM_Parameter)(ushort)DecimalNumber(dataValue1);
+                    return $"Proxy Drop: PID 0x{(ushort)pid:X4}({pid}) at Transaction Number {DecimalNumber(dataValue2)}.";
                 case ERDM_StatusMessage.ASC_RXOK:
                     return $"DMX ASC {DecimalNumber(dataValue1)} received OK.";
                 case ERDM_StatusMessage.ASC_DROPPED:

@@ -19,7 +19,10 @@ namespace RDMSharpTest
             enums.Add((ERDM_StatusMessage)0);
             foreach (ERDM_StatusMessage e in enums)
             {
-                string str = Tools.GetStatusMessage(e);
+                short val1 = 1;
+                if (e == ERDM_StatusMessage.PROXY_BROADCAST_DROPPED)
+                    val1 = unchecked ((short)(ushort)ERDM_Parameter.DIMMING_CURVE);
+                string str = Tools.GetStatusMessage(e, val1, 120);
                 Console.WriteLine($"{e} => {str}");
                 if (e==0)
                 {
