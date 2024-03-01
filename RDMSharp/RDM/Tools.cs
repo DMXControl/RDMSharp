@@ -275,6 +275,7 @@ namespace RDMSharp
             {
                 switch (@enum.GetTypeCode())
                 {
+                    default:
                     case TypeCode.Byte:
                         value = (byte)value;
                         break;
@@ -299,8 +300,6 @@ namespace RDMSharp
                     case TypeCode.UInt64:
                         value = (ulong)value;
                         break;
-                    default:
-                        throw new NotSupportedException();
                 }
             }
 
@@ -376,15 +375,12 @@ namespace RDMSharp
                 case string @string:
                     if (trim >= 1)
                         if (@string.Length > trim)
-                            @string = @string.Substring(0, 32);
+                            @string = @string.Substring(0, trim);
 
                     return Encoding.UTF8.GetBytes(@string);
 
                 case bool @bool:
-                    if (@bool)
-                        return new byte[] { 1 };
-                    else
-                        return new byte[] { 0 };
+                    return new byte[] { (byte)(@bool ? 1 : 0) };
 
                 default:
                     throw new NotSupportedException(value.GetType().Name);
