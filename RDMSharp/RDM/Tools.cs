@@ -60,12 +60,12 @@ namespace RDMSharp
             {
                 case ERDM_SensorUnit.CENTIGRADE: return "°C";
 
-                case ERDM_SensorUnit.VOLTS_AC_RMS:
-                case ERDM_SensorUnit.VOLTS_AC_PEAK:
+                case ERDM_SensorUnit.VOLTS_AC_RMS: return $"V{'\u1D63'}{'\u2098'}{'\u209B'}";
+                case ERDM_SensorUnit.VOLTS_AC_PEAK: return $"V{'\u209A'}";
                 case ERDM_SensorUnit.VOLTS_DC: return "V";
 
-                case ERDM_SensorUnit.AMPERE_AC_RMS:
-                case ERDM_SensorUnit.AMPERE_AC_PEAK:
+                case ERDM_SensorUnit.AMPERE_AC_RMS: return $"A{'\u1D63'}{'\u2098'}{'\u209B'}";
+                case ERDM_SensorUnit.AMPERE_AC_PEAK: return $"A{'\u209A'}";
                 case ERDM_SensorUnit.AMPERE_DC: return "A";
 
                 case ERDM_SensorUnit.HERTZ: return "Hz";
@@ -94,6 +94,38 @@ namespace RDMSharp
                 case ERDM_SensorUnit.NONE:
                 default:
                     return "";
+            }
+            static string SubscriptString(string str)
+            {
+                StringBuilder result = new StringBuilder();
+
+                foreach (char c in str)
+                {
+                    if (char.IsLetter(c))
+                    {
+                        result.Append(SubscriptChar(c));
+                    }
+                    else
+                    {
+                        result.Append(c);
+                    }
+                }
+
+                return result.ToString();
+            }
+            static char SubscriptChar(char c)
+            {
+                // Unicode-Offset für tiefgestellte Buchstaben
+                const int offset = 0x1D62; // Dieser Wert ist für den Unicode-Bereich U+1D62 bis U+1D6B
+
+                // Überprüfen, ob das Zeichen ein Großbuchstabe ist und ihn in Kleinbuchstaben konvertieren
+                if (char.IsUpper(c))
+                {
+                    c = char.ToLower(c);
+                }
+
+                // Tiefgestelltes Zeichen erstellen und zurückgeben
+                return (char)(c + offset);
             }
         }
 
