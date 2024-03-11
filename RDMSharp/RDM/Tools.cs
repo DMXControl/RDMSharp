@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -60,12 +61,12 @@ namespace RDMSharp
             {
                 case ERDM_SensorUnit.CENTIGRADE: return "°C";
 
-                case ERDM_SensorUnit.VOLTS_AC_RMS:
-                case ERDM_SensorUnit.VOLTS_AC_PEAK:
+                case ERDM_SensorUnit.VOLTS_AC_RMS: return $"V{'\u1D63'}{'\u2098'}{'\u209B'}";
+                case ERDM_SensorUnit.VOLTS_AC_PEAK: return $"V{'\u209A'}";
                 case ERDM_SensorUnit.VOLTS_DC: return "V";
 
-                case ERDM_SensorUnit.AMPERE_AC_RMS:
-                case ERDM_SensorUnit.AMPERE_AC_PEAK:
+                case ERDM_SensorUnit.AMPERE_AC_RMS: return $"A{'\u1D63'}{'\u2098'}{'\u209B'}";
+                case ERDM_SensorUnit.AMPERE_AC_PEAK: return $"A{'\u209A'}";
                 case ERDM_SensorUnit.AMPERE_DC: return "A";
 
                 case ERDM_SensorUnit.HERTZ: return "Hz";
@@ -95,9 +96,41 @@ namespace RDMSharp
                 default:
                     return "";
             }
+            static string SubscriptString(string str)
+            {
+                StringBuilder result = new StringBuilder();
+
+                foreach (char c in str)
+                {
+                    if (char.IsLetter(c))
+                    {
+                        result.Append(SubscriptChar(c));
+                    }
+                    else
+                    {
+                        result.Append(c);
+                    }
+                }
+
+                return result.ToString();
+            }
+            static char SubscriptChar(char c)
+            {
+                // Unicode-Offset für tiefgestellte Buchstaben
+                const int offset = 0x1D62; // Dieser Wert ist für den Unicode-Bereich U+1D62 bis U+1D6B
+
+                // Überprüfen, ob das Zeichen ein Großbuchstabe ist und ihn in Kleinbuchstaben konvertieren
+                if (char.IsUpper(c))
+                {
+                    c = char.ToLower(c);
+                }
+
+                // Tiefgestelltes Zeichen erstellen und zurückgeben
+                return (char)(c + offset);
+            }
         }
 
-        public static string GetStatusMessage(in ERDM_StatusMessage status, in ushort dataValue1 = 0, in ushort dataValue2 = 0)
+        public static string GetStatusMessage(in ERDM_StatusMessage status, in short dataValue1 = 0, in short dataValue2 = 0)
         {
             switch (status)
             {
@@ -107,27 +140,39 @@ namespace RDMSharp
                     return $"{SlotLabelCode(dataValue1)} sensor not found.";
                 case ERDM_StatusMessage.SENS_ALWAYS_ON:
                     return $"{SlotLabelCode(dataValue1)} sensor always on.";
+                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
+                case ERDM_StatusMessage.FEEDBACK_ERROR:
+                    return $"{SlotLabelCode(dataValue1)} feedback error.";
+                case ERDM_StatusMessage.INDEX_ERROR:
+                    return $"{SlotLabelCode(dataValue1)} index circuit error.";
+                #endregion
 
                 case ERDM_StatusMessage.LAMP_DOUSED:
                     return "Lamp doused.";
                 case ERDM_StatusMessage.LAMP_STRIKE:
                     return "Lamp failed to strike.";
+                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
+                case ERDM_StatusMessage.LAMP_ACCESS_OPEN:
+                    return "Lamp access open.";
+                case ERDM_StatusMessage.LAMP_ALWAYS_ON:
+                    return "Lamp on without command.";
+                #endregion
 
                 case ERDM_StatusMessage.OVERTEMP:
                     return $"Sensor {DecimalNumber(dataValue1)} over temp at {DecimalNumber(dataValue2)} °C.";
                 case ERDM_StatusMessage.UNDERTEMP:
                     return $"Sensor {DecimalNumber(dataValue1)} under temp at {DecimalNumber(dataValue2)} °C.";
                 case ERDM_StatusMessage.SENS_OUT_RANGE:
-                    return $"Sensor {DecimalNumber(dataValue1)} out of range";
+                    return $"Sensor {DecimalNumber(dataValue1)} out of range.";
 
                 case ERDM_StatusMessage.OVERVOLTAGE_PHASE:
                     return $"Phase {DecimalNumber(dataValue1)} over voltage at {DecimalNumber(dataValue2)} V.";
                 case ERDM_StatusMessage.UNDERVOLTAGE_PHASE:
-                    return $"Phase {DecimalNumber(dataValue1)} over voltage at {DecimalNumber(dataValue2)} V.";
+                    return $"Phase {DecimalNumber(dataValue1)} under voltage at {DecimalNumber(dataValue2)} V.";
                 case ERDM_StatusMessage.OVERCURRENT:
                     return $"Phase {DecimalNumber(dataValue1)} over currnet at {DecimalNumber(dataValue2)} A.";
                 case ERDM_StatusMessage.UNDERCURRENT:
-                    return $"Phase {DecimalNumber(dataValue1)} over current at {DecimalNumber(dataValue2)} A.";
+                    return $"Phase {DecimalNumber(dataValue1)} under current at {DecimalNumber(dataValue2)} A.";
                 case ERDM_StatusMessage.PHASE:
                     return $"Phase {DecimalNumber(dataValue1)} is at {DecimalNumber(dataValue2)} degrees.";
                 case ERDM_StatusMessage.PHASE_ERROR:
@@ -147,6 +192,10 @@ namespace RDMSharp
                     return "Dimmer Failure.";
                 case ERDM_StatusMessage.DIM_PANIC:
                     return "Panic Mode.";
+                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
+                case ERDM_StatusMessage.LOAD_FAILURE:
+                    return "Lamp or cable failure.";
+                #endregion
 
                 case ERDM_StatusMessage.READY:
                     return $"{SlotLabelCode(dataValue1)} ready.";
@@ -154,14 +203,63 @@ namespace RDMSharp
                     return $"{SlotLabelCode(dataValue1)} not ready.";
                 case ERDM_StatusMessage.LOW_FLUID:
                     return $"{SlotLabelCode(dataValue1)} low fluid.";
+
+                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
+                case ERDM_StatusMessage.EEPROM_ERROR:
+                    return $"EEPROM error.";
+                case ERDM_StatusMessage.RAM_ERROR:
+                    return $"RAM error.";
+                case ERDM_StatusMessage.FPGA_ERROR:
+                    return $"FPGA programming error.";
+                #endregion
+
+                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
+                case ERDM_StatusMessage.PROXY_BROADCAST_DROPPED:
+                    ERDM_Parameter pid = (ERDM_Parameter)(ushort)DecimalNumber(dataValue1);
+                    return $"Proxy Drop: PID 0x{(ushort)pid:X4}({pid}) at Transaction Number {DecimalNumber(dataValue2)}.";
+                case ERDM_StatusMessage.ASC_RXOK:
+                    return $"DMX ASC {DecimalNumber(dataValue1)} received OK.";
+                case ERDM_StatusMessage.ASC_DROPPED:
+                    return $"DMX ASC {DecimalNumber(dataValue1)} received dropped.";
+                #endregion
+
+                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
+                case ERDM_StatusMessage.DMXNSCNONE:
+                    return $"DMX NSC never received.";
+                case ERDM_StatusMessage.DMXNSCLOSS:
+                    return $"DMX NSC received, now dropped.";
+                case ERDM_StatusMessage.DMXNSCERROR:
+                    return $"DMX NSC timing, or packet error.";
+                case ERDM_StatusMessage.DMXNSC_OK:
+                    return $"DMX NSC received OK.";
+                #endregion
+
+                default:
+                    return string.Empty;
             }
 
             //Local Functions
-
-            ushort DecimalNumber(ushort d) => d;
-            ushort SlotLabelCode(ushort s) => s;
-
-            return string.Empty;
+            short DecimalNumber(short d) => d;
+            string SlotLabelCode(short s)
+            {
+                ERDM_SlotCategory sc = (ERDM_SlotCategory)(ushort)s;
+                return GetEnumDescription(sc);
+            }
+        }
+        public static string GetEnumDescription(Enum value)
+        {
+            DescriptionAttribute attribute = null;
+            
+                if (value == null) { return ""; }
+            try
+            {
+                attribute = value.GetType()
+                        .GetField(value.ToString())
+                        ?.GetCustomAttributes(typeof(DescriptionAttribute), false)
+                        .SingleOrDefault() as DescriptionAttribute;
+            }
+            catch { }
+            return attribute?.Description ?? value.ToString();
         }
 
         public static byte[] ValueToData(params bool[] bits)
@@ -177,6 +275,7 @@ namespace RDMSharp
             {
                 switch (@enum.GetTypeCode())
                 {
+                    default:
                     case TypeCode.Byte:
                         value = (byte)value;
                         break;
@@ -201,8 +300,6 @@ namespace RDMSharp
                     case TypeCode.UInt64:
                         value = (ulong)value;
                         break;
-                    default:
-                        throw new NotSupportedException();
                 }
             }
 
@@ -278,15 +375,12 @@ namespace RDMSharp
                 case string @string:
                     if (trim >= 1)
                         if (@string.Length > trim)
-                            @string = @string.Substring(0, 32);
+                            @string = @string.Substring(0, trim);
 
                     return Encoding.UTF8.GetBytes(@string);
 
                 case bool @bool:
-                    if (@bool)
-                        return new byte[] { 1 };
-                    else
-                        return new byte[] { 0 };
+                    return new byte[] { (byte)(@bool ? 1 : 0) };
 
                 default:
                     throw new NotSupportedException(value.GetType().Name);
@@ -442,6 +536,7 @@ namespace RDMSharp
 
             switch (enums.FirstOrDefault()?.GetTypeCode())
             {
+                default:
                 case TypeCode.Byte:
                     return (T)Enum.ToObject(typeof(T), DataToByte(ref data));
                 case TypeCode.SByte:
@@ -462,14 +557,15 @@ namespace RDMSharp
                     return (T)Enum.ToObject(typeof(T), DataToLong(ref data));
                 case TypeCode.UInt64:
                     return (T)Enum.ToObject(typeof(T), DataToULong(ref data));
-
-                default:
-                    throw new NotSupportedException();
             }
         }
         public static IPv4Address DataToIPAddressIPv4(ref byte[] @data)
         {
-            byte[] bytes = new byte[4];
+            const int length = 4;
+            if (data.Length < length)
+                throw new IndexOutOfRangeException();
+
+            byte[] bytes = new byte[length];
             for (int i = 0; i < bytes.Length; i++)
                 bytes[i] = Tools.DataToByte(ref data);
 
@@ -477,7 +573,11 @@ namespace RDMSharp
         }
         public static IPAddress DataToIPAddressIPv6(ref byte[] @data)
         {
-            byte[] bytes = new byte[16];
+            const int length = 16;
+            if (data.Length < length)
+                throw new IndexOutOfRangeException();
+
+            byte[] bytes = new byte[length];
             for (int i = 0; i < bytes.Length; i++)
                 bytes[i] = Tools.DataToByte(ref data);
 
