@@ -95,10 +95,8 @@ namespace RDMSharp
                 }
             }
 
-            Console.WriteLine($"Succes: {success} Resp: {response}");
             if (response == null) //Timeout, Error, No Device Responded, whatever it is, we are done
             {
-                Console.WriteLine($"Remove: {uidStart} - {uidEnd}");
                 context.RemoveRange(uidStart, uidEnd);
                 return;
             }
