@@ -26,14 +26,10 @@ namespace RDMSharp
             asyncRDMRequestHelper.ReceiveMethode(rdmMessage);
         }
 
-        public async Task<IReadOnlyCollection<RDMUID>> PerformDiscovery(IProgress<RDMDiscoveryStatus> progress, bool full = true)
+        public async Task<IReadOnlyCollection<RDMUID>> PerformDiscovery(IProgress<RDMDiscoveryStatus> progress = null, bool full = true)
         {
             if (DiscoveryInProgress) return new List<RDMUID>();
             DiscoveryInProgress = true;
-            RDMMessage unmuteBroadcastMessage = new RDMMessage();
-            unmuteBroadcastMessage.Parameter = ERDM_Parameter.DISC_UN_MUTE;
-            unmuteBroadcastMessage.DestUID = RDMUID.Broadcast;
-            await SendRDMMessage(unmuteBroadcastMessage);
 
             //Send DISC_UN_MUTE
             if (full)
@@ -47,19 +43,14 @@ namespace RDMSharp
                         Parameter = ERDM_Parameter.DISC_UN_MUTE,
                         DestUID = RDMUID.Broadcast,
                     };
-                    unmuted = await SendRDMMessage(unmuteBroadcastMessage);
+                    unmuted = await SendRDMMessage(m);
                 }
                 if (!unmuted)
                 {
-                    Logger.LogError("Unable do send DISC_UNMUTE Command.");
+                    Logger?.LogError("Unable do send DISC_UNMUTE Command.");
                     return null;
                 }
             }
-
-
-            RDMMessage discMessage = new RDMMessage();
-            discMessage.Parameter = ERDM_Parameter.DISC_UNIQUE_BRANCH;
-            await asyncRDMRequestHelper.RequestParameter(discMessage);
 
             //Start Binary Search for each
             var erg = new RDMDiscoveryContext(progress);
@@ -82,7 +73,7 @@ namespace RDMSharp
             }
 
             string msg = String.Format("Doing Discovery for Range {0} - {1}", new RDMUID(uidStart), new RDMUID(uidEnd));
-            Logger.LogDebug(msg);
+            Logger?.LogDebug(msg);
             context.Status = msg;
 
             bool success = false;
@@ -105,7 +96,7 @@ namespace RDMSharp
                 }
             }
 
-            if (!success) //Timeout, Error, No Device Responded, whatever it is, we are done
+            if (!success || response == null) //Timeout, Error, No Device Responded, whatever it is, we are done
             {
                 context.RemoveRange(uidStart, uidEnd);
                 return;
@@ -132,11 +123,11 @@ namespace RDMSharp
                             await DiscoverDevicesBinarySearch(shittyDevice + 1, uidEnd, context);
                         }
                         else
-                            Logger.LogWarning("Device {0} answered outside of its UID Range!!! Go, throw it into the trash.", response.SourceUID);
+                            Logger?.LogWarning("Device {0} answered outside of its UID Range!!! Go, throw it into the trash.", response.SourceUID);
                     }
                 }
                 else
-                    Logger.LogWarning("Strange Discovery Answer received {0}", response);
+                    Logger?.LogWarning("Strange Discovery Answer received {0}", response);
 
                 return;
             }
@@ -168,7 +159,7 @@ namespace RDMSharp
                     context.AddFound(found);
 
                     //Find the Bad Devices
-                    Logger.LogWarning("You are lucky to use DMXControl! Some Devices don't have a proper RDM implementation as they seam to have an off by one error, but we handled that for you: [{0}]",
+                    Logger?.LogWarning("You are lucky to use DMXControl! Some Devices don't have a proper RDM implementation as they seam to have an off by one error, but we handled that for you: [{0}]",
                         String.Join(",", found));
                 }
             }
@@ -178,7 +169,7 @@ namespace RDMSharp
         {
             if (context.AlreadyFound(uid))
             {
-                Logger.LogWarning("Faulty device {0} did not mute properly as it responded again although it was muted!", uid);
+                Logger?.LogWarning("Faulty device {0} did not mute properly as it responded again although it was muted!", uid);
                 return null;
             }
 
@@ -206,7 +197,7 @@ namespace RDMSharp
             if (muted)
                 context.AddFound(uid);
             else
-                Logger.LogWarning("Unable to Mute Device {0}. Not added to List of discovered Items. Hopefully discovery works anyway.", uid);
+                Logger?.LogWarning("Unable to Mute Device {0}. Not added to List of discovered Items. Hopefully discovery works anyway.", uid);
 
             return muted;
         }

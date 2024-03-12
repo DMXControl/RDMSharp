@@ -10,7 +10,7 @@ namespace RDMSharpTest.RDM.Devices
         public void Setup()
         {
         }
-
+        
         [Test]
         public async Task TestDevice1()
         {

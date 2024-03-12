@@ -334,6 +334,12 @@ namespace RDMSharp
                 {
                     if (this.ResponseType == ERDM_ResponseType.ACK_TIMER)
                         return AcknowledgeTimer.FromPayloadData(this.ParameterData);
+                    if (this.Parameter == ERDM_Parameter.DISC_UNIQUE_BRANCH && this.Command == ERDM_Command.DISCOVERY_COMMAND)
+                        return DiscUniqueBranchRequest.FromPayloadData(this.ParameterData);
+                    if (this.Parameter == ERDM_Parameter.DISC_MUTE && this.Command == ERDM_Command.DISCOVERY_COMMAND_RESPONSE)
+                        return DiscMuteUnmuteResponse.FromPayloadData(this.ParameterData);
+                    if (this.Parameter == ERDM_Parameter.DISC_UN_MUTE && this.Command == ERDM_Command.DISCOVERY_COMMAND_RESPONSE)
+                        return DiscMuteUnmuteResponse.FromPayloadData(this.ParameterData);
 
                     return RDMParameterWrapperCatalogueManager.GetInstance().ParameterDataObjectFromMessage(this);
                 }
@@ -364,7 +370,8 @@ namespace RDMSharp
             if (
                 Command == ERDM_Command.GET_COMMAND_RESPONSE ||
                 Command == ERDM_Command.SET_COMMAND ||
-                Command == ERDM_Command.SET_COMMAND_RESPONSE)
+                Command == ERDM_Command.SET_COMMAND_RESPONSE ||
+                Command.HasFlag(ERDM_Command.DISCOVERY_COMMAND))
             {
                 var pm = RDMParameterWrapperCatalogueManager.GetInstance().GetRDMParameterWrapperByID(Parameter);
                 switch (Command)
@@ -380,6 +387,10 @@ namespace RDMSharp
                     case ERDM_Command.SET_COMMAND
                         when !(pm is IRDMSetParameterWrapperWithEmptySetRequest):
                         b.AppendLine("Value: " + valueString());
+                        break;
+                    default:
+                        if(Value!=null)
+                            b.AppendLine("Value: " + valueString());
                         break;
                 }
                 string valueString()

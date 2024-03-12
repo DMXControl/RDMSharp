@@ -20,6 +20,11 @@ namespace RDMSharp
 
         public bool ReceiveMethode(RDMMessage rdmMessage)
         {
+            if(rdmMessage.Command== ERDM_Command.DISCOVERY_COMMAND_RESPONSE)
+            {
+                var o = buffer.FirstOrDefault(b=>b.Key.Parameter == rdmMessage.Parameter);
+                buffer.AddOrUpdate(o.Key, rdmMessage, (x, y) => rdmMessage);
+            }
             //None Queued Parameters
             var obj = buffer.Where(b=>b.Key.Parameter!= ERDM_Parameter.QUEUED_MESSAGE).FirstOrDefault(b => b.Value == null && rdmMessage.Parameter == b.Key.Parameter && rdmMessage.TransactionCounter == b.Key.TransactionCounter && b.Key.DestUID == rdmMessage.SourceUID && b.Key.SourceUID == rdmMessage.DestUID);
             if (obj.Key != null)
@@ -52,6 +57,10 @@ namespace RDMSharp
                     if (response != null)
                         break;
                     await Task.Delay(10);
+                    if (requerst.Command == ERDM_Command.NONE)
+                    {
+                        throw new Exception("Command is not set");
+                    }
                     count++;
                     if (count % 300 == 299)
                     {
@@ -59,6 +68,9 @@ namespace RDMSharp
                         await _sendMethode.Invoke(requerst);
                         await Task.Delay(TimeSpan.FromTicks(random.Next(33, 777)));
                     }
+                    if (count > 10 && requerst.Command == ERDM_Command.DISCOVERY_COMMAND)
+                        break;
+
                     if (count == 3000)
                         return new RequestResult(requerst);
                 }

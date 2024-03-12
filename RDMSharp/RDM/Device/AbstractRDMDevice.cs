@@ -30,6 +30,7 @@ namespace RDMSharp
         public RDMUID UID { get; private set; }
         public DateTime LastSeen { get; private set; }
         public bool Present { get; internal set; }
+        public bool DiscoveryMuted { get; private set; }
 
         public virtual RDMDeviceInfo DeviceInfo { get; private protected set; }
 
@@ -193,6 +194,36 @@ namespace RDMSharp
             RDMMessage response = null;
             try
             {
+                if(rdmMessage.Command == ERDM_Command.DISCOVERY_COMMAND)
+                {
+                    switch (rdmMessage.Parameter)
+                    {
+                        case ERDM_Parameter.DISC_MUTE:
+                            DiscoveryMuted = true;
+                            response = new RDMMessage();
+                            response.Parameter = ERDM_Parameter.DISC_MUTE;
+                            response.Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE;
+                            response.SourceUID = UID;
+                            response.DestUID = rdmMessage.SourceUID;
+                            response.ParameterData = new DiscMuteUnmuteResponse().ToPayloadData();
+                            return rdmMessage.DestUID != RDMUID.Broadcast ? response : null;
+                        case ERDM_Parameter.DISC_UN_MUTE:
+                            DiscoveryMuted = false;
+                            response = new RDMMessage();
+                            response.Parameter = ERDM_Parameter.DISC_UN_MUTE;
+                            response.Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE;
+                            response.SourceUID = UID;
+                            response.DestUID= rdmMessage.SourceUID;
+                            response.ParameterData = new DiscMuteUnmuteResponse().ToPayloadData();
+                            return rdmMessage.DestUID != RDMUID.Broadcast ? response : null;
+                        case ERDM_Parameter.DISC_UNIQUE_BRANCH when !DiscoveryMuted:
+                            response = new RDMMessage();
+                            response.Parameter = ERDM_Parameter.DISC_UNIQUE_BRANCH;
+                            response.Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE;
+                            response.SourceUID = UID;
+                            return response;
+                    }
+                }
                 if (rdmMessage.Command == ERDM_Command.GET_COMMAND)
                 {
                     object responseValue = null;

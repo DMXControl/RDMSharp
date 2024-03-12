@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 
 namespace RDMSharpTests.Devices.Mock
 {
@@ -7,6 +8,17 @@ namespace RDMSharpTests.Devices.Mock
         private ConcurrentDictionary<long, RDMMessage> identifyer = new ConcurrentDictionary<long, RDMMessage>();
         private bool eventRegistered = false;
         private byte transactionCounter = 0;
+        internal bool imitateRealConditions = false;
+        internal bool ImitateRealConditions
+        {
+            get { return imitateRealConditions; }
+            set
+            {
+                imitateRealConditions = value;
+                eventRegistered = false;
+                registerEvent();
+            }
+        }
         public AbstractMockDevice(RDMUID uid) : base(uid)
         {
             registerEvent();
@@ -14,15 +26,21 @@ namespace RDMSharpTests.Devices.Mock
         ~AbstractMockDevice()
         {
             SendReceivePipeline.RDMMessageRereived -= SendReceivePipeline_RDMMessageRereived;
+            SendReceivePipelineImitateRealConditions.RDMMessageRereivedRequest -= SendReceivePipelineImitateRealConditions_RDMMessageRereivedRequest;
         }
+
         private void registerEvent()
         {
             if (eventRegistered)
                 return;
             eventRegistered = true;
-
             SendReceivePipeline.RDMMessageRereived -= SendReceivePipeline_RDMMessageRereived;
-            SendReceivePipeline.RDMMessageRereived += SendReceivePipeline_RDMMessageRereived;
+            SendReceivePipelineImitateRealConditions.RDMMessageRereivedRequest -= SendReceivePipelineImitateRealConditions_RDMMessageRereivedRequest;
+
+            if (ImitateRealConditions)
+                SendReceivePipelineImitateRealConditions.RDMMessageRereivedRequest += SendReceivePipelineImitateRealConditions_RDMMessageRereivedRequest;
+            else
+                SendReceivePipeline.RDMMessageRereived += SendReceivePipeline_RDMMessageRereived;
         }
         private async void SendReceivePipeline_RDMMessageRereived(object? sender, Tuple<long, RDMMessage> tuple)
         {
@@ -37,18 +55,36 @@ namespace RDMSharpTests.Devices.Mock
 
             await base.ReceiveRDMMessage(tuple.Item2);
         }
+
+        private async void SendReceivePipelineImitateRealConditions_RDMMessageRereivedRequest(object? sender, RDMMessage rdmMessage)
+        {
+            await base.ReceiveRDMMessage(rdmMessage);
+        }
         protected override async Task SendRDMMessage(RDMMessage rdmMessage)
         {
             registerEvent();
             rdmMessage.TransactionCounter = getTransactionCounter();
             var i = SendReceivePipeline.GetNewIdentifyer();
             identifyer.TryAdd(i, rdmMessage);
-            SendReceivePipeline.RDMMessageSend(i, rdmMessage);
+            if (ImitateRealConditions)
+                await SendReceivePipelineImitateRealConditions.RDMMessageSend(rdmMessage);
+            else
+                SendReceivePipeline.RDMMessageSend(i, rdmMessage);
         }
         private byte getTransactionCounter()
         {
             transactionCounter++;
             return transactionCounter;
+        }
+        protected override void OnDispose()
+        {
+            SendReceivePipeline.RDMMessageRereived -= SendReceivePipeline_RDMMessageRereived;
+            SendReceivePipelineImitateRealConditions.RDMMessageRereivedRequest -= SendReceivePipelineImitateRealConditions_RDMMessageRereivedRequest;
+            eventRegistered = false;
+            transactionCounter = 0;
+            identifyer.Clear();
+            ImitateRealConditions = false;
+            base.OnDispose();
         }
     }
 }
