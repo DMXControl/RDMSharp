@@ -12,9 +12,7 @@ namespace RDMSharpTests.Devices.Mock
             if (!rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
                 if (!rdmMessage.SourceUID.IsValidDeviceUID)
                     rdmMessage.SourceUID = new RDMUID(0x1fff, 0x44444444);
-#if DEBUG
-            Console.WriteLine(rdmMessage);
-#endif
+
             if (rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
             {
                 if (semaphoreSlim == null)
@@ -42,8 +40,15 @@ namespace RDMSharpTests.Devices.Mock
                 if (semaphoreSlim.CurrentCount == 1)
                 {
                     await semaphoreSlim.WaitAsync();
-                    await Task.Delay(5);
+                    await Task.Delay(20);
                     await semaphoreSlim2.WaitAsync();
+#if DEBUG
+                    try
+                    {
+                        Console.WriteLine(new RDMMessage(data));
+                    }
+                    catch { }
+#endif
                     RDMMessageRereivedResponse?.InvokeFailSafe(null, data);
                     data = null;
                     semaphoreSlim2.Release();

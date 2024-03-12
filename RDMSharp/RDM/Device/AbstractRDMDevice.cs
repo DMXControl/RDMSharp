@@ -213,15 +213,19 @@ namespace RDMSharp
                             response.Parameter = ERDM_Parameter.DISC_UN_MUTE;
                             response.Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE;
                             response.SourceUID = UID;
-                            response.DestUID= rdmMessage.SourceUID;
+                            response.DestUID = rdmMessage.SourceUID;
                             response.ParameterData = new DiscMuteUnmuteResponse().ToPayloadData();
                             return rdmMessage.DestUID != RDMUID.Broadcast ? response : null;
-                        case ERDM_Parameter.DISC_UNIQUE_BRANCH when !DiscoveryMuted:
-                            response = new RDMMessage();
-                            response.Parameter = ERDM_Parameter.DISC_UNIQUE_BRANCH;
-                            response.Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE;
-                            response.SourceUID = UID;
-                            return response;
+                        case ERDM_Parameter.DISC_UNIQUE_BRANCH when !DiscoveryMuted && rdmMessage.Value is DiscUniqueBranchRequest discUniqueBranchRequest:
+                            if (UID >= discUniqueBranchRequest.StartUid && UID <= discUniqueBranchRequest.EndUid)
+                            {
+                                response = new RDMMessage();
+                                response.Parameter = ERDM_Parameter.DISC_UNIQUE_BRANCH;
+                                response.Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE;
+                                response.SourceUID = UID;
+                                return response;
+                            }
+                            return null;
                     }
                 }
                 if (rdmMessage.Command == ERDM_Command.GET_COMMAND)

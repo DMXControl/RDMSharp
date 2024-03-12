@@ -31,10 +31,10 @@ namespace RDMSharp
             else
                 throw new FormatException($"The given string\"{uid}\" is not matchable to any known RDM-UID format");
         }
-        public RDMUID(in EManufacturer manufacturer, in uint deviceId): this((ushort)manufacturer, deviceId)
+        public RDMUID(in EManufacturer manufacturer, in uint deviceId) : this((ushort)manufacturer, deviceId)
         {
         }
-        public RDMUID(in ulong uid): this((ushort)(uid >> 32), (uint)uid)
+        public RDMUID(in ulong uid) : this((ushort)(uid >> 32), (uint)uid)
         {
         }
         public RDMUID(in ushort manId, in uint deviceId)
@@ -98,6 +98,30 @@ namespace RDMSharp
             return a < b
                 || a == b;
         }
+        public static RDMUID operator *(RDMUID left, double right)
+        {
+            return new RDMUID((ulong)(((ulong)left) * right));
+        }
+        public static RDMUID operator /(RDMUID left, double right)
+        {
+            return new RDMUID((ulong)(((ulong)left) / right));
+        }
+        public static RDMUID operator +(RDMUID left, int right)
+        {
+            return new RDMUID((ulong)left + (ulong)right);
+        }
+        public static RDMUID operator -(RDMUID left, int right)
+        {
+            return new RDMUID((ulong)left - (ulong)right);
+        }
+        public static RDMUID operator +(RDMUID left, RDMUID right)
+        {
+            return new RDMUID((ulong)left + (ulong)right);
+        }
+        public static RDMUID operator -(RDMUID left, RDMUID right)
+        {
+            return new RDMUID((ulong)left - (ulong)right);
+        }
 
         public static explicit operator ulong(in RDMUID a)
         {
@@ -117,7 +141,7 @@ namespace RDMSharp
 
         public override bool Equals(object obj)
         {
-            return obj is RDMUID uid 
+            return obj is RDMUID uid
                 && Equals(uid);
         }
 

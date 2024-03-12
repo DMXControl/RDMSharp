@@ -21,9 +21,9 @@ namespace RDMSharpTest.RDM.Devices
         {
             MockDiscoveryTool mockDiscoveryTool = new MockDiscoveryTool();
             mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4444)));
-            //mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4445)));
-            //mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4446)));
-            //mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4447)));
+            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4445)));
+            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4446)));
+            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4447)));
             //mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4448)));
             //mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 21314)));
             //mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 234254)));

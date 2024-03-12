@@ -54,25 +54,24 @@ namespace RDMSharp
 
             //Start Binary Search for each
             var erg = new RDMDiscoveryContext(progress);
-            await DiscoverDevicesBinarySearch((ulong)RDMUID.Empty, (ulong)RDMUID.Broadcast - 1, erg);
+            await DiscoverDevicesBinarySearch(RDMUID.Empty, RDMUID.Broadcast - 1, erg);
 
             return erg.FoundUIDs.ToList();
         }
 
 
-        private async Task DiscoverDevicesBinarySearch(ulong uidStart, ulong uidEnd, RDMDiscoveryContext context)
+        private async Task DiscoverDevicesBinarySearch(RDMUID uidStart, RDMUID uidEnd, RDMDiscoveryContext context)
         {
             //Robust Code Check
             if (uidStart > uidEnd) return;
             if (uidStart == uidEnd)
             {
-                var uid = new RDMUID(uidStart);
-                await TryMuteSingleDeviceAndAdd(uid, context);
+                await TryMuteSingleDeviceAndAdd(uidStart, context);
                 context.RemoveRange(uidStart, uidEnd);
                 return;
             }
 
-            string msg = String.Format("Doing Discovery for Range {0} - {1}", new RDMUID(uidStart), new RDMUID(uidEnd));
+            string msg = String.Format("Doing Discovery for Range {0} - {1}", uidStart, uidEnd);
             Logger?.LogDebug(msg);
             context.Status = msg;
 
@@ -86,7 +85,7 @@ namespace RDMSharp
                     Parameter = ERDM_Parameter.DISC_UNIQUE_BRANCH,
                     DestUID = RDMUID.Broadcast,
                     SubDevice = SubDevice.Root,
-                    ParameterData = new DiscUniqueBranchRequest(new RDMUID(uidStart), new RDMUID(uidEnd)).ToPayloadData()
+                    ParameterData = new DiscUniqueBranchRequest(uidStart, uidEnd).ToPayloadData()
                 };
                 var res= await asyncRDMRequestHelper.RequestParameter(m);
                 if (res.Success)
@@ -114,7 +113,7 @@ namespace RDMSharp
                     else if (muted == null) //An already muted Device answered again! We try to fix by carving out the UID
                     {
                         //Split Range at number of Device
-                        ulong shittyDevice = (ulong)response.SourceUID;
+                        RDMUID shittyDevice = response.SourceUID;
                         if (shittyDevice == uidStart) await DiscoverDevicesBinarySearch(uidStart + 1, uidEnd, context);
                         else if (shittyDevice == uidEnd) await DiscoverDevicesBinarySearch(uidStart, uidEnd - 1, context);
                         else if (shittyDevice > uidStart && shittyDevice < uidEnd)
@@ -140,7 +139,7 @@ namespace RDMSharp
 
             //To detect off by one errors in Devices, we do the same discovery, split the Range in 3 Ranges
             //Only if there are at least 3 Devices to discover left (delta = 2)
-            if (delta >= 2)
+            if ((ulong)delta >= 2)
             {
                 var mid3 = delta / 3;
                 var offByOneContext = new RDMDiscoveryContext();

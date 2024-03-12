@@ -7,7 +7,7 @@ namespace RDMSharp
     internal class RDMDiscoveryContext
     {
         private readonly HashSet<RDMUID> _foundUids = new HashSet<RDMUID>();
-        private ulong _rangeToSearch = (ulong)RDMUID.Broadcast - 1;
+        private ulong _rangeToSearch = (ulong)(RDMUID.Broadcast - 1);
         private string _status;
 
         private readonly IProgress<RDMDiscoveryStatus> _progress;
@@ -35,9 +35,9 @@ namespace RDMSharp
 
         internal IReadOnlyCollection<RDMUID> FoundUIDs => _foundUids.ToList();
 
-        internal void RemoveRange(ulong uidStart, ulong uidEnd)
+        internal void RemoveRange(RDMUID uidStart, RDMUID uidEnd)
         {
-            var delta = uidEnd - uidStart + 1;
+            var delta = (ulong)(uidEnd - uidStart) + 1;
             _rangeToSearch -= delta;
             _progress?.Report(GetStatus());
         }
