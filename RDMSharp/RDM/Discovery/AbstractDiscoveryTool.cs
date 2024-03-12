@@ -95,8 +95,10 @@ namespace RDMSharp
                 }
             }
 
-            if (!success || response == null) //Timeout, Error, No Device Responded, whatever it is, we are done
+            Console.WriteLine($"Succes: {success} Resp: {response}");
+            if (response == null) //Timeout, Error, No Device Responded, whatever it is, we are done
             {
+                Console.WriteLine($"Remove: {uidStart} - {uidEnd}");
                 context.RemoveRange(uidStart, uidEnd);
                 return;
             }
@@ -139,6 +141,7 @@ namespace RDMSharp
 
             //To detect off by one errors in Devices, we do the same discovery, split the Range in 3 Ranges
             //Only if there are at least 3 Devices to discover left (delta = 2)
+
             if ((ulong)delta >= 2)
             {
                 var mid3 = delta / 3;

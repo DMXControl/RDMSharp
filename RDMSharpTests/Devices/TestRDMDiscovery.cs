@@ -24,13 +24,11 @@ namespace RDMSharpTest.RDM.Devices
             mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4445)));
             mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4446)));
             mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4447)));
-            //mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4448)));
-            //mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 21314)));
-            //mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 234254)));
-            //mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 25252)));
-            //mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 234243)));
-            //mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 636436)));
-            //mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 23252525)));
+            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4448)));
+            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 21314)));
+            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 25252)));
+            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 636436)));
+            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 23252525)));
             foreach (var m in mockDevices)
                 m.ImitateRealConditions = true;
             var res = await mockDiscoveryTool.PerformDiscovery(full: true);

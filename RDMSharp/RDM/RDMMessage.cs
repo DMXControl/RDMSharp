@@ -427,7 +427,7 @@ namespace RDMSharp
 
         public bool Equals(RDMMessage other)
         {
-            return other is not null &&
+            bool res = other is not null &&
                    MessageLength == other.MessageLength &&
                    SourceUID.Equals(other.SourceUID) &&
                    DestUID.Equals(other.DestUID) &&
@@ -441,34 +441,39 @@ namespace RDMSharp
                    PDL == other.PDL &&
                    ParameterData.SequenceEqual(other.ParameterData) &&
                    Checksum == other.Checksum &&
-                   DeserializedChecksum1 == other.DeserializedChecksum1 &&
-                   DeserializedChecksum2 == other.DeserializedChecksum2 &&
                    ChecksumValid == other.ChecksumValid &&
                    ResponseType == other.ResponseType &&
                    IsAck == other.IsAck &&
-                   preambleCount == other.preambleCount &&
-                   object.Equals(Value, other.Value);
+                   preambleCount == other.preambleCount;
+            return res;
         }
-
         public override int GetHashCode()
         {
-            int hashCode = 1518318531;
-            hashCode = hashCode * -1521134295 + MessageLength.GetHashCode();
-            hashCode = hashCode * -1521134295 + SourceUID.GetHashCode();
-            hashCode = hashCode * -1521134295 + DestUID.GetHashCode();
-            hashCode = hashCode * -1521134295 + TransactionCounter.GetHashCode();
-            hashCode = hashCode * -1521134295 + PortID_or_Responsetype.GetHashCode();
-            hashCode = hashCode * -1521134295 + MessageCounter.GetHashCode();
-            hashCode = hashCode * -1521134295 + SubDevice.GetHashCode();
-            hashCode = hashCode * -1521134295 + Command.GetHashCode();
-            hashCode = hashCode * -1521134295 + Parameter.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<ERDM_NackReason[]>.Default.GetHashCode(NackReason);
-            hashCode = hashCode * -1521134295 + PDL.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<byte[]>.Default.GetHashCode(ParameterData);
-            hashCode = hashCode * -1521134295 + Checksum.GetHashCode();
-            hashCode = hashCode * -1521134295 + IsAck.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<object>.Default.GetHashCode(Value);
-            return hashCode;
+            unchecked
+            {
+                var bytes= BuildMessage();
+                var result = 0;
+                foreach (byte b in bytes)
+                    result = (result * 31) ^ b;
+                return result;
+            }
+            //int hashCode = 1518318531;
+            //hashCode = hashCode * -1521134295 + MessageLength.GetHashCode();
+            //hashCode = hashCode * -1521134295 + SourceUID.GetHashCode();
+            //hashCode = hashCode * -1521134295 + DestUID.GetHashCode();
+            //hashCode = hashCode * -1521134295 + TransactionCounter.GetHashCode();
+            //hashCode = hashCode * -1521134295 + PortID_or_Responsetype.GetHashCode();
+            //hashCode = hashCode * -1521134295 + MessageCounter.GetHashCode();
+            //hashCode = hashCode * -1521134295 + SubDevice.GetHashCode();
+            //hashCode = hashCode * -1521134295 + Command.GetHashCode();
+            //hashCode = hashCode * -1521134295 + Parameter.GetHashCode();
+            //hashCode = hashCode * -1521134295 + EqualityComparer<ERDM_NackReason[]>.Default.GetHashCode(NackReason);
+            //hashCode = hashCode * -1521134295 + PDL.GetHashCode();
+            //hashCode = hashCode * -1521134295 + EqualityComparer<byte[]>.Default.GetHashCode(ParameterData);
+            //hashCode = hashCode * -1521134295 + Checksum.GetHashCode();
+            //hashCode = hashCode * -1521134295 + IsAck.GetHashCode();
+            //hashCode = hashCode * -1521134295 + EqualityComparer<object>.Default.GetHashCode(Value);
+            //return hashCode;
         }
     }
 }

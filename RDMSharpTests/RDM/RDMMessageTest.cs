@@ -22,6 +22,17 @@
             Assert.That(m.MessageLength, Is.EqualTo(255));
 
             Assert.Throws<ArgumentException>(() => m.ParameterData = new byte[232]);
+
+            m = new RDMMessage();
+            m.Parameter = ERDM_Parameter.DISC_UNIQUE_BRANCH;
+            m.Command = ERDM_Command.DISCOVERY_COMMAND;
+            m.ParameterData = new DiscUniqueBranchRequest(RDMUID.Empty, RDMUID.Broadcast-1).ToPayloadData();
+
+            Assert.That(m, Is.EqualTo(m));
+            Assert.That(m.GetHashCode(), Is.EqualTo(m.GetHashCode()));
+            var m2 = new RDMMessage(m.BuildMessage());
+            Assert.That(m2, Is.EqualTo(m));
+            Assert.That(m2.GetHashCode(), Is.EqualTo(m.GetHashCode()));
         }
 
         [Test]

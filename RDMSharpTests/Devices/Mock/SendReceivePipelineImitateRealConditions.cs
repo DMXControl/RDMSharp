@@ -40,7 +40,7 @@ namespace RDMSharpTests.Devices.Mock
                 if (semaphoreSlim.CurrentCount == 1)
                 {
                     await semaphoreSlim.WaitAsync();
-                    await Task.Delay(20);
+                    await Task.Delay(5);
                     await semaphoreSlim2.WaitAsync();
 #if DEBUG
                     try
