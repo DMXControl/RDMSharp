@@ -49,6 +49,12 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             Assert.That(resultDiscMute, Is.EqualTo(discMute));
 
+            res = resultDiscMute.ToString();
+            src = discMute.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
+
             discMute = new DiscMuteUnmuteResponse(false, false, true, bindingUID: new RDMUID(223, 434));
 
             data = discMute.ToPayloadData();
@@ -65,7 +71,13 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             Assert.That(resultDiscMute, Is.EqualTo(discMute));
 
-            discMute = new DiscMuteUnmuteResponse(false, false, false, true, bindingUID: new RDMUID(223, 434));
+            res = resultDiscMute.ToString();
+            src = discMute.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
+
+            discMute = new DiscMuteUnmuteResponse(false, false, false, true);
 
             data = discMute.ToPayloadData();
 
@@ -80,6 +92,12 @@ namespace RDMSharpTests.RDM.PayloadObject
             resultDiscMute = DiscMuteUnmuteResponse.FromMessage(message);
 
             Assert.That(resultDiscMute, Is.EqualTo(discMute));
+
+            res = resultDiscMute.ToString();
+            src = discMute.ToString();
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+            Assert.That(res, Is.EqualTo(src));
         }
     }
 }

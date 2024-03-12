@@ -11,10 +11,86 @@ namespace RDMSharp
     {
         private static ILogger Logger = null;
         private byte[] _parameterData = new byte[0];
+        private byte? preambleCount = null;
 
         public RDMMessage()
         {
 
+        }
+        public RDMMessage(in byte[] data)
+        {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+
+            if (data.Length < 26)
+            {
+                if (data.Length >= 17 && (data[0] == 0xFE || data[0] == 0xAA))
+                {
+                    Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE;
+                    Parameter = ERDM_Parameter.DISC_UNIQUE_BRANCH;
+
+                    //Parse Byte[] According to Spec
+                    //data could have a Preample of 0 - 7 bytes, search for Preample seperator
+                    int dataIndex = Array.IndexOf(data, (byte)0xAA);
+                    if (dataIndex == -1) //No Preamble seperator found, corrupt
+                        throw new Exception("No Preamble seperator found, corrupt");
+                    if (data.Length - dataIndex < 17) //Data Missing, corrupt
+                        throw new Exception("Data Missing, corrupt");
+                    if (dataIndex >= 8) //Data Missing, corrupt
+                        throw new Exception("Data Missing, corrupt");
+
+                    preambleCount = (byte)dataIndex;
+
+                    //Calc Checksum
+                    DeserializedChecksum1 = (ushort)(((data[dataIndex + 13] & data[dataIndex + 14]) << 8) |
+                                            (data[dataIndex + 15] & data[dataIndex + 16]));
+
+                    DeserializedChecksum2 = (ushort)data.Skip(dataIndex + 1).Take(12).Sum(c => (int)c);
+
+                    ushort manId = (ushort)(((data[dataIndex + 1] & data[dataIndex + 2]) << 8) |
+                                             (data[dataIndex + 3] & data[dataIndex + 4]));
+
+                    uint devId = (uint)(((data[dataIndex + 5] & data[dataIndex + 6]) << 24) |
+                                            ((data[dataIndex + 7] & data[dataIndex + 8]) << 16) |
+                                            ((data[dataIndex + 9] & data[dataIndex + 10]) << 8) |
+                                             (data[dataIndex + 11] & data[dataIndex + 12]));
+
+                    SourceUID = new RDMUID(manId, devId);
+                    return;
+                }
+                else
+                    throw new IndexOutOfRangeException($"{nameof(data)} Length is {data.Length} but has to be at least 26");
+            }
+
+            //Check startcode and sub-startcode
+            if (data[0] != 0xCC || data[1] != 0x01)
+                throw new Exception("Start-Code invalid");
+
+            byte length = data[2];
+
+            if (data.Length < length + 2)
+                throw new Exception("DataLength not fit Length in Header");
+
+            //Calc Checksum
+            DeserializedChecksum1 = (ushort)((data[length] << 8) | data[length + 1]);
+            DeserializedChecksum2 = (ushort)data.Take(length).Sum(c => (int)c);
+
+            ushort manIdDest = (ushort)((data[3] << 8) | data[4]);
+            uint devIdDest = (uint)((data[5] << 24) | (data[6] << 16) | (data[7] << 8) | data[8]);
+            ushort manIdSource = (ushort)((data[9] << 8) | data[10]);
+            uint devIdSource = (uint)((data[11] << 24) | (data[12] << 16) | (data[13] << 8) | data[14]);
+
+            byte paramLength = data[23];
+
+            SourceUID = new RDMUID(manIdSource, devIdSource);
+            DestUID = new RDMUID(manIdDest, devIdDest);
+            TransactionCounter = data[15];
+            PortID_or_Responsetype = data[16];
+            MessageCounter = data[17];
+            SubDevice = new SubDevice((ushort)((data[18] << 8) | data[19]));
+            Command = (ERDM_Command)data[20];
+            Parameter = (ERDM_Parameter)((data[21] << 8) | data[22]);
+            ParameterData = data.Skip(24).Take(paramLength).ToArray();
         }
         public RDMMessage(params ERDM_NackReason[] nackReasons)
         {
@@ -25,10 +101,6 @@ namespace RDMSharp
 
             nackReason = nackReasons;
             PortID_or_Responsetype = (byte)ERDM_ResponseType.NACK_REASON;
-        }
-        internal RDMMessage(bool checksumValid)
-        {
-            ChecksumValid = checksumValid;
         }
 
         public byte MessageLength
@@ -50,6 +122,32 @@ namespace RDMSharp
         public byte PortID_or_Responsetype { get; set; }
 
         public byte MessageCounter { get; set; }
+        public byte? PreambleCount
+        {
+            get
+            {
+                if (this.Command != ERDM_Command.DISCOVERY_COMMAND_RESPONSE)
+                    return null;
+
+                if (this.Parameter != ERDM_Parameter.DISC_UNIQUE_BRANCH)
+                    return null;
+
+                return preambleCount;
+            }
+            set
+            {
+                if (this.Command != ERDM_Command.DISCOVERY_COMMAND_RESPONSE)
+                    return;
+
+                if (this.Parameter != ERDM_Parameter.DISC_UNIQUE_BRANCH)
+                    return;
+
+                if (preambleCount == value)
+                    return;
+
+                preambleCount = value;
+            }
+        }
 
         public SubDevice SubDevice { get; set; }
 
@@ -127,7 +225,23 @@ namespace RDMSharp
                 return (ushort)(sum % 0x10000);
             }
         }
-        public bool ChecksumValid { get; private set; }
+        public ushort? DeserializedChecksum1
+        {
+            get;
+            private set;
+        }
+        public ushort? DeserializedChecksum2
+        {
+            get;
+            private set;
+        }
+        public bool ChecksumValid
+        {
+            get
+            {
+                return DeserializedChecksum1 == DeserializedChecksum2;
+            }
+        }
 
         public ERDM_ResponseType? ResponseType
         {
@@ -162,30 +276,54 @@ namespace RDMSharp
 
         public byte[] BuildMessage()
         {
-            List<byte> ret = new List<byte>(MessageLength + 2)
+            List<byte> ret = null;
+            switch (Command)
             {
-                0xcc, 0x01, MessageLength
-            };
-            ret.AddRange(DestUID.ToBytes());
-            ret.AddRange(SourceUID.ToBytes());
-            ret.Add(TransactionCounter);
-            ret.Add(PortID_or_Responsetype);
-            ret.Add(MessageCounter);
-            ret.Add((byte)(((ushort)SubDevice) >> 8));
-            ret.Add((byte)SubDevice);
-            ret.Add((byte)Command);
+                case ERDM_Command.DISCOVERY_COMMAND_RESPONSE when Parameter == ERDM_Parameter.DISC_UNIQUE_BRANCH:
 
-            ushort para = (ushort)Parameter;
-            ret.Add((byte)(para >> 8));
-            ret.Add((byte)para);
-            ret.Add(PDL);
-            ret.AddRange(ParameterData);
+                    byte preamble = preambleCount ?? 7;
+                    if (preamble > 7) throw new ArgumentOutOfRangeException("preambleCount has to be within 0 and 7");
+                    ret = new List<byte>(preamble + 17);
+                    for (int i = 0;i< preamble; i++)
+                        ret.Add(0xFE);
+                    ret.Add(0xAA);
+                    var uidBytes = ((byte[])SourceUID);
+                    for (int b = 0; b < uidBytes.Length; b++)
+                    {
+                        ret.Add((byte)(uidBytes[b] | 0xAA));
+                        ret.Add((byte)(uidBytes[b] | 0x55));
+                    }
+                    ushort cs = (ushort)ret.Skip(preamble + 1).Take(12).Sum(c => c);
+                    ret.Add((byte)((cs >> 8) | 0xAA));
+                    ret.Add((byte)((cs >> 8) | 0x55));
+                    ret.Add((byte)((cs & 0xFF) | 0xAA));
+                    ret.Add((byte)((cs & 0xFF) | 0x55));
+                    return ret.ToArray();
+                default:
+                    ret = new List<byte>(MessageLength + 2)
+                    {
+                        0xcc, 0x01, MessageLength
+                    };
+                    ret.AddRange(DestUID.ToBytes());
+                    ret.AddRange(SourceUID.ToBytes());
+                    ret.Add(TransactionCounter);
+                    ret.Add(PortID_or_Responsetype);
+                    ret.Add(MessageCounter);
+                    ret.Add((byte)(((ushort)SubDevice) >> 8));
+                    ret.Add((byte)SubDevice);
+                    ret.Add((byte)Command);
 
-            ushort cs = Checksum;
-            ret.Add((byte)(cs >> 8));
-            ret.Add((byte)cs);
+                    ushort para = (ushort)Parameter;
+                    ret.Add((byte)(para >> 8));
+                    ret.Add((byte)para);
+                    ret.Add(PDL);
+                    ret.AddRange(ParameterData);
 
-            return ret.ToArray();
+                    ret.Add((byte)(Checksum >> 8));
+                    ret.Add((byte)Checksum);
+
+                    return ret.ToArray();
+            }
         }
 
         public object Value
@@ -290,11 +428,15 @@ namespace RDMSharp
                    Parameter == other.Parameter &&
                    EqualityComparer<ERDM_NackReason[]>.Default.Equals(NackReason, other.NackReason) &&
                    PDL == other.PDL &&
-                   EqualityComparer<byte[]>.Default.Equals(ParameterData, other.ParameterData) &&
+                   ParameterData.SequenceEqual(other.ParameterData) &&
                    Checksum == other.Checksum &&
+                   DeserializedChecksum1 == other.DeserializedChecksum1 &&
+                   DeserializedChecksum2 == other.DeserializedChecksum2 &&
+                   ChecksumValid == other.ChecksumValid &&
                    ResponseType == other.ResponseType &&
                    IsAck == other.IsAck &&
-                   EqualityComparer<object>.Default.Equals(Value, other.Value);
+                   preambleCount == other.preambleCount &&
+                   object.Equals(Value, other.Value);
         }
 
         public override int GetHashCode()
