@@ -102,13 +102,18 @@ namespace RDMSharp
             }
             if (response != null && response?.ChecksumValid == true) //Great, just 1 Device responded
             {
-                if (response.Parameter == ERDM_Parameter.DISC_UNIQUE_BRANCH && response.Command == ERDM_Command.DISCOVERY_COMMAND_RESPONSE)
+                if(context.IsFalseOn(response.SourceUID) && !uidStart.Equals(response.SourceUID) && !uidEnd.Equals(response.SourceUID))
+                {
+                    // do Nothing
+                }
+                else if (response.Parameter == ERDM_Parameter.DISC_UNIQUE_BRANCH && response.Command == ERDM_Command.DISCOVERY_COMMAND_RESPONSE)
                 {
                     var muted = await TryMuteSingleDeviceAndAdd(response.SourceUID, context);
                     if (muted == true)
                     {
                         //According to Spec, check same Branch again.
                         await DiscoverDevicesBinarySearch(uidStart, uidEnd, context);
+                        return;
                     }
                     else if (muted == null) //An already muted Device answered again! We try to fix by carving out the UID
                     {
@@ -123,12 +128,14 @@ namespace RDMSharp
                         }
                         else
                             Logger?.LogWarning("Device {0} answered outside of its UID Range!!! Go, throw it into the trash.", response.SourceUID);
+
+                        return;
                     }
+                    else
+                        context.AddFalseOn(response.SourceUID);
                 }
                 else
                     Logger?.LogWarning("Strange Discovery Answer received {0}", response);
-
-                return;
             }
 
             //Conflict Result, continue Binary search

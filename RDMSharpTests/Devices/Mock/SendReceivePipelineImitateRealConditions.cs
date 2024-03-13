@@ -24,10 +24,10 @@ namespace RDMSharpTests.Devices.Mock
                 else
                 {
                     await semaphoreSlim2.WaitAsync();
-                    var newData= rdmMessage.BuildMessage();
+                    var newData = rdmMessage.BuildMessage();
                     var oldData = data;
-                    var combined = new byte[Math.Max(newData.Length, oldData?.Length??0)];
-                    for(int i = 0;i < combined.Length; i++)
+                    var combined = new byte[Math.Max(newData.Length, oldData?.Length ?? 0)];
+                    for (int i = 0; i < combined.Length; i++)
                     {
                         byte n = (byte)(newData.Length > i ? newData[i] : 0);
                         byte o = (byte)((oldData?.Length ?? 0) > i ? oldData[i] : 0);
@@ -56,7 +56,16 @@ namespace RDMSharpTests.Devices.Mock
                 }
             }
             else
+            {
+#if DEBUG
+                try
+                {
+                    Console.WriteLine(rdmMessage);
+                }
+                catch { }
+#endif
                 RDMMessageRereivedRequest?.InvokeFailSafe(null, rdmMessage);
+            }
         }
         public static event EventHandler<RDMMessage>? RDMMessageRereivedRequest;
         public static event EventHandler<byte[]>? RDMMessageRereivedResponse;

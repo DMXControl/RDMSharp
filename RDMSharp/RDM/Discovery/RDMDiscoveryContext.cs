@@ -7,6 +7,7 @@ namespace RDMSharp
     internal class RDMDiscoveryContext
     {
         private readonly HashSet<RDMUID> _foundUids = new HashSet<RDMUID>();
+        private readonly HashSet<RDMUID> _falseOnUids = new HashSet<RDMUID>();
         private ulong _rangeToSearch = (ulong)(RDMUID.Broadcast - 1);
         private string _status;
 
@@ -29,6 +30,14 @@ namespace RDMSharp
         {
             _foundUids.UnionWith(uid);
             _progress?.Report(GetStatus());
+        }
+        internal void AddFalseOn(RDMUID uid)
+        {
+            _falseOnUids.Add(uid);
+        }
+        internal bool IsFalseOn(RDMUID uid)
+        {
+            return _falseOnUids.Contains(uid);
         }
 
         internal int FoundCount => _foundUids.Count;
