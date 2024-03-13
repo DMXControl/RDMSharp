@@ -72,5 +72,27 @@ namespace RDMSharpTest.RDM.Devices
             var expectedUIDs = mockDevices.Select(m => m.UID).ToList();
             Assert.That(res, Is.EquivalentTo(expectedUIDs));
         }
+        [Test]
+        public async Task TestDiscovery4()
+        {
+            MockDiscoveryTool mockDiscoveryTool = new MockDiscoveryTool();
+            Random random = new Random();
+            HashSet<uint> ids=new HashSet<uint>();
+            for (int i = 0; i < 150; i++)
+            {
+                uint id = 0;
+                do
+                {
+                    id = (uint)random.Next();
+                }
+                while (!ids.Add(id));
+                var m = new MockGeneratedDevice1(new RDMUID(0x9fff, id));
+                mockDevices.Add(m);
+                m.ImitateRealConditions = true;
+            }
+            var res = await mockDiscoveryTool.PerformDiscovery(full: true);
+            var expectedUIDs = mockDevices.Select(m => m.UID).ToList();
+            Assert.That(res, Is.EquivalentTo(expectedUIDs));
+        }
     }
 }
