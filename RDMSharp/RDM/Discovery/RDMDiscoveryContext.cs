@@ -11,7 +11,10 @@ namespace RDMSharp
         private readonly HashSet<RDMUID> _falseOnUids = new HashSet<RDMUID>();
         private readonly ConcurrentDictionary<ulong,RemovedUIDRange> removedRange= new ConcurrentDictionary<ulong,RemovedUIDRange>();
         private ulong rangeToSearch = (ulong)(RDMUID.Broadcast - 1);
-        private string _status;
+        private string _statusString;
+        private RDMDiscoveryStatus _status= new RDMDiscoveryStatus();
+        private RDMUID? lastFoundUid;
+
 
         private readonly IProgress<RDMDiscoveryStatus> _progress;
 
@@ -25,13 +28,15 @@ namespace RDMSharp
         internal void AddFound(RDMUID uid)
         {
             _foundUids.Add(uid);
-            _progress?.Report(GetStatus());
+            lastFoundUid = uid;
+            UpdateReport();
         }
 
         internal void AddFound(IEnumerable<RDMUID> uid)
         {
             _foundUids.UnionWith(uid);
-            _progress?.Report(GetStatus());
+            lastFoundUid = uid.LastOrDefault();
+            UpdateReport();
         }
         internal void AddFalseOn(RDMUID uid)
         {
@@ -67,7 +72,7 @@ namespace RDMSharp
                 sumDelta += (ulong)r.Value.Delta;
 
             rangeToSearch = (ulong)(RDMUID.Broadcast - 1) - sumDelta;
-            _progress?.Report(GetStatus());
+            UpdateReport();
 
             bool areRangesOverlapping(RDMUID start1, RDMUID end1, RDMUID start2, RDMUID end2)
             {
@@ -81,19 +86,35 @@ namespace RDMSharp
             }
         }
 
-        internal string Status
+        internal string StatusString
         {
-            get => _status;
+            get => _statusString;
             set
             {
-                _status = value;
-                _progress?.Report(GetStatus());
+                _statusString = value;
+                UpdateReport();
             }
+        }
+        private void UpdateReport()
+        {
+            var cache = _status;
+            var newStatus = GetStatus();
+            if (cache == newStatus)
+                return;
+
+            _progress?.Report(_status);
         }
 
         private RDMDiscoveryStatus GetStatus()
         {
-            return new RDMDiscoveryStatus(FoundCount, rangeToSearch, _status);
+            if (_status.FoundDevices.Equals(FoundCount) &&
+                _status.RangeLeftToSearch.Equals(rangeToSearch) &&
+                _status.CurrentStatus.Equals(_statusString) &&
+                _status.LastFoundUid.Equals(lastFoundUid))
+                return _status;
+
+            _status = new RDMDiscoveryStatus(FoundCount, rangeToSearch, _statusString, lastFoundUid);
+            return _status;
         }
     }
     internal class RemovedUIDRange

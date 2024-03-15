@@ -26,6 +26,9 @@ namespace RDMSharpTest.RDM.Devices
             public RDMDiscoveryStatus status { get; private set; } = new RDMDiscoveryStatus();
             public void Report(RDMDiscoveryStatus value)
             {
+                if (status == value)
+                    return;
+
                 status = value;
                 ProgressChanged?.InvokeFailSafe(value);
             }

@@ -73,7 +73,7 @@ namespace RDMSharp
 
             string msg = String.Format("Doing Discovery for Range {0} - {1}", uidStart, uidEnd);
             Logger?.LogDebug(msg);
-            context.Status = msg;
+            context.StatusString = msg;
 
             bool success = false;
             RDMMessage response = null;
