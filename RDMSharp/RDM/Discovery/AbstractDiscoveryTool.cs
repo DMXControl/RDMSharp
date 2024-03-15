@@ -51,11 +51,11 @@ namespace RDMSharp
                     return null;
                 }
             }
-
             //Start Binary Search for each
             var erg = new RDMDiscoveryContext(progress);
             await DiscoverDevicesBinarySearch(RDMUID.Empty, RDMUID.Broadcast - 1, erg);
 
+            DiscoveryInProgress = false;
             return erg.FoundUIDs.ToList();
         }
 
@@ -87,6 +87,7 @@ namespace RDMSharp
                     SubDevice = SubDevice.Root,
                     ParameterData = new DiscUniqueBranchRequest(uidStart, uidEnd).ToPayloadData()
                 };
+                context.IncreaseMessageCounter();
                 var res= await asyncRDMRequestHelper.RequestParameter(m);
                 if (res.Success)
                 {
@@ -166,7 +167,7 @@ namespace RDMSharp
                     context.AddFound(found);
 
                     //Find the Bad Devices
-                    Logger?.LogWarning("You are lucky to use DMXControl! Some Devices don't have a proper RDM implementation as they seam to have an off by one error, but we handled that for you: [{0}]",
+                    Logger?.LogWarning("You are lucky to use RDMSharp! Some Devices don't have a proper RDM implementation as they seam to have an off by one error, but we handled that for you: [{0}]",
                         String.Join(",", found));
                 }
             }

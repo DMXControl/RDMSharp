@@ -14,6 +14,7 @@ namespace RDMSharp
         private string _statusString;
         private RDMDiscoveryStatus _status= new RDMDiscoveryStatus();
         private RDMUID? lastFoundUid;
+        private ulong messageCount;
 
 
         private readonly IProgress<RDMDiscoveryStatus> _progress;
@@ -64,8 +65,26 @@ namespace RDMSharp
                 ulong key = 0;
                 if (removedRange.Keys.Count != 0)
                     key = removedRange.Keys.Max() + 1;
+                while (removedRange.ContainsKey(key))
+                    key++;
                 removedRange.TryAdd(key, newRemovedRange);
             }
+            if (removedRange.Count > 1)
+                foreach (var key in removedRange.Keys.ToList())
+                {
+                    if (!removedRange.ContainsKey(key))
+                        continue;
+
+                    if (!removedRange.TryRemove(key, out RemovedUIDRange range))
+                        continue;
+
+                    var overlapping = removedRange.Where(r => areRangesOverlapping(range.StartUID, range.EndUID, r.Value.StartUID, r.Value.EndUID)).ToList();
+
+                    foreach (var o in overlapping)
+                        range = RemovedUIDRange.Merge(range, o.Value);
+
+                    removedRange.TryAdd(key, range);
+                }
 
             ulong sumDelta = 0;
             foreach (var r in removedRange)
@@ -75,11 +94,10 @@ namespace RDMSharp
             UpdateReport();
 
             bool areRangesOverlapping(RDMUID start1, RDMUID end1, RDMUID start2, RDMUID end2)
-            {
-                // Check for overlap
-                if (start1 <= end2 && end1 >= start2)
-                    return true; // Ranges overlap
-                else if (start1 == (end2 + 1) || (end1 + 1) == start2)
+            {                
+                if (start1 <= end2 && end1 >= start2)// Check for overlap
+                    return true; 
+                else if (start1 == (end2 + 1) || (end1 + 1) == start2)// Check next to each other
                     return true;
                 else
                     return false; // Ranges don't overlap
@@ -95,6 +113,12 @@ namespace RDMSharp
                 UpdateReport();
             }
         }
+
+        internal void IncreaseMessageCounter()
+        {
+            this.messageCount++;
+        }
+
         private void UpdateReport()
         {
             var cache = _status;
@@ -110,10 +134,11 @@ namespace RDMSharp
             if (_status.FoundDevices.Equals(FoundCount) &&
                 _status.RangeLeftToSearch.Equals(rangeToSearch) &&
                 _status.CurrentStatus.Equals(_statusString) &&
-                _status.LastFoundUid.Equals(lastFoundUid))
+                _status.LastFoundUid.Equals(lastFoundUid) &&
+                _status.MessageCount.Equals(messageCount))
                 return _status;
 
-            _status = new RDMDiscoveryStatus(FoundCount, rangeToSearch, _statusString, lastFoundUid);
+            _status = new RDMDiscoveryStatus(FoundCount, rangeToSearch, _statusString, lastFoundUid, messageCount);
             return _status;
         }
     }

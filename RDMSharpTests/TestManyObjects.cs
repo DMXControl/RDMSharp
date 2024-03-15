@@ -10,6 +10,26 @@ namespace RDMSharpTest
         }
 
         [Test]
+        public void TestRDMDiscoveryStatus()
+        {
+            RDMDiscoveryStatus status1 = new RDMDiscoveryStatus(3, (ulong)(RDMUID.Broadcast - 1), "Test", new RDMUID(0x1234, 0x56789fab), 11);
+            RDMDiscoveryStatus status2 = new RDMDiscoveryStatus(6, (ulong)(RDMUID.Broadcast - 1) / 2, "Test2", new RDMUID(0x1234, 0x56789fab), 22);
+            Assert.That(status1, Is.Not.EqualTo(status2));
+            Assert.That((object)status1, Is.Not.EqualTo(status2));
+            Assert.That((object)status1, Is.Not.EqualTo((object)status2));
+            Assert.That(((object)status1).Equals((object)status2), Is.False);
+            Assert.That(((object)status1).Equals(status2.LastFoundUid), Is.False);
+            Assert.That(((object)status1).Equals(null), Is.False);
+            Assert.That(status1 == status2, Is.False);
+            Assert.That(status1 != status2, Is.True);
+            Assert.That(status1.GetHashCode(), Is.Not.EqualTo(status2.GetHashCode()));
+            var str1 = status1.ToString();
+            var str2 = status2.ToString();
+            Assert.That(str1, Is.Not.EqualTo(str2));
+            Assert.That(str1.Length, Is.AtLeast(10));
+            Assert.That(str2.Length, Is.AtLeast(10));
+        }
+        [Test]
         public void TestIPv4Address()
         {
             var address = IPv4Address.LocalHost;
