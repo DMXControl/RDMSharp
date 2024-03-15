@@ -5,9 +5,11 @@ namespace RDMSharpTest.RDM.Devices
     public class TestRDMDiscovery
     {
         private List<MockGeneratedDevice1> mockDevices = new List<MockGeneratedDevice1>();
+        private MockDiscoveryTool mockDiscoveryTool;
         [SetUp]
         public void Setup()
-        {            
+        {
+            mockDiscoveryTool = new MockDiscoveryTool();
         }
         [TearDown] public void Teardown()
         {
@@ -15,11 +17,36 @@ namespace RDMSharpTest.RDM.Devices
                 m.Dispose();
 
             mockDevices.Clear();
+            mockDiscoveryTool = null;
         }
+
+        private class DiscoveryProgress : IProgress<RDMDiscoveryStatus>
+        {
+            public event EventHandler? ProgressChanged;
+            public RDMDiscoveryStatus status { get; private set; } = new RDMDiscoveryStatus();
+            public void Report(RDMDiscoveryStatus value)
+            {
+                status = value;
+                ProgressChanged?.InvokeFailSafe(value);
+            }
+        }
+
+        private async Task AssertDiscovery()
+        {
+            var progress = new DiscoveryProgress();
+            Assert.That(progress.status.RangeDoneInPercent, Is.EqualTo(0));
+            var res = await mockDiscoveryTool.PerformDiscovery(progress, true);
+            var expectedUIDs = mockDevices.Select(m => m.UID).ToList();
+            Assert.That(res, Is.EquivalentTo(expectedUIDs));
+            Assert.That(progress.status.FoundDevices, Is.EqualTo(mockDevices.Count));
+            Assert.That(progress.status.RangeLeftToSearch, Is.EqualTo(0));
+            Assert.That(progress.status.RangeDoneInPercent, Is.EqualTo(1));
+
+        }
+
         [Test]
         public async Task TestDiscovery1()
         {
-            MockDiscoveryTool mockDiscoveryTool = new MockDiscoveryTool();
             mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4444)));
             mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4445)));
             mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4446)));
@@ -31,26 +58,22 @@ namespace RDMSharpTest.RDM.Devices
             mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 23252525)));
             foreach (var m in mockDevices)
                 m.ImitateRealConditions = true;
-            var res = await mockDiscoveryTool.PerformDiscovery(full: true);
-            var expectedUIDs = mockDevices.Select(m=>m.UID).ToList();
-            Assert.That(res, Is.EquivalentTo(expectedUIDs));
+
+            await AssertDiscovery();
         }
         [Test]
         public async Task TestDiscovery2()
         {
-            MockDiscoveryTool mockDiscoveryTool = new MockDiscoveryTool();
             mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 234254)));
             mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 234243)));
             foreach (var m in mockDevices)
                 m.ImitateRealConditions = true;
-            var res = await mockDiscoveryTool.PerformDiscovery(full: true);
-            var expectedUIDs = mockDevices.Select(m => m.UID).ToList();
-            Assert.That(res, Is.EquivalentTo(expectedUIDs));
+
+            await AssertDiscovery();
         }
         [Test]
         public async Task TestDiscovery3()
         {
-            MockDiscoveryTool mockDiscoveryTool = new MockDiscoveryTool();
             mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 234254)));
             mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 234243)));
             mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 124367)));
@@ -68,14 +91,12 @@ namespace RDMSharpTest.RDM.Devices
             mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4757342)));
             foreach (var m in mockDevices)
                 m.ImitateRealConditions = true;
-            var res = await mockDiscoveryTool.PerformDiscovery(full: true);
-            var expectedUIDs = mockDevices.Select(m => m.UID).ToList();
-            Assert.That(res, Is.EquivalentTo(expectedUIDs));
+
+            await AssertDiscovery();
         }
         [Test]
         public async Task TestDiscovery4()
         {
-            MockDiscoveryTool mockDiscoveryTool = new MockDiscoveryTool();
             Random random = new Random();
             HashSet<uint> ids=new HashSet<uint>();
             for (int i = 0; i < 150; i++)
@@ -90,9 +111,8 @@ namespace RDMSharpTest.RDM.Devices
                 mockDevices.Add(m);
                 m.ImitateRealConditions = true;
             }
-            var res = await mockDiscoveryTool.PerformDiscovery(full: true);
-            var expectedUIDs = mockDevices.Select(m => m.UID).ToList();
-            Assert.That(res, Is.EquivalentTo(expectedUIDs));
+
+            await AssertDiscovery();
         }
     }
 }

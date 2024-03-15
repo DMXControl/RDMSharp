@@ -6,9 +6,20 @@ namespace RDMSharpTest.RDM.Devices
 {
     public class TestRDMSendReceive
     {
+        private MockGeneratedDevice1 generated;
+        private MockDevice remote;
         [SetUp]
         public void Setup()
         {
+            var uid = new RDMUID(0x9fff, 1);
+            generated = new MockGeneratedDevice1(uid);
+            remote = new MockDevice(uid);
+        }
+        [TearDown]
+        public void TearDown()
+        {
+            generated?.Dispose();
+            remote?.Dispose();
         }
         
         [Test]
@@ -16,9 +27,6 @@ namespace RDMSharpTest.RDM.Devices
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            var uid = new RDMUID(0x9fff, 1);
-            var generated = new MockGeneratedDevice1(uid);
-            var remote = new MockDevice(uid);
             while (remote.DeviceModel?.IsInitialized != true || !remote.AllDataPulled)
             {
                 await Task.Delay(10);
