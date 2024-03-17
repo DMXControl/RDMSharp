@@ -5,6 +5,7 @@ using RDMSharp.ParameterWrapper.SGM;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -298,6 +299,9 @@ namespace RDMSharpTest.RDM
                     var data = getRequest.GetRequestObjectToParameterData(value);
                     var res = getRequest.GetRequestParameterDataToObject(data);
                     Assert.That(res, Is.EqualTo(value));
+
+                    RDMMessage buildGetRequestMessage = getRequest.BuildGetRequestMessage(value);
+                    Assert.That(buildGetRequestMessage, Is.Not.Null);
                 }
                 if (wrapper is IRDMGetParameterWrapperResponse getResponse)
                 {
@@ -309,6 +313,9 @@ namespace RDMSharpTest.RDM
                     var data = getResponse.GetResponseObjectToParameterData(value);
                     var res = getResponse.GetResponseParameterDataToObject(data);
                     Assert.That(res, Is.EqualTo(value));
+
+                    RDMMessage buildGetResponseMessage = getResponse.BuildGetResponseMessage(value);
+                    Assert.That(buildGetResponseMessage, Is.Not.Null);
                 }
                 if (wrapper is IRDMSetParameterWrapperRequest setRequest)
                 {
@@ -320,6 +327,9 @@ namespace RDMSharpTest.RDM
                     var data = setRequest.SetRequestObjectToParameterData(value);
                     var res = setRequest.SetRequestParameterDataToObject(data);
                     Assert.That(res, Is.EqualTo(value));
+
+                    RDMMessage buildSetRequestMessage = setRequest.BuildSetRequestMessage(value);
+                    Assert.That(buildSetRequestMessage, Is.Not.Null);
                 }
                 if (wrapper is IRDMSetParameterWrapperResponse setResponse)
                 {
@@ -331,8 +341,51 @@ namespace RDMSharpTest.RDM
                     var data = setResponse.SetResponseObjectToParameterData(value);
                     var res = setResponse.SetResponseParameterDataToObject(data);
                     Assert.That(res, Is.EqualTo(value));
+
+
+                    RDMMessage buildSetResponseMessage = setResponse.BuildSetResponseMessage(value);
+                    Assert.That(buildSetResponseMessage, Is.Not.Null);
                 }
-                if (tested <= 1 && failIfNotSuitable)
+                if (wrapper is IRDMGetParameterWrapperWithEmptyGetRequest iGetParameterWrapperEmptyRequest)
+                {
+                    tested++;
+                    RDMMessage buildGetRequestMessage = iGetParameterWrapperEmptyRequest.BuildGetRequestMessage();
+                    Assert.That(buildGetRequestMessage, Is.Not.Null);
+                }
+                if (wrapper is IRDMGetParameterWrapperWithEmptyGetResponse iGetParameterWrapperEmptyResponse)
+                {
+                    tested++;
+                    RDMMessage buildGetResponseMessage = iGetParameterWrapperEmptyResponse.BuildGetResponseMessage();
+                    Assert.That(buildGetResponseMessage, Is.Not.Null);
+                }
+                if (wrapper is IRDMSetParameterWrapperWithEmptySetRequest iSetParameterWrapperEmptyRequest)
+                {
+                    tested++;
+                    RDMMessage buildSetRequestMessage = iSetParameterWrapperEmptyRequest.BuildSetRequestMessage();
+                    Assert.That(buildSetRequestMessage, Is.Not.Null);
+                }
+                if (wrapper is IRDMSetParameterWrapperWithEmptySetResponse iSetParameterWrapperEmptyResponse)
+                {
+                    tested++;
+                    RDMMessage buildSetResponseMessage = iSetParameterWrapperEmptyResponse.BuildSetResponseMessage();
+                    Assert.That(buildSetResponseMessage, Is.Not.Null);
+                }
+                if (wrapper is AbstractRDMParameterWrapper<Empty, Empty, Empty, Empty> abstractRDMParameterWrapperEmpty4)
+                {
+                    tested++;
+                    Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.GetRequestObjectToParameterData(null); });
+                    Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.GetRequestParameterDataToObject(null); });
+
+                    Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.GetResponseObjectToParameterData(null); });
+                    Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.GetResponseParameterDataToObject(null); });
+
+                    Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.SetRequestObjectToParameterData(null); });
+                    Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.SetRequestParameterDataToObject(null); });
+
+                    Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.SetResponseObjectToParameterData(null); });
+                    Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.SetResponseParameterDataToObject(null); });
+                }
+                    if (tested <= 1 && failIfNotSuitable)
                     Assert.Fail($"{wrapper} is not using Interface");
             }
             object getValue(Type type)

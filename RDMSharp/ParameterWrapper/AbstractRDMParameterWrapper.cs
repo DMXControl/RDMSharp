@@ -518,8 +518,6 @@ namespace RDMSharp.ParameterWrapper
     {
         public override sealed ERDM_CommandClass CommandClass => ERDM_CommandClass.GET;
 
-        public Type GetResponseType => throw new NotSupportedException(); //this is the cleanest way.... pgrote 08.12.2021
-
         protected AbstractRDMGetParameterWrapperEmptyRequestResponse(in ERDM_Parameter parameter) : base(parameter)
         {
         }

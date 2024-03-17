@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace RDMSharp
 {
-    public abstract class AbstractRDMPayloadObject : IRDMPayloadObject
+    public abstract class AbstractRDMPayloadObject : IRDMPayloadObject, IEquatable<IRDMPayloadObject>
     {
         public abstract byte[] ToPayloadData();
 
@@ -19,6 +19,11 @@ namespace RDMSharp
         public override sealed int GetHashCode()
         {
             return ToPayloadData().GenerateHashCode();
+        }
+
+        public bool Equals(IRDMPayloadObject other)
+        {
+            return other.Equals(this);
         }
     }
     public abstract class AbstractRDMPayloadObjectOneOf : AbstractRDMPayloadObject, IRDMPayloadObjectOneOf
