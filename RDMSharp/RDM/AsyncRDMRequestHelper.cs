@@ -64,7 +64,7 @@ namespace RDMSharp
                     response = tuple1.Item2;
                     if (response != null)
                         break;
-                    await Task.Delay(3);
+                    await Task.Delay(5);
                     if (requerst.Command == ERDM_Command.NONE)
                     {
                         throw new Exception("Command is not set");
