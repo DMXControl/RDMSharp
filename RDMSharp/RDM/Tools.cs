@@ -96,24 +96,6 @@ namespace RDMSharp
                 default:
                     return "";
             }
-            static string SubscriptString(string str)
-            {
-                StringBuilder result = new StringBuilder();
-
-                foreach (char c in str)
-                {
-                    if (char.IsLetter(c))
-                    {
-                        result.Append(SubscriptChar(c));
-                    }
-                    else
-                    {
-                        result.Append(c);
-                    }
-                }
-
-                return result.ToString();
-            }
             static char SubscriptChar(char c)
             {
                 // Unicode-Offset für tiefgestellte Buchstaben
