@@ -5,7 +5,7 @@
         [Test]
         public void RDMMessageParameterData_Exception()
         {
-            RDMMessage m = new RDMMessage();
+            RDMMessage? m = new RDMMessage();
 
             Assert.That(m.ParameterData.Length, Is.EqualTo(0));
             Assert.That(m.PDL, Is.EqualTo(0));
@@ -28,8 +28,9 @@
             m.Command = ERDM_Command.DISCOVERY_COMMAND;
             m.ParameterData = new DiscUniqueBranchRequest(RDMUID.Empty, RDMUID.Broadcast-1).ToPayloadData();
 
-            Assert.That(m, Is.EqualTo(m));
-            Assert.That(m.GetHashCode(), Is.EqualTo(m.GetHashCode()));
+            Assert.That(m.Equals(m), Is.True);
+            Assert.That(m.Equals((object)m), Is.True);
+            Assert.That(m.GetHashCode(), Is.EqualTo(m!.GetHashCode()));
             var m2 = new RDMMessage(m.BuildMessage());
             Assert.That(m2, Is.EqualTo(m));
             Assert.That(m2.GetHashCode(), Is.EqualTo(m.GetHashCode()));

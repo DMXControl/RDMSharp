@@ -44,9 +44,9 @@ namespace RDMSharpTests.Devices.Mock
         }
         private async void SendReceivePipeline_RDMMessageRereived(object? sender, Tuple<long, RDMMessage> tuple)
         {
-            if (identifyer.TryGetValue(tuple.Item1, out RDMMessage rdmMessage))
+            if (identifyer.TryGetValue(tuple.Item1, out var rdmMessage))
             {
-                if (rdmMessage.Equals(tuple.Item2))
+                if (RDMMessage.Equals(rdmMessage, tuple.Item2))
                 {
                     identifyer.Remove(tuple.Item1, out _);
                     return;

@@ -561,7 +561,7 @@ namespace RDMSharp
         }
         public static IReadOnlyDictionary<K, V> AsReadOnly<K, V>(this IDictionary<K, V> source)
         {
-            if (source == null) throw new ArgumentNullException("source");
+            if (source == null) throw new ArgumentNullException(nameof(source));
 
             return new ReadOnlyDictionary<K, V>(source);
         }

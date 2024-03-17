@@ -375,15 +375,15 @@ namespace RDMSharp
                 switch (Command)
                 {
                     case ERDM_Command.SET_COMMAND_RESPONSE
-                        when !(pm is IRDMSetParameterWrapperWithEmptySetResponse):
+                        when pm is not IRDMSetParameterWrapperWithEmptySetResponse:
                         b.AppendLine("Value: " + valueString());
                         break;
                     case ERDM_Command.GET_COMMAND_RESPONSE
-                        when !(pm is IRDMGetParameterWrapperWithEmptyGetResponse):
+                        when pm is not IRDMGetParameterWrapperWithEmptyGetResponse:
                         b.AppendLine("Value: " + valueString());
                         break;
                     case ERDM_Command.SET_COMMAND
-                        when !(pm is IRDMSetParameterWrapperWithEmptySetRequest):
+                        when pm is not IRDMSetParameterWrapperWithEmptySetRequest:
                         b.AppendLine("Value: " + valueString());
                         break;
                     default:

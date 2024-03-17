@@ -57,11 +57,14 @@ namespace RDMSharpTest.RDM.Devices
             };
             Assert.That(progress.status.RangeDoneInPercent, Is.EqualTo(0));
             var res = await mockDiscoveryTool!.PerformDiscovery(progress, full);
-            Assert.That(res, Is.EquivalentTo(expected!));
-            Assert.That(progress.status.MessageCount, Is.AtLeast(expected!.Count * 3));
-            Assert.That(progress.status.FoundDevices, Is.EqualTo(expected!.Count));
-            Assert.That(progress.status.RangeLeftToSearch, Is.EqualTo(0));
-            Assert.That(progress.status.RangeDoneInPercent, Is.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.EquivalentTo(expected!));
+                Assert.That(progress.status.MessageCount, Is.AtLeast(expected!.Count * 3));
+                Assert.That(progress.status.FoundDevices, Is.EqualTo(expected!.Count));
+                Assert.That(progress.status.RangeLeftToSearch, Is.EqualTo(0));
+                Assert.That(progress.status.RangeDoneInPercent, Is.EqualTo(1));
+            });
         }
 
         [Test]
