@@ -345,9 +345,7 @@ namespace RDMSharp
                 }
                 catch (Exception ex)
                 {
-#if DEBUG
                     Logger?.LogError(string.Empty, ex);
-#endif
                     return null;
                 }
             }
@@ -457,23 +455,6 @@ namespace RDMSharp
                     result = (result * 31) ^ b;
                 return result;
             }
-            //int hashCode = 1518318531;
-            //hashCode = hashCode * -1521134295 + MessageLength.GetHashCode();
-            //hashCode = hashCode * -1521134295 + SourceUID.GetHashCode();
-            //hashCode = hashCode * -1521134295 + DestUID.GetHashCode();
-            //hashCode = hashCode * -1521134295 + TransactionCounter.GetHashCode();
-            //hashCode = hashCode * -1521134295 + PortID_or_Responsetype.GetHashCode();
-            //hashCode = hashCode * -1521134295 + MessageCounter.GetHashCode();
-            //hashCode = hashCode * -1521134295 + SubDevice.GetHashCode();
-            //hashCode = hashCode * -1521134295 + Command.GetHashCode();
-            //hashCode = hashCode * -1521134295 + Parameter.GetHashCode();
-            //hashCode = hashCode * -1521134295 + EqualityComparer<ERDM_NackReason[]>.Default.GetHashCode(NackReason);
-            //hashCode = hashCode * -1521134295 + PDL.GetHashCode();
-            //hashCode = hashCode * -1521134295 + EqualityComparer<byte[]>.Default.GetHashCode(ParameterData);
-            //hashCode = hashCode * -1521134295 + Checksum.GetHashCode();
-            //hashCode = hashCode * -1521134295 + IsAck.GetHashCode();
-            //hashCode = hashCode * -1521134295 + EqualityComparer<object>.Default.GetHashCode(Value);
-            //return hashCode;
         }
     }
 }

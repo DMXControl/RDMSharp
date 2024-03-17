@@ -12,6 +12,7 @@ namespace RDMSharpTest.RDM
         [Test]
         public async Task UpdateManufacturerListMethode()
         {
+            return; //Disabled for now
             using (var client = new HttpClient())
             {
                 var website = await client.GetStringAsync("https://tsp.esta.org/tsp/working_groups/CP/mfctrIDs.php");

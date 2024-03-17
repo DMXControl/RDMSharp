@@ -577,7 +577,7 @@ namespace RDMSharpTest.RDM
                 #endregion
 
                 Assert.Warn(type.Name);
-                return null;
+                throw new Exception();
             }
         }
 

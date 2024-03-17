@@ -38,7 +38,6 @@ namespace RDMSharpTest
                 subdevices.Add(new SubDevice(i));
             subdevices.Add(SubDevice.Broadcast);
 
-            ushort index = 0;
             SubDevice? prev = null;
             HashSet<SubDevice> hashSet= new HashSet<SubDevice>();
             foreach (SubDevice sd in subdevices)

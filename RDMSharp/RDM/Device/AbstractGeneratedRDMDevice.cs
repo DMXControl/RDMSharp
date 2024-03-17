@@ -1,4 +1,5 @@
-﻿using RDMSharp.ParameterWrapper;
+﻿using Microsoft.Extensions.Logging;
+using RDMSharp.ParameterWrapper;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -312,6 +313,7 @@ namespace RDMSharp
             }
             catch (Exception e)
             {
+                Logger?.LogError(e, string.Empty);
                 return false;
             }
             return true;

@@ -5,8 +5,8 @@ namespace RDMSharpTest.RDM.Devices
     public class TestRDMDiscovery
     {
         private List<MockGeneratedDevice1> mockDevices = new List<MockGeneratedDevice1>();
-        private MockDiscoveryTool mockDiscoveryTool;
-        private List<RDMUID> expected;
+        private MockDiscoveryTool? mockDiscoveryTool;
+        private List<RDMUID>? expected;
         [SetUp]
         public void Setup()
         {
@@ -39,6 +39,11 @@ namespace RDMSharpTest.RDM.Devices
 
         private async Task AssertDiscovery(bool full = true)
         {
+            if (mockDiscoveryTool == null)
+                Assert.Fail($"{nameof(mockDiscoveryTool)} is null");
+            if (expected == null)
+                Assert.Fail($"{nameof(expected)} is null");
+
             foreach (var m in mockDevices)
                 m.ImitateRealConditions = true;
             var progress = new DiscoveryProgress();
@@ -51,10 +56,10 @@ namespace RDMSharpTest.RDM.Devices
                 Console.WriteLine(e.ToString());
             };
             Assert.That(progress.status.RangeDoneInPercent, Is.EqualTo(0));
-            var res = await mockDiscoveryTool.PerformDiscovery(progress, full);
-            Assert.That(res, Is.EquivalentTo(expected));
-            Assert.That(progress.status.MessageCount, Is.AtLeast(expected.Count * 3));
-            Assert.That(progress.status.FoundDevices, Is.EqualTo(expected.Count));
+            var res = await mockDiscoveryTool!.PerformDiscovery(progress, full);
+            Assert.That(res, Is.EquivalentTo(expected!));
+            Assert.That(progress.status.MessageCount, Is.AtLeast(expected!.Count * 3));
+            Assert.That(progress.status.FoundDevices, Is.EqualTo(expected!.Count));
             Assert.That(progress.status.RangeLeftToSearch, Is.EqualTo(0));
             Assert.That(progress.status.RangeDoneInPercent, Is.EqualTo(1));
         }

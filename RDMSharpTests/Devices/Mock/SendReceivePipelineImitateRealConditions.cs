@@ -30,7 +30,9 @@ namespace RDMSharpTests.Devices.Mock
                     for (int i = 0; i < combined.Length; i++)
                     {
                         byte n = (byte)(newData.Length > i ? newData[i] : 0);
+#pragma warning disable CS8602 // Dereferenzierung eines möglichen Nullverweises.
                         byte o = (byte)((oldData?.Length ?? 0) > i ? oldData[i] : 0);
+#pragma warning restore CS8602 // Dereferenzierung eines möglichen Nullverweises.
                         combined[i] = (byte)(n | o);
                     }
                     data = combined;

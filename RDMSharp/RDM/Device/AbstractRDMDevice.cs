@@ -453,7 +453,7 @@ namespace RDMSharp
             }
             catch (Exception e)
             {
-
+                Logger?.LogError(e, string.Empty);
             }
         FAIL:
 
