@@ -94,6 +94,78 @@ namespace RDMSharpTest.RDM.Devices
             Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DEVICE_LABEL, "Test"); });
             Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DISC_MUTE, null); });
             Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DEVICE_LABEL, new RDMDeviceInfo()); });
+
+            var slotIntensity = remote.Slots[0];
+            var slotStrobe = remote.Slots[1];
+            var slotRed = remote.Slots[2];
+            var slotGreen = remote.Slots[3];
+            var slotBlue = remote.Slots[4];
+
+            Assert.That(slotIntensity, Is.EqualTo(generated.Personalities[0].Slots[0]));
+            Assert.That(slotStrobe, Is.EqualTo(generated.Personalities[0].Slots[1]));
+            Assert.That(slotRed, Is.EqualTo(generated.Personalities[0].Slots[2]));
+            Assert.That(slotGreen, Is.EqualTo(generated.Personalities[0].Slots[3]));
+            Assert.That(slotBlue, Is.EqualTo(generated.Personalities[0].Slots[4]));
+
+            Assert.That(slotIntensity, Is.Not.EqualTo(slotStrobe));
+            Assert.That(slotIntensity, Is.Not.EqualTo(slotRed));
+            Assert.That(slotIntensity, Is.Not.EqualTo(slotGreen));
+            Assert.That(slotIntensity, Is.Not.EqualTo(slotBlue));
+            Assert.That(slotIntensity.DefaultValue, Is.EqualTo(0));
+            Assert.That(slotIntensity.Category, Is.EqualTo(ERDM_SlotCategory.INTENSITY));
+            Assert.That(slotIntensity.Type, Is.EqualTo(ERDM_SlotType.PRIMARY));
+            Assert.That(slotIntensity.DefaultValue, Is.EqualTo(0));
+
+            Assert.That(slotStrobe, Is.Not.EqualTo(slotRed));
+            Assert.That(slotStrobe, Is.Not.EqualTo(slotGreen));
+            Assert.That(slotStrobe, Is.Not.EqualTo(slotBlue));
+            Assert.That(slotStrobe.Category, Is.EqualTo(ERDM_SlotCategory.STROBE));
+            Assert.That(slotStrobe.Type, Is.EqualTo(ERDM_SlotType.PRIMARY));
+            Assert.That(slotStrobe.DefaultValue, Is.EqualTo(33));
+
+            Assert.That(slotRed, Is.Not.EqualTo(slotGreen));
+            Assert.That(slotRed, Is.Not.EqualTo(slotBlue));
+            Assert.That(slotRed.Category, Is.EqualTo(ERDM_SlotCategory.COLOR_ADD_RED));
+            Assert.That(slotRed.Type, Is.EqualTo(ERDM_SlotType.PRIMARY));
+            Assert.That(slotRed.DefaultValue, Is.EqualTo(0));
+
+            Assert.That(slotGreen, Is.Not.EqualTo(slotBlue));
+            Assert.That(slotGreen.Category, Is.EqualTo(ERDM_SlotCategory.COLOR_ADD_GREEN));
+            Assert.That(slotGreen.Type, Is.EqualTo(ERDM_SlotType.PRIMARY));
+            Assert.That(slotGreen.DefaultValue, Is.EqualTo(0));
+
+            Assert.That(slotBlue.Category, Is.EqualTo(ERDM_SlotCategory.COLOR_ADD_BLUE));
+            Assert.That(slotBlue.Type, Is.EqualTo(ERDM_SlotType.PRIMARY));
+            Assert.That(slotBlue.DefaultValue, Is.EqualTo(0));
+
+            Assert.That(slotIntensity != slotStrobe, Is.True);
+            Assert.That(slotRed != slotBlue, Is.True);
+
+            Assert.That(slotIntensity == slotStrobe, Is.False);
+            Assert.That(slotRed == slotBlue, Is.False);
+
+            Assert.That(((object)slotRed).Equals(null), Is.False);
+            Assert.That(((object)slotRed).Equals(slotBlue), Is.False);
+            Assert.That(slotRed.Equals(slotBlue), Is.False);
+            Assert.That(slotRed.Equals(slotStrobe), Is.False);
+
+            Assert.That(string.IsNullOrWhiteSpace(slotRed.ToString()), Is.False);
+            HashSet<Slot> slots = new HashSet<Slot>();
+            Assert.That(slots.Add(slotIntensity), Is.True);
+            Assert.That(slots.Add(slotIntensity), Is.False);
+            Assert.That(slots.Contains(slotIntensity), Is.True);
+            Assert.That(slots.Add(slotStrobe), Is.True);
+            Assert.That(slots.Add(slotStrobe), Is.False);
+            Assert.That(slots.Contains(slotStrobe), Is.True);
+            Assert.That(slots.Add(slotRed), Is.True);
+            Assert.That(slots.Add(slotRed), Is.False);
+            Assert.That(slots.Contains(slotRed), Is.True);
+            Assert.That(slots.Add(slotGreen), Is.True);
+            Assert.That(slots.Add(slotGreen), Is.False);
+            Assert.That(slots.Contains(slotGreen), Is.True);
+            Assert.That(slots.Add(slotBlue), Is.True);
+            Assert.That(slots.Add(slotBlue), Is.False);
+            Assert.That(slots.Contains(slotBlue), Is.True);
         }
     }
 }

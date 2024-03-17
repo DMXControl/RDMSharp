@@ -30,6 +30,64 @@ namespace RDMSharpTest
             Assert.That(str2.Length, Is.AtLeast(10));
         }
         [Test]
+        public void TestSubDevice()
+        {
+            List<SubDevice> subdevices= new List<SubDevice>();
+            subdevices.Add(SubDevice.Root);
+            for (ushort i = 1; i <= 0x0200; i++)
+                subdevices.Add(new SubDevice(i));
+            subdevices.Add(SubDevice.Broadcast);
+
+            ushort index = 0;
+            SubDevice? prev = null;
+            HashSet<SubDevice> hashSet= new HashSet<SubDevice>();
+            foreach (SubDevice sd in subdevices)
+            {
+                if (!prev.HasValue)
+                {
+                    prev = sd;
+                    hashSet.Add(sd);
+                    continue;
+                }
+
+                Assert.That(prev, Is.Not.EqualTo(sd));
+                Assert.That(prev, Is.Not.EqualTo(null));
+                Assert.That(prev.Equals(sd), Is.False);
+                Assert.That(prev.Equals((object)sd), Is.False);
+                Assert.That(prev.Equals(null), Is.False);
+                Assert.That(((object)prev).Equals((object)sd), Is.False);
+                Assert.That(((object)prev).Equals(null), Is.False);
+                if (!(prev.Value.IsRoot || prev.Value.IsBroadcast || sd.IsRoot || sd.IsBroadcast))
+                {
+                    Assert.That(prev <= sd, Is.True);
+                    Assert.That(sd >= prev, Is.True);
+                    Assert.That(sd <= prev, Is.False);
+                    Assert.That(prev >= sd, Is.False);
+                }
+                else
+                {
+                    Assert.That(prev <= sd, Is.False);
+                    Assert.That(sd >= prev, Is.False);
+                    Assert.That(sd <= prev, Is.False);
+                    Assert.That(prev >= sd, Is.False);
+                }
+                Assert.That(prev != sd, Is.True);
+                Assert.That(prev == sd, Is.False);
+                Assert.That(string.IsNullOrWhiteSpace(prev.ToString()), Is.False);
+                Assert.That(string.IsNullOrWhiteSpace(sd.ToString()), Is.False);
+
+                prev = sd;
+                Assert.That(hashSet.Add(sd), Is.True);
+                Assert.That(hashSet.Contains(prev.Value), Is.True);
+            }
+            for (ushort i = 0; i < 1000; i++)
+            {
+                Random rnd = new Random();
+                ushort id = (ushort)rnd.Next((ushort)0x0201,(ushort)(0xFFFF-1));
+                Assert.Throws(typeof(ArgumentOutOfRangeException), () => new SubDevice(id));
+            }
+        }
+            [Test]
         public void TestIPv4Address()
         {
             var address = IPv4Address.LocalHost;

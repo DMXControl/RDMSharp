@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 
 namespace RDMSharp
 {
-    [Serializable]
-    public class Slot : INotifyPropertyChanged
+    public class Slot : INotifyPropertyChanged, IEquatable<Slot>
     {
-        [field: NonSerialized]
         public event PropertyChangedEventHandler PropertyChanged;
 
         public readonly ushort SlotId;
@@ -16,7 +15,7 @@ namespace RDMSharp
         public ERDM_SlotType Type
         {
             get { return type; }
-            set
+            private set
             {
                 if (type == value)
                     return;
@@ -30,7 +29,7 @@ namespace RDMSharp
         public ERDM_SlotCategory Category
         {
             get { return category; }
-            set
+            private set
             {
                 if (category == value)
                     return;
@@ -44,7 +43,7 @@ namespace RDMSharp
         public string Description
         {
             get { return description; }
-            set
+            private set
             {
                 if (description == value)
                     return;
@@ -58,7 +57,7 @@ namespace RDMSharp
         public byte DefaultValue
         {
             get { return defaultValue; }
-            set
+            private set
             {
                 if (defaultValue == value)
                     return;
@@ -68,14 +67,19 @@ namespace RDMSharp
             }
         }
 
-        public string DisplayName
-        {
-            get => $"({this.SlotId}) - {this.Category} {this.Type}";
-        }
-
         public Slot(ushort slotId)
         {
             this.SlotId = slotId;
+        }
+        public Slot(ushort slotId, ERDM_SlotCategory category, ERDM_SlotType type, string description = null, byte defaultValue = 0) : this(slotId)
+        {
+            this.Category = category;
+            this.Type = type;
+            this.Description = description;
+            this.DefaultValue = defaultValue;
+        }
+        public Slot(ushort slotId, ERDM_SlotCategory category, string description = null, byte defaultValue = 0) : this(slotId, category, ERDM_SlotType.PRIMARY, description: description, defaultValue: defaultValue)
+        {
         }
 
         public void UpdateSlotInfo(RDMSlotInfo slotInfo)
@@ -111,33 +115,45 @@ namespace RDMSharp
             sb.AppendLine($"DefaultValue: {this.DefaultValue}");
             return sb.ToString();
         }
+
         public override bool Equals(object obj)
         {
-            if (obj is Slot other)
-            {
-                if (this.SlotId != other.SlotId)
-                    return false;
-                if (this.Type != other.Type)
-                    return false;
-                if (this.Category != other.Category)
-                    return false;
-                if (this.DefaultValue != other.DefaultValue)
-                    return false;
-                if (!string.Equals(this.Description, other.Description))
-                    return false;
-            }
-            return false;
+            return Equals(obj as Slot);
         }
+
+        public bool Equals(Slot other)
+        {
+            return other is not null &&
+                   SlotId == other.SlotId &&
+                   Type == other.Type &&
+                   Category == other.Category &&
+                   Description == other.Description &&
+                   DefaultValue == other.DefaultValue;
+        }
+
         public override int GetHashCode()
         {
-            int hashCode = this.SlotId.GetHashCode();
-            hashCode += this.Category.GetHashCode() * 29;
-            hashCode += this.Type.GetHashCode() * 31;
-            hashCode += this.DefaultValue.GetHashCode() * 13;
-            if (!string.IsNullOrWhiteSpace(this.Description))
-                hashCode += this.Description.GetHashCode() * 17;
-
+#if !NETSTANDARD
+            return HashCode.Combine(SlotId, Type, Category, Description, DefaultValue);
+#else
+            int hashCode = 1916557166;
+            hashCode = hashCode * -1521134295 + SlotId.GetHashCode();
+            hashCode = hashCode * -1521134295 + Type.GetHashCode();
+            hashCode = hashCode * -1521134295 + Category.GetHashCode();
+            hashCode = hashCode * -1521134295 + Description.GetHashCode();
+            hashCode = hashCode * -1521134295 + DefaultValue.GetHashCode();
             return hashCode;
+#endif
+        }
+
+        public static bool operator ==(Slot left, Slot right)
+        {
+            return EqualityComparer<Slot>.Default.Equals(left, right);
+        }
+
+        public static bool operator !=(Slot left, Slot right)
+        {
+            return !(left == right);
         }
     }
 }

@@ -554,7 +554,7 @@ namespace RDMSharp
                         slot = new Slot(description.SlotId);
                         slots.TryAdd(slot.SlotId, slot);
                     }
-                    slot.Description = description.Description;
+                    slot.UpdateSlotDescription(description);
                     this.OnPropertyChanged(nameof(this.Slots));
                     break;
 
@@ -583,8 +583,7 @@ namespace RDMSharp
                             slot1 = new Slot(info.SlotOffset);
                             slots.TryAdd(info.SlotOffset, slot1);
                         }
-                        slot1.Type = info.SlotType;
-                        slot1.Category = info.SlotLabelId;
+                        slot1.UpdateSlotInfo(info);
                     }
                     this.OnPropertyChanged(nameof(this.Slots));
                     break;
@@ -611,7 +610,7 @@ namespace RDMSharp
                             slot1 = new Slot(info.SlotOffset);
                             slots.TryAdd(info.SlotOffset, slot1);
                         }
-                        slot1.DefaultValue = info.DefaultSlotValue;
+                        slot1.UpdateSlotDefaultValue(info);
                     }
                     this.OnPropertyChanged(nameof(this.Slots));
                     break;
