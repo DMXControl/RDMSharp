@@ -12,7 +12,18 @@ namespace RDMSharp
         private protected static ILogger Logger = null;
         private AsyncRDMRequestHelper asyncRDMRequestHelper;
         public event PropertyChangedEventHandler PropertyChanged;
-        public bool DiscoveryInProgress { get; private set; }
+        public bool discoveryInProgress;
+        public bool DiscoveryInProgress
+        {
+            get => discoveryInProgress;
+            private set
+            {
+                if (discoveryInProgress == value)
+                    return;
+                discoveryInProgress = value;
+                PropertyChanged?.InvokeFailSafe(nameof(DiscoveryInProgress));
+            }
+        }
 
         public AbstractDiscoveryTool()
         {

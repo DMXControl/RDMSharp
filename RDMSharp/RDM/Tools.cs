@@ -96,20 +96,6 @@ namespace RDMSharp
                 default:
                     return "";
             }
-            static char SubscriptChar(char c)
-            {
-                // Unicode-Offset für tiefgestellte Buchstaben
-                const int offset = 0x1D62; // Dieser Wert ist für den Unicode-Bereich U+1D62 bis U+1D6B
-
-                // Überprüfen, ob das Zeichen ein Großbuchstabe ist und ihn in Kleinbuchstaben konvertieren
-                if (char.IsUpper(c))
-                {
-                    c = char.ToLower(c);
-                }
-
-                // Tiefgestelltes Zeichen erstellen und zurückgeben
-                return (char)(c + offset);
-            }
         }
 
         public static string GetStatusMessage(in ERDM_StatusMessage status, in short dataValue1 = 0, in short dataValue2 = 0)
