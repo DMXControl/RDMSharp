@@ -19,7 +19,7 @@ namespace RDMSharp
                 throw new ArgumentOutOfRangeException($"{0} is not allowed as {id}");
             ID = id;
             Description = description;
-            foreach ( var slot in _slots )
+            foreach (var slot in _slots)
             {
                 if (!slots.TryAdd(slot.SlotId, slot))
                     throw new Exception($"Cant add Slot: {slot}");

@@ -17,7 +17,7 @@ namespace RDMSharp
         public abstract uint SoftwareVersionID { get; }
         #endregion
         public abstract string DeviceModelDescription { get; }
-        public abstract GeneratedPersonality[] Personalities {get;}
+        public abstract GeneratedPersonality[] Personalities { get; }
 
         public abstract bool SupportDMXAddress { get; }
 
@@ -264,11 +264,11 @@ namespace RDMSharp
                     var slotInfos = new ConcurrentDictionary<object, object>();
                     var slotDesc = new ConcurrentDictionary<object, object>();
                     var slotDefault = new ConcurrentDictionary<object, object>();
-                    foreach (var s in Personalities.First(p => p.ID == this.currentPersonality).Slots) 
+                    foreach (var s in Personalities.First(p => p.ID == this.currentPersonality).Slots)
                     {
                         Slot slot = s.Value;
                         slotInfos.TryAdd(slot.SlotId, new RDMSlotInfo(slot.SlotId, slot.Type, slot.Category));
-                        slotDesc.TryAdd(slot.SlotId, new RDMSlotDescription(slot.SlotId,slot.Description));
+                        slotDesc.TryAdd(slot.SlotId, new RDMSlotDescription(slot.SlotId, slot.Description));
                         slotDefault.TryAdd(slot.SlotId, new RDMDefaultSlotValue(slot.SlotId, slot.DefaultValue));
                     }
                     trySetParameter(ERDM_Parameter.SLOT_INFO, slotInfos);

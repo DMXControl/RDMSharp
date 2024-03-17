@@ -88,7 +88,7 @@ namespace RDMSharp
                     ParameterData = new DiscUniqueBranchRequest(uidStart, uidEnd).ToPayloadData()
                 };
                 context.IncreaseMessageCounter();
-                var res= await asyncRDMRequestHelper.RequestParameter(m);
+                var res = await asyncRDMRequestHelper.RequestParameter(m);
                 if (res.Success)
                 {
                     success = res.Success;
@@ -103,7 +103,7 @@ namespace RDMSharp
             }
             if (response != null && response?.ChecksumValid == true) //Great, just 1 Device responded
             {
-                if(context.IsFalseOn(response.SourceUID) && !uidStart.Equals(response.SourceUID) && !uidEnd.Equals(response.SourceUID))
+                if (context.IsFalseOn(response.SourceUID) && !uidStart.Equals(response.SourceUID) && !uidEnd.Equals(response.SourceUID))
                 {
                     // do Nothing
                 }
@@ -192,7 +192,7 @@ namespace RDMSharp
                     Parameter = ERDM_Parameter.DISC_MUTE,
                     DestUID = uid
                 };
-                var res= await asyncRDMRequestHelper.RequestParameter(n);
+                var res = await asyncRDMRequestHelper.RequestParameter(n);
                 if (res.Success)
                 {
                     muted = res.Success;

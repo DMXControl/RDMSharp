@@ -4,9 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace RDMSharp
@@ -22,7 +20,7 @@ namespace RDMSharp
         private protected static DefaultSlotValueParameterWrapper defaultSlotValueParameterWrapper => (DefaultSlotValueParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.DEFAULT_SLOT_VALUE);
         private protected static SlotDescriptionParameterWrapper slotDescriptionParameterWrapper => (SlotDescriptionParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SLOT_DESCRIPTION);
         private protected static StatusMessageParameterWrapper statusMessageParameterWrapper => (StatusMessageParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.STATUS_MESSAGES);
-        
+
         private AsyncRDMRequestHelper asyncRDMRequestHelper;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -88,7 +86,7 @@ namespace RDMSharp
                 return;
             sensorValues.AddOrUpdate(value.SensorId, value, (o, p) => value);
         }
-        public async Task<bool> SetParameter(ERDM_Parameter parameter, object value=null)
+        public async Task<bool> SetParameter(ERDM_Parameter parameter, object value = null)
         {
             try
             {
@@ -194,7 +192,7 @@ namespace RDMSharp
             RDMMessage response = null;
             try
             {
-                if(rdmMessage.Command == ERDM_Command.DISCOVERY_COMMAND)
+                if (rdmMessage.Command == ERDM_Command.DISCOVERY_COMMAND)
                 {
                     switch (rdmMessage.Parameter)
                     {
@@ -453,11 +451,11 @@ namespace RDMSharp
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
 
             }
-            FAIL:
+        FAIL:
 
             if (rdmMessage.DestUID.IsBroadcast) // no Response on Broadcast
                 return null;
@@ -521,7 +519,7 @@ namespace RDMSharp
                     if (deviceModel != null)
                         break;
 
-                    deviceModel = RDMDeviceModel.getDeviceModel(UID, deviceInfo, new Func<RDMMessage,Task>(SendRDMMessage));
+                    deviceModel = RDMDeviceModel.getDeviceModel(UID, deviceInfo, new Func<RDMMessage, Task>(SendRDMMessage));
                     if (!deviceModel.IsInitialized)
                     {
                         deviceModel.Initialized += DeviceModel_Initialized;
@@ -695,10 +693,10 @@ namespace RDMSharp
             if (pm == null && Enum.IsDefined(typeof(ERDM_Parameter), parameterId))
                 return;
 
-            if(pm==null)
+            if (pm == null)
                 pm = deviceModel.GetRDMParameterWrapperByID((ushort)parameterId);
             if (pm == null)
-            { 
+            {
                 Logger?.LogDebug("Not Implemented Parameter");
                 return;
             }
@@ -951,7 +949,7 @@ namespace RDMSharp
             return true;
         }
 
-        public IReadOnlyDictionary<ERDM_Parameter, object> GetAllParameterValues() 
+        public IReadOnlyDictionary<ERDM_Parameter, object> GetAllParameterValues()
         {
             if (this.DeviceModel != null)
                 return this.DeviceModel.ParameterValues

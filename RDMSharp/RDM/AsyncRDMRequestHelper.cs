@@ -10,9 +10,9 @@ namespace RDMSharp
     {
         private static ILogger Logger = null;
         private static Random random = new Random();
-        ConcurrentDictionary<int, Tuple<RDMMessage,RDMMessage>> buffer = new ConcurrentDictionary<int, Tuple<RDMMessage, RDMMessage>>();
+        ConcurrentDictionary<int, Tuple<RDMMessage, RDMMessage>> buffer = new ConcurrentDictionary<int, Tuple<RDMMessage, RDMMessage>>();
         Func<RDMMessage, Task> _sendMethode;
-        public AsyncRDMRequestHelper(Func<RDMMessage,Task> sendMethode)
+        public AsyncRDMRequestHelper(Func<RDMMessage, Task> sendMethode)
         {
             _sendMethode = sendMethode;
         }
@@ -20,9 +20,9 @@ namespace RDMSharp
 
         public bool ReceiveMethode(RDMMessage rdmMessage)
         {
-            if(rdmMessage.Command== ERDM_Command.DISCOVERY_COMMAND_RESPONSE)
+            if (rdmMessage.Command == ERDM_Command.DISCOVERY_COMMAND_RESPONSE)
             {
-                var o = buffer.FirstOrDefault(b=>b.Value.Item1.Parameter == rdmMessage.Parameter);
+                var o = buffer.FirstOrDefault(b => b.Value.Item1.Parameter == rdmMessage.Parameter);
                 if (o.Value == null)
                     return false;
                 var tuple = new Tuple<RDMMessage, RDMMessage>(o.Value.Item1, rdmMessage);
@@ -30,7 +30,7 @@ namespace RDMSharp
                 return true;
             }
             //None Queued Parameters
-            var obj = buffer.Where(b=>b.Value.Item1.Parameter!= ERDM_Parameter.QUEUED_MESSAGE).FirstOrDefault(b => b.Value.Item2 == null && rdmMessage.Parameter == b.Value.Item1.Parameter && rdmMessage.TransactionCounter == b.Value.Item1.TransactionCounter && b.Value.Item1.DestUID == rdmMessage.SourceUID && b.Value.Item1.SourceUID == rdmMessage.DestUID);
+            var obj = buffer.Where(b => b.Value.Item1.Parameter != ERDM_Parameter.QUEUED_MESSAGE).FirstOrDefault(b => b.Value.Item2 == null && rdmMessage.Parameter == b.Value.Item1.Parameter && rdmMessage.TransactionCounter == b.Value.Item1.TransactionCounter && b.Value.Item1.DestUID == rdmMessage.SourceUID && b.Value.Item1.SourceUID == rdmMessage.DestUID);
             if (obj.Value != null)
             {
                 var tuple = new Tuple<RDMMessage, RDMMessage>(obj.Value.Item1, rdmMessage);
@@ -54,7 +54,7 @@ namespace RDMSharp
             try
             {
                 int key = random.Next();
-                buffer.TryAdd(key, new Tuple<RDMMessage,RDMMessage>(requerst, null));
+                buffer.TryAdd(key, new Tuple<RDMMessage, RDMMessage>(requerst, null));
                 RDMMessage response = null;
                 await _sendMethode.Invoke(requerst);
                 int count = 0;
@@ -83,11 +83,11 @@ namespace RDMSharp
                         return new RequestResult(requerst);
                 }
                 while (response == null);
-                buffer.TryRemove(key, out Tuple<RDMMessage,RDMMessage> tuple2);
+                buffer.TryRemove(key, out Tuple<RDMMessage, RDMMessage> tuple2);
                 response = tuple2.Item2;
                 return new RequestResult(requerst, response);
             }
-            catch( Exception ex)
+            catch (Exception ex)
             {
                 Logger?.LogError(string.Empty, ex);
             }

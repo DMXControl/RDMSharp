@@ -284,7 +284,7 @@ namespace RDMSharp
                     byte preamble = preambleCount ?? 7;
                     if (preamble > 7) throw new ArgumentOutOfRangeException("preambleCount has to be within 0 and 7");
                     ret = new List<byte>(preamble + 17);
-                    for (int i = 0;i< preamble; i++)
+                    for (int i = 0; i < preamble; i++)
                         ret.Add(0xFE);
                     ret.Add(0xAA);
                     var uidBytes = ((byte[])SourceUID);
@@ -389,7 +389,7 @@ namespace RDMSharp
                         b.AppendLine("Value: " + valueString());
                         break;
                     default:
-                        if(Value!=null)
+                        if (Value != null)
                             b.AppendLine("Value: " + valueString());
                         break;
                 }
@@ -451,7 +451,7 @@ namespace RDMSharp
         {
             unchecked
             {
-                var bytes= BuildMessage();
+                var bytes = BuildMessage();
                 var result = 0;
                 foreach (byte b in bytes)
                     result = (result * 31) ^ b;

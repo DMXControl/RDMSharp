@@ -6,7 +6,7 @@ namespace RDMSharp
     public class AcknowledgeTimer : AbstractRDMPayloadObject
     {
         public AcknowledgeTimer(
-            TimeSpan estimidatedResponseTime =default): this((ushort)(estimidatedResponseTime.TotalSeconds / 10))
+            TimeSpan estimidatedResponseTime = default) : this((ushort)(estimidatedResponseTime.TotalSeconds / 10))
         {
             if (estimidatedResponseTime.TotalSeconds / 10 > ushort.MaxValue)
                 throw new ArgumentOutOfRangeException("The Timer is to long for the Resolution of 16-bit ushort");

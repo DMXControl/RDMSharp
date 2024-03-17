@@ -9,10 +9,10 @@ namespace RDMSharp
     {
         private readonly HashSet<RDMUID> _foundUids = new HashSet<RDMUID>();
         private readonly HashSet<RDMUID> _falseOnUids = new HashSet<RDMUID>();
-        private readonly ConcurrentDictionary<ulong,RemovedUIDRange> removedRange= new ConcurrentDictionary<ulong,RemovedUIDRange>();
+        private readonly ConcurrentDictionary<ulong, RemovedUIDRange> removedRange = new ConcurrentDictionary<ulong, RemovedUIDRange>();
         private ulong rangeToSearch = (ulong)(RDMUID.Broadcast - 1);
         private string _statusString;
-        private RDMDiscoveryStatus _status= new RDMDiscoveryStatus();
+        private RDMDiscoveryStatus _status = new RDMDiscoveryStatus();
         private RDMUID? lastFoundUid;
         private ulong messageCount;
 
@@ -94,9 +94,9 @@ namespace RDMSharp
             UpdateReport();
 
             bool areRangesOverlapping(RDMUID start1, RDMUID end1, RDMUID start2, RDMUID end2)
-            {                
+            {
                 if (start1 <= end2 && end1 >= start2)// Check for overlap
-                    return true; 
+                    return true;
                 else if (start1 == (end2 + 1) || (end1 + 1) == start2)// Check next to each other
                     return true;
                 else

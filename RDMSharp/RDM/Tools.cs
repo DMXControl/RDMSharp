@@ -249,8 +249,8 @@ namespace RDMSharp
         public static string GetEnumDescription(Enum value)
         {
             DescriptionAttribute attribute = null;
-            
-                if (value == null) { return ""; }
+
+            if (value == null) { return ""; }
             try
             {
                 attribute = value.GetType()
@@ -336,7 +336,7 @@ namespace RDMSharp
                     return @uid.ToBytes().ToArray();
 
                 case IPv4Address @ipv4Address:
-                        return (byte[])@ipv4Address;
+                    return (byte[])@ipv4Address;
                 case IPAddress @ipAddress:
                     if (@ipAddress.AddressFamily == AddressFamily.InterNetwork)
                     {

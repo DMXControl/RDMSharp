@@ -13,7 +13,7 @@ namespace RDMSharp
     {
         private static ConcurrentDictionary<int, RDMDeviceModel> knownDeviceModels;
         public static IReadOnlyCollection<RDMDeviceModel> KnownDeviceModels => knownDeviceModels.Values.ToList();
-        internal static RDMDeviceModel getDeviceModel(RDMUID uid, RDMDeviceInfo deviceInfo, Func<RDMMessage,Task> sendRdmFunktion)
+        internal static RDMDeviceModel getDeviceModel(RDMUID uid, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
         {
             if (knownDeviceModels == null)
                 knownDeviceModels = new ConcurrentDictionary<int, RDMDeviceModel>();
@@ -365,7 +365,7 @@ namespace RDMSharp
         }
         public override string ToString()
         {
-            return $"{Enum.GetName(typeof(EManufacturer),Manufacturer)}";
+            return $"{Enum.GetName(typeof(EManufacturer), Manufacturer)}";
         }
     }
 }

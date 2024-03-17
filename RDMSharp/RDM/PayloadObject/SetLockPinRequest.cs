@@ -34,7 +34,7 @@ namespace RDMSharp
         public static SetLockPinRequest FromPayloadData(byte[] data)
         {
             if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
-            
+
             var i = new SetLockPinRequest(
                 newPinCode: Tools.DataToUShort(ref data),
                 currentPinCode: Tools.DataToUShort(ref data));
