@@ -152,8 +152,6 @@ namespace RDMSharp
             return Message;
         }
 
-        //Local Functions
-
         private static string getFormatedValue(EDataValueFormat format, short s)
         {
             switch (format)

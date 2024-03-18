@@ -39,16 +39,7 @@ namespace RDMSharp
         }
         public static string GetEnumDescription(Enum value)
         {
-            
-            DescriptionAttribute attribute = null;
-
-            if (value == null) { return ""; }
-            try
-            {
-                attribute = value.GetAttribute<DescriptionAttribute>();
-            }
-            catch { }
-            return attribute?.Description ?? value.ToString();
+            return value.GetAttribute<DescriptionAttribute>()?.Description ?? value.ToString();
         }
         public static TAttribute GetAttribute<TAttribute>(this Enum value)
         where TAttribute : Attribute
