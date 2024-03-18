@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             RDMCurve resultCurve = RDMCurve.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { RDMCurve.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMCurve.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultCurve, Is.EqualTo(curve));
             Assert.That(resultCurve.IndexType, Is.EqualTo(typeof(byte)));

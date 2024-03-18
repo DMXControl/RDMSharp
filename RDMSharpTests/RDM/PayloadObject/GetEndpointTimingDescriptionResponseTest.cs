@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             GetEndpointTimingDescriptionResponse resultGetEndpointTimingDescriptionResponse = GetEndpointTimingDescriptionResponse.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetEndpointTimingDescriptionResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetEndpointTimingDescriptionResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetEndpointTimingDescriptionResponse, Is.EqualTo(getGetEndpointTimingDescriptionResponse));
 

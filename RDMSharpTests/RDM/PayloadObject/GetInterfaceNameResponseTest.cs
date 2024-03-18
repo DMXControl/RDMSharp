@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             GetInterfaceNameResponse resultGetInterfaceNameResponse = GetInterfaceNameResponse.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetInterfaceNameResponse.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetInterfaceNameResponse.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
 
             Assert.That(resultGetInterfaceNameResponse, Is.EqualTo(getInterfaceNameResponse));
 

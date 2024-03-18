@@ -29,16 +29,14 @@ namespace RDMSharp
 
         public static AcknowledgeTimer FromMessage(RDMMessage msg)
         {
-            if (msg == null) throw new ArgumentNullException($"Argument {nameof(msg)} can't be null");
-            if (!msg.IsAck) throw new Exception($"NACK Reason: {(ERDM_NackReason)msg.ParameterData[0]}");
-            if (msg.Command != ERDM_Command.GET_COMMAND_RESPONSE) throw new Exception($"Command is not a {ERDM_Command.GET_COMMAND_RESPONSE}");
+            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, [], PDL);
             if (msg.ResponseType != ERDM_ResponseType.ACK_TIMER) throw new Exception($"ResponseType is not {ERDM_ResponseType.ACK_TIMER}");
 
             return FromPayloadData(msg.ParameterData);
         }
         public static AcknowledgeTimer FromPayloadData(byte[] data)
         {
-            if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
+            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
 
             var i = new AcknowledgeTimer(Tools.DataToUShort(ref data));
 

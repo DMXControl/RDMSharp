@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             RDMPresetInfo resultPresetInfo = RDMPresetInfo.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { RDMPresetInfo.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMPresetInfo.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultPresetInfo, Is.EqualTo(presetInfo));
 

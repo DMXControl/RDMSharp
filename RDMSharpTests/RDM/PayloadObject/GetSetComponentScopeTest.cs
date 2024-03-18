@@ -25,7 +25,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             GetSetComponentScope resultSensorValue = GetSetComponentScope.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetSetComponentScope.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetSetComponentScope.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultSensorValue, Is.EqualTo(sensorValue));
             sensorValue = new GetSetComponentScope(0, "Pseudo Scope String", IPAddress.Parse("2001:db8:0:0:0:0:1428:57ab"), 2347);
@@ -41,7 +41,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             resultSensorValue = GetSetComponentScope.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetSetComponentScope.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetSetComponentScope.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultSensorValue, Is.EqualTo(sensorValue));
             sensorValue = new GetSetComponentScope(0, string.Empty, null, 2347);
@@ -57,7 +57,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             resultSensorValue = GetSetComponentScope.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetSetComponentScope.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetSetComponentScope.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultSensorValue, Is.EqualTo(sensorValue));
 

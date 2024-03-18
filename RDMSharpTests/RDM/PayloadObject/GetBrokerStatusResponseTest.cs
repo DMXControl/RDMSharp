@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             GetBrokerStatusResponse resultGetBrokerStatusResponse = GetBrokerStatusResponse.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetBrokerStatusResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetBrokerStatusResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetBrokerStatusResponse, Is.EqualTo(getBrokerStatusResponse));
 

@@ -23,7 +23,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             RDMRealTimeClock resultRealTimeClock = RDMRealTimeClock.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { RDMRealTimeClock.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMRealTimeClock.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultRealTimeClock, Is.EqualTo(realTimeClock));
 

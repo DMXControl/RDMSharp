@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             GetBackgroundQueuedStatusPolicyResponse resultGetBackgroundQueuedStatusPolicyResponse = GetBackgroundQueuedStatusPolicyResponse.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetBackgroundQueuedStatusPolicyResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetBackgroundQueuedStatusPolicyResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetBackgroundQueuedStatusPolicyResponse, Is.EqualTo(getBackgroundQueuedStatusPolicyResponse));
             Assert.That(resultGetBackgroundQueuedStatusPolicyResponse.IndexType, Is.EqualTo(typeof(byte)));

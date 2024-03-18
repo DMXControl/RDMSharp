@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             GetDiscoveryStateResponse resultGetDiscoveryStateResponse = GetDiscoveryStateResponse.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetDiscoveryStateResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetDiscoveryStateResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetDiscoveryStateResponse, Is.EqualTo(getDiscoveryStateResponse));
 
@@ -44,7 +44,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             SetDiscoveryStateRequest resultSetDiscoveryStateRequest = SetDiscoveryStateRequest.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { SetDiscoveryStateRequest.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { SetDiscoveryStateRequest.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultSetDiscoveryStateRequest, Is.EqualTo(setDiscoveryStateRequest));
 

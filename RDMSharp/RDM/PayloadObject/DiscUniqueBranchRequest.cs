@@ -22,16 +22,13 @@ namespace RDMSharp
         }
         public static DiscUniqueBranchRequest FromMessage(RDMMessage msg)
         {
-            if (msg == null) throw new ArgumentNullException($"Argument {nameof(msg)} can't be null");
-            if (msg.Command != ERDM_Command.DISCOVERY_COMMAND) throw new Exception($"Command is not a {ERDM_Command.DISCOVERY_COMMAND}");
-            if (msg.Parameter != ERDM_Parameter.DISC_UNIQUE_BRANCH) return null;
-            if (msg.PDL != PDL) return null;
+            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.DISCOVERY_COMMAND, ERDM_Parameter.DISC_UNIQUE_BRANCH, PDL);
 
             return FromPayloadData(msg.ParameterData);
         }
         public static DiscUniqueBranchRequest FromPayloadData(byte[] data)
         {
-            if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
+            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
             var i = new DiscUniqueBranchRequest(Tools.DataToRDMUID(ref data), Tools.DataToRDMUID(ref data));
 
             return i;

@@ -29,6 +29,7 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             RDMProxiedDevices resultproxiedDevices = RDMProxiedDevices.FromMessage(message);
             Assert.Throws(typeof(Exception), () => { RDMProxiedDevices.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMProxiedDevices.FromPayloadData(data.ToList().Concat(new byte[220]).ToArray()); });
 
             Assert.That(resultproxiedDevices, Is.EqualTo(proxiedDevices));
 

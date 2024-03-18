@@ -30,16 +30,13 @@ namespace RDMSharp
 
         public static RDMDefaultSlotValue FromMessage(RDMMessage msg)
         {
-            if (msg == null) throw new ArgumentNullException($"Argument {nameof(msg)} can't be null");
-            if (msg.Command != ERDM_Command.GET_COMMAND_RESPONSE) return null;
-            if (msg.Parameter != ERDM_Parameter.DEFAULT_SLOT_VALUE) return null;
-            if (msg.PDL != PDL) return null;
+            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DEFAULT_SLOT_VALUE, PDL);
 
             return FromPayloadData(msg.ParameterData);
         }
         public static RDMDefaultSlotValue FromPayloadData(byte[] data)
         {
-            if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
+            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
 
             var i = new RDMDefaultSlotValue(
                 slotOffset: Tools.DataToUShort(ref data),

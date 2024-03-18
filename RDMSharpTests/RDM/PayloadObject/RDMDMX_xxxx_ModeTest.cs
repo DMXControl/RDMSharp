@@ -23,7 +23,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             RDMDMX_xxxx_Mode resultDMXFailMode = RDMDMX_xxxx_Mode.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { RDMDMX_xxxx_Mode.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMDMX_xxxx_Mode.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultDMXFailMode, Is.EqualTo(dmxFailMode));
 

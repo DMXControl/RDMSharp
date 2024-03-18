@@ -34,6 +34,7 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             GetInterfaceListResponse resultGetInterfaceListResponse = GetInterfaceListResponse.FromMessage(message);
             Assert.Throws(typeof(Exception), () => { GetInterfaceListResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetInterfaceListResponse.FromPayloadData(data.ToList().Concat(new byte[220]).ToArray()); });
 
             Assert.That(resultGetInterfaceListResponse, Is.EqualTo(getInterfaceListResponse));
 

@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             DiscUniqueBranchRequest resultDiscMute = DiscUniqueBranchRequest.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { DiscUniqueBranchRequest.FromPayloadData(data.ToList().Concat(new byte[2]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { DiscUniqueBranchRequest.FromPayloadData(data.ToList().Concat(new byte[2]).ToArray()); });
 
             Assert.That(resultDiscMute, Is.EqualTo(discUniqueBranch));
 

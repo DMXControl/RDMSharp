@@ -24,16 +24,13 @@ namespace RDMSharp
         }
         public static SetLockPinRequest FromMessage(RDMMessage msg)
         {
-            if (msg == null) throw new ArgumentNullException($"Argument {nameof(msg)} can't be null");
-            if (msg.Command != ERDM_Command.SET_COMMAND) return null;
-            if (msg.Parameter != ERDM_Parameter.LOCK_PIN) return null;
-            if (msg.PDL != PDL) return null;
+            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.SET_COMMAND, ERDM_Parameter.LOCK_PIN, PDL);
 
             return FromPayloadData(msg.ParameterData);
         }
         public static SetLockPinRequest FromPayloadData(byte[] data)
         {
-            if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
+            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
 
             var i = new SetLockPinRequest(
                 newPinCode: Tools.DataToUShort(ref data),

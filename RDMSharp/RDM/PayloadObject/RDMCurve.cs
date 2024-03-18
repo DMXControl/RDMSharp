@@ -33,17 +33,13 @@ namespace RDMSharp
         }
         public static RDMCurve FromMessage(RDMMessage msg)
         {
-            if (msg == null) throw new ArgumentNullException($"Argument {nameof(msg)} can't be null");
-            if (!msg.IsAck) throw new Exception($"NACK Reason: {(ERDM_NackReason)msg.ParameterData[0]}");
-            if (msg.Command != ERDM_Command.GET_COMMAND_RESPONSE) throw new Exception($"Command is not a {ERDM_Command.GET_COMMAND_RESPONSE}");
-            if (msg.Parameter != ERDM_Parameter.CURVE) return null;
-            if (msg.PDL != PDL) return null;
+            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.CURVE, PDL);
 
             return FromPayloadData(msg.ParameterData);
         }
         public static RDMCurve FromPayloadData(byte[] data)
         {
-            if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
+            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
             var i = new RDMCurve(
                 currentCurveId: Tools.DataToByte(ref data),
                 curves: Tools.DataToByte(ref data));

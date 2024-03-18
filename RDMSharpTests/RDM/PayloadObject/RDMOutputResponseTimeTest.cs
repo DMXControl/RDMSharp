@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             RDMOutputResponseTime resultOutputResponseTime = RDMOutputResponseTime.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { RDMOutputResponseTime.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMOutputResponseTime.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultOutputResponseTime, Is.EqualTo(outputResponseTime));
             Assert.That(resultOutputResponseTime.IndexType, Is.EqualTo(typeof(byte)));

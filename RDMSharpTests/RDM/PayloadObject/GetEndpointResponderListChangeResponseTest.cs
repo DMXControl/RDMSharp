@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             GetEndpointResponderListChangeResponse resultGetEndpointResponderListChangeResponse = GetEndpointResponderListChangeResponse.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetEndpointResponderListChangeResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetEndpointResponderListChangeResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetEndpointResponderListChangeResponse, Is.EqualTo(getEndpointResponderListChangeResponse));
 

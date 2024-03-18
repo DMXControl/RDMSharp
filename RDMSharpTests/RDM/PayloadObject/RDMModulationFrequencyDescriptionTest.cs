@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             RDMModulationFrequencyDescription resultModulationFrequencyDescription = RDMModulationFrequencyDescription.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { RDMModulationFrequencyDescription.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMModulationFrequencyDescription.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
 
             Assert.That(resultModulationFrequencyDescription, Is.EqualTo(modulationFrequencyDescription));
 
@@ -44,7 +44,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             resultModulationFrequencyDescription = RDMModulationFrequencyDescription.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { RDMModulationFrequencyDescription.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMModulationFrequencyDescription.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
 
             Assert.That(resultModulationFrequencyDescription, Is.EqualTo(modulationFrequencyDescription));
 
@@ -69,7 +69,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             RDMModulationFrequencyDescription resultModulationFrequencyDescription = RDMModulationFrequencyDescription.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { RDMModulationFrequencyDescription.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMModulationFrequencyDescription.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
 
             Assert.That(resultModulationFrequencyDescription, Is.EqualTo(modulationFrequencyDescription));
 

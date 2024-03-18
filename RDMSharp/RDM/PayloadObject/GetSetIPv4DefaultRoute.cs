@@ -24,17 +24,13 @@ namespace RDMSharp
 
         public static GetSetIPv4DefaultRoute FromMessage(RDMMessage msg)
         {
-            if (msg == null) throw new ArgumentNullException($"Argument {nameof(msg)} can't be null");
-            if (!msg.IsAck) throw new Exception($"NACK Reason: {(ERDM_NackReason)msg.ParameterData[0]}");
-            if (msg.Command != ERDM_Command.GET_COMMAND_RESPONSE) throw new Exception($"Command is not a {ERDM_Command.GET_COMMAND_RESPONSE}");
-            if (msg.Parameter != ERDM_Parameter.IPV4_DEFAULT_ROUTE) return null;
-            if (msg.PDL != PDL) return null;
+            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.IPV4_DEFAULT_ROUTE, PDL);
 
             return FromPayloadData(msg.ParameterData);
         }
         public static GetSetIPv4DefaultRoute FromPayloadData(byte[] data)
         {
-            if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
+            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
 
             var i = new GetSetIPv4DefaultRoute(
                 interfaceId: Tools.DataToUInt(ref data),

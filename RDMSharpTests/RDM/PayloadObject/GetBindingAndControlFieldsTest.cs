@@ -15,14 +15,13 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             RDMMessage message = new RDMMessage()
             {
-                PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK,
-                Command = ERDM_Command.GET_COMMAND_RESPONSE,
+                Command = ERDM_Command.GET_COMMAND,
                 Parameter = ERDM_Parameter.BINDING_CONTROL_FIELDS,
                 ParameterData = data,
             };
 
             GetBindingAndControlFieldsRequest resultGetBindingAndControlFieldsRequest = GetBindingAndControlFieldsRequest.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetBindingAndControlFieldsRequest.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetBindingAndControlFieldsRequest.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetBindingAndControlFieldsRequest, Is.EqualTo(getBindingAndControlFieldsRequest));
 
@@ -44,7 +43,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             GetBindingAndControlFieldsResponse resultGetBindingAndControlFieldsResponse = GetBindingAndControlFieldsResponse.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetBindingAndControlFieldsResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetBindingAndControlFieldsResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetBindingAndControlFieldsResponse, Is.EqualTo(getBindingAndControlFieldsResponse));
 

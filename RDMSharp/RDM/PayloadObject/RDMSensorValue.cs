@@ -48,17 +48,13 @@ namespace RDMSharp
 
         public static RDMSensorValue FromMessage(RDMMessage msg)
         {
-            if (msg == null) throw new ArgumentNullException($"Argument {nameof(msg)} can't be null");
-            if (!msg.IsAck) throw new Exception($"NACK Reason: {(ERDM_NackReason)msg.ParameterData[0]}");
-            if (msg.Command != ERDM_Command.GET_COMMAND_RESPONSE) throw new Exception($"Command is not a {ERDM_Command.GET_COMMAND_RESPONSE}");
-            if (msg.Parameter != ERDM_Parameter.SENSOR_VALUE) return null;
-            if (msg.PDL < PDL) return null;
+            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.SENSOR_VALUE, PDL);
 
             return FromPayloadData(msg.ParameterData);
         }
         public static RDMSensorValue FromPayloadData(byte[] data)
         {
-            if (data.Length < PDL) return null;
+            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
 
             var i = new RDMSensorValue(
                 sensorId: Tools.DataToByte(ref data),
@@ -66,9 +62,6 @@ namespace RDMSharp
                 lowestValue: Tools.DataToShort(ref data),
                 highestValue: Tools.DataToShort(ref data),
                 recordedValue: Tools.DataToShort(ref data));
-
-            if (data.Length != 0)
-                throw new Exception("After deserialization data should be empty!");
 
             return i;
         }

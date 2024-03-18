@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             GetSetIdentifyEndpoint resultGetSetIPv4StaticAddress = GetSetIdentifyEndpoint.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetSetIdentifyEndpoint.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetSetIdentifyEndpoint.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetSetIPv4StaticAddress, Is.EqualTo(getSetIPv4StaticAddress));
 

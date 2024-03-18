@@ -44,16 +44,13 @@ namespace RDMSharp
         }
         public static RDMStatusMessage FromMessage(RDMMessage msg)
         {
-            if (msg == null) throw new ArgumentNullException($"Argument {nameof(msg)} can't be null");
-            if (msg.Command != ERDM_Command.GET_COMMAND_RESPONSE) return null;
-            if (msg.Parameter != ERDM_Parameter.STATUS_MESSAGES) return null;
-            if (msg.PDL != PDL) return null;
+            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.STATUS_MESSAGES, PDL);
 
             return FromPayloadData(msg.ParameterData);
         }
         public static RDMStatusMessage FromPayloadData(byte[] data)
         {
-            if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
+            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
 
             var i = new RDMStatusMessage(
                 subDeviceId: Tools.DataToUShort(ref data),

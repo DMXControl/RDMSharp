@@ -23,7 +23,7 @@
             };
 
             AcknowledgeTimer resultAcknowledgeTimer = AcknowledgeTimer.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { AcknowledgeTimer.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { AcknowledgeTimer.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultAcknowledgeTimer, Is.EqualTo(acknowledgeTimer));
             Assert.That(resultAcknowledgeTimer.EstimidatedResponseTime, Is.EqualTo(time));

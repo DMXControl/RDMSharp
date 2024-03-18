@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             GetLockStateResponse resultLockState = GetLockStateResponse.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetLockStateResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetLockStateResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultLockState, Is.EqualTo(lockState));
 

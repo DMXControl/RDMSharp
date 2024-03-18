@@ -43,7 +43,7 @@ namespace RDMSharp.ParameterWrapper
             else if (value == null)
                 return new RequestRange<byte>(0, byte.MaxValue - 1);
 
-            throw new NotSupportedException($"There is no support for the Type: {value.GetType().ToString()}");
+            throw new NotSupportedException($"There is no support for the Type: {value.GetType()}");
         }
     }
 }

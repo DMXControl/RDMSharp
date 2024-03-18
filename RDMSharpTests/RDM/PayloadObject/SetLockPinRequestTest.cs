@@ -23,7 +23,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             SetLockPinRequest resultSetLockPinRequest = SetLockPinRequest.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { SetLockPinRequest.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { SetLockPinRequest.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultSetLockPinRequest, Is.EqualTo(setLockPinRequest));
 

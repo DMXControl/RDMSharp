@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             RDMLockStateDescription resultLockStateDescription = RDMLockStateDescription.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { RDMLockStateDescription.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMLockStateDescription.FromPayloadData(data.ToList().Concat(new byte[30]).ToArray()); });
 
             Assert.That(resultLockStateDescription, Is.EqualTo(lockStateDescription));
 

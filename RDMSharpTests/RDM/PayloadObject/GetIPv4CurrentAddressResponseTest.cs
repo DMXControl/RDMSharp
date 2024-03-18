@@ -24,7 +24,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             GetIPv4CurrentAddressResponse resultGetIPv4CurrentAddressResponse = GetIPv4CurrentAddressResponse.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetIPv4CurrentAddressResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetIPv4CurrentAddressResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
             Assert.Throws(typeof(Exception), () => { new GetIPv4CurrentAddressResponse(1, IPAddress.Parse("192.168.0.1"), 33, ERDM_DHCPStatusMode.INACTIVE); });
 
             Assert.That(resultGetIPv4CurrentAddressResponse, Is.EqualTo(getIPv4CurrentAddressResponse));

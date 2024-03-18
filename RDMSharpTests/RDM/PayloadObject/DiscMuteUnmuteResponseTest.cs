@@ -23,7 +23,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             DiscMuteUnmuteResponse resultDiscMute = DiscMuteUnmuteResponse.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { DiscMuteUnmuteResponse.FromPayloadData(data.ToList().Concat(new byte[2]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { DiscMuteUnmuteResponse.FromPayloadData(data.ToList().Concat(new byte[2]).ToArray()); });
 
             Assert.That(resultDiscMute, Is.EqualTo(discMute));
 

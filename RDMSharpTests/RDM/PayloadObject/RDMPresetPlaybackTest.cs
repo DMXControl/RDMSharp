@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             RDMPresetPlayback resultPresetPlayback = RDMPresetPlayback.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { RDMPresetPlayback.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMPresetPlayback.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultPresetPlayback, Is.EqualTo(presetPlayback));
 

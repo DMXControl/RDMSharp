@@ -96,17 +96,13 @@ namespace RDMSharp
 
         public static GetSetComponentScope FromMessage(RDMMessage msg)
         {
-            if (msg == null) throw new ArgumentNullException($"Argument {nameof(msg)} can't be null");
-            if (!msg.IsAck) throw new Exception($"NACK Reason: {(ERDM_NackReason)msg.ParameterData[0]}");
-            if (msg.Command != ERDM_Command.GET_COMMAND_RESPONSE) throw new Exception($"Command is not a {ERDM_Command.GET_COMMAND_RESPONSE}");
-            if (msg.Parameter != ERDM_Parameter.COMPONENT_SCOPE) return null;
-            if (msg.PDL != PDL) return null;
+            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.COMPONENT_SCOPE, PDL);
 
             return FromPayloadData(msg.ParameterData);
         }
         public static GetSetComponentScope FromPayloadData(byte[] data)
         {
-            if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
+            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
             var scopeSlot = Tools.DataToUShort(ref data);
             var scopeString = Tools.DataToString(ref data, 63).Replace("\u0000", "");
             var staticConfigType = Tools.DataToEnum<ERDM_StaticConfig>(ref data);

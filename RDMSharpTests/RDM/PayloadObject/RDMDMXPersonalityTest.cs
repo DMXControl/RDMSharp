@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             RDMDMXPersonality resultRdmDmxPersonality = RDMDMXPersonality.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { RDMDMXPersonality.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMDMXPersonality.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultRdmDmxPersonality, Is.EqualTo(rdmDmxPersonality));
             Assert.That(resultRdmDmxPersonality.MinIndex, Is.EqualTo(1));

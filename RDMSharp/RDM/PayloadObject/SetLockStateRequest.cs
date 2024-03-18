@@ -23,16 +23,13 @@ namespace RDMSharp
         }
         public static SetLockStateRequest FromMessage(RDMMessage msg)
         {
-            if (msg == null) throw new ArgumentNullException($"Argument {nameof(msg)} can't be null");
-            if (msg.Command != ERDM_Command.SET_COMMAND) return null;
-            if (msg.Parameter != ERDM_Parameter.LOCK_STATE) return null;
-            if (msg.PDL != PDL) return null;
+            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.SET_COMMAND, ERDM_Parameter.LOCK_STATE, PDL);
 
             return FromPayloadData(msg.ParameterData);
         }
         public static SetLockStateRequest FromPayloadData(byte[] data)
         {
-            if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
+            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
             var i = new SetLockStateRequest(
                 pinCode: Tools.DataToUShort(ref data),
                 lockStateId: Tools.DataToByte(ref data));

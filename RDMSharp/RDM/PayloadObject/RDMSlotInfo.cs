@@ -33,16 +33,13 @@ namespace RDMSharp
         }
         public static RDMSlotInfo FromMessage(RDMMessage msg)
         {
-            if (msg == null) throw new ArgumentNullException($"Argument {nameof(msg)} can't be null");
-            if (msg.Command != ERDM_Command.GET_COMMAND_RESPONSE) return null;
-            if (msg.Parameter != ERDM_Parameter.SLOT_INFO) return null;
-            if (msg.PDL != PDL) return null;
+            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.SLOT_INFO, PDL);
 
             return FromPayloadData(msg.ParameterData);
         }
         public static RDMSlotInfo FromPayloadData(byte[] data)
         {
-            if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
+            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
 
             var i = new RDMSlotInfo(
                 slotOffset: Tools.DataToUShort(ref data),

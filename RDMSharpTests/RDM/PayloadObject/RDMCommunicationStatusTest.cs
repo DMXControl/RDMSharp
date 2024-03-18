@@ -23,7 +23,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             RDMCommunicationStatus resultCommunicationStatus = RDMCommunicationStatus.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { RDMCommunicationStatus.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMCommunicationStatus.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultCommunicationStatus, Is.EqualTo(communicationStatus));
 

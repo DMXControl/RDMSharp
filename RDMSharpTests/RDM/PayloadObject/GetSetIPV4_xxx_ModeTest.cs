@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             GetSetIPV4_xxx_Mode resultGetSetDHCPMode = GetSetIPV4_xxx_Mode.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetSetIPV4_xxx_Mode.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetSetIPV4_xxx_Mode.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetSetDHCPMode, Is.EqualTo(getSetDHCPMode));
 

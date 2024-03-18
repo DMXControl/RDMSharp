@@ -23,7 +23,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             RDMDefaultSlotValue resultDefaultSlotValue = RDMDefaultSlotValue.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { RDMDefaultSlotValue.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMDefaultSlotValue.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultDefaultSlotValue, Is.EqualTo(defaultSlotValue));
 

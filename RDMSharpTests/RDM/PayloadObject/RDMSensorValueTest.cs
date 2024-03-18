@@ -23,7 +23,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             RDMSensorValue resultSensorValue = RDMSensorValue.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { RDMSensorValue.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMSensorValue.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultSensorValue, Is.EqualTo(sensorValue));
             Assert.That(resultSensorValue.MinIndex, Is.EqualTo(0));

@@ -30,6 +30,7 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             GetEndpointRespondersResponse resultGetEndpointRespondersResponse = GetEndpointRespondersResponse.FromMessage(message);
             Assert.Throws(typeof(Exception), () => { GetEndpointRespondersResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetEndpointRespondersResponse.FromPayloadData(data.ToList().Concat(new byte[220]).ToArray()); });
 
             Assert.That(resultGetEndpointRespondersResponse, Is.EqualTo(getEndpointRespondersResponse));
 

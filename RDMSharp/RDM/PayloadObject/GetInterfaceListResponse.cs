@@ -28,19 +28,13 @@ namespace RDMSharp
         }
         public static GetInterfaceListResponse FromMessage(RDMMessage msg)
         {
-            if (msg == null) throw new ArgumentNullException($"Argument {nameof(msg)} can't be null");
-            if (!msg.IsAck) throw new Exception($"NACK Reason: {(ERDM_NackReason)msg.ParameterData[0]}");
-            if (msg.Command != ERDM_Command.GET_COMMAND_RESPONSE) throw new Exception($"Command is not a {ERDM_Command.GET_COMMAND_RESPONSE}");
-            if (msg.Parameter != ERDM_Parameter.LIST_INTERFACES) return null;
-            if (msg.PDL < PDL_MIN) throw new Exception($"PDL {msg.PDL} < {PDL_MIN}");
-            if (msg.PDL > PDL_MAX) throw new Exception($"PDL {msg.PDL} > {PDL_MAX}");
+            RDMMessageInvalidException.ThrowIfInvalidPDLRange(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.LIST_INTERFACES, PDL_MIN, PDL_MAX);
 
             return FromPayloadData(msg.ParameterData);
         }
         public static GetInterfaceListResponse FromPayloadData(byte[] data)
         {
-            if (data.Length < PDL_MIN) throw new Exception($"PDL {data.Length} < {PDL_MIN}");
-            if (data.Length > PDL_MAX) throw new Exception($"PDL {data.Length} > {PDL_MAX}");
+            RDMMessageInvalidPDLException.ThrowIfInvalidPDLRange(data, PDL_MIN, PDL_MAX);
 
             List<InterfaceDescriptor> _interfaces = new List<InterfaceDescriptor>();
             int pdl = 6;
@@ -84,7 +78,7 @@ namespace RDMSharp
         }
         public static InterfaceDescriptor FromPayloadData(byte[] data)
         {
-            if (data.Length != PDL) throw new Exception($"PDL {data.Length} != {PDL}");
+            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
 
             var i = new InterfaceDescriptor(
                 interfaceId: Tools.DataToUInt(ref data),

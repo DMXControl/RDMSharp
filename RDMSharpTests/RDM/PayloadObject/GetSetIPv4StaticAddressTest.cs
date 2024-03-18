@@ -24,7 +24,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             GetSetIPv4StaticAddress resultGetSetIPv4StaticAddress = GetSetIPv4StaticAddress.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetSetIPv4StaticAddress.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetSetIPv4StaticAddress.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
             Assert.Throws(typeof(Exception), () => { new GetSetIPv4StaticAddress(1, IPAddress.Parse("2.0.0.1"), 33); });
 
             Assert.That(resultGetSetIPv4StaticAddress, Is.EqualTo(getSetIPv4StaticAddress));

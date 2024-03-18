@@ -49,17 +49,14 @@ namespace RDMSharp
         }
         public static DiscMuteUnmuteResponse FromMessage(RDMMessage msg)
         {
-            if (msg == null) throw new ArgumentNullException($"Argument {nameof(msg)} can't be null");
-            if (!msg.IsAck) throw new Exception($"NACK Reason: {(ERDM_NackReason)msg.ParameterData[0]}");
-            if (msg.Command != ERDM_Command.DISCOVERY_COMMAND_RESPONSE) throw new Exception($"Command is not a {ERDM_Command.DISCOVERY_COMMAND_RESPONSE}");
-            if (msg.Parameter != ERDM_Parameter.DISC_MUTE && msg.Parameter != ERDM_Parameter.DISC_UN_MUTE) return null;
-            if (msg.PDL != PDL && msg.PDL != PDLWithBindUID) return null;
+            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.DISCOVERY_COMMAND_RESPONSE, [ERDM_Parameter.DISC_MUTE, ERDM_Parameter.DISC_UN_MUTE], PDL, PDLWithBindUID);
 
             return FromPayloadData(msg.ParameterData);
         }
         public static DiscMuteUnmuteResponse FromPayloadData(byte[] data)
         {
-            if (data.Length != PDL && data.Length != PDLWithBindUID) throw new Exception($"PDL {data.Length} != {PDL} && {data.Length} != {PDLWithBindUID}");
+            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL, PDLWithBindUID);
+
             bool[] boolArray = Tools.DataToBoolArray(ref data, 16);
             RDMUID? rdmUID = null;
             if (data.Length == PDLWithBindUID - PDL)

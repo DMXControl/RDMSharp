@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             RDMModulationFrequency resultModulationFrequency = RDMModulationFrequency.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { RDMModulationFrequency.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMModulationFrequency.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultModulationFrequency, Is.EqualTo(modulationFrequency));
             Assert.That(resultModulationFrequency.IndexType, Is.EqualTo(typeof(byte)));

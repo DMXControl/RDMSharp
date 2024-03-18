@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             GetEndpointTimingResponse resultGetEndpointTimingResponse = GetEndpointTimingResponse.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetEndpointTimingResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetEndpointTimingResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetEndpointTimingResponse, Is.EqualTo(getEndpointTimingResponse));
             Assert.That(resultGetEndpointTimingResponse.EndpointId, Is.EqualTo(1));
@@ -47,7 +47,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             SetEndpointTimingRequest resultSetEndpointTimingRequest = SetEndpointTimingRequest.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { SetEndpointTimingRequest.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { SetEndpointTimingRequest.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultSetEndpointTimingRequest, Is.EqualTo(setEndpointTimingRequest));
             Assert.That(resultSetEndpointTimingRequest.Timings, Is.EqualTo(setEndpointTimingRequest.Timings));

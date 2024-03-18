@@ -22,7 +22,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             };
 
             GetSetEndpointBackgroundDiscovery resultGetSetEndpointBackgroundDiscovery = GetSetEndpointBackgroundDiscovery.FromMessage(message);
-            Assert.Throws(typeof(Exception), () => { GetSetEndpointBackgroundDiscovery.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetSetEndpointBackgroundDiscovery.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetSetEndpointBackgroundDiscovery, Is.EqualTo(getSetEndpointBackgroundDiscovery));
 
