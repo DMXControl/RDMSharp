@@ -58,7 +58,7 @@ namespace RDMSharp
 
         public override string ToString()
         {
-            return $"RDMRealTimeClock {Date.ToString("G")}";
+            return $"RDMRealTimeClock {Date:G}";
         }
         public static RDMRealTimeClock FromMessage(RDMMessage msg)
         {

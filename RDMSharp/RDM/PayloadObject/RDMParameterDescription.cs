@@ -56,9 +56,9 @@ namespace RDMSharp
             b.AppendLine($"{Description}:");
             b.AppendLine($"DataType: {DataType}");
             b.AppendLine($"CommandClass: {CommandClass}");
-            b.AppendLine($"MinValid: {Tools.GetNormalizedValue(this.Prefix, this.MinValidValue)}");
-            b.AppendLine($"MaxValid: {Tools.GetNormalizedValue(this.Prefix, this.MaxValidValue)}");
-            b.AppendLine($"Default: {Tools.GetNormalizedValue(this.Prefix, this.DefaultValue)}");
+            b.AppendLine($"MinValid: {this.Prefix.GetNormalizedValue(this.MinValidValue)}");
+            b.AppendLine($"MaxValid: {this.Prefix.GetNormalizedValue(this.MaxValidValue)}");
+            b.AppendLine($"Default: {this.Prefix.GetNormalizedValue(this.DefaultValue)}");
             b.AppendLine($"Unit: {Unit}");
             return b.ToString();
         }

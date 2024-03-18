@@ -23,211 +23,66 @@ namespace RDMSharp
             return hash;
         }
 
-        public static double GetNormalizedValue(in ERDM_UnitPrefix prefix, in int value)
+        public static double GetNormalizedValue(this ERDM_UnitPrefix prefix, in int value)
         {
-            switch (prefix)
+            UnitPrefixAttribute attr = null;
+            try
             {
-                case ERDM_UnitPrefix.DECI: return value * 1E-1;
-                case ERDM_UnitPrefix.CENTI: return value * 1E-2;
-                case ERDM_UnitPrefix.MILLI: return value * 1E-3;
-                case ERDM_UnitPrefix.MICRO: return value * 1E-6;
-                case ERDM_UnitPrefix.NANO: return value * 1E-9;
-                case ERDM_UnitPrefix.PICO: return value * 1E-12;
-                case ERDM_UnitPrefix.FEMPTO: return value * 1E-15;
-                case ERDM_UnitPrefix.ATTO: return value * 1E-18;
-                case ERDM_UnitPrefix.ZEPTO: return value * 1E-21;
-                case ERDM_UnitPrefix.YOCTO: return value * 1E-24;
-
-                case ERDM_UnitPrefix.DECA: return value * 1E1;
-                case ERDM_UnitPrefix.HECTO: return value * 1E2;
-                case ERDM_UnitPrefix.KILO: return value * 1E3;
-                case ERDM_UnitPrefix.MEGA: return value * 1E6;
-                case ERDM_UnitPrefix.GIGA: return value * 1E9;
-                case ERDM_UnitPrefix.TERRA: return value * 1E12;
-                case ERDM_UnitPrefix.PETA: return value * 1E15;
-                case ERDM_UnitPrefix.EXA: return value * 1E18;
-                case ERDM_UnitPrefix.ZETTA: return value * 1E21;
-                case ERDM_UnitPrefix.YOTTA: return value * 1E24;
-
-                case ERDM_UnitPrefix.NONE:
-                default:
-                    return value;
+                attr = prefix.GetAttribute<UnitPrefixAttribute>();
             }
+            catch
+            {
+            }
+            return value * (attr?.Multiplyer ?? 1);
         }
 
-        public static string GetUnitSymbol(in ERDM_SensorUnit unit)
+        public static string GetUnitSymbol(this ERDM_SensorUnit unit)
         {
-            switch (unit)
+            SensorUnitAttribute attr = null;
+            try
             {
-                case ERDM_SensorUnit.CENTIGRADE: return "°C";
-
-                case ERDM_SensorUnit.VOLTS_AC_RMS: return $"V{'\u1D63'}{'\u2098'}{'\u209B'}";
-                case ERDM_SensorUnit.VOLTS_AC_PEAK: return $"V{'\u209A'}";
-                case ERDM_SensorUnit.VOLTS_DC: return "V";
-
-                case ERDM_SensorUnit.AMPERE_AC_RMS: return $"A{'\u1D63'}{'\u2098'}{'\u209B'}";
-                case ERDM_SensorUnit.AMPERE_AC_PEAK: return $"A{'\u209A'}";
-                case ERDM_SensorUnit.AMPERE_DC: return "A";
-
-                case ERDM_SensorUnit.HERTZ: return "Hz";
-                case ERDM_SensorUnit.WATT: return "W";
-                case ERDM_SensorUnit.KILOGRAM: return "kg";
-                case ERDM_SensorUnit.METERS: return "m";
-                case ERDM_SensorUnit.METERS_SQUARED: return "m²";
-                case ERDM_SensorUnit.LUMEN: return "lm";
-                case ERDM_SensorUnit.CANDELA: return "cd";
-
-                case ERDM_SensorUnit.OHM: return "Ω";
-                case ERDM_SensorUnit.METERS_CUBED: return "m³";
-                case ERDM_SensorUnit.KILOGRAMMES_PER_METER_CUBED: return "kg/m³";
-                case ERDM_SensorUnit.METERS_PER_SECOND: return "m/s";
-                case ERDM_SensorUnit.METERS_PER_SECOND_SQUARED: return "m/s²";
-                case ERDM_SensorUnit.NEWTON: return "N";
-                case ERDM_SensorUnit.JOULE: return "J";
-                case ERDM_SensorUnit.PASCAL: return "Pa";
-                case ERDM_SensorUnit.SECOND: return "s";
-                case ERDM_SensorUnit.DEGREE: return "°";
-                case ERDM_SensorUnit.STERADIAN: return "sr";
-                case ERDM_SensorUnit.LUX: return "lx";
-                case ERDM_SensorUnit.IRE: return "IRE";
-                case ERDM_SensorUnit.BYTE: return "B";
-
-                case ERDM_SensorUnit.NONE:
-                default:
-                    return "";
+                attr = unit.GetAttribute<SensorUnitAttribute>();
             }
+            catch
+            {
+            }
+            return attr?.Unit ?? string.Empty;
         }
 
-        public static string GetStatusMessage(in ERDM_StatusMessage status, in short dataValue1 = 0, in short dataValue2 = 0)
+        public static string GetStatusMessage(this ERDM_StatusMessage status, in short dataValue1 = 0, in short dataValue2 = 0)
         {
-            switch (status)
+            StatusMessageAttribute attr = null;
+            try
             {
-                case ERDM_StatusMessage.CAL_FAIL:
-                    return $"{SlotLabelCode(dataValue1)} failed calibration.";
-                case ERDM_StatusMessage.SENS_NOT_FOUND:
-                    return $"{SlotLabelCode(dataValue1)} sensor not found.";
-                case ERDM_StatusMessage.SENS_ALWAYS_ON:
-                    return $"{SlotLabelCode(dataValue1)} sensor always on.";
-                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
-                case ERDM_StatusMessage.FEEDBACK_ERROR:
-                    return $"{SlotLabelCode(dataValue1)} feedback error.";
-                case ERDM_StatusMessage.INDEX_ERROR:
-                    return $"{SlotLabelCode(dataValue1)} index circuit error.";
-                #endregion
-
-                case ERDM_StatusMessage.LAMP_DOUSED:
-                    return "Lamp doused.";
-                case ERDM_StatusMessage.LAMP_STRIKE:
-                    return "Lamp failed to strike.";
-                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
-                case ERDM_StatusMessage.LAMP_ACCESS_OPEN:
-                    return "Lamp access open.";
-                case ERDM_StatusMessage.LAMP_ALWAYS_ON:
-                    return "Lamp on without command.";
-                #endregion
-
-                case ERDM_StatusMessage.OVERTEMP:
-                    return $"Sensor {DecimalNumber(dataValue1)} over temp at {DecimalNumber(dataValue2)} °C.";
-                case ERDM_StatusMessage.UNDERTEMP:
-                    return $"Sensor {DecimalNumber(dataValue1)} under temp at {DecimalNumber(dataValue2)} °C.";
-                case ERDM_StatusMessage.SENS_OUT_RANGE:
-                    return $"Sensor {DecimalNumber(dataValue1)} out of range.";
-
-                case ERDM_StatusMessage.OVERVOLTAGE_PHASE:
-                    return $"Phase {DecimalNumber(dataValue1)} over voltage at {DecimalNumber(dataValue2)} V.";
-                case ERDM_StatusMessage.UNDERVOLTAGE_PHASE:
-                    return $"Phase {DecimalNumber(dataValue1)} under voltage at {DecimalNumber(dataValue2)} V.";
-                case ERDM_StatusMessage.OVERCURRENT:
-                    return $"Phase {DecimalNumber(dataValue1)} over currnet at {DecimalNumber(dataValue2)} A.";
-                case ERDM_StatusMessage.UNDERCURRENT:
-                    return $"Phase {DecimalNumber(dataValue1)} under current at {DecimalNumber(dataValue2)} A.";
-                case ERDM_StatusMessage.PHASE:
-                    return $"Phase {DecimalNumber(dataValue1)} is at {DecimalNumber(dataValue2)} degrees.";
-                case ERDM_StatusMessage.PHASE_ERROR:
-                    return $"Phase {DecimalNumber(dataValue1)} Error.";
-                case ERDM_StatusMessage.AMPS:
-                    return $"{DecimalNumber(dataValue1)} A.";
-                case ERDM_StatusMessage.VOLTS:
-                    return $"{DecimalNumber(dataValue1)} V.";
-
-                case ERDM_StatusMessage.DIMSLOT_OCCUPIED:
-                    return "No Dimmer.";
-                case ERDM_StatusMessage.BREAKER_TRIP:
-                    return "Tripped Breaker.";
-                case ERDM_StatusMessage.WATTS:
-                    return $"{DecimalNumber(dataValue1)} W.";
-                case ERDM_StatusMessage.DIM_FAILURE:
-                    return "Dimmer Failure.";
-                case ERDM_StatusMessage.DIM_PANIC:
-                    return "Panic Mode.";
-                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
-                case ERDM_StatusMessage.LOAD_FAILURE:
-                    return "Lamp or cable failure.";
-                #endregion
-
-                case ERDM_StatusMessage.READY:
-                    return $"{SlotLabelCode(dataValue1)} ready.";
-                case ERDM_StatusMessage.NOT_READY:
-                    return $"{SlotLabelCode(dataValue1)} not ready.";
-                case ERDM_StatusMessage.LOW_FLUID:
-                    return $"{SlotLabelCode(dataValue1)} low fluid.";
-
-                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
-                case ERDM_StatusMessage.EEPROM_ERROR:
-                    return $"EEPROM error.";
-                case ERDM_StatusMessage.RAM_ERROR:
-                    return $"RAM error.";
-                case ERDM_StatusMessage.FPGA_ERROR:
-                    return $"FPGA programming error.";
-                #endregion
-
-                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
-                case ERDM_StatusMessage.PROXY_BROADCAST_DROPPED:
-                    ERDM_Parameter pid = (ERDM_Parameter)(ushort)DecimalNumber(dataValue1);
-                    return $"Proxy Drop: PID 0x{(ushort)pid:X4}({pid}) at Transaction Number {DecimalNumber(dataValue2)}.";
-                case ERDM_StatusMessage.ASC_RXOK:
-                    return $"DMX ASC {DecimalNumber(dataValue1)} received OK.";
-                case ERDM_StatusMessage.ASC_DROPPED:
-                    return $"DMX ASC {DecimalNumber(dataValue1)} received dropped.";
-                #endregion
-
-                #region https://tsp.esta.org/tsp/working_groups/CP/RDMextras.html Additions
-                case ERDM_StatusMessage.DMXNSCNONE:
-                    return $"DMX NSC never received.";
-                case ERDM_StatusMessage.DMXNSCLOSS:
-                    return $"DMX NSC received, now dropped.";
-                case ERDM_StatusMessage.DMXNSCERROR:
-                    return $"DMX NSC timing, or packet error.";
-                case ERDM_StatusMessage.DMXNSC_OK:
-                    return $"DMX NSC received OK.";
-                #endregion
-
-                default:
-                    return string.Empty;
+                attr = status.GetAttribute<StatusMessageAttribute>();
             }
-
-            //Local Functions
-            short DecimalNumber(short d) => d;
-            string SlotLabelCode(short s)
+            catch
             {
-                ERDM_SlotCategory sc = (ERDM_SlotCategory)(ushort)s;
-                return GetEnumDescription(sc);
             }
+            return attr?.GetFormatedString(dataValue1, dataValue2) ?? string.Empty;
         }
         public static string GetEnumDescription(Enum value)
         {
+            
             DescriptionAttribute attribute = null;
 
             if (value == null) { return ""; }
             try
             {
-                attribute = value.GetType()
-                        .GetField(value.ToString())
-                        ?.GetCustomAttributes(typeof(DescriptionAttribute), false)
-                        .SingleOrDefault() as DescriptionAttribute;
+                attribute = value.GetAttribute<DescriptionAttribute>();
             }
             catch { }
             return attribute?.Description ?? value.ToString();
+        }
+        public static TAttribute GetAttribute<TAttribute>(this Enum value)
+        where TAttribute : Attribute
+        {
+            var type = value.GetType();
+            var name = Enum.GetName(type, value);
+            return type.GetField(name) // I prefer to get attributes this way
+                .GetCustomAttributes(false)
+                .OfType<TAttribute>()
+                .SingleOrDefault();
         }
 
         public static byte[] ValueToData(params bool[] bits)

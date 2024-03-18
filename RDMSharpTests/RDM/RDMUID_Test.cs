@@ -92,39 +92,48 @@ namespace RDMSharpTests.RDM
         [Test]
         public void RDMUID_Remaining()
         {
-            Assert.That(RDMUID.Empty.Manufacturer, Is.EqualTo(EManufacturer.ESTA));
-            Assert.That(new RDMUID(EManufacturer.DMXControlProjects_eV, 1234567).Manufacturer, Is.EqualTo(EManufacturer.DMXControlProjects_eV));
+            Assert.Multiple(() =>
+            {
+                Assert.That(RDMUID.Empty.Manufacturer, Is.EqualTo(EManufacturer.ESTA));
+                Assert.That(new RDMUID(EManufacturer.DMXControlProjects_eV, 1234567).Manufacturer, Is.EqualTo(EManufacturer.DMXControlProjects_eV));
 
 
-            Assert.That(RDMUID.Empty.IsValidDeviceUID, Is.False);
-            Assert.That(new RDMUID(EManufacturer.ESTA, 122334).IsValidDeviceUID, Is.False);
-            Assert.That(RDMUID.Broadcast.IsValidDeviceUID, Is.False);
-            Assert.That(new RDMUID("0123:456789ab").IsValidDeviceUID, Is.True);
+                Assert.That(RDMUID.Empty.IsValidDeviceUID, Is.False);
+                Assert.That(new RDMUID(EManufacturer.ESTA, 122334).IsValidDeviceUID, Is.False);
+                Assert.That(RDMUID.Broadcast.IsValidDeviceUID, Is.False);
+                Assert.That(new RDMUID("0123:456789ab").IsValidDeviceUID, Is.True);
 
 
-            Assert.That((byte[])new RDMUID(EManufacturer.ESTA, 0x12345678), Is.EqualTo(new byte[] { 0x00, 0x00, 0x12, 0x34, 0x56, 0x78 }));
+                Assert.That((byte[])new RDMUID(EManufacturer.ESTA, 0x12345678), Is.EqualTo(new byte[] { 0x00, 0x00, 0x12, 0x34, 0x56, 0x78 }));
 
-            List<RDMUID> list = new List<RDMUID>();
-            list.Add(new RDMUID(0x1FFF, 0x00000031));
-            list.Add(new RDMUID(0x2FFF, 0x00000022));
-            list.Add(new RDMUID(0x3FFF, 0x00000013));
-            list.Add(new RDMUID(0x4FFF, 0x00000001));
-            list.Add(new RDMUID(0x4FFF, 0x00000002));
-            list.Add(new RDMUID(0x4FFF, 0x00000003));
-            list.Add(new RDMUID(0x0FFF, 0x00000001));
-            list.Add(new RDMUID(0x0FFF, 0x00000002));
-            list.Add(new RDMUID(0x0FFF, 0x00000003));
 
-            var orderd = list.OrderBy(uid => uid).ToArray();
-            Assert.That(orderd[0], Is.EqualTo(new RDMUID(0x0FFF, 0x00000001)));
-            Assert.That(orderd[1], Is.EqualTo(new RDMUID(0x0FFF, 0x00000002)));
-            Assert.That(orderd[2], Is.EqualTo(new RDMUID(0x0FFF, 0x00000003)));
-            Assert.That(orderd[3], Is.EqualTo(new RDMUID(0x1FFF, 0x00000031)));
-            Assert.That(orderd[4], Is.EqualTo(new RDMUID(0x2FFF, 0x00000022)));
-            Assert.That(orderd[5], Is.EqualTo(new RDMUID(0x3FFF, 0x00000013)));
-            Assert.That(orderd[6], Is.EqualTo(new RDMUID(0x4FFF, 0x00000001)));
-            Assert.That(orderd[7], Is.EqualTo(new RDMUID(0x4FFF, 0x00000002)));
-            Assert.That(orderd[8], Is.EqualTo(new RDMUID(0x4FFF, 0x00000003)));
+                List<RDMUID> list = new List<RDMUID>();
+                list.Add(new RDMUID(0x1FFF, 0x00000031));
+                list.Add(new RDMUID(0x2FFF, 0x00000022));
+                list.Add(new RDMUID(0x3FFF, 0x00000013));
+                list.Add(new RDMUID(0x4FFF, 0x00000001));
+                list.Add(new RDMUID(0x4FFF, 0x00000002));
+                list.Add(new RDMUID(0x4FFF, 0x00000003));
+                list.Add(new RDMUID(0x0FFF, 0x00000001));
+                list.Add(new RDMUID(0x0FFF, 0x00000002));
+                list.Add(new RDMUID(0x0FFF, 0x00000003));
+
+                var orderd = list.OrderBy(uid => uid).ToArray();
+                Assert.That(orderd[0], Is.EqualTo(new RDMUID(0x0FFF, 0x00000001)));
+                Assert.That(orderd[1], Is.EqualTo(new RDMUID(0x0FFF, 0x00000002)));
+                Assert.That(orderd[2], Is.EqualTo(new RDMUID(0x0FFF, 0x00000003)));
+                Assert.That(orderd[3], Is.EqualTo(new RDMUID(0x1FFF, 0x00000031)));
+                Assert.That(orderd[4], Is.EqualTo(new RDMUID(0x2FFF, 0x00000022)));
+                Assert.That(orderd[5], Is.EqualTo(new RDMUID(0x3FFF, 0x00000013)));
+                Assert.That(orderd[6], Is.EqualTo(new RDMUID(0x4FFF, 0x00000001)));
+                Assert.That(orderd[7], Is.EqualTo(new RDMUID(0x4FFF, 0x00000002)));
+                Assert.That(orderd[8], Is.EqualTo(new RDMUID(0x4FFF, 0x00000003)));
+
+
+                Assert.That(new RDMUID(10, 1) * 2, Is.EqualTo(new RDMUID(20, 2)));
+                Assert.That(new RDMUID(10, 1) * 3, Is.EqualTo(new RDMUID(30, 3)));
+                Assert.That(new RDMUID(10, 1) * 4, Is.EqualTo(new RDMUID(40, 4)));
+            });
         }
     }
 }

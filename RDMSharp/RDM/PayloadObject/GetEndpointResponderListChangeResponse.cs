@@ -18,7 +18,7 @@ namespace RDMSharp
 
         public override string ToString()
         {
-            return $"Endpoint: {EndpointId} Responder ListChangeNumber: {ListChangeNumber.ToString("X")}";
+            return $"Endpoint: {EndpointId} Responder ListChangeNumber: {ListChangeNumber:X}";
         }
 
         public static GetEndpointResponderListChangeResponse FromMessage(RDMMessage msg)

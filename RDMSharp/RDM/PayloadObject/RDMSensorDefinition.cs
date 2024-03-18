@@ -58,17 +58,17 @@ namespace RDMSharp
 
         public override string ToString()
         {
-            string _unit = Tools.GetUnitSymbol(Unit);
+            string _unit = Unit.GetUnitSymbol();
             StringBuilder b = new StringBuilder();
             b.AppendLine("RDMSensorDefinition");
             b.AppendLine($"SensorId:                    {SensorId}");
             b.AppendLine($"Type:                        {Type}");
             b.AppendLine($"Unit:                        {Unit}({_unit})");
             b.AppendLine($"Prefix:                      {Prefix}");
-            b.AppendLine($"RangeMinimum:                {Tools.GetNormalizedValue(Prefix, RangeMinimum)}{_unit}");
-            b.AppendLine($"RangeMaximum:                {Tools.GetNormalizedValue(Prefix, RangeMaximum)}{_unit}");
-            b.AppendLine($"NormalMinimum:               {Tools.GetNormalizedValue(Prefix, NormalMinimum)}{_unit}");
-            b.AppendLine($"NormalMaximum:               {Tools.GetNormalizedValue(Prefix, NormalMaximum)}{_unit}");
+            b.AppendLine($"RangeMinimum:                {Prefix.GetNormalizedValue(RangeMinimum)}{_unit}");
+            b.AppendLine($"RangeMaximum:                {Prefix.GetNormalizedValue(RangeMaximum)}{_unit}");
+            b.AppendLine($"NormalMinimum:               {Prefix.GetNormalizedValue(NormalMinimum)}{_unit}");
+            b.AppendLine($"NormalMaximum:               {Prefix.GetNormalizedValue(NormalMaximum)}{_unit}");
             b.AppendLine($"LowestHighestValueSupported: {LowestHighestValueSupported}");
             b.AppendLine($"RecordedValueSupported:      {RecordedValueSupported}");
             b.AppendLine($"Description:                 {Description}");

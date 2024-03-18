@@ -20,7 +20,7 @@ namespace RDMSharpTests
                 short val1 = 1;
                 if (e == ERDM_StatusMessage.PROXY_BROADCAST_DROPPED)
                     val1 = unchecked((short)(ushort)ERDM_Parameter.DIMMING_CURVE);
-                string str = Tools.GetStatusMessage(e, val1, 120);
+                string str = e.GetStatusMessage(val1, 120);
                 Console.WriteLine($"{e} => {str}");
                 if (e == 0)
                 {
@@ -40,7 +40,7 @@ namespace RDMSharpTests
             var enums = Enum.GetValues(typeof(ERDM_SensorUnit));
             foreach (ERDM_SensorUnit e in enums)
             {
-                string str = Tools.GetUnitSymbol(e);
+                string str = e.GetUnitSymbol();
                 Console.WriteLine($"{e} => \'{str}\'");
                 if (e == ERDM_SensorUnit.NONE)
                     Assert.That(String.IsNullOrWhiteSpace(str), Is.True, e.ToString());
@@ -58,7 +58,7 @@ namespace RDMSharpTests
             foreach (ERDM_UnitPrefix e in enums)
             {
                 short val = 1;
-                var ret = Tools.GetNormalizedValue(e, val);
+                var ret = e.GetNormalizedValue(val);
                 Console.WriteLine($"{e} => {ret}");
                 if (e == ERDM_UnitPrefix.NONE)
                     Assert.That(val, Is.EqualTo(ret), e.ToString());

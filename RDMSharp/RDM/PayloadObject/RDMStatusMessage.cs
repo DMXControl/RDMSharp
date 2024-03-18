@@ -26,7 +26,7 @@ namespace RDMSharp
         public short DataValue1 { get; private set; }
         public short DataValue2 { get; private set; }
         public const int PDL = 9;
-        public string FormatedString => Tools.GetStatusMessage(StatusMessage, DataValue1, DataValue2);
+        public string FormatedString => StatusMessage.GetStatusMessage(DataValue1, DataValue2);
 
         public override string ToString()
         {
