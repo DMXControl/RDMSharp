@@ -11,8 +11,8 @@ namespace RDMSharp
 {
     public abstract class AbstractRDMDevice : IRDMDevice
     {
-        private static Random random = new Random();
-        private protected static ILogger Logger = null;
+        private static readonly Random random = new Random();
+        private protected static readonly ILogger Logger = null;
         private protected static RDMParameterWrapperCatalogueManager pmManager => RDMParameterWrapperCatalogueManager.GetInstance();
         private protected static DeviceInfoParameterWrapper deviceInfoParameterWrapper => (DeviceInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.DEVICE_INFO);
         private protected static SensorValueParameterWrapper sensorValueParameterWrapper => (SensorValueParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SENSOR_VALUE);
@@ -21,7 +21,7 @@ namespace RDMSharp
         private protected static SlotDescriptionParameterWrapper slotDescriptionParameterWrapper => (SlotDescriptionParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SLOT_DESCRIPTION);
         private protected static StatusMessageParameterWrapper statusMessageParameterWrapper => (StatusMessageParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.STATUS_MESSAGES);
 
-        private AsyncRDMRequestHelper asyncRDMRequestHelper;
+        private readonly AsyncRDMRequestHelper asyncRDMRequestHelper;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -35,17 +35,17 @@ namespace RDMSharp
         private RDMDeviceModel deviceModel;
         public RDMDeviceModel DeviceModel => deviceModel;
 
-        private ConcurrentDictionary<ERDM_Parameter, object> parameterValues = new ConcurrentDictionary<ERDM_Parameter, object>();
+        private readonly ConcurrentDictionary<ERDM_Parameter, object> parameterValues = new ConcurrentDictionary<ERDM_Parameter, object>();
         public IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues => parameterValues.AsReadOnly();
-        private HashSet<ERDM_Parameter> pendingParametersUpdateRequest = new HashSet<ERDM_Parameter>();
+        private readonly HashSet<ERDM_Parameter> pendingParametersUpdateRequest = new HashSet<ERDM_Parameter>();
 
-        private ConcurrentDictionary<byte, RDMSensorValue> sensorValues = new ConcurrentDictionary<byte, RDMSensorValue>();
+        private readonly ConcurrentDictionary<byte, RDMSensorValue> sensorValues = new ConcurrentDictionary<byte, RDMSensorValue>();
         public IReadOnlyDictionary<byte, RDMSensorValue> SensorValues => sensorValues.AsReadOnly();
-        private HashSet<byte> pendingSensorValuesUpdateRequest = new HashSet<byte>();
+        private readonly HashSet<byte> pendingSensorValuesUpdateRequest = new HashSet<byte>();
 
         private ConcurrentDictionary<ushort, Slot> slots = new ConcurrentDictionary<ushort, Slot>();
         public IReadOnlyDictionary<ushort, Slot> Slots => slots.AsReadOnly();
-        private HashSet<ushort> pendingSlotDescriptionsUpdateRequest = new HashSet<ushort>();
+        private readonly HashSet<ushort> pendingSlotDescriptionsUpdateRequest = new HashSet<ushort>();
 
         public bool IsDisposing { get; private set; }
 
@@ -198,29 +198,35 @@ namespace RDMSharp
                     {
                         case ERDM_Parameter.DISC_MUTE:
                             DiscoveryMuted = true;
-                            response = new RDMMessage();
-                            response.Parameter = ERDM_Parameter.DISC_MUTE;
-                            response.Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE;
-                            response.SourceUID = UID;
-                            response.DestUID = rdmMessage.SourceUID;
-                            response.ParameterData = new DiscMuteUnmuteResponse().ToPayloadData();
+                            response = new RDMMessage
+                            {
+                                Parameter = ERDM_Parameter.DISC_MUTE,
+                                Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE,
+                                SourceUID = UID,
+                                DestUID = rdmMessage.SourceUID,
+                                ParameterData = new DiscMuteUnmuteResponse().ToPayloadData()
+                            };
                             return rdmMessage.DestUID != RDMUID.Broadcast ? response : null;
                         case ERDM_Parameter.DISC_UN_MUTE:
                             DiscoveryMuted = false;
-                            response = new RDMMessage();
-                            response.Parameter = ERDM_Parameter.DISC_UN_MUTE;
-                            response.Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE;
-                            response.SourceUID = UID;
-                            response.DestUID = rdmMessage.SourceUID;
-                            response.ParameterData = new DiscMuteUnmuteResponse().ToPayloadData();
+                            response = new RDMMessage
+                            {
+                                Parameter = ERDM_Parameter.DISC_UN_MUTE,
+                                Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE,
+                                SourceUID = UID,
+                                DestUID = rdmMessage.SourceUID,
+                                ParameterData = new DiscMuteUnmuteResponse().ToPayloadData()
+                            };
                             return rdmMessage.DestUID != RDMUID.Broadcast ? response : null;
                         case ERDM_Parameter.DISC_UNIQUE_BRANCH when !DiscoveryMuted && rdmMessage.Value is DiscUniqueBranchRequest discUniqueBranchRequest:
                             if (UID >= discUniqueBranchRequest.StartUid && UID <= discUniqueBranchRequest.EndUid)
                             {
-                                response = new RDMMessage();
-                                response.Parameter = ERDM_Parameter.DISC_UNIQUE_BRANCH;
-                                response.Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE;
-                                response.SourceUID = UID;
+                                response = new RDMMessage
+                                {
+                                    Parameter = ERDM_Parameter.DISC_UNIQUE_BRANCH,
+                                    Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE,
+                                    SourceUID = UID
+                                };
                                 return response;
                             }
                             return null;
@@ -228,10 +234,10 @@ namespace RDMSharp
                 }
                 if (rdmMessage.Command == ERDM_Command.GET_COMMAND)
                 {
-                    object responseValue = null;
                     ConcurrentDictionary<object, object> list = null;
+                    object value = null;
                     object index = null;
-                    parameterValues.TryGetValue(rdmMessage.Parameter, out responseValue);
+                    parameterValues.TryGetValue(rdmMessage.Parameter, out object responseValue);
                     switch (pm)
                     {
                         case DeviceInfoParameterWrapper _deviceInfoParameterWrapper:
@@ -249,8 +255,8 @@ namespace RDMSharp
                             break;
                         case SlotInfoParameterWrapper slotInfoParameterWrapper:
                             list = null;
-                            if (parameterValues.ContainsKey(rdmMessage.Parameter))
-                                list = parameterValues[rdmMessage.Parameter] as ConcurrentDictionary<object, object>;
+                            if (parameterValues.TryGetValue(rdmMessage.Parameter, out value))
+                                list = value as ConcurrentDictionary<object, object>;
 
                             if (list == null)
                                 break;
@@ -260,8 +266,8 @@ namespace RDMSharp
                             break;
                         case DefaultSlotValueParameterWrapper defaultSlotValueParameterWrapper:
                             list = null;
-                            if (parameterValues.ContainsKey(rdmMessage.Parameter))
-                                list = parameterValues[rdmMessage.Parameter] as ConcurrentDictionary<object, object>;
+                            if (parameterValues.TryGetValue(rdmMessage.Parameter, out value))
+                                list = value as ConcurrentDictionary<object, object>;
 
                             if (list == null)
                                 break;
@@ -276,8 +282,8 @@ namespace RDMSharp
                                 break;
 
                             list = null;
-                            if (parameterValues.ContainsKey(rdmMessage.Parameter))
-                                list = parameterValues[rdmMessage.Parameter] as ConcurrentDictionary<object, object>;
+                            if (parameterValues.TryGetValue(rdmMessage.Parameter, out value))
+                                list = value as ConcurrentDictionary<object, object>;
 
                             if (list == null && !IsGenerated)
                                 parameterValues[rdmMessage.Parameter] = DeviceModel.ParameterValues[rdmMessage.Parameter];
@@ -459,8 +465,8 @@ namespace RDMSharp
 
             if (rdmMessage.DestUID.IsBroadcast) // no Response on Broadcast
                 return null;
-            if (response == null)
-                response = new RDMMessage(ERDM_NackReason.UNKNOWN_PID) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
+
+            response ??= new RDMMessage(ERDM_NackReason.UNKNOWN_PID) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
 
             response.TransactionCounter = rdmMessage.TransactionCounter;
             response.SourceUID = rdmMessage.DestUID;
@@ -503,7 +509,7 @@ namespace RDMSharp
             }
             catch (Exception ex)
             {
-                Logger?.LogError(string.Empty, ex);
+                Logger?.LogError(ex);
             }
             if (value == null)
                 return;
@@ -511,7 +517,7 @@ namespace RDMSharp
             switch (pm)
             {
                 case DeviceInfoParameterWrapper _deviceInfoParameterWrapper:
-                    if (!(rdmMessage.Value is RDMDeviceInfo deviceInfo))
+                    if (rdmMessage.Value is not RDMDeviceInfo deviceInfo)
                         break;
 
                     DeviceInfo = deviceInfo;
@@ -531,7 +537,7 @@ namespace RDMSharp
                     break;
 
                 case SlotDescriptionParameterWrapper _slotDescriptionParameterWrapper:
-                    if (!(value is RDMSlotDescription description))
+                    if (value is not RDMSlotDescription description)
                     {
                         if (value != null)
                             Logger?.LogError($"The response does not contain the expected data {typeof(RDMSlotDescription)}!{Environment.NewLine}{rdmMessage}");
@@ -541,8 +547,8 @@ namespace RDMSharp
                     }
 
 
-                    if (parameterValues.ContainsKey(rdmMessage.Parameter))
-                        list = parameterValues[rdmMessage.Parameter] as ConcurrentDictionary<object, object>;
+                    if (parameterValues.TryGetValue(rdmMessage.Parameter, out value))
+                        list = value as ConcurrentDictionary<object, object>;
                     if (list == null)
                         parameterValues[rdmMessage.Parameter] = list = new ConcurrentDictionary<object, object>();
                     list.AddOrUpdate(description.SlotId, description, (e, f) => description);
@@ -557,7 +563,7 @@ namespace RDMSharp
                     break;
 
                 case SlotInfoParameterWrapper _slotInfoParameterWrapper:
-                    if (!(value is RDMSlotInfo[] slotInfos))
+                    if (value is not RDMSlotInfo[] slotInfos)
                     {
                         if (rdmMessage.NackReason.Contains(ERDM_NackReason.ACTION_NOT_SUPPORTED))
                             this.slots = null; //Set to null, to Deactivate this UpdateSlotInfo
@@ -566,8 +572,8 @@ namespace RDMSharp
                         return;
                     }
 
-                    if (parameterValues.ContainsKey(rdmMessage.Parameter))
-                        list = parameterValues[rdmMessage.Parameter] as ConcurrentDictionary<object, object>;
+                    if (parameterValues.TryGetValue(rdmMessage.Parameter, out value))
+                        list = value as ConcurrentDictionary<object, object>;
                     if (list == null)
                         parameterValues[rdmMessage.Parameter] = list = new ConcurrentDictionary<object, object>();
 
@@ -575,8 +581,7 @@ namespace RDMSharp
                     {
                         list.AddOrUpdate(info.SlotOffset, info, (e, f) => info);
 
-                        Slot slot1;
-                        if (!slots.TryGetValue(info.SlotOffset, out slot1))
+                        if (!slots.TryGetValue(info.SlotOffset, out Slot slot1))
                         {
                             slot1 = new Slot(info.SlotOffset);
                             slots.TryAdd(info.SlotOffset, slot1);
@@ -587,23 +592,22 @@ namespace RDMSharp
                     break;
 
                 case DefaultSlotValueParameterWrapper _defaultSlotValueParameterWrapper:
-                    if (!(value is RDMDefaultSlotValue[] defaultSlotValues))
+                    if (value is not RDMDefaultSlotValue[] defaultSlotValues)
                     {
                         Logger?.LogError($"The response does not contain the expected data {typeof(RDMDefaultSlotValue[])}!{Environment.NewLine}{rdmMessage}");
                         return;
                     }
 
 
-                    if (parameterValues.ContainsKey(rdmMessage.Parameter))
-                        list = parameterValues[rdmMessage.Parameter] as ConcurrentDictionary<object, object>;
+                    if (parameterValues.TryGetValue(rdmMessage.Parameter, out value))
+                        list = value as ConcurrentDictionary<object, object>;
                     if (list == null)
                         parameterValues[rdmMessage.Parameter] = list = new ConcurrentDictionary<object, object>();
 
                     foreach (RDMDefaultSlotValue info in defaultSlotValues)
                     {
                         list.AddOrUpdate(info.SlotOffset, info, (e, f) => info);
-                        Slot slot1;
-                        if (!slots.TryGetValue(info.SlotOffset, out slot1))
+                        if (!slots.TryGetValue(info.SlotOffset, out Slot slot1))
                         {
                             slot1 = new Slot(info.SlotOffset);
                             slots.TryAdd(info.SlotOffset, slot1);
@@ -613,7 +617,7 @@ namespace RDMSharp
                     this.OnPropertyChanged(nameof(this.Slots));
                     break;
                 case SensorDefinitionParameterWrapper _sensorDefinitionParameterWrapper:
-                    if (!(value is RDMSensorValue sensorValue))
+                    if (value is not RDMSensorValue sensorValue)
                     {
                         if (value != null)
                             Logger?.LogError($"The response does not contain the expected data {typeof(RDMSensorValue)}!{Environment.NewLine}{rdmMessage}");
@@ -693,8 +697,7 @@ namespace RDMSharp
             if (pm == null && Enum.IsDefined(typeof(ERDM_Parameter), parameterId))
                 return;
 
-            if (pm == null)
-                pm = deviceModel.GetRDMParameterWrapperByID((ushort)parameterId);
+            pm ??= deviceModel.GetRDMParameterWrapperByID((ushort)parameterId);
             if (pm == null)
             {
                 Logger?.LogDebug("Not Implemented Parameter");
@@ -959,6 +962,7 @@ namespace RDMSharp
             else
                 return this.ParameterValues;
         }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1816:Dispose-Methoden müssen SuppressFinalize aufrufen", Justification = "<Ausstehend>")]
         public void Dispose()
         {
             if (IsDisposing || IsDisposed)

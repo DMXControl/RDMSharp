@@ -4,6 +4,7 @@ namespace RDMSharpTests.RDM.Devices
 {
     public class TestRDMDiscovery
     {
+        private static readonly Random random = new Random();
         private readonly List<MockGeneratedDevice1> mockDevices = new List<MockGeneratedDevice1>();
         private MockDiscoveryTool? mockDiscoveryTool;
         private List<RDMUID>? expected;
@@ -14,7 +15,7 @@ namespace RDMSharpTests.RDM.Devices
         }
         [TearDown] public void Teardown()
         {
-            foreach (var m in mockDevices)
+            foreach (IDisposable m in mockDevices)
                 m.Dispose();
 
             mockDevices.Clear();
@@ -127,7 +128,6 @@ namespace RDMSharpTests.RDM.Devices
         [Test]
         public async Task TestDiscovery4()
         {
-            Random random = new Random();
             HashSet<uint> ids=new HashSet<uint>();
             for (int i = 0; i < 150; i++)
             {

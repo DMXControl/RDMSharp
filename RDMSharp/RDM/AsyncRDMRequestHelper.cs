@@ -89,7 +89,7 @@ namespace RDMSharp
             }
             catch (Exception ex)
             {
-                Logger?.LogError(string.Empty, ex);
+                Logger?.LogError(ex);
             }
             return new RequestResult(requerst);
         }

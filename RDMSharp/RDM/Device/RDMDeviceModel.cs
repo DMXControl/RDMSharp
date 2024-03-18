@@ -15,8 +15,7 @@ namespace RDMSharp
         public static IReadOnlyCollection<RDMDeviceModel> KnownDeviceModels => knownDeviceModels.Values.ToList();
         internal static RDMDeviceModel getDeviceModel(RDMUID uid, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
         {
-            if (knownDeviceModels == null)
-                knownDeviceModels = new ConcurrentDictionary<int, RDMDeviceModel>();
+            knownDeviceModels ??= new ConcurrentDictionary<int, RDMDeviceModel>();
             var kdm = knownDeviceModels.Values.FirstOrDefault(dm => dm.IsModelOf(uid, deviceInfo));
             if (kdm == null)
             {
@@ -28,7 +27,7 @@ namespace RDMSharp
 
         }
 
-        private static Random random = new Random();
+        private static readonly Random random = new Random();
         private static RDMParameterWrapperCatalogueManager pmManager => RDMParameterWrapperCatalogueManager.GetInstance();
         private static DeviceInfoParameterWrapper deviceInfoParameterWrapper => (DeviceInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.DEVICE_INFO);
         private static SupportedParametersParameterWrapper supportedParametersParameterWrapper => (SupportedParametersParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SUPPORTED_PARAMETERS);
@@ -41,9 +40,9 @@ namespace RDMSharp
         public event EventHandler Initialized;
         public bool IsInitialized { get; private set; } = false;
 
-        private AsyncRDMRequestHelper asyncRDMRequestHelper;
+        private readonly AsyncRDMRequestHelper asyncRDMRequestHelper;
 
-        private ConcurrentDictionary<ushort, IRDMParameterWrapper> manufacturerParameter = new ConcurrentDictionary<ushort, IRDMParameterWrapper>();
+        private readonly ConcurrentDictionary<ushort, IRDMParameterWrapper> manufacturerParameter = new ConcurrentDictionary<ushort, IRDMParameterWrapper>();
 
 
 
@@ -55,7 +54,7 @@ namespace RDMSharp
 
         public RDMDeviceInfo DeviceInfo
         {
-            get { return this.parameterValues.ContainsKey(ERDM_Parameter.DEVICE_INFO) ? this.parameterValues[ERDM_Parameter.DEVICE_INFO] as RDMDeviceInfo : null; }
+            get { return parameterValues.TryGetValue(ERDM_Parameter.DEVICE_INFO, out object value) ? value as RDMDeviceInfo : null; }
             private set
             {
                 if (this.DeviceInfo == value)
@@ -77,7 +76,7 @@ namespace RDMSharp
         }
         public IReadOnlyCollection<ERDM_Parameter> SupportedNonBlueprintParameters
         {
-            get { return this.SupportedParameters.Where(p => !(pmManager.GetRDMParameterWrapperByID(p) is IRDMBlueprintParameterWrapper)).ToArray().AsReadOnly(); }
+            get { return this.SupportedParameters.Where(p => pmManager.GetRDMParameterWrapperByID(p) is not IRDMBlueprintParameterWrapper).ToArray().AsReadOnly(); }
         }
 
         public IReadOnlyCollection<ERDM_Parameter> KnownNotSupportedParameters
@@ -131,7 +130,7 @@ namespace RDMSharp
                 //    continue;
                 //}
 
-                if (!(pw is IRDMBlueprintParameterWrapper))
+                if (pw is not IRDMBlueprintParameterWrapper)
                     continue;
 
                 if (pw is IRDMBlueprintDescriptionListParameterWrapper blueprintDL)
@@ -201,7 +200,7 @@ namespace RDMSharp
             switch (pw)
             {
                 case SupportedParametersParameterWrapper _supportedParameters:
-                    if (!(rdmMessage.Value is ERDM_Parameter[] parameters))
+                    if (rdmMessage.Value is not ERDM_Parameter[] parameters)
                         break;
 
                     foreach (var para in parameters)
@@ -248,8 +247,8 @@ namespace RDMSharp
 
                 case IRDMBlueprintDescriptionListParameterWrapper blueprintDL:
                     ConcurrentDictionary<object, object> list = null;
-                    if (parameterValues.ContainsKey(rdmMessage.Parameter))
-                        list = parameterValues[rdmMessage.Parameter] as ConcurrentDictionary<object, object>;
+                    if (parameterValues.TryGetValue(rdmMessage.Parameter, out object value))
+                        list = value as ConcurrentDictionary<object, object>;
 
                     if (list == null)
                         parameterValues[rdmMessage.Parameter] = list = new ConcurrentDictionary<object, object>();
@@ -342,11 +341,11 @@ namespace RDMSharp
         {
             try
             {
-                if (!this.parameterValues.ContainsKey(ERDM_Parameter.SENSOR_DEFINITION))
-                    return new RDMSensorDefinition[0];
+                if (!parameterValues.TryGetValue(ERDM_Parameter.SENSOR_DEFINITION, out object value))
+                    return Array.Empty<RDMSensorDefinition>();
                 else
                 {
-                    var definitions = this.parameterValues[ERDM_Parameter.SENSOR_DEFINITION] as HashSet<object>;
+                    var definitions = value as HashSet<object>;
                     return definitions.Cast<RDMSensorDefinition>().ToArray();
                 }
             }
@@ -354,7 +353,7 @@ namespace RDMSharp
             {
 
             }
-            return new RDMSensorDefinition[0];
+            return Array.Empty<RDMSensorDefinition>();
         }
 
         public IRDMParameterWrapper GetRDMParameterWrapperByID(ushort parameter)

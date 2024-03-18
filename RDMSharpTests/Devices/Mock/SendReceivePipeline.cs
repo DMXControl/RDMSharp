@@ -2,7 +2,7 @@
 {
     internal static class SendReceivePipeline
     {
-        private static Random Random = new Random();
+        private static readonly Random Random = new Random();
         public static long GetNewIdentifyer()
         {
             return Random.NextInt64();

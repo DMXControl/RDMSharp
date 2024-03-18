@@ -93,7 +93,7 @@ namespace RDMSharp
             rangeToSearch = (ulong)(RDMUID.Broadcast - 1) - sumDelta;
             UpdateReport();
 
-            bool areRangesOverlapping(RDMUID start1, RDMUID end1, RDMUID start2, RDMUID end2)
+            static bool areRangesOverlapping(RDMUID start1, RDMUID end1, RDMUID start2, RDMUID end2)
             {
                 if (start1 <= end2 && end1 >= start2)// Check for overlap
                     return true;

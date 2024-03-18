@@ -4,6 +4,7 @@ namespace RDMSharpTests
 {
     public class TestManyObjects
     {
+        private static readonly Random rnd = new Random();
         [SetUp]
         public void Setup()
         {
@@ -65,7 +66,7 @@ namespace RDMSharpTests
                     Assert.That(prev.Equals((object)sd), Is.False);
                     Assert.That(prev.Equals(null), Is.False);
 
-                    if (!(prev.Value.IsRoot || prev.Value.IsBroadcast || sd.IsRoot || sd.IsBroadcast))
+                    if (!(prev!.Value.IsRoot || prev.Value.IsBroadcast || sd.IsRoot || sd.IsBroadcast))
                     {
                         Assert.That(prev <= sd, Is.True);
                         Assert.That(sd >= prev, Is.True);
@@ -91,7 +92,6 @@ namespace RDMSharpTests
                 }
                 for (ushort i = 0; i < 1000; i++)
                 {
-                    Random rnd = new Random();
                     ushort id = (ushort)rnd.Next((ushort)0x0201, (ushort)(0xFFFF - 1));
                     Assert.Throws(typeof(ArgumentOutOfRangeException), () => new SubDevice(id));
                 }

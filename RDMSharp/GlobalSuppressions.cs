@@ -14,4 +14,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Style", "IDE0057:Bereichsoperator verwenden", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "~N:RDMSharp")]
 [assembly: SuppressMessage("Style", "IDE0290:Primären Konstruktor verwenden", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "~N:RDMSharp")]
 [assembly: SuppressMessage("Style", "IDE1006:Benennungsstile", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "~N:RDMSharp")]
-
+[assembly: SuppressMessage("Usage", "CA2254:Vorlage muss ein statischer Ausdruck sein", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "~N:RDMSharp")]
