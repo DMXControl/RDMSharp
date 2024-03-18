@@ -1,50 +1,60 @@
-﻿namespace RDMSharpTest.RDM
+﻿namespace RDMSharpTests.RDM
 {
     public class RDMMessageTest
     {
         [Test]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
         public void RDMMessageParameterData_Exception()
         {
             RDMMessage? m = new RDMMessage();
 
-            Assert.That(m.ParameterData.Length, Is.EqualTo(0));
-            Assert.That(m.PDL, Is.EqualTo(0));
-            Assert.That(m.MessageLength, Is.EqualTo(24));
+            Assert.Multiple(() =>
+            {
+                Assert.That(m.ParameterData, Is.Empty);
+                Assert.That(m.PDL, Is.EqualTo(0));
+                Assert.That(m.MessageLength, Is.EqualTo(24));
 
-            m.ParameterData = new byte[5];
-            Assert.That(m.ParameterData.Length, Is.EqualTo(5));
-            Assert.That(m.PDL, Is.EqualTo(5));
-            Assert.That(m.MessageLength, Is.EqualTo(29));
+                m.ParameterData = new byte[5];
+                Assert.That(m.ParameterData, Has.Length.EqualTo(5));
+                Assert.That(m.PDL, Is.EqualTo(5));
+                Assert.That(m.MessageLength, Is.EqualTo(29));
 
-            m.ParameterData = new byte[231];
-            Assert.That(m.ParameterData.Length, Is.EqualTo(231));
-            Assert.That(m.PDL, Is.EqualTo(231));
-            Assert.That(m.MessageLength, Is.EqualTo(255));
+                m.ParameterData = new byte[231];
+                Assert.That(m.ParameterData, Has.Length.EqualTo(231));
+                Assert.That(m.PDL, Is.EqualTo(231));
+                Assert.That(m.MessageLength, Is.EqualTo(255));
 
-            Assert.Throws<ArgumentException>(() => m.ParameterData = new byte[232]);
+                Assert.Throws<ArgumentException>(() => m.ParameterData = new byte[232]);
 
-            m = new RDMMessage();
-            m.Parameter = ERDM_Parameter.DISC_UNIQUE_BRANCH;
-            m.Command = ERDM_Command.DISCOVERY_COMMAND;
-            m.ParameterData = new DiscUniqueBranchRequest(RDMUID.Empty, RDMUID.Broadcast-1).ToPayloadData();
+                m = new RDMMessage
+                {
+                    Parameter = ERDM_Parameter.DISC_UNIQUE_BRANCH,
+                    Command = ERDM_Command.DISCOVERY_COMMAND,
+                    ParameterData = new DiscUniqueBranchRequest(RDMUID.Empty, RDMUID.Broadcast - 1).ToPayloadData()
+                };
 
-            Assert.That(m.Equals(m), Is.True);
-            Assert.That(m.Equals((object)m), Is.True);
-            Assert.That(m.GetHashCode(), Is.EqualTo(m!.GetHashCode()));
-            var m2 = new RDMMessage(m.BuildMessage());
-            Assert.That(m2, Is.EqualTo(m));
-            Assert.That(m2.GetHashCode(), Is.EqualTo(m.GetHashCode()));
+                Assert.That(m.Equals(m), Is.True);
+                Assert.That(m.Equals((object)m), Is.True);
+                Assert.That(m.GetHashCode(), Is.EqualTo(m!.GetHashCode()));
+                var m2 = new RDMMessage(m.BuildMessage());
+                Assert.That(m2, Is.EqualTo(m));
+                Assert.That(m2.GetHashCode(), Is.EqualTo(m.GetHashCode()));
+            });
         }
 
         [Test]
         public void RDMMessageLengthTest()
         {
-            RDMMessage m = new RDMMessage();
+            RDMMessage m = new RDMMessage
+            {
+                ParameterData = new byte[17]
+            };
 
-            m.ParameterData = new byte[17];
-
-            Assert.That(m.PDL, Is.EqualTo(17));
-            Assert.That(m.MessageLength, Is.EqualTo(24 + 17));
+            Assert.Multiple(() =>
+            {
+                Assert.That(m.PDL, Is.EqualTo(17));
+                Assert.That(m.MessageLength, Is.EqualTo(24 + 17));
+            });
         }
 
         [Test]

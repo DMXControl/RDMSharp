@@ -237,7 +237,7 @@ namespace RDMSharp
         public static byte[] ValueToData(object value, int trim = 32)
         {
             if (value == null)
-                return new byte[0];
+                return Array.Empty<byte>();
 
             if (value is Enum @enum)
             {
@@ -453,7 +453,7 @@ namespace RDMSharp
 
         public static string DataToString(ref byte[] data, int take = 0)
         {
-            string res = null;
+            string res;
             if (take != 0)
             {
                 res = Encoding.UTF8.GetString(data.Take(take).ToArray());
@@ -462,7 +462,7 @@ namespace RDMSharp
             else
             {
                 res = Encoding.UTF8.GetString(data);
-                data = new byte[0];
+                data = Array.Empty<byte>();
             }
             return res;
         }
@@ -553,7 +553,12 @@ namespace RDMSharp
         }
         public static IReadOnlyList<T> AsReadOnly<T>(this IList<T> list)
         {
-            if (list == null) throw new ArgumentNullException(nameof(list));
+#if NETSTANDARD
+            if (list == null)
+                throw new ArgumentNullException(nameof(list));
+#else
+            ArgumentNullException.ThrowIfNull(list);
+#endif
 
             if (list is List<T> instance)
                 return instance.AsReadOnly();
@@ -561,7 +566,12 @@ namespace RDMSharp
         }
         public static IReadOnlyDictionary<K, V> AsReadOnly<K, V>(this IDictionary<K, V> source)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
+#if NETSTANDARD
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+#else
+            ArgumentNullException.ThrowIfNull(source);
+#endif
 
             return new ReadOnlyDictionary<K, V>(source);
         }

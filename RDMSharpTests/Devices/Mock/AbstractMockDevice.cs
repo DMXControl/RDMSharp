@@ -5,7 +5,7 @@ namespace RDMSharpTests.Devices.Mock
 {
     internal abstract class AbstractMockDevice : AbstractRDMDevice
     {
-        private ConcurrentDictionary<long, RDMMessage> identifyer = new ConcurrentDictionary<long, RDMMessage>();
+        private readonly ConcurrentDictionary<long, RDMMessage> identifyer = new ConcurrentDictionary<long, RDMMessage>();
         private bool eventRegistered = false;
         private byte transactionCounter = 0;
         internal bool imitateRealConditions = false;

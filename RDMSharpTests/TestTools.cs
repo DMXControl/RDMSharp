@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace RDMSharpTest
+namespace RDMSharpTests
 {
     public class TestTools
     {

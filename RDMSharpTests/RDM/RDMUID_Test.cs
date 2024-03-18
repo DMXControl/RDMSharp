@@ -1,6 +1,6 @@
 ﻿using RDMSharp.ParameterWrapper;
 
-namespace RDMSharpTest.RDM
+namespace RDMSharpTests.RDM
 {
     public class RDMUID_Test
     {

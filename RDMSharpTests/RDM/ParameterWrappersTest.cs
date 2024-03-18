@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 
-namespace RDMSharpTest.RDM
+namespace RDMSharpTests.RDM
 {
     public class ParameterWrappersTest
     {

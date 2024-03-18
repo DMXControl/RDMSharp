@@ -10,7 +10,7 @@ namespace RDMSharp
     public abstract class AbstractDiscoveryTool : INotifyPropertyChanged
     {
         private protected static ILogger Logger = null;
-        private AsyncRDMRequestHelper asyncRDMRequestHelper;
+        private readonly AsyncRDMRequestHelper asyncRDMRequestHelper;
         public event PropertyChangedEventHandler PropertyChanged;
         public bool discoveryInProgress;
         public bool DiscoveryInProgress

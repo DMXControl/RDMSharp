@@ -9,8 +9,8 @@ namespace RDMSharp
 {
     public class RDMMessage : IEquatable<RDMMessage>
     {
-        private static ILogger Logger = null;
-        private byte[] _parameterData = new byte[0];
+        private static readonly ILogger Logger = null;
+        private byte[] _parameterData = Array.Empty<byte>();
         private byte? preambleCount = null;
 
         public RDMMessage()
@@ -19,8 +19,12 @@ namespace RDMSharp
         }
         public RDMMessage(in byte[] data)
         {
+#if NETSTANDARD
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
+#else
+            ArgumentNullException.ThrowIfNull(data);
+#endif
 
             if (data.Length < 26)
             {
@@ -190,7 +194,7 @@ namespace RDMSharp
             set
             {
                 if (value == null)
-                    _parameterData = new byte[0];
+                    _parameterData = Array.Empty<byte>();
                 else
                 {
                     if (value.Length > 255 - 24) throw new ArgumentException("ParameterData to large!");
@@ -393,7 +397,7 @@ namespace RDMSharp
                 }
                 string valueString()
                 {
-                    string value = null;
+                    string value;
                     if (Value is Array array)
                     {
                         List<string> list = new List<string>();

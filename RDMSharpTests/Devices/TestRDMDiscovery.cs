@@ -1,10 +1,10 @@
 using RDMSharpTests.Devices.Mock;
 
-namespace RDMSharpTest.RDM.Devices
+namespace RDMSharpTests.RDM.Devices
 {
     public class TestRDMDiscovery
     {
-        private List<MockGeneratedDevice1> mockDevices = new List<MockGeneratedDevice1>();
+        private readonly List<MockGeneratedDevice1> mockDevices = new List<MockGeneratedDevice1>();
         private MockDiscoveryTool? mockDiscoveryTool;
         private List<RDMUID>? expected;
         [SetUp]

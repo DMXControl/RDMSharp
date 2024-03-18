@@ -8,10 +8,10 @@ namespace RDMSharp
 {
     public class AsyncRDMRequestHelper
     {
-        private static ILogger Logger = null;
-        private static Random random = new Random();
-        ConcurrentDictionary<int, Tuple<RDMMessage, RDMMessage>> buffer = new ConcurrentDictionary<int, Tuple<RDMMessage, RDMMessage>>();
-        Func<RDMMessage, Task> _sendMethode;
+        private static readonly ILogger Logger = null;
+        private static readonly Random random = new Random();
+        private readonly ConcurrentDictionary<int, Tuple<RDMMessage, RDMMessage>> buffer = new ConcurrentDictionary<int, Tuple<RDMMessage, RDMMessage>>();
+        private readonly Func<RDMMessage, Task> _sendMethode;
         public AsyncRDMRequestHelper(Func<RDMMessage, Task> sendMethode)
         {
             _sendMethode = sendMethode;

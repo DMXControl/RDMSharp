@@ -1,6 +1,6 @@
 using System.Xml;
 
-namespace RDMSharpTest.RDM
+namespace RDMSharpTests.RDM
 {
     public class UpdateManufacturerList
     {

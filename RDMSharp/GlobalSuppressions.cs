@@ -5,7 +5,13 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Style", "IDE0028:Initialisierung der Sammlung vereinfachen", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "RDMSharp")]
-[assembly: SuppressMessage("Style", "IDE0305:Initialisierung der Sammlung vereinfachen", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "RDMSharp")]
-[assembly: SuppressMessage("Style", "IDE0300:Initialisierung der Sammlung vereinfachen", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "RDMSharp")]
-[assembly: SuppressMessage("Style", "IDE0090:Initialisierung der Sammlung vereinfachen", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "RDMSharp")]
+[assembly: SuppressMessage("Style", "IDE0028:Initialisierung der Sammlung vereinfachen", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "~N:RDMSharp")]
+[assembly: SuppressMessage("Style", "IDE0305:Initialisierung der Sammlung vereinfachen", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "~N:RDMSharp")]
+[assembly: SuppressMessage("Style", "IDE0300:Initialisierung der Sammlung vereinfachen", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "~N:RDMSharp")]
+[assembly: SuppressMessage("Style", "IDE0301:Initialisierung der Sammlung vereinfachen", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "~N:RDMSharp")]
+[assembly: SuppressMessage("Style", "IDE0090:Initialisierung der Sammlung vereinfachen", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "~N:RDMSharp")]
+[assembly: SuppressMessage("Style", "IDE0090:\"new(...)\" verwenden", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "~N:RDMSharp")]
+[assembly: SuppressMessage("Style", "IDE0057:Bereichsoperator verwenden", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "~N:RDMSharp")]
+[assembly: SuppressMessage("Style", "IDE0290:Primären Konstruktor verwenden", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "~N:RDMSharp")]
+[assembly: SuppressMessage("Style", "IDE1006:Benennungsstile", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "~N:RDMSharp")]
+

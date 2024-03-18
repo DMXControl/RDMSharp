@@ -2,7 +2,7 @@ using RDMSharpTests.Devices.Mock;
 using System.Diagnostics;
 using System.Reflection.Metadata;
 
-namespace RDMSharpTest.RDM.Devices
+namespace RDMSharpTests.RDM.Devices
 {
     public class TestRDMSendReceive
     {

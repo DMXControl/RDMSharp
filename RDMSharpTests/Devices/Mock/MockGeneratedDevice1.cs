@@ -12,7 +12,7 @@ namespace RDMSharpTests.Devices.Mock
         public override string DeviceModelDescription => "Test Model Description";
         public override bool SupportDMXAddress => true;
 
-        private static GeneratedPersonality[] PERSONALITYS = [
+        private static readonly GeneratedPersonality[] PERSONALITYS = [
             new GeneratedPersonality(1, "5CH RGB",
                 new Slot(0, ERDM_SlotCategory.INTENSITY, "Dimmer" ),
                 new Slot(1, ERDM_SlotCategory.STROBE, "Strobe" , 33),
