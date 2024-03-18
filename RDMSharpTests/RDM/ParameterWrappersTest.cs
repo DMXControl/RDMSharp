@@ -261,7 +261,7 @@ namespace RDMSharpTests.RDM
             wrappers.Add(new SignedDWordParameterWrapper(new RDMParameterDescription(0x1000, 4, ERDM_DataType.ASCII, ERDM_CommandClass.GET | ERDM_CommandClass.SET, description: "int")));
             wrappers.Add(new UnsignedDWordParameterWrapper(new RDMParameterDescription(0x1000, 4, ERDM_DataType.ASCII, ERDM_CommandClass.GET | ERDM_CommandClass.SET, description: "uint")));
             wrappers.Add(new NotDefinedParameterWrapper(new RDMParameterDescription(0x1000, 20, ERDM_DataType.ASCII, ERDM_CommandClass.GET | ERDM_CommandClass.SET, description: "NotDefined")));
-            TestParameterWrapperForwardBackwardSerialization(wrappers, true);
+            TestParameterWrapperForwardBackwardSerialization(wrappers);
         }
         [Test]
         public void ParameterWrapperE1_20TestFwBw()
@@ -293,7 +293,7 @@ namespace RDMSharpTests.RDM
         {
             TestParameterWrapperForwardBackwardSerialization(sgmParameters.Select(p => manager.GetRDMParameterWrapperByID(p)));
         }
-        private static void TestParameterWrapperForwardBackwardSerialization(IEnumerable<IRDMParameterWrapper> wrappers, bool failIfNotSuitable = false)
+        private static void TestParameterWrapperForwardBackwardSerialization(IEnumerable<IRDMParameterWrapper> wrappers)
         {
             object value = getValue(null!);
             foreach (var wrapper in wrappers)
@@ -396,8 +396,7 @@ namespace RDMSharpTests.RDM
                     Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.SetResponseObjectToParameterData(null); });
                     Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.SetResponseParameterDataToObject(null); });
                 }
-                if (tested <= 1 && failIfNotSuitable)
-                    Assert.Fail($"{wrapper} is not using Interface");
+                Assert.That(tested, Is.AtLeast(2));
             }
 
             static object getValue(Type type)

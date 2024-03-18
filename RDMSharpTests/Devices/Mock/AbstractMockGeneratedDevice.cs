@@ -22,11 +22,6 @@ namespace RDMSharpTests.Devices.Mock
         {
             registerEvent();
         }
-        ~AbstractMockGeneratedDevice()
-        {
-            SendReceivePipeline.RDMMessageRereived -= SendReceivePipeline_RDMMessageRereived;
-            SendReceivePipelineImitateRealConditions.RDMMessageRereivedRequest -= SendReceivePipelineImitateRealConditions_RDMMessageRereivedRequest;
-        }
         private void registerEvent()
         {
             if (eventRegistered)
@@ -44,13 +39,10 @@ namespace RDMSharpTests.Devices.Mock
 
         private async void SendReceivePipeline_RDMMessageRereived(object? sender, Tuple<long, RDMMessage> tuple)
         {
-            if (identifyer.TryGetValue(tuple.Item1, out var rdmMessage))
+            if (identifyer.TryGetValue(tuple.Item1, out var rdmMessage) && RDMMessage.Equals(rdmMessage, tuple.Item2))
             {
-                if (RDMMessage.Equals(rdmMessage, tuple.Item2))
-                {
-                    identifyer.Remove(tuple.Item1, out _);
-                    return;
-                }
+                identifyer.Remove(tuple.Item1, out _);
+                return;
             }
 
             await base.ReceiveRDMMessage(tuple.Item2);

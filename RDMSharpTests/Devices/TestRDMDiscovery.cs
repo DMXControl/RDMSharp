@@ -31,20 +31,26 @@ namespace RDMSharpTests.RDM.Devices
             public RDMDiscoveryStatus status { get; private set; } = new RDMDiscoveryStatus();
             public void Report(RDMDiscoveryStatus value)
             {
-                if (status == value)
-                    return;
-
                 status = value;
                 ProgressChanged?.Invoke(this, value);
             }
         }
+        [Test]
+        public void TestDiscoveryProgress()
+        {
+            var progress = new DiscoveryProgress();
+            progress.Report(new RDMDiscoveryStatus());
+            bool wasCalled= false;
+            progress.ProgressChanged+= (o,e)=>{ wasCalled = true; };
+            Assert.That(wasCalled, Is.False);
+            progress.Report(new RDMDiscoveryStatus());
+            Assert.That(wasCalled, Is.True);
+        }
 
         private async Task AssertDiscovery(bool full = true)
         {
-            if (mockDiscoveryTool == null)
-                Assert.Fail($"{nameof(mockDiscoveryTool)} is null");
-            if (expected == null)
-                Assert.Fail($"{nameof(expected)} is null");
+            ArgumentNullException.ThrowIfNull(mockDiscoveryTool);
+            ArgumentNullException.ThrowIfNull(expected);
 
             foreach (var m in mockDevices)
                 m.ImitateRealConditions = true;

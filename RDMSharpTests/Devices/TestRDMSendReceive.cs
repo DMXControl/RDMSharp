@@ -17,48 +17,31 @@ namespace RDMSharpTests.RDM.Devices
         [TearDown]
         public void TearDown()
         {
-            generated?.Dispose();
-            remote?.Dispose();
+            generated.Dispose();
+            remote.Dispose();
         }
 
         [Test]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
         public async Task TestDevice1()
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            while (remote.DeviceModel?.IsInitialized != true || !remote.AllDataPulled)
+            var parameterValuesRemote = remote.GetAllParameterValues();
+            var parameterValuesGenerated = generated.GetAllParameterValues();
+            Assert.Multiple(() =>
             {
-                await Task.Delay(10);
-                if (sw.ElapsedMilliseconds > 5000)
+                foreach (var parameter in parameterValuesGenerated.Keys)
                 {
-                    if (remote.DeviceModel?.IsInitialized != true)
-                        Assert.Fail("Timeouted because DeviceModel not Initialized");
-                    else if (!remote.AllDataPulled)
-                        Assert.Fail("Timeouted because AllDataPulled not true");
+                    Assert.That(parameterValuesRemote.Keys, Contains.Item(parameter));
+                    Assert.That(parameterValuesGenerated[parameter], Is.EqualTo(parameterValuesRemote[parameter]));
                 }
-            }
-            testAllValues();
-
-            void testAllValues()
-            {
-                var parameterValuesRemote = remote.GetAllParameterValues();
-                var parameterValuesGenerated = generated.GetAllParameterValues();
-                Assert.Multiple(() =>
+                foreach (var parameter in parameterValuesRemote.Keys)
                 {
-                    foreach (var parameter in parameterValuesGenerated.Keys)
-                    {
-                        Assert.That(parameterValuesRemote.Keys, Contains.Item(parameter));
-                        Assert.That(parameterValuesGenerated[parameter], Is.EqualTo(parameterValuesRemote[parameter]));
-                    }
-                    foreach (var parameter in parameterValuesRemote.Keys)
-                    {
-                        Assert.That(parameterValuesGenerated.Keys, Contains.Item(parameter));
-                        Assert.That(parameterValuesRemote[parameter], Is.EqualTo(parameterValuesGenerated[parameter]));
-                    }
-                    Assert.That(parameterValuesRemote, Has.Count.EqualTo(parameterValuesGenerated.Count));
-                });
-            }
+                    Assert.That(parameterValuesGenerated.Keys, Contains.Item(parameter));
+                    Assert.That(parameterValuesRemote[parameter], Is.EqualTo(parameterValuesGenerated[parameter]));
+                }
+                Assert.That(parameterValuesRemote, Has.Count.EqualTo(parameterValuesGenerated.Count));
+            });
+
             Assert.Multiple(() =>
             {
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_INFO], Is.EqualTo(generated.DeviceInfo));

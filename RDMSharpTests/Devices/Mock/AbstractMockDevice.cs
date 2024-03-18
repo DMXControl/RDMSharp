@@ -22,11 +22,6 @@ namespace RDMSharpTests.Devices.Mock
         {
             registerEvent();
         }
-        ~AbstractMockDevice()
-        {
-            SendReceivePipeline.RDMMessageRereived -= SendReceivePipeline_RDMMessageRereived;
-            SendReceivePipelineImitateRealConditions.RDMMessageRereivedRequest -= SendReceivePipelineImitateRealConditions_RDMMessageRereivedRequest;
-        }
 
         private void registerEvent()
         {
