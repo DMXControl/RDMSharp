@@ -11,18 +11,20 @@ namespace RDMSharp
         public static readonly RDMUID Empty = new RDMUID((ushort)0, 0);
         public static readonly RDMUID Broadcast = CreateManufacturerBroadcast(0xFFFF);
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "SYSLIB1045")]
+        private static readonly Regex regex6g = new Regex(@"^([A-Fa-f0-9]{1,4})[\:\.\-\s]([A-Fa-f0-9]{1,8})$");
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "SYSLIB1045")]
+        private static readonly Regex regex0g = new Regex(@"^([0-9A-Fa-f]{4})([0-9A-Fa-f]{8})$");
+
         public readonly ushort ManufacturerID;
         public EManufacturer Manufacturer => (EManufacturer)ManufacturerID;
         public readonly uint DeviceID;
         public RDMUID(in string uid)
         {
-            Regex regex6g = new Regex(@"^([A-Fa-f0-9]{1,4})[\:\.\-\s]([A-Fa-f0-9]{1,8})$");
             var match = regex6g.Match(uid);
             if (!match.Success)
-            {
-                Regex regex0g = new Regex(@"^([0-9A-Fa-f]{4})([0-9A-Fa-f]{8})$");
                 match = regex0g.Match(uid);
-            }
+
             if (match.Success)
             {
                 ManufacturerID = Convert.ToUInt16(match.Groups[1].Value, 16);

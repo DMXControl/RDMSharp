@@ -5,6 +5,7 @@ namespace RDMSharp
 {
     public class AcknowledgeTimer : AbstractRDMPayloadObject
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2208")]
         public AcknowledgeTimer(
             TimeSpan estimidatedResponseTime = default) : this((ushort)(estimidatedResponseTime.TotalSeconds / 10))
         {
