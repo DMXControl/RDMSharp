@@ -133,19 +133,15 @@ namespace RDMSharp
             DataValue2 = dataValue2;
         }
 
-        public string GetFormatedString(short? dataValue1 = null, short? dataValue2 = null)
+        public string GetFormatedString(short dataValue1 = 0, short dataValue2 = 0)
         {
             string formatedDataValue1 = null;
             string formatedDataValue2 = null;
-            if (DataValue1 != EDataValueFormat.NotUsed && dataValue1 == null)
-                throw new ArgumentNullException(nameof(dataValue1));
-            if (DataValue2 != EDataValueFormat.NotUsed && dataValue2 == null)
-                throw new ArgumentNullException(nameof(dataValue2));
 
             if (DataValue1 != EDataValueFormat.NotUsed)
-                formatedDataValue1 = getFormatedValue(DataValue1, dataValue1.Value);
+                formatedDataValue1 = getFormatedValue(DataValue1, dataValue1);
             if (DataValue2 != EDataValueFormat.NotUsed)
-                formatedDataValue2 = getFormatedValue(DataValue2, dataValue2.Value);
+                formatedDataValue2 = getFormatedValue(DataValue2, dataValue2);
 
 
             if (DataValue2 != EDataValueFormat.NotUsed)

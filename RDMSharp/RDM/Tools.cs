@@ -25,41 +25,17 @@ namespace RDMSharp
 
         public static double GetNormalizedValue(this ERDM_UnitPrefix prefix, in int value)
         {
-            UnitPrefixAttribute attr = null;
-            try
-            {
-                attr = prefix.GetAttribute<UnitPrefixAttribute>();
-            }
-            catch
-            {
-            }
-            return value * (attr?.Multiplyer ?? 1);
+            return value * (prefix.GetAttribute<UnitPrefixAttribute>().Multiplyer);
         }
 
         public static string GetUnitSymbol(this ERDM_SensorUnit unit)
         {
-            SensorUnitAttribute attr = null;
-            try
-            {
-                attr = unit.GetAttribute<SensorUnitAttribute>();
-            }
-            catch
-            {
-            }
-            return attr?.Unit ?? string.Empty;
+            return unit.GetAttribute<SensorUnitAttribute>().Unit;
         }
 
         public static string GetStatusMessage(this ERDM_StatusMessage status, in short dataValue1 = 0, in short dataValue2 = 0)
         {
-            StatusMessageAttribute attr = null;
-            try
-            {
-                attr = status.GetAttribute<StatusMessageAttribute>();
-            }
-            catch
-            {
-            }
-            return attr?.GetFormatedString(dataValue1, dataValue2) ?? string.Empty;
+            return status.GetAttribute<StatusMessageAttribute>().GetFormatedString(dataValue1, dataValue2) ?? string.Empty;
         }
         public static string GetEnumDescription(Enum value)
         {
