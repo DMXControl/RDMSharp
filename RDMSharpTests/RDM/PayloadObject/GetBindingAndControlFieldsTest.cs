@@ -27,8 +27,11 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             var res = getBindingAndControlFieldsRequest.ToString();
             var src = resultGetBindingAndControlFieldsRequest.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
 
             GetBindingAndControlFieldsResponse getBindingAndControlFieldsResponse = new GetBindingAndControlFieldsResponse(1, new RDMUID(1213, 34444), 1234, new RDMUID(542, 476436));
@@ -49,8 +52,11 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             res = getBindingAndControlFieldsResponse.ToString();
             src = resultGetBindingAndControlFieldsResponse.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
         }
     }

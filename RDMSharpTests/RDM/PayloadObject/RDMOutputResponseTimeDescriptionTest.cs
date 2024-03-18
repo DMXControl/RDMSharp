@@ -28,8 +28,11 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             var res = resultOutputResponseTimeDescription.ToString();
             var src = outputResponseTimeDescription.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
         }
         [Test]
@@ -39,9 +42,12 @@ namespace RDMSharpTests.RDM.PayloadObject
             Assert.That(resultOutputResponseTimeDescription.Description, Has.Length.EqualTo(32));
 
             resultOutputResponseTimeDescription = new RDMOutputResponseTimeDescription(3, description: "");
-            Assert.That(string.IsNullOrWhiteSpace(resultOutputResponseTimeDescription.Description), Is.True);
-            Assert.That(resultOutputResponseTimeDescription.MinIndex, Is.EqualTo(1));
-            Assert.That(resultOutputResponseTimeDescription.Index, Is.EqualTo(3));
+            Assert.Multiple(() =>
+            {
+                Assert.That(string.IsNullOrWhiteSpace(resultOutputResponseTimeDescription.Description), Is.True);
+                Assert.That(resultOutputResponseTimeDescription.MinIndex, Is.EqualTo(1));
+                Assert.That(resultOutputResponseTimeDescription.Index, Is.EqualTo(3));
+            });
         }
     }
 }

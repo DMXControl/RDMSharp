@@ -26,13 +26,19 @@ namespace RDMSharpTests.RDM.PayloadObject
             Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMSensorValue.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultSensorValue, Is.EqualTo(sensorValue));
-            Assert.That(resultSensorValue.MinIndex, Is.EqualTo(0));
-            Assert.That(resultSensorValue.Index, Is.EqualTo(5));
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultSensorValue.MinIndex, Is.EqualTo(0));
+                Assert.That(resultSensorValue.Index, Is.EqualTo(5));
+            });
 
             var res = resultSensorValue.ToString();
             var src = sensorValue.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
         }
     }

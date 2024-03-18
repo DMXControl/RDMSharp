@@ -8,14 +8,14 @@ namespace RDMSharpTests.RDM
 {
     public class ParameterWrappersTest
     {
-        private static ERDM_Parameter[] notUsableParameters = new ERDM_Parameter[]
+        private static readonly ERDM_Parameter[] notUsableParameters = new ERDM_Parameter[]
            {
                ERDM_Parameter.NONE,
                ERDM_Parameter.DISC_MUTE,
                ERDM_Parameter.DISC_UNIQUE_BRANCH,
                ERDM_Parameter.DISC_UN_MUTE
            };
-        private static ERDM_Parameter[] e1_20Parameters = new ERDM_Parameter[]
+        private static readonly ERDM_Parameter[] e1_20Parameters = new ERDM_Parameter[]
      {
             ERDM_Parameter.PROXIED_DEVICES,
             ERDM_Parameter.PROXIED_DEVICES_COUNT,
@@ -67,7 +67,7 @@ namespace RDMSharpTests.RDM
             ERDM_Parameter.CAPTURE_PRESET,
             ERDM_Parameter.PRESET_PLAYBACK
      };
-        private static ERDM_Parameter[] e1_37_1Parameters = new ERDM_Parameter[]
+        private static readonly ERDM_Parameter[] e1_37_1Parameters = new ERDM_Parameter[]
         {
             ERDM_Parameter.DMX_BLOCK_ADDRESS,
             ERDM_Parameter.DMX_FAIL_MODE,
@@ -91,7 +91,7 @@ namespace RDMSharpTests.RDM
             ERDM_Parameter.PRESET_MERGEMODE,
             ERDM_Parameter.POWER_ON_SELF_TEST
         };
-        private static ERDM_Parameter[] e1_37_2Parameters = new ERDM_Parameter[]
+        private static readonly ERDM_Parameter[] e1_37_2Parameters = new ERDM_Parameter[]
         {
             ERDM_Parameter.LIST_INTERFACES,
             ERDM_Parameter.INTERFACE_LABEL,
@@ -108,7 +108,7 @@ namespace RDMSharpTests.RDM
             ERDM_Parameter.DNS_HOSTNAME,
             ERDM_Parameter.DNS_DOMAIN_NAME
         };
-        private static ERDM_Parameter[] e1_37_7Parameters = new ERDM_Parameter[]
+        private static readonly ERDM_Parameter[] e1_37_7Parameters = new ERDM_Parameter[]
         {
             ERDM_Parameter.ENDPOINT_LIST,
             ERDM_Parameter.ENDPOINT_LIST_CHANGE,
@@ -127,14 +127,14 @@ namespace RDMSharpTests.RDM
             ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY,
             ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY_DESCRIPTION
         };
-        private static ERDM_Parameter[] e1_33Parameters = new ERDM_Parameter[]
+        private static readonly ERDM_Parameter[] e1_33Parameters = new ERDM_Parameter[]
         {
             ERDM_Parameter.COMPONENT_SCOPE,
             ERDM_Parameter.SEARCH_DOMAIN,
             ERDM_Parameter.TCP_COMMS_STATUS,
             ERDM_Parameter.BROKER_STATUS
         };
-        private static ERDM_Parameter[] sgmParameters = new ERDM_Parameter[]
+        private static readonly ERDM_Parameter[] sgmParameters = new ERDM_Parameter[]
         {
             ERDM_Parameter.SERIAL_NUMBER,
             ERDM_Parameter.REFRESH_RATE,
@@ -166,38 +166,41 @@ namespace RDMSharpTests.RDM
         {
             var parameterLeft = parameters.Except(e1_20Parameters).Except(e1_37_1Parameters).Except(e1_37_2Parameters).Except(e1_37_7Parameters).Except(e1_33Parameters).Except(sgmParameters).ToList();
 
-            Assert.That(parameterLeft.Count, Is.EqualTo(notUsableParameters.Length));
-            Assert.That(notUsableParameters.Except(parameterLeft).ToList().Count, Is.EqualTo(0));
+            Assert.Multiple(() =>
+            {
+                Assert.That(parameterLeft, Has.Count.EqualTo(notUsableParameters.Length));
+                Assert.That(notUsableParameters.Except(parameterLeft).ToList(), Is.Empty);
+            });
         }
         [Test]
         public void CheckE1_20WrappersDefined()
         {
             var notDefinedParameters = e1_20Parameters.Except(parameterWrappers.Select(pw => pw.Parameter)).ToArray();
-            Assert.That(notDefinedParameters.Length, Is.EqualTo(0), $"The not defined Parameters:{Environment.NewLine}{ParametersToString(notDefinedParameters)}");
+            Assert.That(notDefinedParameters, Is.Empty, $"The not defined Parameters:{Environment.NewLine}{ParameterWrappersTest.ParametersToString(notDefinedParameters)}");
         }
         [Test]
         public void CheckE1_37_1WrappersDefined()
         {
             var notDefinedParameters = e1_37_1Parameters.Except(parameterWrappers.Select(pw => pw.Parameter)).ToArray();
-            Assert.That(notDefinedParameters.Length, Is.EqualTo(0), $"The not defined Parameters:{Environment.NewLine}{ParametersToString(notDefinedParameters)}");
+            Assert.That(notDefinedParameters, Is.Empty, $"The not defined Parameters:{Environment.NewLine}{ParameterWrappersTest.ParametersToString(notDefinedParameters)}");
         }
         [Test]
         public void CheckE1_37_2WrappersDefined()
         {
             var notDefinedParameters = e1_37_2Parameters.Except(parameterWrappers.Select(pw => pw.Parameter)).ToArray();
-            Assert.That(notDefinedParameters.Length, Is.EqualTo(0), $"The not defined Parameters:{Environment.NewLine}{ParametersToString(notDefinedParameters)}");
+            Assert.That(notDefinedParameters, Is.Empty, $"The not defined Parameters:{Environment.NewLine}{ParameterWrappersTest.ParametersToString(notDefinedParameters)}");
         }
         [Test]
         public void CheckE1_37_7WrappersDefined()
         {
             var notDefinedParameters = e1_37_7Parameters.Except(parameterWrappers.Select(pw => pw.Parameter)).ToArray();
-            Assert.That(notDefinedParameters.Length, Is.EqualTo(0), $"The not defined Parameters:{Environment.NewLine}{ParametersToString(notDefinedParameters)}");
+            Assert.That(notDefinedParameters, Is.Empty, $"The not defined Parameters:{Environment.NewLine}{ParameterWrappersTest.ParametersToString(notDefinedParameters)}");
         }
         [Test]
         public void CheckE1_33WrappersDefined()
         {
             var notDefinedParameters = e1_33Parameters.Except(parameterWrappers.Select(pw => pw.Parameter)).ToArray();
-            Assert.That(notDefinedParameters.Length, Is.EqualTo(0), $"The not defined Parameters:{Environment.NewLine}{ParametersToString(notDefinedParameters)}");
+            Assert.That(notDefinedParameters, Is.Empty, $"The not defined Parameters:{Environment.NewLine}{ParameterWrappersTest.ParametersToString(notDefinedParameters)}");
         }
 
         [Test]
@@ -205,34 +208,45 @@ namespace RDMSharpTests.RDM
         {
             foreach (IRDMParameterWrapper pW in parameterWrappers)
             {
-                Assert.That(pW.Name.EndsWith(" "), Is.False, $"{pW.Name} Name is not Vaild");
-                Assert.That(pW.Name.StartsWith(" "), Is.False, $"{pW.Name} Name is not Vaild");
-                Assert.That(pW.Description.EndsWith(" "), Is.False, $"{pW.Name} Description is not Vaild");
-                Assert.That(pW.Description.StartsWith(" "), Is.False, $"{pW.Name} Description is not Vaild");
-                Assert.That(pW.Description.EndsWith("."), Is.True, $"{pW.Name} Description should end with a \".\"");
+                Assert.Multiple(() =>
+                {
+                    Assert.That(pW.Name, Does.Not.EndWith(" "), $"{pW.Name} Name is not Vaild");
+                    Assert.That(pW.Name, Does.Not.StartWith(" "), $"{pW.Name} Name is not Vaild");
+                });
+                Assert.Multiple(() =>
+                {
+                    Assert.That(pW.Description, Does.Not.EndWith(" "), $"{pW.Name} Description is not Vaild");
+                    Assert.That(pW.Description, Does.Not.StartWith(" "), $"{pW.Name} Description is not Vaild");
+                    Assert.That(pW.Description, Does.EndWith("."), $"{pW.Name} Description should end with a \".\"");
+                });
                 var toString = pW.ToString();
-                Assert.That(toString, Is.Not.Null);
-                Assert.That(toString.StartsWith("{"), Is.False);
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(toString, Is.Not.Null);
+                    Assert.That(toString, Does.Not.StartWith("{"));
+                });
             }
+            Assert.Multiple(() =>
+            {
+                foreach (ERDM_Parameter parameter in e1_20Parameters)
+                    Assert.That(parameterWrappers.Where(pw => pw.Parameter == parameter).ToList(), Has.Count.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
 
-            foreach (ERDM_Parameter parameter in e1_20Parameters)
-                Assert.That(parameterWrappers.Count(pw => pw.Parameter == parameter), Is.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
+                foreach (ERDM_Parameter parameter in e1_37_1Parameters)
+                    Assert.That(parameterWrappers.Where(pw => pw.Parameter == parameter).ToList(), Has.Count.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
 
-            foreach (ERDM_Parameter parameter in e1_37_1Parameters)
-                Assert.That(parameterWrappers.Count(pw => pw.Parameter == parameter), Is.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
+                foreach (ERDM_Parameter parameter in e1_37_2Parameters)
+                    Assert.That(parameterWrappers.Where(pw => pw.Parameter == parameter).ToList(), Has.Count.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
 
-            foreach (ERDM_Parameter parameter in e1_37_2Parameters)
-                Assert.That(parameterWrappers.Count(pw => pw.Parameter == parameter), Is.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
+                foreach (ERDM_Parameter parameter in e1_37_7Parameters)
+                    Assert.That(parameterWrappers.Where(pw => pw.Parameter == parameter).ToList(), Has.Count.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
 
-            foreach (ERDM_Parameter parameter in e1_37_7Parameters)
-                Assert.That(parameterWrappers.Count(pw => pw.Parameter == parameter), Is.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
+                foreach (ERDM_Parameter parameter in e1_33Parameters)
+                    Assert.That(parameterWrappers.Where(pw => pw.Parameter == parameter).ToList(), Has.Count.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
 
-            foreach (ERDM_Parameter parameter in e1_33Parameters)
-                Assert.That(parameterWrappers.Count(pw => pw.Parameter == parameter), Is.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
-
-            foreach (ERDM_Parameter parameter in sgmParameters)
-                Assert.That(parameterWrappers.Count(pw => pw.Parameter == parameter), Is.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
-
+                foreach (ERDM_Parameter parameter in sgmParameters)
+                    Assert.That(parameterWrappers.Where(pw => pw.Parameter == parameter).ToList(), Has.Count.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
+            });
             Assert.That(e1_20Parameters.Length + e1_37_1Parameters.Length + e1_37_2Parameters.Length + e1_37_7Parameters.Length + e1_33Parameters.Length + sgmParameters.Length, Is.EqualTo(parameterWrappers.Count));
         }
         [Test]
@@ -279,15 +293,17 @@ namespace RDMSharpTests.RDM
         {
             TestParameterWrapperForwardBackwardSerialization(sgmParameters.Select(p => manager.GetRDMParameterWrapperByID(p)));
         }
-        private void TestParameterWrapperForwardBackwardSerialization(IEnumerable<IRDMParameterWrapper> wrappers, bool failIfNotSuitable = false)
+        private static void TestParameterWrapperForwardBackwardSerialization(IEnumerable<IRDMParameterWrapper> wrappers, bool failIfNotSuitable = false)
         {
+            object value = getValue(null!);
             foreach (var wrapper in wrappers)
             {
                 byte tested = 0;
+
                 if (wrapper is IRDMGetParameterWrapperRequest getRequest)
                 {
                     tested++;
-                    object value = getValue(getRequest.GetRequestType);
+                    value = getValue(getRequest.GetRequestType);
                     value.GetHashCode();//For Coverage;
 
                     Assert.That(value, Is.Not.Null);
@@ -301,7 +317,7 @@ namespace RDMSharpTests.RDM
                 if (wrapper is IRDMGetParameterWrapperResponse getResponse)
                 {
                     tested++;
-                    object value = getValue(getResponse.GetResponseType);
+                    value = getValue(getResponse.GetResponseType);
                     value.GetHashCode();//For Coverage;
 
                     Assert.That(value, Is.Not.Null);
@@ -315,7 +331,7 @@ namespace RDMSharpTests.RDM
                 if (wrapper is IRDMSetParameterWrapperRequest setRequest)
                 {
                     tested++;
-                    object value = getValue(setRequest.SetRequestType);
+                    value = getValue(setRequest.SetRequestType);
                     value.GetHashCode();//For Coverage;
 
                     Assert.That(value, Is.Not.Null);
@@ -329,7 +345,7 @@ namespace RDMSharpTests.RDM
                 if (wrapper is IRDMSetParameterWrapperResponse setResponse)
                 {
                     tested++;
-                    object value = getValue(setResponse.SetResponseType);
+                    value = getValue(setResponse.SetResponseType);
                     value.GetHashCode();//For Coverage;
 
                     Assert.That(value, Is.Not.Null);
@@ -383,7 +399,8 @@ namespace RDMSharpTests.RDM
                 if (tested <= 1 && failIfNotSuitable)
                     Assert.Fail($"{wrapper} is not using Interface");
             }
-            object getValue(Type type)
+
+            static object getValue(Type type)
             {
                 if (type == typeof(string))
                     return "Test String";
@@ -531,8 +548,6 @@ namespace RDMSharpTests.RDM
                     return ERDM_IdentifyMode.LOUD;
                 if (type == typeof(ERDM_PowerState))
                     return ERDM_PowerState.STANDBY;
-                if (type == typeof(ERDM_PresetPlayback))
-                    return ERDM_PresetPlayback.ALL;
                 if (type == typeof(ERDM_ResetType))
                     return ERDM_ResetType.Warm;
                 if (type == typeof(ERDM_Status))
@@ -571,18 +586,13 @@ namespace RDMSharpTests.RDM
                     return EBatteryExtension._20H;
                 #endregion
 
-                Assert.Warn(type.Name);
-                throw new Exception();
+                return null!;
             }
         }
 
-        private string ParametersToString(params ERDM_Parameter[] parameters)
+        private static string ParametersToString(params ERDM_Parameter[] parameters)
         {
-            StringBuilder b = new StringBuilder();
-            foreach (ERDM_Parameter p in parameters)
-                b.AppendLine(p.ToString());
-
-            return b.ToString();
+            return String.Join(";", parameters);
         }
     }
 }

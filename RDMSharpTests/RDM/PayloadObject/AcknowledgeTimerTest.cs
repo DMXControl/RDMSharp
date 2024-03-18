@@ -32,9 +32,12 @@
 
             var res = resultAcknowledgeTimer.ToString();
             var src = acknowledgeTimer.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
-            Assert.That(res, Is.EqualTo(src));
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+                Assert.That(res, Is.EqualTo(src));
+            });
         }
     }
 }

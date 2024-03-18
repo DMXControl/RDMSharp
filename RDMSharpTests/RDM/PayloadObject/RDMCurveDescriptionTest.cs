@@ -28,8 +28,11 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             var res = resultCurveDescription.ToString();
             var src = curveDescription.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
         }
         [Test]
@@ -39,9 +42,12 @@ namespace RDMSharpTests.RDM.PayloadObject
             Assert.That(resultCurveDescription.Description, Has.Length.EqualTo(32));
 
             resultCurveDescription = new RDMCurveDescription(6, description: "");
-            Assert.That(string.IsNullOrEmpty(resultCurveDescription.Description), Is.True);
-            Assert.That(resultCurveDescription.MinIndex, Is.EqualTo(1));
-            Assert.That(resultCurveDescription.Index, Is.EqualTo(6));
+            Assert.Multiple(() =>
+            {
+                Assert.That(string.IsNullOrEmpty(resultCurveDescription.Description), Is.True);
+                Assert.That(resultCurveDescription.MinIndex, Is.EqualTo(1));
+                Assert.That(resultCurveDescription.Index, Is.EqualTo(6));
+            });
         }
     }
 }

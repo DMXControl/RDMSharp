@@ -5,6 +5,7 @@ namespace RDMSharp
 {
     public class RDMParameterDescription : AbstractRDMPayloadObject
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060")]
         public RDMParameterDescription(
             ushort parameterId = 0,
             byte pdlSize = 0,

@@ -28,8 +28,11 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             var res = resultDimmerInfo.ToString();
             var src = dimmerInfo.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
 
             Assert.Throws(typeof(ArgumentOutOfRangeException), () => { new RDMDimmerInfo(numberOfSupportedCurves: 4, levelsResolution: 0, minimumLevelSplitLevelsSupported: true); });

@@ -25,16 +25,22 @@ namespace RDMSharpTests.RDM.PayloadObject
             Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMCurve.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultCurve, Is.EqualTo(curve));
-            Assert.That(resultCurve.IndexType, Is.EqualTo(typeof(byte)));
-            Assert.That(resultCurve.MinIndex, Is.EqualTo(1));
-            Assert.That(resultCurve.Index, Is.EqualTo(1));
-            Assert.That(resultCurve.Count, Is.EqualTo(5));
-            Assert.That(resultCurve.DescriptorParameter, Is.EqualTo(ERDM_Parameter.CURVE_DESCRIPTION));
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultCurve.IndexType, Is.EqualTo(typeof(byte)));
+                Assert.That(resultCurve.MinIndex, Is.EqualTo(1));
+                Assert.That(resultCurve.Index, Is.EqualTo(1));
+                Assert.That(resultCurve.Count, Is.EqualTo(5));
+                Assert.That(resultCurve.DescriptorParameter, Is.EqualTo(ERDM_Parameter.CURVE_DESCRIPTION));
+            });
 
             var res = resultCurve.ToString();
             var src = curve.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
         }
     }

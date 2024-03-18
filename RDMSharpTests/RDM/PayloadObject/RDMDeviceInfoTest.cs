@@ -28,8 +28,11 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             var res = resultDeviceInfo.ToString();
             var src = deviceInfo.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
         }
     }

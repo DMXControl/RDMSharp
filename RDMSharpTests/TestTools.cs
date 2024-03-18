@@ -82,10 +82,10 @@ namespace RDMSharpTests
         {
             Assert.Multiple(() =>
             {
-                Assert.Throws(typeof(IndexOutOfRangeException), () => { var data = new byte[0]; Tools.DataToBool(ref data); });
-                Assert.Throws(typeof(IndexOutOfRangeException), () => { var data = new byte[0]; Tools.DataToBoolArray(ref data, 8); });
-                Assert.Throws(typeof(IndexOutOfRangeException), () => { var data = new byte[0]; Tools.DataToByte(ref data); });
-                Assert.Throws(typeof(IndexOutOfRangeException), () => { var data = new byte[0]; Tools.DataToSByte(ref data); });
+                Assert.Throws(typeof(IndexOutOfRangeException), () => { var data = Array.Empty<byte>(); Tools.DataToBool(ref data); });
+                Assert.Throws(typeof(IndexOutOfRangeException), () => { var data = Array.Empty<byte>(); Tools.DataToBoolArray(ref data, 8); });
+                Assert.Throws(typeof(IndexOutOfRangeException), () => { var data = Array.Empty<byte>(); Tools.DataToByte(ref data); });
+                Assert.Throws(typeof(IndexOutOfRangeException), () => { var data = Array.Empty<byte>(); Tools.DataToSByte(ref data); });
                 Assert.Throws(typeof(IndexOutOfRangeException), () => { var data = new byte[1]; Tools.DataToUShort(ref data); });
                 Assert.Throws(typeof(IndexOutOfRangeException), () => { var data = new byte[1]; Tools.DataToShort(ref data); });
                 Assert.Throws(typeof(IndexOutOfRangeException), () => { var data = new byte[3]; Tools.DataToUInt(ref data); });

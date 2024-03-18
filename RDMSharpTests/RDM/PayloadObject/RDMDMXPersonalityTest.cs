@@ -25,15 +25,21 @@ namespace RDMSharpTests.RDM.PayloadObject
             Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { RDMDMXPersonality.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultRdmDmxPersonality, Is.EqualTo(rdmDmxPersonality));
-            Assert.That(resultRdmDmxPersonality.MinIndex, Is.EqualTo(1));
-            Assert.That(resultRdmDmxPersonality.Index, Is.EqualTo(1));
-            Assert.That(resultRdmDmxPersonality.DescriptorParameter, Is.EqualTo(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION));
-            Assert.That(resultRdmDmxPersonality.IndexType, Is.EqualTo(typeof(byte)));
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultRdmDmxPersonality.MinIndex, Is.EqualTo(1));
+                Assert.That(resultRdmDmxPersonality.Index, Is.EqualTo(1));
+                Assert.That(resultRdmDmxPersonality.DescriptorParameter, Is.EqualTo(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION));
+                Assert.That(resultRdmDmxPersonality.IndexType, Is.EqualTo(typeof(byte)));
+            });
 
             var res = resultRdmDmxPersonality.ToString();
             var src = rdmDmxPersonality.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
         }
     }

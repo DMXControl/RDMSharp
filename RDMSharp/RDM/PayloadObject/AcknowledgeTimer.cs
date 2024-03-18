@@ -19,7 +19,7 @@ namespace RDMSharp
         }
 
         public TimeSpan EstimidatedResponseTime { get; private set; }
-        private ushort estimidatedResponseTimeRaw;
+        private readonly ushort estimidatedResponseTimeRaw;
         public const int PDL = 2;
 
         public override string ToString()

@@ -62,6 +62,8 @@ namespace RDMSharpTests.RDM
         }
 
         [Test]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2043:Use ComparisonConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
         public void RDMUID_Equals()
         {
             Assert.Multiple(() =>

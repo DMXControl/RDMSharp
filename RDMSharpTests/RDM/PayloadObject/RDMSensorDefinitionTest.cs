@@ -29,8 +29,11 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             var res = resultSensorDefinition.ToString();
             var src = sensorDefinition.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
         }
 
@@ -41,9 +44,12 @@ namespace RDMSharpTests.RDM.PayloadObject
             Assert.That(sensorDefinition.Description, Has.Length.EqualTo(32));
 
             sensorDefinition = new RDMSensorDefinition(3, description: "");
-            Assert.That(string.IsNullOrEmpty(sensorDefinition.Description), Is.True);
-            Assert.That(sensorDefinition.MinIndex, Is.EqualTo(0));
-            Assert.That(sensorDefinition.Index, Is.EqualTo(3));
+            Assert.Multiple(() =>
+            {
+                Assert.That(string.IsNullOrEmpty(sensorDefinition.Description), Is.True);
+                Assert.That(sensorDefinition.MinIndex, Is.EqualTo(0));
+                Assert.That(sensorDefinition.Index, Is.EqualTo(3));
+            });
         }
     }
 }

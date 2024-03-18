@@ -108,7 +108,6 @@ namespace RDMSharp
             var staticConfigType = Tools.DataToEnum<ERDM_StaticConfig>(ref data);
             IPv4Address? staticBrokerIPv4 = null;
             IPAddress staticBrokerIPv6 = null;
-            ushort staticBrokerPort = 0;
             switch (staticConfigType)
             {
                 case ERDM_StaticConfig.IPv4:
@@ -124,7 +123,7 @@ namespace RDMSharp
                     break;
             }
 
-            staticBrokerPort = Tools.DataToUShort(ref data);
+            ushort staticBrokerPort = Tools.DataToUShort(ref data);
             var i = new GetSetComponentScope(
                 scopeSlot: scopeSlot,
                 scopeString: scopeString,

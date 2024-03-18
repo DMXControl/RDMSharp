@@ -28,9 +28,12 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             var res = resultGetBackgroundQueuedStatusPolicyDescriptionResponse.ToString();
             var src = getBackgroundQueuedStatusPolicyDescriptionResponse.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
-            Assert.That(res, Is.EqualTo(src));
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+                Assert.That(res, Is.EqualTo(src));
+            });
         }
         [Test]
         public void DescriptionCharLimitTest()
@@ -39,9 +42,12 @@ namespace RDMSharpTests.RDM.PayloadObject
             Assert.That(resultGetBackgroundQueuedStatusPolicyDescriptionResponse.Description, Has.Length.EqualTo(32));
 
             resultGetBackgroundQueuedStatusPolicyDescriptionResponse = new GetBackgroundQueuedStatusPolicyDescriptionResponse(5, description: "");
-            Assert.That(string.IsNullOrEmpty(resultGetBackgroundQueuedStatusPolicyDescriptionResponse.Description), Is.True);
-            Assert.That(resultGetBackgroundQueuedStatusPolicyDescriptionResponse.MinIndex, Is.EqualTo(1));
-            Assert.That(resultGetBackgroundQueuedStatusPolicyDescriptionResponse.Index, Is.EqualTo(5));
+            Assert.Multiple(() =>
+            {
+                Assert.That(string.IsNullOrEmpty(resultGetBackgroundQueuedStatusPolicyDescriptionResponse.Description), Is.True);
+                Assert.That(resultGetBackgroundQueuedStatusPolicyDescriptionResponse.MinIndex, Is.EqualTo(1));
+                Assert.That(resultGetBackgroundQueuedStatusPolicyDescriptionResponse.Index, Is.EqualTo(5));
+            });
         }
     }
 }

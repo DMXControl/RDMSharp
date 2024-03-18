@@ -29,8 +29,11 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             var res = resultSlotDescription.ToString();
             var src = slotDescription.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
         }
         [Test]

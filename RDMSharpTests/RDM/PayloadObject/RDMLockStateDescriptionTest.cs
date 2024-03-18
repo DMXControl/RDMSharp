@@ -28,8 +28,11 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             var res = resultLockStateDescription.ToString();
             var src = lockStateDescription.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
         }
         [Test]
@@ -39,9 +42,12 @@ namespace RDMSharpTests.RDM.PayloadObject
             Assert.That(resultLockStateDescription.Description, Has.Length.EqualTo(32));
 
             resultLockStateDescription = new RDMLockStateDescription(7, description: "");
-            Assert.That(string.IsNullOrEmpty(resultLockStateDescription.Description), Is.True);
-            Assert.That(resultLockStateDescription.MinIndex, Is.EqualTo(1));
-            Assert.That(resultLockStateDescription.Index, Is.EqualTo(7));
+            Assert.Multiple(() =>
+            {
+                Assert.That(string.IsNullOrEmpty(resultLockStateDescription.Description), Is.True);
+                Assert.That(resultLockStateDescription.MinIndex, Is.EqualTo(1));
+                Assert.That(resultLockStateDescription.Index, Is.EqualTo(7));
+            });
         }
     }
 }

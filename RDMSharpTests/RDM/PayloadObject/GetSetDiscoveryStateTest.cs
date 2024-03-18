@@ -28,8 +28,11 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             var res = resultGetDiscoveryStateResponse.ToString();
             var src = getDiscoveryStateResponse.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
 
             SetDiscoveryStateRequest setDiscoveryStateRequest = new SetDiscoveryStateRequest(1, ERDM_DiscoveryState.INCREMENTAL);
@@ -50,8 +53,11 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             res = resultSetDiscoveryStateRequest.ToString();
             src = setDiscoveryStateRequest.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
         }
     }

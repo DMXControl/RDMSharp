@@ -29,9 +29,12 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             var res = resultDiscMute.ToString();
             var src = discMute.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
-            Assert.That(res, Is.EqualTo(src));
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+                Assert.That(res, Is.EqualTo(src));
+            });
 
             discMute = new DiscMuteUnmuteResponse(false, true, bindingUID: new RDMUID(223, 434));
 
@@ -51,9 +54,12 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             res = resultDiscMute.ToString();
             src = discMute.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
-            Assert.That(res, Is.EqualTo(src));
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+                Assert.That(res, Is.EqualTo(src));
+            });
 
             discMute = new DiscMuteUnmuteResponse(false, false, true, bindingUID: new RDMUID(223, 434));
 
@@ -73,8 +79,11 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             res = resultDiscMute.ToString();
             src = discMute.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
 
             discMute = new DiscMuteUnmuteResponse(false, false, false, true);
@@ -95,8 +104,11 @@ namespace RDMSharpTests.RDM.PayloadObject
 
             res = resultDiscMute.ToString();
             src = discMute.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
         }
     }

@@ -25,14 +25,20 @@ namespace RDMSharpTests.RDM.PayloadObject
             Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetEndpointTimingResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultGetEndpointTimingResponse, Is.EqualTo(getEndpointTimingResponse));
-            Assert.That(resultGetEndpointTimingResponse.EndpointId, Is.EqualTo(1));
-            Assert.That(resultGetEndpointTimingResponse.TimingId, Is.EqualTo(123));
-            Assert.That(resultGetEndpointTimingResponse.Timings, Is.EqualTo(254));
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultGetEndpointTimingResponse.EndpointId, Is.EqualTo(1));
+                Assert.That(resultGetEndpointTimingResponse.TimingId, Is.EqualTo(123));
+                Assert.That(resultGetEndpointTimingResponse.Timings, Is.EqualTo(254));
+            });
 
             var res = resultGetEndpointTimingResponse.ToString();
             var src = getEndpointTimingResponse.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
 
             SetEndpointTimingRequest setEndpointTimingRequest = new SetEndpointTimingRequest(1, 42);
@@ -50,24 +56,33 @@ namespace RDMSharpTests.RDM.PayloadObject
             Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { SetEndpointTimingRequest.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
 
             Assert.That(resultSetEndpointTimingRequest, Is.EqualTo(setEndpointTimingRequest));
-            Assert.That(resultSetEndpointTimingRequest.Timings, Is.EqualTo(setEndpointTimingRequest.Timings));
-            Assert.That(resultSetEndpointTimingRequest.TimingId, Is.EqualTo(setEndpointTimingRequest.TimingId));
-            Assert.That(resultSetEndpointTimingRequest.EndpointId, Is.EqualTo(setEndpointTimingRequest.EndpointId));
+            Assert.Multiple(() =>
+            {
+                Assert.That(resultSetEndpointTimingRequest.Timings, Is.EqualTo(setEndpointTimingRequest.Timings));
+                Assert.That(resultSetEndpointTimingRequest.TimingId, Is.EqualTo(setEndpointTimingRequest.TimingId));
+                Assert.That(resultSetEndpointTimingRequest.EndpointId, Is.EqualTo(setEndpointTimingRequest.EndpointId));
+            });
 
             res = resultSetEndpointTimingRequest.ToString();
             src = setEndpointTimingRequest.ToString();
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(res, Is.Not.Null);
+                Assert.That(src, Is.Not.Null);
+            });
             Assert.That(res, Is.EqualTo(src));
 
 
             getEndpointTimingResponse = new GetEndpointTimingResponse(31, 123, 254);
-            Assert.That(getEndpointTimingResponse.IndexType, Is.EqualTo(typeof(byte)));
-            Assert.That(getEndpointTimingResponse.MinIndex, Is.EqualTo(1));
-            Assert.That(getEndpointTimingResponse.EndpointId, Is.EqualTo(31));
-            Assert.That(getEndpointTimingResponse.Index, Is.EqualTo(123));
-            Assert.That(getEndpointTimingResponse.Count, Is.EqualTo(254));
-            Assert.That(getEndpointTimingResponse.DescriptorParameter, Is.EqualTo(ERDM_Parameter.ENDPOINT_TIMING_DESCRIPTION));
+            Assert.Multiple(() =>
+            {
+                Assert.That(getEndpointTimingResponse.IndexType, Is.EqualTo(typeof(byte)));
+                Assert.That(getEndpointTimingResponse.MinIndex, Is.EqualTo(1));
+                Assert.That(getEndpointTimingResponse.EndpointId, Is.EqualTo(31));
+                Assert.That(getEndpointTimingResponse.Index, Is.EqualTo(123));
+                Assert.That(getEndpointTimingResponse.Count, Is.EqualTo(254));
+                Assert.That(getEndpointTimingResponse.DescriptorParameter, Is.EqualTo(ERDM_Parameter.ENDPOINT_TIMING_DESCRIPTION));
+            });
         }
     }
 }
