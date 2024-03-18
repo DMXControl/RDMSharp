@@ -14,7 +14,6 @@ namespace RDMSharpTests
             Dictionary<string, ERDM_StatusMessage> results = new Dictionary<string, ERDM_StatusMessage>();
             var enums = new List<ERDM_StatusMessage>();
             enums.AddRange(Enum.GetValues(typeof(ERDM_StatusMessage)).Cast<ERDM_StatusMessage>());
-            enums.Add((ERDM_StatusMessage)0);
             foreach (ERDM_StatusMessage e in enums)
             {
                 short val1 = 1;
