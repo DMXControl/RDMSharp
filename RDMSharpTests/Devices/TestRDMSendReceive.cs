@@ -12,7 +12,7 @@ namespace RDMSharpTests.RDM.Devices
         {
             var uid = new RDMUID(0x9fff, 1);
             generated = new MockGeneratedDevice1(uid);
-            remote = new MockDevice(uid);
+            remote = new MockDevice(uid, false);
         }
         [TearDown]
         public void TearDown()

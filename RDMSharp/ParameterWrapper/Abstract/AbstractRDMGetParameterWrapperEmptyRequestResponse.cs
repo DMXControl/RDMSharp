@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace RDMSharp.ParameterWrapper
 {
-    public abstract class AbstractRDMGetParameterWrapperEmptyRequestResponse : AbstractRDMParameterWrapper<Empty, Empty, Empty, Empty>, IRDMGetParameterWrapperWithEmptyGetRequest, IRDMSetParameterWrapperWithEmptySetResponse
+    public abstract class AbstractRDMGetParameterWrapperEmptyRequestResponse : AbstractRDMParameterWrapper<Empty, Empty, Empty, Empty>, IRDMGetParameterWrapperWithEmptyGetRequest, IRDMGetParameterWrapperWithEmptyGetResponse
     {
         public override sealed ERDM_CommandClass CommandClass => ERDM_CommandClass.GET;
 
@@ -64,7 +64,7 @@ namespace RDMSharp.ParameterWrapper
             return this.buildGetRequestMessage();
         }
 
-        public RDMMessage BuildSetResponseMessage()
+        public RDMMessage BuildGetResponseMessage()
         {
             return this.buildGetResponseMessage();
         }

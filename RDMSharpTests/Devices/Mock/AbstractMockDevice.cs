@@ -7,7 +7,7 @@ namespace RDMSharpTests.Devices.Mock
         private readonly ConcurrentDictionary<long, RDMMessage> identifyer = new ConcurrentDictionary<long, RDMMessage>();
         private bool eventRegistered = false;
         private byte transactionCounter = 0;
-        internal bool imitateRealConditions = false;
+        private bool imitateRealConditions = false;
         internal bool ImitateRealConditions
         {
             get { return imitateRealConditions; }
@@ -18,8 +18,9 @@ namespace RDMSharpTests.Devices.Mock
                 registerEvent();
             }
         }
-        public AbstractMockDevice(RDMUID uid) : base(uid)
+        public AbstractMockDevice(RDMUID uid, bool _imitateRealConditions = false) : base(uid)
         {
+            ImitateRealConditions = _imitateRealConditions;
             registerEvent();
         }
 
