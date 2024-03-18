@@ -37,7 +37,7 @@ namespace RDMSharpTests.RDM.PayloadObject
         public void DescriptionCharLimitTest()
         {
             RDMParameterDescription parameterDescription = new RDMParameterDescription(2, description: "Pseudo Parameter 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
-            Assert.That(parameterDescription.Description.Length, Is.EqualTo(32));
+            Assert.That(parameterDescription.Description, Has.Length.EqualTo(32));
 
             parameterDescription = new RDMParameterDescription(4, description: "");
             Assert.That(string.IsNullOrEmpty(parameterDescription.Description), Is.True);

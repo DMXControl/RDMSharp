@@ -83,7 +83,7 @@ namespace RDMSharpTests.RDM.PayloadObject
         public void DescriptionCharLimitTest()
         {
             RDMModulationFrequencyDescription resultModulationFrequencyDescription = new RDMModulationFrequencyDescription(description: "Pseudo ModulationFrequency 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
-            Assert.That(resultModulationFrequencyDescription.Description.Length, Is.EqualTo(32));
+            Assert.That(resultModulationFrequencyDescription.Description, Has.Length.EqualTo(32));
 
             resultModulationFrequencyDescription = new RDMModulationFrequencyDescription(5, description: "");
             Assert.That(string.IsNullOrEmpty(resultModulationFrequencyDescription.Description), Is.True);

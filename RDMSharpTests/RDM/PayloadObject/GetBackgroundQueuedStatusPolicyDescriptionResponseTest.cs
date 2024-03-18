@@ -36,7 +36,7 @@ namespace RDMSharpTests.RDM.PayloadObject
         public void DescriptionCharLimitTest()
         {
             GetBackgroundQueuedStatusPolicyDescriptionResponse resultGetBackgroundQueuedStatusPolicyDescriptionResponse = new GetBackgroundQueuedStatusPolicyDescriptionResponse(description: "Pseudo Background Queued/Status Message Policy Description 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
-            Assert.That(resultGetBackgroundQueuedStatusPolicyDescriptionResponse.Description.Length, Is.EqualTo(32));
+            Assert.That(resultGetBackgroundQueuedStatusPolicyDescriptionResponse.Description, Has.Length.EqualTo(32));
 
             resultGetBackgroundQueuedStatusPolicyDescriptionResponse = new GetBackgroundQueuedStatusPolicyDescriptionResponse(5, description: "");
             Assert.That(string.IsNullOrEmpty(resultGetBackgroundQueuedStatusPolicyDescriptionResponse.Description), Is.True);

@@ -62,7 +62,7 @@ namespace RDMSharpTests.RDM.PayloadObject
         public void DescriptionCharLimitTest()
         {
             TCPCommsEntry resultGetSetComponentScope = new TCPCommsEntry("Pseudo TCPCommsEntryTest 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0", IPAddress.Parse("192.168.2.1"), 2347);
-            Assert.That(resultGetSetComponentScope.ScopeString.Length, Is.EqualTo(62));
+            Assert.That(resultGetSetComponentScope.ScopeString, Has.Length.EqualTo(62));
 
             resultGetSetComponentScope = new TCPCommsEntry("", IPAddress.Parse("192.168.2.1"), 2347);
             Assert.That(string.IsNullOrEmpty(resultGetSetComponentScope.ScopeString), Is.True);

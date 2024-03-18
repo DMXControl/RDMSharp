@@ -30,7 +30,7 @@ namespace RDMSharpTests
                     Console.WriteLine($"{e} => {str}");
 
                     Assert.That(String.IsNullOrWhiteSpace(str), Is.False, e.ToString());
-                    Assert.That(str.EndsWith("."), Is.True, $"{e} => {str}");
+                    Assert.That(str, Does.EndWith("."), $"{e} => {str}");
 
                     Assert.That(results.TryAdd(str, e), Is.True, $"{e} => {str}");
                 }

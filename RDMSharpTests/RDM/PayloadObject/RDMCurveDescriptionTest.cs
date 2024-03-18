@@ -36,7 +36,7 @@ namespace RDMSharpTests.RDM.PayloadObject
         public void DescriptionCharLimitTest()
         {
             RDMCurveDescription resultCurveDescription = new RDMCurveDescription(description: "Pseudo Curve 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
-            Assert.That(resultCurveDescription.Description.Length, Is.EqualTo(32));
+            Assert.That(resultCurveDescription.Description, Has.Length.EqualTo(32));
 
             resultCurveDescription = new RDMCurveDescription(6, description: "");
             Assert.That(string.IsNullOrEmpty(resultCurveDescription.Description), Is.True);
