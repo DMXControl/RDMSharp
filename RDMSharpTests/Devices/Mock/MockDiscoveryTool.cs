@@ -14,7 +14,7 @@ namespace RDMSharpTests.Devices.Mock
             {
                 this.ReceiveRDMMessage(new RDMMessage(e));
             }
-            catch 
+            catch
             {
             }
         }

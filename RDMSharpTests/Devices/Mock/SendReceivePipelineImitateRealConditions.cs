@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-namespace RDMSharpTests.Devices.Mock
+﻿namespace RDMSharpTests.Devices.Mock
 {
     internal static class SendReceivePipelineImitateRealConditions
     {

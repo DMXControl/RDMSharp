@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace RDMSharp
 {
@@ -32,7 +31,7 @@ namespace RDMSharp
 
         public static GetSetEndpointLabel FromMessage(RDMMessage msg)
         {
-            RDMMessageInvalidException.ThrowIfInvalidPDLRange(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.ENDPOINT_LABEL, PDL_MIN,PDL_MAX);
+            RDMMessageInvalidException.ThrowIfInvalidPDLRange(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.ENDPOINT_LABEL, PDL_MIN, PDL_MAX);
 
             return FromPayloadData(msg.ParameterData);
         }

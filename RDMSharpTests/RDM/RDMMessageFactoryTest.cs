@@ -28,7 +28,7 @@
             //Remove Preample seperator
             b[3] = 0;
 
-            Assert.Throws(typeof(Exception), ()=> new RDMMessage(b));
+            Assert.Throws(typeof(Exception), () => new RDMMessage(b));
 
             //Cut Message
             b = BuildMessage();

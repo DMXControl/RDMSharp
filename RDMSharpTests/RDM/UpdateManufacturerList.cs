@@ -1,5 +1,3 @@
-using System.Xml;
-
 namespace RDMSharpTests.RDM
 {
     public class UpdateManufacturerList

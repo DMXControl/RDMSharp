@@ -1,6 +1,5 @@
 using RDMSharpTests.Devices.Mock;
 using System.Diagnostics;
-using System.Reflection.Metadata;
 
 namespace RDMSharpTests.RDM.Devices
 {
@@ -21,7 +20,7 @@ namespace RDMSharpTests.RDM.Devices
             generated?.Dispose();
             remote?.Dispose();
         }
-        
+
         [Test]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
         public async Task TestDevice1()
@@ -31,7 +30,7 @@ namespace RDMSharpTests.RDM.Devices
             while (remote.DeviceModel?.IsInitialized != true || !remote.AllDataPulled)
             {
                 await Task.Delay(10);
-                if(sw.ElapsedMilliseconds>5000)
+                if (sw.ElapsedMilliseconds > 5000)
                 {
                     if (remote.DeviceModel?.IsInitialized != true)
                         Assert.Fail("Timeouted because DeviceModel not Initialized");

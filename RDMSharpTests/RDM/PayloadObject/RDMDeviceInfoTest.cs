@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-
 namespace RDMSharpTests.RDM.PayloadObject
 {
     public class RDMDeviceInfoTest

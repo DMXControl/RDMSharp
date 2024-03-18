@@ -284,7 +284,7 @@ namespace RDMSharpTests.RDM
         {
             uint result1 = (uint)rand.Next(int.MinValue, int.MaxValue);
             uint result2 = (uint)rand.Next(int.MinValue, int.MaxValue);
-            return  (result1 << 32) + result2;
+            return (result1 << 32) + result2;
         }
     }
 }

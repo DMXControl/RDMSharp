@@ -1,13 +1,8 @@
-using Newtonsoft.Json.Linq;
 using RDMSharp.ParameterWrapper;
 using RDMSharp.ParameterWrapper.Generic;
 using RDMSharp.ParameterWrapper.SGM;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Net;
-using System.Reflection;
 using System.Text;
-using System.Text.Json.Serialization;
 
 namespace RDMSharpTests.RDM
 {
@@ -385,7 +380,7 @@ namespace RDMSharpTests.RDM
                     Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.SetResponseObjectToParameterData(null); });
                     Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.SetResponseParameterDataToObject(null); });
                 }
-                    if (tested <= 1 && failIfNotSuitable)
+                if (tested <= 1 && failIfNotSuitable)
                     Assert.Fail($"{wrapper} is not using Interface");
             }
             object getValue(Type type)

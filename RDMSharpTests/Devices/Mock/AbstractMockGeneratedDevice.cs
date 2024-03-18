@@ -46,7 +46,7 @@ namespace RDMSharpTests.Devices.Mock
         {
             if (identifyer.TryGetValue(tuple.Item1, out var rdmMessage))
             {
-                if (RDMMessage.Equals(rdmMessage,tuple.Item2))
+                if (RDMMessage.Equals(rdmMessage, tuple.Item2))
                 {
                     identifyer.Remove(tuple.Item1, out _);
                     return;

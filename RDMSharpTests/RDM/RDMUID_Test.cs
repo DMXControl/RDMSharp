@@ -104,7 +104,7 @@ namespace RDMSharpTests.RDM
 
             Assert.That((byte[])new RDMUID(EManufacturer.ESTA, 0x12345678), Is.EqualTo(new byte[] { 0x00, 0x00, 0x12, 0x34, 0x56, 0x78 }));
 
-            List<RDMUID>list= new List<RDMUID>();
+            List<RDMUID> list = new List<RDMUID>();
             list.Add(new RDMUID(0x1FFF, 0x00000031));
             list.Add(new RDMUID(0x2FFF, 0x00000022));
             list.Add(new RDMUID(0x3FFF, 0x00000013));
@@ -115,7 +115,7 @@ namespace RDMSharpTests.RDM
             list.Add(new RDMUID(0x0FFF, 0x00000002));
             list.Add(new RDMUID(0x0FFF, 0x00000003));
 
-            var orderd=list.OrderBy(uid => uid).ToArray();
+            var orderd = list.OrderBy(uid => uid).ToArray();
             Assert.That(orderd[0], Is.EqualTo(new RDMUID(0x0FFF, 0x00000001)));
             Assert.That(orderd[1], Is.EqualTo(new RDMUID(0x0FFF, 0x00000002)));
             Assert.That(orderd[2], Is.EqualTo(new RDMUID(0x0FFF, 0x00000003)));

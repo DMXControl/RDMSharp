@@ -13,7 +13,8 @@ namespace RDMSharpTests.RDM.Devices
         {
             mockDiscoveryTool = new MockDiscoveryTool();
         }
-        [TearDown] public void Teardown()
+        [TearDown]
+        public void Teardown()
         {
             foreach (IDisposable m in mockDevices)
                 m.Dispose();
@@ -34,7 +35,7 @@ namespace RDMSharpTests.RDM.Devices
                     return;
 
                 status = value;
-                ProgressChanged?.Invoke(this,value);
+                ProgressChanged?.Invoke(this, value);
             }
         }
 
@@ -49,7 +50,7 @@ namespace RDMSharpTests.RDM.Devices
                 m.ImitateRealConditions = true;
             var progress = new DiscoveryProgress();
             ulong messageCount = 0;
-            progress.ProgressChanged += (o,e) => 
+            progress.ProgressChanged += (o, e) =>
             {
                 if (e.MessageCount <= messageCount)
                     return;
@@ -128,7 +129,7 @@ namespace RDMSharpTests.RDM.Devices
         [Test]
         public async Task TestDiscovery4()
         {
-            HashSet<uint> ids=new HashSet<uint>();
+            HashSet<uint> ids = new HashSet<uint>();
             for (int i = 0; i < 150; i++)
             {
                 uint id = 0;

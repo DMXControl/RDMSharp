@@ -1,5 +1,3 @@
-using System.Collections.Concurrent;
-
 namespace RDMSharpTests
 {
     public class TestTools
@@ -12,7 +10,7 @@ namespace RDMSharpTests
 
         [Test]
         public void TestStatusMessages()
-        { 
+        {
             Dictionary<string, ERDM_StatusMessage> results = new Dictionary<string, ERDM_StatusMessage>();
             var enums = new List<ERDM_StatusMessage>();
             enums.AddRange(Enum.GetValues(typeof(ERDM_StatusMessage)).Cast<ERDM_StatusMessage>());
@@ -21,10 +19,10 @@ namespace RDMSharpTests
             {
                 short val1 = 1;
                 if (e == ERDM_StatusMessage.PROXY_BROADCAST_DROPPED)
-                    val1 = unchecked ((short)(ushort)ERDM_Parameter.DIMMING_CURVE);
+                    val1 = unchecked((short)(ushort)ERDM_Parameter.DIMMING_CURVE);
                 string str = Tools.GetStatusMessage(e, val1, 120);
                 Console.WriteLine($"{e} => {str}");
-                if (e==0)
+                if (e == 0)
                 {
                     Assert.That(String.IsNullOrWhiteSpace(str), Is.True);
                     continue;
