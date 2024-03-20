@@ -7,20 +7,20 @@ namespace RDMSharp
     {
         public RDMSensorValue(
             byte sensorId = 0,
-            short value = 0,
+            short presentvalue = 0,
             short lowestValue = 0,
             short highestValue = 0,
             short recordedValue = 0)
         {
             this.SensorId = sensorId;
-            this.Value = value;
+            this.PresentValue = presentvalue;
             this.LowestValue = lowestValue;
             this.HighestValue = highestValue;
             this.RecordedValue = recordedValue;
         }
 
         public byte SensorId { get; private set; }
-        public short Value { get; private set; }
+        public short PresentValue { get; private set; }
         public short LowestValue { get; private set; }
         public short HighestValue { get; private set; }
         public short RecordedValue { get; private set; }
@@ -37,7 +37,7 @@ namespace RDMSharp
             StringBuilder b = new StringBuilder();
             b.AppendLine("RDMSensorValue");
             b.AppendLine($"SensorId:      {SensorId}");
-            b.AppendLine($"Value:         {Value}");
+            b.AppendLine($"PresentValue:  {PresentValue}");
             b.AppendLine($"LowestValue:   {LowestValue}");
             b.AppendLine($"HighestValue:  {HighestValue}");
             b.AppendLine($"RecordedValue: {RecordedValue}");
@@ -57,7 +57,7 @@ namespace RDMSharp
 
             var i = new RDMSensorValue(
                 sensorId: Tools.DataToByte(ref data),
-                value: Tools.DataToShort(ref data),
+                presentvalue: Tools.DataToShort(ref data),
                 lowestValue: Tools.DataToShort(ref data),
                 highestValue: Tools.DataToShort(ref data),
                 recordedValue: Tools.DataToShort(ref data));
@@ -68,7 +68,7 @@ namespace RDMSharp
         {
             List<byte> data = new List<byte>();
             data.AddRange(Tools.ValueToData(this.SensorId));
-            data.AddRange(Tools.ValueToData(this.Value));
+            data.AddRange(Tools.ValueToData(this.PresentValue));
             data.AddRange(Tools.ValueToData(this.LowestValue));
             data.AddRange(Tools.ValueToData(this.HighestValue));
             data.AddRange(Tools.ValueToData(this.RecordedValue));

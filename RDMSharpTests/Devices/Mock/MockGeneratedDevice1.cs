@@ -38,12 +38,25 @@ namespace RDMSharpTests.Devices.Mock
                 new Slot(6, ERDM_SlotCategory.COLOR_ADD_GREEN, ERDM_SlotType.SEC_FINE,"Green Fine"),
                 new Slot(7, ERDM_SlotCategory.COLOR_ADD_BLUE, "Blue" ),
                 new Slot(8, ERDM_SlotCategory.COLOR_ADD_BLUE,ERDM_SlotType.SEC_FINE, "Blue Fine" ))];
+
+        private static readonly Sensor[] SENSORS = [
+            new MockSensor1(1, 1, 3000),
+            new MockSensor1(2, 2, 8000),
+            new MockSensor1(3, 3, 12000)];
         public override GeneratedPersonality[] Personalities => PERSONALITYS;
         public MockGeneratedDevice1(RDMUID uid) : base(uid, [ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL], "Dummy Manufacturer 9FFF")
         {
             this.DeviceLabel = "Dummy Device 1";
             this.TrySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, false);
             this.TrySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, $"Dummy Software");
+        }
+
+        private class MockSensor1 : Sensor
+        {
+            public MockSensor1(in byte sensorId, byte number, short initValue) : base(sensorId, ERDM_SensorType.TEMPERATURE, ERDM_SensorUnit.CENTIGRADE, ERDM_UnitPrefix.CENTI, $"Mock Temp. {number}", -2000, 10000, 2000, 5000, true, true)
+            {
+                UpdateValue(initValue);
+            }
         }
     }
 }

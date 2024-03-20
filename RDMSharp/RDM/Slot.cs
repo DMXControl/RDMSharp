@@ -67,22 +67,31 @@ namespace RDMSharp
             }
         }
 
-        public Slot(ushort slotId)
+        public Slot(in ushort slotId)
         {
             this.SlotId = slotId;
         }
-        public Slot(ushort slotId, ERDM_SlotCategory category, ERDM_SlotType type, string description = null, byte defaultValue = 0) : this(slotId)
+        public Slot(
+            in ushort slotId,
+            in ERDM_SlotCategory category,
+            in ERDM_SlotType type,
+            in string description = null,
+            in byte defaultValue = 0) : this(slotId)
         {
             this.Category = category;
             this.Type = type;
             this.Description = description;
             this.DefaultValue = defaultValue;
         }
-        public Slot(ushort slotId, ERDM_SlotCategory category, string description = null, byte defaultValue = 0) : this(slotId, category, ERDM_SlotType.PRIMARY, description: description, defaultValue: defaultValue)
+        public Slot(
+            in ushort slotId,
+            in ERDM_SlotCategory category,
+            in string description = null,
+            in byte defaultValue = 0) : this(slotId, category, ERDM_SlotType.PRIMARY, description: description, defaultValue: defaultValue)
         {
         }
 
-        public void UpdateSlotInfo(RDMSlotInfo slotInfo)
+        internal void UpdateSlotInfo(RDMSlotInfo slotInfo)
         {
             if (this.SlotId != slotInfo.SlotOffset)
                 throw new InvalidOperationException($"The given {nameof(slotInfo)} has not the expected id of {this.SlotId} but {slotInfo.SlotOffset}");
@@ -90,14 +99,14 @@ namespace RDMSharp
             this.Type = slotInfo.SlotType;
             this.Category = slotInfo.SlotLabelId;
         }
-        public void UpdateSlotDescription(RDMSlotDescription slotDescription)
+        internal void UpdateSlotDescription(RDMSlotDescription slotDescription)
         {
             if (this.SlotId != slotDescription.SlotId)
                 throw new InvalidOperationException($"The given {nameof(slotDescription)} has not the expected id of {this.SlotId} but {slotDescription.SlotId}");
 
             this.Description = slotDescription.Description;
         }
-        public void UpdateSlotDefaultValue(RDMDefaultSlotValue defaultSlotValue)
+        internal void UpdateSlotDefaultValue(RDMDefaultSlotValue defaultSlotValue)
         {
             if (this.SlotId != defaultSlotValue.SlotOffset)
                 throw new InvalidOperationException($"The given {nameof(defaultSlotValue)} has not the expected id of {this.SlotId} but {defaultSlotValue.SlotOffset}");

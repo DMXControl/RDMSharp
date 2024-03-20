@@ -22,6 +22,36 @@ namespace RDMSharp
 
             return hash;
         }
+        public static string FormatNumber(double number)
+        {
+            string[] prefixes = { "", "k", "M", "G", "T", "P", "E", "Z", "Y" };
+            string[] suffixes = { "", "m", "µ", "n", "p", "f", "a", "z", "y" };
+
+            int prefixIndex = 0;
+            int suffixIndex = 0;
+
+            while (Math.Abs(number) >= 1000 && prefixIndex < prefixes.Length - 1)
+            {
+                number /= 1000;
+                prefixIndex++;
+            }
+
+            while (Math.Abs(number) < 1 && suffixIndex < suffixes.Length - 1)
+            {
+                number *= 1000;
+                suffixIndex++;
+            }
+
+            string prefix = prefixes[prefixIndex];
+            string suffix = suffixes[suffixIndex];
+
+            return $"{number}{prefix}{suffix}";
+        }
+
+        public static string GetFormatedSensorValue(in int value,in ERDM_UnitPrefix prefix, in ERDM_SensorUnit unit)
+        {
+            return $"{FormatNumber(prefix.GetNormalizedValue(value))}{unit.GetUnitSymbol()}";
+        }
 
         public static double GetNormalizedValue(this ERDM_UnitPrefix prefix, in int value)
         {
