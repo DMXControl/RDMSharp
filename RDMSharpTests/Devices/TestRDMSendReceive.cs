@@ -20,7 +20,6 @@ namespace RDMSharpTests.RDM.Devices
         {
             generated.Dispose();
             remote.Dispose();
-            await Task.Delay(500);
         }
 
         [Test]
