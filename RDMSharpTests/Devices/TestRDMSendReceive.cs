@@ -16,10 +16,11 @@ namespace RDMSharpTests.RDM.Devices
             remote = new MockDevice(uid, false);
         }
         [TearDown]
-        public void TearDown()
+        public async Task TearDown()
         {
             generated.Dispose();
             remote.Dispose();
+            await Task.Delay(500);
         }
 
         [Test]
@@ -28,8 +29,6 @@ namespace RDMSharpTests.RDM.Devices
         {
             var parameterValuesRemote = remote.GetAllParameterValues();
             var parameterValuesGenerated = generated.GetAllParameterValues();
-            var sensorsRemote = remote.Sensors.Values.ToList();
-            var sensorsGenerated = generated.Sensors.ToList();
 
             Assert.Multiple(() =>
             {
@@ -45,11 +44,6 @@ namespace RDMSharpTests.RDM.Devices
                 }
                 Assert.That(parameterValuesRemote, Has.Count.EqualTo(parameterValuesGenerated.Count));
             });
-            Assert.Multiple(() =>
-            {
-                Assert.That(remote.DeviceModel.SupportedBlueprintParameters, Contains.Item(ERDM_Parameter.SENSOR_DEFINITION));
-                Assert.That(remote.DeviceModel.SupportedNonBlueprintParameters, Contains.Item(ERDM_Parameter.SENSOR_VALUE));
-            });
 
             Assert.Multiple(() =>
             {
@@ -58,12 +52,6 @@ namespace RDMSharpTests.RDM.Devices
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_MODEL_DESCRIPTION], Is.EqualTo(generated.DeviceModelDescription));
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.MANUFACTURER_LABEL], Is.EqualTo(generated.ManufacturerLabel));
                 Assert.That(((RDMDMXPersonality)remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY]).Index, Is.EqualTo(generated.CurrentPersonality));
-            });
-            Assert.Multiple(() =>
-            {
-                
-                Assert.That(sensorsRemote, Has.Count.EqualTo(sensorsGenerated.Count));
-                Assert.That(sensorsRemote, Is.EqualTo(sensorsGenerated));
             });
 
             await remote.SetParameter(ERDM_Parameter.DMX_START_ADDRESS, (ushort)512);
@@ -108,7 +96,12 @@ namespace RDMSharpTests.RDM.Devices
                 Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DISC_MUTE, null); });
                 Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DEVICE_LABEL, new RDMDeviceInfo()); });
             });
+        }
 
+        [Test]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
+        public void TestDevice1Slots()
+        {
             var slotIntensity = remote.Slots[0];
             var slotStrobe = remote.Slots[1];
             var slotRed = remote.Slots[2];
@@ -182,6 +175,26 @@ namespace RDMSharpTests.RDM.Devices
                 Assert.That(slots.Add(slotBlue), Is.True);
                 Assert.That(slots.Add(slotBlue), Is.False);
                 Assert.That(slots, Does.Contain(slotBlue));
+            });
+        }
+
+        [Test]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
+        public void TestDevice1Sensor()
+        {
+            var sensorsRemote = remote.Sensors.Values.ToList();
+            var sensorsGenerated = generated.Sensors.ToList();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(remote.DeviceModel.SupportedBlueprintParameters, Contains.Item(ERDM_Parameter.SENSOR_DEFINITION));
+                Assert.That(remote.DeviceModel.SupportedNonBlueprintParameters, Contains.Item(ERDM_Parameter.SENSOR_VALUE));
+            });
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(sensorsRemote, Has.Count.EqualTo(sensorsGenerated.Count));
+                Assert.That(sensorsRemote, Is.EqualTo(sensorsGenerated));
             });
         }
     }

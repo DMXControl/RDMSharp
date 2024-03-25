@@ -141,6 +141,9 @@ namespace RDMSharp
         protected abstract Task SendRDMMessage(RDMMessage rdmMessage);
         protected async Task ReceiveRDMMessage(RDMMessage rdmMessage)
         {
+            if (this.IsDisposed || IsDisposing)
+                return;
+
             try
             {
                 if (!IsGenerated)
@@ -311,6 +314,8 @@ namespace RDMSharp
                                 break;
 
                             list.TryGetValue(index, out responseValue);
+                            if (responseValue == null)
+                                break;
                             response = _descriptionParameterWrapper.BuildGetResponseMessage(responseValue);
                             break;
 
@@ -1002,6 +1007,7 @@ namespace RDMSharp
             if (IsDisposing || IsDisposed)
                 return;
             IsDisposing = true;
+            asyncRDMRequestHelper.Dispose();
             try
             {
                 OnDispose();

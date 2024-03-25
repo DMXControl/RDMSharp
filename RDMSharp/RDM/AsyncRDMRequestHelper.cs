@@ -2,24 +2,42 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RDMSharp
 {
-    public class AsyncRDMRequestHelper
+    public class AsyncRDMRequestHelper : IDisposable
     {
         private static readonly ILogger Logger = null;
         private static readonly Random random = new Random();
         private readonly ConcurrentDictionary<int, Tuple<RDMMessage, RDMMessage>> buffer = new ConcurrentDictionary<int, Tuple<RDMMessage, RDMMessage>>();
         private readonly Func<RDMMessage, Task> _sendMethode;
+        private CancellationTokenSource _cts;
+        public bool IsDisposing, IsDisposed;
         public AsyncRDMRequestHelper(Func<RDMMessage, Task> sendMethode)
         {
+            _cts = new CancellationTokenSource();
             _sendMethode = sendMethode;
         }
 
+        public void Dispose()
+        {
+            if (this.IsDisposing || this.IsDisposed)
+                return;
+            this.IsDisposing = true;
+            _cts.Cancel();
+            buffer.Clear();
+            _cts.Dispose();
+            this.IsDisposed = true;
+            this.IsDisposing= false;
+        }
 
         public bool ReceiveMethode(RDMMessage rdmMessage)
         {
+            if (this.IsDisposing || this.IsDisposed)
+                return false;
+
             if (rdmMessage.Command == ERDM_Command.DISCOVERY_COMMAND_RESPONSE)
             {
                 var o = buffer.FirstOrDefault(b => b.Value.Item1.Parameter == rdmMessage.Parameter);
@@ -60,11 +78,14 @@ namespace RDMSharp
                 int count = 0;
                 do
                 {
+                    if (this.IsDisposing || this.IsDisposed)
+                        return new RequestResult(requerst);
+
                     buffer.TryGetValue(key, out Tuple<RDMMessage, RDMMessage> tuple1);
                     response = tuple1.Item2;
                     if (response != null)
                         break;
-                    await Task.Delay(5);
+                    await Task.Delay(5, _cts.Token);
                     if (requerst.Command == ERDM_Command.NONE)
                     {
                         throw new Exception("Command is not set");
@@ -72,9 +93,9 @@ namespace RDMSharp
                     count++;
                     if (count % 300 == 299)
                     {
-                        await Task.Delay(TimeSpan.FromTicks(random.Next(33, 777)));
+                        await Task.Delay(TimeSpan.FromTicks(random.Next(33, 777)), _cts.Token);
                         await _sendMethode.Invoke(requerst);
-                        await Task.Delay(TimeSpan.FromTicks(random.Next(33, 777)));
+                        await Task.Delay(TimeSpan.FromTicks(random.Next(33, 777)), _cts.Token);
                     }
                     if (count > 1 && requerst.Command == ERDM_Command.DISCOVERY_COMMAND)
                         break;
