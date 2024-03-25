@@ -34,7 +34,7 @@ namespace RDMSharp.ParameterWrapper
             return personalityDescription.ToPayloadData();
         }
 
-        public override RequestRange<byte> GetRequestRange(object value)
+        public override IRequestRange GetRequestRange(object value)
         {
             if (value is RDMDMXPersonality perso)
                 return new RequestRange<byte>((byte)perso.MinIndex, (byte)perso.Count);

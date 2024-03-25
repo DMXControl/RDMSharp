@@ -50,7 +50,7 @@
         {
             return Tools.ValueToData(endpointId);
         }
-        public override RequestRange<ushort> GetRequestRange(object value)
+        public override IRequestRange GetRequestRange(object value)
         {
             return EndpointListParameterWrapper.GetRequestRange(value);
         }

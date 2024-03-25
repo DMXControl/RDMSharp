@@ -39,7 +39,7 @@
         {
             return nameServer.ToPayloadData();
         }
-        public override RequestRange<uint> GetRequestRange(object value)
+        public override IRequestRange GetRequestRange(object value)
         {
             return ListInterfacesParameterWrapper.GetRequestRange(value);
         }

@@ -39,8 +39,8 @@ namespace RDMSharp
         public IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues => parameterValues.AsReadOnly();
         private readonly HashSet<ERDM_Parameter> pendingParametersUpdateRequest = new HashSet<ERDM_Parameter>();
 
-        private readonly ConcurrentDictionary<byte, RDMSensorValue> sensorValues = new ConcurrentDictionary<byte, RDMSensorValue>();
-        public IReadOnlyDictionary<byte, RDMSensorValue> SensorValues => sensorValues.AsReadOnly();
+        private readonly ConcurrentDictionary<byte, Sensor> sensors = new ConcurrentDictionary<byte, Sensor>();
+        public IReadOnlyDictionary<byte, Sensor> Sensors => sensors.AsReadOnly();
         private readonly HashSet<byte> pendingSensorValuesUpdateRequest = new HashSet<byte>();
 
         private ConcurrentDictionary<ushort, Slot> slots = new ConcurrentDictionary<ushort, Slot>();
@@ -80,11 +80,21 @@ namespace RDMSharp
                     return;
             }
         }
+        private protected void SetGeneratedSensorDescription(RDMSensorDefinition value)
+        {
+            if (!IsGenerated)
+                return;
+
+            Sensor sensor = sensors.GetOrAdd(value.SensorId, (a) => new Sensor(a));
+            sensor.UpdateDescription(value);
+        }
         private protected void SetGeneratedSensorValue(RDMSensorValue value)
         {
             if (!IsGenerated)
                 return;
-            sensorValues.AddOrUpdate(value.SensorId, value, (o, p) => value);
+
+            Sensor sensor = sensors.GetOrAdd(value.SensorId, (a) => new Sensor(a));
+            sensor.UpdateValue(value);
         }
         public async Task<bool> SetParameter(ERDM_Parameter parameter, object value = null)
         {
@@ -248,7 +258,16 @@ namespace RDMSharp
                             List<ERDM_Parameter> sp = new List<ERDM_Parameter>();
                             sp.Add(ERDM_Parameter.DEVICE_INFO);
                             sp.AddRange(parameterValues.Keys);
-                            response = _supportedParametersParameterWrapper.BuildGetResponseMessage(sp.ToArray());
+                            if (deviceModel != null)
+                                sp.AddRange(deviceModel.SupportedParameters);
+                            if (!sensors.IsEmpty)
+                            {
+                                sp.Add(ERDM_Parameter.SENSOR_DEFINITION);
+                                sp.Add(ERDM_Parameter.SENSOR_VALUE);
+                                if(sensors.Any(s=>s.Value.RecordedValueSupported))
+                                    sp.Add(ERDM_Parameter.RECORD_SENSORS);
+                            }
+                            response = _supportedParametersParameterWrapper.BuildGetResponseMessage(sp.Distinct().ToArray());
                             break;
                         case QueuedMessageParameterWrapper _queuedMessageParameterWrapper:
                             response = statusMessageParameterWrapper.BuildGetResponseMessage([]);
@@ -299,6 +318,11 @@ namespace RDMSharp
                             when responseValue is ushort _ushort:
                             response = dmx512StartingAddressParameterWrapper.BuildGetResponseMessage(_ushort);
                             break;
+                        case SensorValueParameterWrapper sensorValueParameterWrapper:
+                            if (sensors.TryGetValue((byte)rdmMessage.Value, out Sensor sensor))
+                                response = sensorValueParameterWrapper.BuildGetResponseMessage((RDMSensorValue)sensor);
+                            break;
+
                         case IRDMGetParameterWrapperResponse getParameterWrapperResponse:
                             response = getParameterWrapperResponse.BuildGetResponseMessage(responseValue);
                             break;
@@ -616,17 +640,18 @@ namespace RDMSharp
                     }
                     this.OnPropertyChanged(nameof(this.Slots));
                     break;
-                case SensorDefinitionParameterWrapper _sensorDefinitionParameterWrapper:
+                case SensorValueParameterWrapper _sensorValueParameterWrapper:
                     if (value is not RDMSensorValue sensorValue)
                     {
                         if (value != null)
-                            Logger?.LogError($"The response does not contain the expected data {typeof(RDMSensorValue)}!{Environment.NewLine}{rdmMessage}");
+                            Logger?.LogError($"The response does not contain the expected data {typeof(RDMSensorDefinition)}!{Environment.NewLine}{rdmMessage}");
                         else
                             Logger?.LogError($"No response received");
                         return;
                     }
-                    sensorValues.AddOrUpdate(sensorValue.SensorId, sensorValue, (x, y) => sensorValue);
-                    this.OnPropertyChanged(nameof(this.SensorValues));
+                    Sensor sensorV = sensors.GetOrAdd(sensorValue.SensorId, (a) => new Sensor(a));
+                    sensorV.UpdateValue(sensorValue);
+                    this.OnPropertyChanged(nameof(this.Sensors));
                     break;
 
                 case IRDMGetParameterWrapperWithEmptyGetRequest @emptyGetRequest:
@@ -790,7 +815,16 @@ namespace RDMSharp
             {
                 List<Task> tasks = new List<Task>();
                 foreach (var sd in this.DeviceModel.GetSensorDefinitions())
+                {
+                    sensors.GetOrAdd(sd.SensorId, (a) =>
+                    {
+                        var s = new Sensor(a);
+                        s.UpdateDescription(sd);
+                        return s;
+                    });
+
                     tasks.Add(this.UpdateSensorValue(sd.SensorId));
+                }
 
                 await Task.WhenAny(Task.WhenAll(tasks), Task.Delay(TimeSpan.FromSeconds(10)));
             }

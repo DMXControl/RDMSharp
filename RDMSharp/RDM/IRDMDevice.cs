@@ -13,7 +13,7 @@ namespace RDMSharp
         RDMDeviceInfo DeviceInfo { get; }
 
         IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues { get; }
-        IReadOnlyDictionary<byte, RDMSensorValue> SensorValues { get; }
+        IReadOnlyDictionary<byte, Sensor> Sensors { get; }
         IReadOnlyDictionary<ushort, Slot> Slots { get; }
 
         bool IsDisposing { get; }

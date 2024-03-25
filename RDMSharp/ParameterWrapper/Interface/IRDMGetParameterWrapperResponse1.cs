@@ -1,9 +1,7 @@
 ﻿namespace RDMSharp.ParameterWrapper
 {
-    public interface IRDMGetParameterWrapperResponse<TResponse> : IRDMGetParameterWrapperResponse
+    public interface IRDMGetParameterWrapperResponse<TResponse> : IRDMGetParameterWrapperResponse, IRDMGetParameterWrapperGetResponseContravariance<TResponse>
     {
-        RDMMessage BuildGetResponseMessage(TResponse value);
         TResponse GetResponseParameterDataToValue(byte[] parameterData);
-        byte[] GetResponseValueToParameterData(TResponse value);
     }
 }

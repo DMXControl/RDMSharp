@@ -33,7 +33,7 @@
         {
             return response.ToPayloadData();
         }
-        public override RequestRange<GetBindingAndControlFieldsRequest> GetRequestRange(object value)
+        public override IRequestRange GetRequestRange(object value)
         {
             throw new System.NotSupportedException();
         }

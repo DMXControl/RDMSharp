@@ -10,7 +10,7 @@ namespace RDMSharp.ParameterWrapper
         public override string Name => "Sensor Value";
         public override string Description => "This parameter shall be used to retrieve or reset sensor data.";
 
-        private static readonly ERDM_Parameter[] descriptiveParameters = new ERDM_Parameter[] { ERDM_Parameter.DEVICE_INFO };
+        private static readonly ERDM_Parameter[] descriptiveParameters = new ERDM_Parameter[] { ERDM_Parameter.SENSOR_DEFINITION };
         public override ERDM_Parameter[] DescriptiveParameters => descriptiveParameters;
 
         protected override byte[] getRequestValueToParameterData(byte sensorId)
@@ -51,7 +51,7 @@ namespace RDMSharp.ParameterWrapper
             return value.ToPayloadData();
         }
 
-        public override RequestRange<byte> GetRequestRange(object value)
+        public override IRequestRange GetRequestRange(object value)
         {
             if (value is RDMDeviceInfo deviceInfo)
                 return new RequestRange<byte>(0, (byte)(deviceInfo.SensorCount - 1));

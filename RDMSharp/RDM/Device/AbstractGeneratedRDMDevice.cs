@@ -19,6 +19,7 @@ namespace RDMSharp
         #endregion
         public abstract string DeviceModelDescription { get; }
         public abstract GeneratedPersonality[] Personalities { get; }
+        public abstract Sensor[] Sensors { get; }
 
         public abstract bool SupportDMXAddress { get; }
 
@@ -135,6 +136,13 @@ namespace RDMSharp
                 _params.Add(ERDM_Parameter.SLOT_DESCRIPTION);
                 _params.Add(ERDM_Parameter.DEFAULT_SLOT_VALUE);
             }
+            if ((Sensors?.Length ?? 0) != 0)
+            {
+                _params.Add(ERDM_Parameter.SENSOR_DEFINITION);
+                _params.Add(ERDM_Parameter.SENSOR_VALUE);
+                if(Sensors.Any(s=>s.RecordedValueSupported))
+                    _params.Add(ERDM_Parameter.RECORD_SENSORS);
+            }
 
             Parameters = _params.Distinct().ToArray();
             #endregion
@@ -178,6 +186,52 @@ namespace RDMSharp
             }
             #endregion
 
+            #region Sensors
+            if (Sensors != null)
+            {
+                if (Sensors.Length >= byte.MaxValue)
+                    throw new ArgumentOutOfRangeException($"There to many {Sensors}! Maxumum is {byte.MaxValue - 1}");
+
+                if (Sensors.Length != 0)
+                {
+                    var sensorDef = new ConcurrentDictionary<object, object>();
+                    foreach (var sensor in Sensors)
+                    {
+                        if (!sensorDef.TryAdd(sensor.SensorId, (RDMSensorDefinition)sensor))
+                            throw new Exception($"{sensor.SensorId} already used as {nameof(sensor.SensorId)}");
+
+                        SetGeneratedSensorDescription((RDMSensorDefinition)sensor);
+                        SetGeneratedSensorValue((RDMSensorValue)sensor);
+                        sensor.PropertyChanged += (o, e) =>
+                        {
+                            switch (e.PropertyName)
+                            {
+                                case nameof(Sensor.Type):
+                                case nameof(Sensor.Unit):
+                                case nameof(Sensor.Prefix):
+                                case nameof(Sensor.RangeMaximum):
+                                case nameof(Sensor.RangeMinimum):
+                                case nameof(Sensor.NormalMaximum):
+                                case nameof(Sensor.NormalMinimum):
+                                case nameof(Sensor.LowestHighestValueSupported):
+                                case nameof(Sensor.RecordedValueSupported):
+                                    SetGeneratedSensorDescription((RDMSensorDefinition)sensor);
+                                    break;
+                                case nameof(Sensor.PresentValue):
+                                case nameof(Sensor.LowestValue):
+                                case nameof(Sensor.HighestValue):
+                                case nameof(Sensor.RecordedValue):
+                                    SetGeneratedSensorValue((RDMSensorValue)sensor);
+                                    break;
+                            }
+                        };
+                    }
+
+                    trySetParameter(ERDM_Parameter.SENSOR_DEFINITION, sensorDef);
+                }
+            }
+            #endregion
+
             #region DMX-Address
             if (Parameters.Contains(ERDM_Parameter.DMX_START_ADDRESS))
                 DMXAddress = 1;
@@ -195,7 +249,8 @@ namespace RDMSharp
                                            SoftwareVersionID,
                                            dmx512CurrentPersonality: currentPersonality,
                                            dmx512NumberOfPersonalities: (byte)(Personalities?.Length ?? 0),
-                                           dmx512StartAddress: dmxAddress);
+                                           dmx512StartAddress: dmxAddress,
+                                           sensorCount: (byte)(Sensors?.Length ?? 0));
         }
         private bool trySetParameter(ERDM_Parameter parameter, object value)
         {
@@ -206,7 +261,7 @@ namespace RDMSharp
             {
                 case IRDMSetParameterWrapperResponse setParameterWrapperResponse:
                     if (setParameterWrapperResponse.SetResponseType != value.GetType())
-                        throw new NotSupportedException($"The Type of {nameof(value)} is not supported as Response for Parameter: {parameter}, the only supported Type is {setParameterWrapperResponse.SetResponseType}");
+                        throw new NotSupportedException($"The Type of {value.GetType()} is not supported as Response for Parameter: {parameter}, the only supported Type is {setParameterWrapperResponse.SetResponseType}");
                     break;
             }
             base.SetGeneratedParameterValue(parameter, value);

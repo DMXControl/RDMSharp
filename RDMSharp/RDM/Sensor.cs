@@ -9,7 +9,7 @@ namespace RDMSharp
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public readonly ushort SensorId;
+        public readonly byte SensorId;
 
         private ERDM_SensorType type;
         public ERDM_SensorType Type
@@ -236,10 +236,11 @@ namespace RDMSharp
         internal void UpdateDescription(RDMSensorDefinition sensorDescription)
         {
             if (this.SensorId != sensorDescription.SensorId)
-                throw new InvalidOperationException($"The given {nameof(sensorDescription)} has not the expected id of {this.SensorId} but {sensorDescription.SlotId}");
+                throw new InvalidOperationException($"The given {nameof(sensorDescription)} has not the expected id of {this.SensorId} but {sensorDescription.SensorId}");
 
             this.Description = sensorDescription.Description;
             this.Type = sensorDescription.Type;
+            this.Unit = sensorDescription.Unit;
             this.Prefix = sensorDescription.Prefix;
             this.RangeMinimum = sensorDescription.RangeMinimum;
             this.RangeMaximum = sensorDescription.RangeMaximum;
@@ -264,17 +265,16 @@ namespace RDMSharp
             PresentValue = value;
             if (this.LowestHighestValueSupported)
                 updateLowestHighstValue(value);
-            if (this.RecordedValueSupported)
-                updateLRecordedValue(value);
         }
         private void updateLowestHighstValue(short value)
         {
             LowestValue = Math.Min(LowestValue, value);
             HighestValue = Math.Max(HighestValue, value);
         }
-        private void updateLRecordedValue(short value)
+        internal void RecordValue(short value)
         {
-            RecordedValue = value;
+            if (this.RecordedValueSupported)
+                RecordedValue = value;
         }
         internal void ResetValues()
         {
@@ -387,14 +387,28 @@ namespace RDMSharp
 #endif
         }
 
-        public static bool operator ==(Sensor left, Sensor right)
-        {
-            return EqualityComparer<Sensor>.Default.Equals(left, right);
-        }
 
-        public static bool operator !=(Sensor left, Sensor right)
+        public static implicit operator RDMSensorDefinition(Sensor _this)
         {
-            return !(left == right);
+            return new RDMSensorDefinition(_this.SensorId,
+                                           _this.Type,
+                                           _this.Unit,
+                                           _this.Prefix,
+                                           _this.RangeMinimum,
+                                           _this.RangeMaximum,
+                                           _this.NormalMinimum,
+                                           _this.NormalMaximum,
+                                           _this.LowestHighestValueSupported,
+                                           _this.RecordedValueSupported,
+                                           _this.Description);
+        }
+        public static implicit operator RDMSensorValue(Sensor _this)
+        {
+            return new RDMSensorValue(_this.SensorId,
+                                           _this.PresentValue,
+                                           _this.LowestValue,
+                                           _this.HighestValue,
+                                           _this.RecordedValue);
         }
     }
 }

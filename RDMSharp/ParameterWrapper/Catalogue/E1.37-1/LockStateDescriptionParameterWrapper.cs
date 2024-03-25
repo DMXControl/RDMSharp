@@ -36,7 +36,7 @@ namespace RDMSharp.ParameterWrapper
             return value.ToPayloadData();
         }
 
-        public override RequestRange<byte> GetRequestRange(object value)
+        public override IRequestRange GetRequestRange(object value)
         {
             if (value is GetLockStateResponse lockState)
                 return new RequestRange<byte>(1, (byte)(lockState.Count));

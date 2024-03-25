@@ -36,7 +36,7 @@ namespace RDMSharp.ParameterWrapper
         {
             return value.ToPayloadData();
         }
-        public override RequestRange<ushort> GetRequestRange(object value)
+        public override IRequestRange GetRequestRange(object value)
         {
             if (value is RDMDeviceInfo deviceInfo)
                 return new RequestRange<ushort>(0, (ushort)(deviceInfo.Dmx512Footprint));

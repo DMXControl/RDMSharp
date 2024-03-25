@@ -31,7 +31,7 @@
             return value.ToPayloadData();
         }
 
-        public override RequestRange<byte> GetRequestRange(object value)
+        public override IRequestRange GetRequestRange(object value)
         {
             return new RequestRange<byte>(0, byte.MaxValue);
         }

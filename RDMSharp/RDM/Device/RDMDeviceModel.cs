@@ -133,18 +133,78 @@ namespace RDMSharp
                 if (pw is not IRDMBlueprintParameterWrapper)
                     continue;
 
-                if (pw is IRDMBlueprintDescriptionListParameterWrapper blueprintDL)
-                    pw = pmManager.GetRDMParameterWrapperByID(blueprintDL.ValueParameterID);
-
                 RDMMessage request = null;
-                if (pw is IRDMGetParameterWrapperWithEmptyGetRequest emptyGet)
-                    request = emptyGet.BuildGetRequestMessage();
+                if (pw is IRDMBlueprintDescriptionListParameterWrapper blueprintDL)
+                {
+                    foreach (IRDMParameterWrapper _pm in blueprintDL.DescriptiveParameters.Select(pid => pmManager.GetRDMParameterWrapperByID(pid)))
+                        await doCurrentWrapper(_pm);
+                    //if (blueprintDL.DescriptiveParameters?.Contains(blueprintDL.ValueParameterID) == false)
+                    //    await doCurrentWrapper(pmManager.GetRDMParameterWrapperByID(blueprintDL.ValueParameterID));
 
-                if (request == null)
-                    continue;
+                    await doCurrentWrapper(pw);
+                }
+                else
+                    await doCurrentWrapper(pw);
+
+                async Task doCurrentWrapper(IRDMParameterWrapper wrapper)
+                {
+                    if (this.parameterValues.ContainsKey(wrapper.Parameter))
+                        return;
+                    
+                    switch (wrapper)
+                    {
+                        case IRDMGetParameterWrapperWithEmptyGetRequest emptyGet:
+                            request = emptyGet.BuildGetRequestMessage();
+                            if (request != null)
+                                await processMessage(await requestParameter(request));
+                            return;
+                        case IRDMGetParameterWrapperRequest getParameter:
+                            await doRange(getParameter);
+                            return;
+
+                        //case IRDMGetParameterWrapperRequestContravariance<byte> getContravarianceByte:
+                        //    doRange(getContravarianceByte);
+                        //    return;
+
+                        //case IRDMGetParameterWrapperRequestContravariance<object> getContravarianceObject:
+                        //    break;
+                        //case IRDMGetParameterWrapperRequestContravariance<RDMDeviceInfo> getContravarianceObject:
+                        //    break;
+
+                        default:
+                            break;
+                    }
 
 
-                await processMessage(await requestParameter(request));
+                    if (request == null)
+                        return;
+
+
+                    await processMessage(await requestParameter(request));
+                    async Task doRange(IRDMGetParameterWrapperRequest getParameterWrapperRequest)
+                    {
+                        ERDM_Parameter descriptive;
+                        object dVal = null;
+                        IRequestRange range = null;
+                        if (getParameterWrapperRequest is IRDMBlueprintDescriptionListParameterWrapper blueprintDL)
+                        {
+                            descriptive = blueprintDL.DescriptiveParameters.FirstOrDefault();
+                            if (descriptive != default)
+                                this.parameterValues.TryGetValue(descriptive, out dVal);
+                        }
+                        if (dVal == null)
+                            return;
+                        range = getParameterWrapperRequest.GetRequestRange(dVal);
+                        if (range == null)
+                            return;
+                        foreach (var r in range.ToEnumerator())
+                        {
+                            request = getParameterWrapperRequest.BuildGetRequestMessage(r);
+                            if (request != null)
+                                await processMessage(await requestParameter(request));
+                        }
+                    }
+                }
             }
             IsInitialized = true;
             Initialized?.Invoke(this, EventArgs.Empty);
@@ -345,8 +405,8 @@ namespace RDMSharp
                     return Array.Empty<RDMSensorDefinition>();
                 else
                 {
-                    var definitions = value as HashSet<object>;
-                    return definitions.Cast<RDMSensorDefinition>().ToArray();
+                    var definitions = value as ConcurrentDictionary<object, object>;
+                    return definitions.Values.Cast<RDMSensorDefinition>().ToArray();
                 }
             }
             catch

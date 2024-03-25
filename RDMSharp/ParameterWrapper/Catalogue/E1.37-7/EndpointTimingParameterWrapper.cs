@@ -56,7 +56,7 @@ namespace RDMSharp.ParameterWrapper
         {
             return Tools.ValueToData(endpointId);
         }
-        public override RequestRange<ushort> GetRequestRange(object value)
+        public override IRequestRange GetRequestRange(object value)
         {
             if (value == null)
                 return new RequestRange<ushort>(0x0001, 0xF9FF);

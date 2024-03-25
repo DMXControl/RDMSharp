@@ -36,7 +36,7 @@ namespace RDMSharp.ParameterWrapper
             return sensorDefinition.ToPayloadData();
         }
 
-        public override RequestRange<byte> GetRequestRange(object value)
+        public override IRequestRange GetRequestRange(object value)
         {
             if (value is RDMDeviceInfo deviceInfo)
                 return new RequestRange<byte>(0, (byte)(deviceInfo.SensorCount - 1));

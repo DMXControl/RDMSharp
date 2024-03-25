@@ -1,5 +1,6 @@
 using RDMSharpTests.Devices.Mock;
 using System.Diagnostics;
+using System.Reflection.Metadata;
 
 namespace RDMSharpTests.RDM.Devices
 {
@@ -27,7 +28,8 @@ namespace RDMSharpTests.RDM.Devices
         {
             var parameterValuesRemote = remote.GetAllParameterValues();
             var parameterValuesGenerated = generated.GetAllParameterValues();
-            Assert.Multiple(() =>
+
+           Assert.Multiple(() =>
             {
                 foreach (var parameter in parameterValuesGenerated.Keys)
                 {
@@ -41,6 +43,11 @@ namespace RDMSharpTests.RDM.Devices
                 }
                 Assert.That(parameterValuesRemote, Has.Count.EqualTo(parameterValuesGenerated.Count));
             });
+            Assert.Multiple(() =>
+            {
+                Assert.That(remote.DeviceModel.SupportedBlueprintParameters, Contains.Item(ERDM_Parameter.SENSOR_DEFINITION));
+                Assert.That(remote.DeviceModel.SupportedNonBlueprintParameters, Contains.Item(ERDM_Parameter.SENSOR_VALUE));
+            });
 
             Assert.Multiple(() =>
             {
@@ -49,6 +56,15 @@ namespace RDMSharpTests.RDM.Devices
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_MODEL_DESCRIPTION], Is.EqualTo(generated.DeviceModelDescription));
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.MANUFACTURER_LABEL], Is.EqualTo(generated.ManufacturerLabel));
                 Assert.That(((RDMDMXPersonality)remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY]).Index, Is.EqualTo(generated.CurrentPersonality));
+            });
+            Assert.Multiple(() =>
+            {
+                Assert.That(remote.Sensors.Values, Has.Count.EqualTo(generated.Sensors.Length));
+                Assert.That(remote.Sensors.Values, Is.EqualTo(generated.Sensors));
+                foreach (var s in generated.Sensors)
+                {
+                    Assert.That(remote.Sensors.Values, Contains.Item(s));
+                }
             });
 
             await remote.SetParameter(ERDM_Parameter.DMX_START_ADDRESS, (ushort)512);

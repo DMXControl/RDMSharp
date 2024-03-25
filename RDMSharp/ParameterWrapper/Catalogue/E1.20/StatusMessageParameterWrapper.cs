@@ -46,7 +46,7 @@ namespace RDMSharp.ParameterWrapper
 
             return bytes.ToArray();
         }
-        public override RequestRange<ERDM_Status> GetRequestRange(object value)
+        public override IRequestRange GetRequestRange(object value)
         {
             return new RequestRange<ERDM_Status>(0, (ERDM_Status)0x04);
         }

@@ -8,5 +8,6 @@ namespace RDMSharp.ParameterWrapper
         RDMMessage BuildGetRequestMessage(object value);
         byte[] GetRequestObjectToParameterData(object value);
         object GetRequestParameterDataToObject(byte[] parameterData);
+        IRequestRange GetRequestRange(object value);
     }
 }

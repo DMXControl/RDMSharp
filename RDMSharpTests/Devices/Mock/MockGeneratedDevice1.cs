@@ -40,10 +40,13 @@ namespace RDMSharpTests.Devices.Mock
                 new Slot(8, ERDM_SlotCategory.COLOR_ADD_BLUE,ERDM_SlotType.SEC_FINE, "Blue Fine" ))];
 
         private static readonly Sensor[] SENSORS = [
-            new MockSensor1(1, 1, 3000),
-            new MockSensor1(2, 2, 8000),
-            new MockSensor1(3, 3, 12000)];
+            new MockSensorTemp(0, 1, 3000),
+            new MockSensorTemp(1, 2, 8000),
+            new MockSensorTemp(2, 3, 12000),
+            new MockSensorVolt3_3(3, 331),
+            new MockSensorVolt5(4, 498)];
         public override GeneratedPersonality[] Personalities => PERSONALITYS;
+        public override Sensor[] Sensors => SENSORS;
         public MockGeneratedDevice1(RDMUID uid) : base(uid, [ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL], "Dummy Manufacturer 9FFF")
         {
             this.DeviceLabel = "Dummy Device 1";
@@ -51,9 +54,23 @@ namespace RDMSharpTests.Devices.Mock
             this.TrySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, $"Dummy Software");
         }
 
-        private class MockSensor1 : Sensor
+        private class MockSensorTemp : Sensor
         {
-            public MockSensor1(in byte sensorId, byte number, short initValue) : base(sensorId, ERDM_SensorType.TEMPERATURE, ERDM_SensorUnit.CENTIGRADE, ERDM_UnitPrefix.CENTI, $"Mock Temp. {number}", -2000, 10000, 2000, 5000, true, true)
+            public MockSensorTemp(in byte sensorId, byte number, short initValue) : base(sensorId, ERDM_SensorType.TEMPERATURE, ERDM_SensorUnit.CENTIGRADE, ERDM_UnitPrefix.CENTI, $"Mock Temp. {number}", -2000, 10000, 2000, 5000, true, true)
+            {
+                UpdateValue(initValue);
+            }
+        }
+        private class MockSensorVolt3_3 : Sensor
+        {
+            public MockSensorVolt3_3(in byte sensorId, short initValue) : base(sensorId, ERDM_SensorType.VOLTAGE, ERDM_SensorUnit.VOLTS_DC, ERDM_UnitPrefix.CENTI, $"Mock 3.3V Rail", -200, 500, 330, 360, true, true)
+            {
+                UpdateValue(initValue);
+            }
+        }
+        private class MockSensorVolt5 : Sensor
+        {
+            public MockSensorVolt5(in byte sensorId, short initValue) : base(sensorId, ERDM_SensorType.VOLTAGE, ERDM_SensorUnit.VOLTS_DC, ERDM_UnitPrefix.CENTI, $"Mock 5V Rail ", -200, 1000, 470, 530, true, true)
             {
                 UpdateValue(initValue);
             }

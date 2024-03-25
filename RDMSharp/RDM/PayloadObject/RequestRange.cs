@@ -3,23 +3,48 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    public class RequestRange<T>
+    public class RequestRange<T>: IRequestRange, IRequestRange<T>
     {
-        public readonly T Start;
-        public readonly T End;
+
+        object IRequestRange.Start => _start;
+
+        object IRequestRange.End => _end;
+
+        T IRequestRange<T>.Start => (T)Convert.ChangeType(_start, typeof(T));
+
+        T IRequestRange<T>.End => (T)Convert.ChangeType(_end, typeof(T));
+
+        private ulong _start;
+        private ulong _end;
 
         public RequestRange(T start, T end)
         {
-            this.Start = start;
-            this.End = end;
+            _start = Convert.ToUInt64(start);
+            _end = Convert.ToUInt64(end);
         }
 
-        public IEnumerable<T> ToEnumerator()
+        IEnumerable<T> IRequestRange<T>.ToEnumerator()
         {
-            ulong start = Convert.ToUInt64(this.Start);
-            ulong end = Convert.ToUInt64(this.End);
-            for (ulong i = start; i <= end; i++)
+            for (ulong i = _start; i <= _end; i++)
                 yield return (T)Convert.ChangeType(i, typeof(T));
         }
+        IEnumerable<object> IRequestRange.ToEnumerator()
+        {
+            for (ulong i = _start; i <= _end; i++)
+                yield return (T)Convert.ChangeType(i, typeof(T));
+        }
+    }
+    public interface IRequestRange<T>
+    {
+        T Start { get; }
+        T End { get; }
+        public IEnumerable<T> ToEnumerator();
+    }
+    public interface IRequestRange
+    {
+        object Start { get; }
+        object End { get; }
+
+        public IEnumerable<object> ToEnumerator();
     }
 }

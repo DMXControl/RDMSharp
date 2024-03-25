@@ -37,7 +37,7 @@ namespace RDMSharp.ParameterWrapper
             return value.ToPayloadData();
         }
 
-        public override RequestRange<byte> GetRequestRange(object value)
+        public override IRequestRange GetRequestRange(object value)
         {
             if (value is RDMCurve curve)
                 return new RequestRange<byte>(1, (byte)(curve.Count));

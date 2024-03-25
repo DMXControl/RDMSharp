@@ -35,7 +35,7 @@ namespace RDMSharp.ParameterWrapper
             return parameterDescription.ToPayloadData();
         }
 
-        public override RequestRange<ERDM_Parameter> GetRequestRange(object value)
+        public override IRequestRange GetRequestRange(object value)
         {
             throw new NotSupportedException($"There is no support for the Type: {value.GetType().ToString()}");
         }

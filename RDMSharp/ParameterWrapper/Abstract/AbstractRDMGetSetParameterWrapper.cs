@@ -96,7 +96,15 @@ namespace RDMSharp.ParameterWrapper
             return this.buildSetResponseMessage(setResponseValue);
         }
         #endregion
+        public abstract IRequestRange GetRequestRange(object value);
+        IRequestRange IRDMGetParameterWrapperRequest.GetRequestRange(object value)
+        {
+            return this.GetRequestRange(value);
+        }
 
-        public abstract RequestRange<GetRequest> GetRequestRange(object value);
+        IRequestRange<GetRequest> IRDMGetParameterWrapperRequest<GetRequest>.GetRequestRange(object value)
+        {
+            return (IRequestRange<GetRequest>)this.GetRequestRange(value);
+        }
     }
 }

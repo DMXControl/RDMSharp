@@ -31,7 +31,7 @@
         {
             return Tools.ValueToData(value);
         }
-        public override RequestRange<ushort> GetRequestRange(object value)
+        public override IRequestRange GetRequestRange(object value)
         {
             return new RequestRange<ushort>(0, ushort.MaxValue);
         }

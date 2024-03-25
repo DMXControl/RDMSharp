@@ -45,7 +45,7 @@ namespace RDMSharp.ParameterWrapper
             return presetStatus.ToPayloadData();
         }
 
-        public override RequestRange<ushort> GetRequestRange(object value)
+        public override IRequestRange GetRequestRange(object value)
         {
             if (value is RDMPresetInfo presetInfo)
                 return new RequestRange<ushort>(0x0001, presetInfo.MaximumSceneNumber);
