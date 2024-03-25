@@ -53,12 +53,7 @@ namespace RDMSharp.ParameterWrapper
 
         public override IRequestRange GetRequestRange(object value)
         {
-            if (value is RDMDeviceInfo deviceInfo)
-                return new RequestRange<byte>(0, (byte)(deviceInfo.SensorCount - 1));
-            else if (value == null)
-                return new RequestRange<byte>(0, byte.MaxValue - 1);
-
-            throw new NotSupportedException($"There is no support for the Type: {value.GetType().ToString()}");
+            return SensorDefinitionParameterWrapper.GetRequestRangeInternal(value);
         }
     }
 }

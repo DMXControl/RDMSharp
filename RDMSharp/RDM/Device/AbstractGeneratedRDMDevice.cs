@@ -19,7 +19,7 @@ namespace RDMSharp
         #endregion
         public abstract string DeviceModelDescription { get; }
         public abstract GeneratedPersonality[] Personalities { get; }
-        public abstract Sensor[] Sensors { get; }
+        public new abstract Sensor[] Sensors { get; }
 
         public abstract bool SupportDMXAddress { get; }
 
@@ -191,6 +191,15 @@ namespace RDMSharp
             {
                 if (Sensors.Length >= byte.MaxValue)
                     throw new ArgumentOutOfRangeException($"There to many {Sensors}! Maxumum is {byte.MaxValue - 1}");
+
+                if (Sensors.Min(s => s.SensorId) != 0)
+                    throw new ArgumentOutOfRangeException($"The first Sensor should have the ID: 0, but is({Sensors.Min(s => s.SensorId)})");
+                if (Sensors.Max(s => s.SensorId) + 1 != Sensors.Length)
+                    throw new ArgumentOutOfRangeException($"The last Sensor should have the ID: {Sensors.Max(s => s.SensorId) + 1}, but is({Sensors.Max(s => s.SensorId)})");
+
+                if (Sensors.Select(s=>s.SensorId).Distinct().Count() != Sensors.Length)
+                    throw new ArgumentOutOfRangeException($"Some Sensor-IDs are used more then onse");
+
 
                 if (Sensors.Length != 0)
                 {

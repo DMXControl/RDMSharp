@@ -195,6 +195,13 @@ namespace RDMSharpTests.RDM.Devices
                 Assert.That(sensorsRemote, Has.Count.EqualTo(sensorsGenerated.Count));
                 Assert.That(sensorsRemote, Is.EqualTo(sensorsGenerated));
             });
+
+
+            ///ToDo
+            ///Reset Sensors Unicast
+            ///Reset Sensors Broadcast
+            ///Record Sensors Unicast
+            ///Record Sensors Broadcast
         }
     }
 }

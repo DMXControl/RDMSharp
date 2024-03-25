@@ -38,6 +38,10 @@ namespace RDMSharp.ParameterWrapper
 
         public override IRequestRange GetRequestRange(object value)
         {
+            return SensorDefinitionParameterWrapper.GetRequestRangeInternal(value);
+        }
+        internal static IRequestRange GetRequestRangeInternal(object value)
+        {
             if (value is RDMDeviceInfo deviceInfo)
                 return new RequestRange<byte>(0, (byte)(deviceInfo.SensorCount - 1));
             else if (value == null)
