@@ -28,8 +28,10 @@ namespace RDMSharpTests.RDM.Devices
         {
             var parameterValuesRemote = remote.GetAllParameterValues();
             var parameterValuesGenerated = generated.GetAllParameterValues();
+            var sensorsRemote = remote.Sensors.Values.ToList();
+            var sensorsGenerated = generated.Sensors.ToList();
 
-           Assert.Multiple(() =>
+            Assert.Multiple(() =>
             {
                 foreach (var parameter in parameterValuesGenerated.Keys)
                 {
@@ -59,12 +61,9 @@ namespace RDMSharpTests.RDM.Devices
             });
             Assert.Multiple(() =>
             {
-                Assert.That(remote.Sensors.Values, Has.Count.EqualTo(generated.Sensors.Length));
-                Assert.That(remote.Sensors.Values, Is.EqualTo(generated.Sensors));
-                foreach (var s in generated.Sensors)
-                {
-                    Assert.That(remote.Sensors.Values, Contains.Item(s));
-                }
+                
+                Assert.That(sensorsRemote, Has.Count.EqualTo(sensorsGenerated.Count));
+                Assert.That(sensorsRemote, Is.EqualTo(sensorsGenerated));
             });
 
             await remote.SetParameter(ERDM_Parameter.DMX_START_ADDRESS, (ushort)512);
