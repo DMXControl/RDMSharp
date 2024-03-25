@@ -202,5 +202,83 @@ namespace RDMSharpTests
                                     }
             });
         }
+        [Test]
+        public void TestSlot()
+        {
+            var slot = new Slot(1);
+            Assert.That(slot.SlotId, Is.EqualTo(1));
+
+            Assert.Multiple(() =>
+            {
+                Assert.Throws(typeof(InvalidOperationException), () => { slot.UpdateSlotDefaultValue(new RDMDefaultSlotValue(2)); });
+                Assert.Throws(typeof(InvalidOperationException), () => { slot.UpdateSlotInfo(new RDMSlotInfo(2)); });
+                Assert.Throws(typeof(InvalidOperationException), () => { slot.UpdateSlotDescription(new RDMSlotDescription(2)); });
+            });
+            Assert.Multiple(() =>
+            {
+                Assert.DoesNotThrow(() => { slot.UpdateSlotDefaultValue(new RDMDefaultSlotValue(1, 200)); });
+                Assert.DoesNotThrow(() => { slot.UpdateSlotInfo(new RDMSlotInfo(1, ERDM_SlotType.SEC_TIMING, ERDM_SlotCategory.CIE_X)); });
+                Assert.DoesNotThrow(() => { slot.UpdateSlotDescription(new RDMSlotDescription(1, "rrrr")); });
+                Assert.That(slot.DefaultValue, Is.EqualTo(200));
+                Assert.That(slot.Type, Is.EqualTo(ERDM_SlotType.SEC_TIMING));
+                Assert.That(slot.Category, Is.EqualTo(ERDM_SlotCategory.CIE_X));
+                Assert.That(slot.Description, Is.EqualTo("rrrr"));
+            });
+            byte fired = 0;
+            slot.PropertyChanged += (o, e) => { fired++; };
+            for (int i = 0; i < 2; i++)// To Cover Unnessicerry Updates run two times
+            {
+                Assert.Multiple(() =>
+                {
+                    Assert.DoesNotThrow(() => { slot.UpdateSlotDefaultValue(new RDMDefaultSlotValue(1, 100)); });
+                    Assert.DoesNotThrow(() => { slot.UpdateSlotInfo(new RDMSlotInfo(1, ERDM_SlotType.PRIMARY, ERDM_SlotCategory.COLOR_SCROLL)); });
+                    Assert.DoesNotThrow(() => { slot.UpdateSlotDescription(new RDMSlotDescription(1, "aaa")); });
+                    Assert.That(fired, Is.EqualTo(4));
+                    Assert.That(slot.DefaultValue, Is.EqualTo(100));
+                    Assert.That(slot.Type, Is.EqualTo(ERDM_SlotType.PRIMARY));
+                    Assert.That(slot.Category, Is.EqualTo(ERDM_SlotCategory.COLOR_SCROLL));
+                    Assert.That(slot.Description, Is.EqualTo("aaa"));
+                });
+            }
+        }
+            [Test]
+        public void TestGeneratedPersonality()
+        {
+            Assert.Throws(typeof(ArgumentOutOfRangeException), () => new GeneratedPersonality(0, "5CH RGB",
+                new Slot(0, ERDM_SlotCategory.INTENSITY, "Dimmer"),
+                new Slot(1, ERDM_SlotCategory.STROBE, "Strobe", 33),
+                new Slot(2, ERDM_SlotCategory.COLOR_ADD_RED, "Red"),
+                new Slot(3, ERDM_SlotCategory.COLOR_ADD_GREEN, "Green"),
+                new Slot(4, ERDM_SlotCategory.COLOR_ADD_BLUE, "Blue")));
+            Assert.Throws(typeof(Exception), () => new GeneratedPersonality(1, "5CH RGB",
+                new Slot(0, ERDM_SlotCategory.INTENSITY, "Dimmer"),
+                new Slot(1, ERDM_SlotCategory.STROBE, "Strobe", 33),
+                new Slot(2, ERDM_SlotCategory.COLOR_ADD_RED, "Red"),
+                new Slot(3, ERDM_SlotCategory.COLOR_ADD_GREEN, "Green"),
+                new Slot(3, ERDM_SlotCategory.COLOR_ADD_BLUE, "Blue")));
+            Assert.Throws(typeof(ArgumentOutOfRangeException), () => new GeneratedPersonality(1, "5CH RGB",
+                new Slot(0, ERDM_SlotCategory.INTENSITY, "Dimmer"),
+                new Slot(2, ERDM_SlotCategory.STROBE, "Strobe", 33),
+                new Slot(4, ERDM_SlotCategory.COLOR_ADD_RED, "Red"),
+                new Slot(6, ERDM_SlotCategory.COLOR_ADD_GREEN, "Green"),
+                new Slot(8, ERDM_SlotCategory.COLOR_ADD_BLUE, "Blue")));
+
+            var pers = new GeneratedPersonality(1, "5CH RGB",
+                new Slot(0, ERDM_SlotCategory.INTENSITY, "Dimmer"),
+                new Slot(1, ERDM_SlotCategory.STROBE, "Strobe", 33),
+                new Slot(2, ERDM_SlotCategory.COLOR_ADD_RED, "Red"),
+                new Slot(3, ERDM_SlotCategory.COLOR_ADD_GREEN, "Green"),
+                new Slot(4, ERDM_SlotCategory.COLOR_ADD_BLUE, "Blue"));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(pers.ToString(), Contains.Substring(pers.ID.ToString()));
+                Assert.That(pers.ToString(), Contains.Substring(pers.SlotCount.ToString()));
+                Assert.That(pers.ToString(), Contains.Substring(pers.Description));
+                Assert.That(pers.SlotCount, Is.EqualTo(5));
+                Assert.That(pers.Description, Is.EqualTo("5CH RGB"));
+                Assert.That(pers.ID, Is.EqualTo(1));
+            });
+        }
     }
 }

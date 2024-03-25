@@ -91,7 +91,12 @@ namespace RDMSharp
         {
         }
 
-        internal void UpdateSlotInfo(RDMSlotInfo slotInfo)
+#if DEBUG
+        public
+#else
+        internal 
+#endif
+            void UpdateSlotInfo(RDMSlotInfo slotInfo)
         {
             if (this.SlotId != slotInfo.SlotOffset)
                 throw new InvalidOperationException($"The given {nameof(slotInfo)} has not the expected id of {this.SlotId} but {slotInfo.SlotOffset}");
@@ -99,14 +104,24 @@ namespace RDMSharp
             this.Type = slotInfo.SlotType;
             this.Category = slotInfo.SlotLabelId;
         }
-        internal void UpdateSlotDescription(RDMSlotDescription slotDescription)
+#if DEBUG
+        public
+#else
+        internal 
+#endif
+            void UpdateSlotDescription(RDMSlotDescription slotDescription)
         {
             if (this.SlotId != slotDescription.SlotId)
                 throw new InvalidOperationException($"The given {nameof(slotDescription)} has not the expected id of {this.SlotId} but {slotDescription.SlotId}");
 
             this.Description = slotDescription.Description;
         }
-        internal void UpdateSlotDefaultValue(RDMDefaultSlotValue defaultSlotValue)
+#if DEBUG
+        public
+#else
+        internal 
+#endif
+            void UpdateSlotDefaultValue(RDMDefaultSlotValue defaultSlotValue)
         {
             if (this.SlotId != defaultSlotValue.SlotOffset)
                 throw new InvalidOperationException($"The given {nameof(defaultSlotValue)} has not the expected id of {this.SlotId} but {defaultSlotValue.SlotOffset}");
