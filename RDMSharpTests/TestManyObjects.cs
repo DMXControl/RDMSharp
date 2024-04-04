@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace RDMSharpTests
 {
@@ -208,17 +209,50 @@ namespace RDMSharpTests
             var slot = new Slot(1);
             Assert.That(slot.SlotId, Is.EqualTo(1));
 
+            MethodInfo updateSlotDefaultValue = slot.GetType().GetMethod("UpdateSlotDefaultValue", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            MethodInfo updateSlotInfo = slot.GetType().GetMethod("UpdateSlotInfo", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            MethodInfo updateSlotDescription = slot.GetType().GetMethod("UpdateSlotDescription", BindingFlags.NonPublic | BindingFlags.Instance)!;
             Assert.Multiple(() =>
             {
-                Assert.Throws(typeof(InvalidOperationException), () => { slot.UpdateSlotDefaultValue(new RDMDefaultSlotValue(2)); });
-                Assert.Throws(typeof(InvalidOperationException), () => { slot.UpdateSlotInfo(new RDMSlotInfo(2)); });
-                Assert.Throws(typeof(InvalidOperationException), () => { slot.UpdateSlotDescription(new RDMSlotDescription(2)); });
+                Assert.Throws(typeof(InvalidOperationException), () =>
+                {
+                    try
+                    {
+                        updateSlotDefaultValue.Invoke(slot, new object[] { new RDMDefaultSlotValue(2) });
+                    }
+                    catch (TargetInvocationException t)
+                    {
+                        throw t.InnerException;
+                    }
+                });
+                Assert.Throws(typeof(InvalidOperationException), () =>
+                {
+                    try
+                    {
+                        updateSlotInfo.Invoke(slot, new object[] { new RDMSlotInfo(2) });
+                    }
+                    catch (TargetInvocationException t)
+                    {
+                        throw t.InnerException;
+                    }
+                });
+                Assert.Throws(typeof(InvalidOperationException), () =>
+                {
+                    try
+                    {
+                        updateSlotDescription.Invoke(slot, new object[] { new RDMSlotDescription(2) });
+                    }
+                    catch (TargetInvocationException t)
+                    {
+                        throw t.InnerException;
+                    }
+                });
             });
             Assert.Multiple(() =>
             {
-                Assert.DoesNotThrow(() => { slot.UpdateSlotDefaultValue(new RDMDefaultSlotValue(1, 200)); });
-                Assert.DoesNotThrow(() => { slot.UpdateSlotInfo(new RDMSlotInfo(1, ERDM_SlotType.SEC_TIMING, ERDM_SlotCategory.CIE_X)); });
-                Assert.DoesNotThrow(() => { slot.UpdateSlotDescription(new RDMSlotDescription(1, "rrrr")); });
+                Assert.DoesNotThrow(() => { updateSlotDefaultValue.Invoke(slot, new object[] { new RDMDefaultSlotValue(1, 200) }); });
+                Assert.DoesNotThrow(() => { updateSlotInfo.Invoke(slot, new object[] { new RDMSlotInfo(1, ERDM_SlotType.SEC_TIMING, ERDM_SlotCategory.CIE_X) }); });
+                Assert.DoesNotThrow(() => { updateSlotDescription.Invoke(slot, new object[] { new RDMSlotDescription(1, "rrrr") }); });
                 Assert.That(slot.DefaultValue, Is.EqualTo(200));
                 Assert.That(slot.Type, Is.EqualTo(ERDM_SlotType.SEC_TIMING));
                 Assert.That(slot.Category, Is.EqualTo(ERDM_SlotCategory.CIE_X));
@@ -230,9 +264,9 @@ namespace RDMSharpTests
             {
                 Assert.Multiple(() =>
                 {
-                    Assert.DoesNotThrow(() => { slot.UpdateSlotDefaultValue(new RDMDefaultSlotValue(1, 100)); });
-                    Assert.DoesNotThrow(() => { slot.UpdateSlotInfo(new RDMSlotInfo(1, ERDM_SlotType.PRIMARY, ERDM_SlotCategory.COLOR_SCROLL)); });
-                    Assert.DoesNotThrow(() => { slot.UpdateSlotDescription(new RDMSlotDescription(1, "aaa")); });
+                    Assert.DoesNotThrow(() => { updateSlotDefaultValue.Invoke(slot, new object[] { new RDMDefaultSlotValue(1, 100) }); });
+                    Assert.DoesNotThrow(() => { updateSlotInfo.Invoke(slot, new object[] { new RDMSlotInfo(1, ERDM_SlotType.PRIMARY, ERDM_SlotCategory.COLOR_SCROLL) }); });
+                    Assert.DoesNotThrow(() => { updateSlotDescription.Invoke(slot, new object[] { new RDMSlotDescription(1, "aaa") }); });
                     Assert.That(fired, Is.EqualTo(4));
                     Assert.That(slot.DefaultValue, Is.EqualTo(100));
                     Assert.That(slot.Type, Is.EqualTo(ERDM_SlotType.PRIMARY));
