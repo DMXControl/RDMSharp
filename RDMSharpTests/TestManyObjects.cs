@@ -214,39 +214,9 @@ namespace RDMSharpTests
             MethodInfo updateSlotDescription = slot.GetType().GetMethod("UpdateSlotDescription", BindingFlags.NonPublic | BindingFlags.Instance)!;
             Assert.Multiple(() =>
             {
-                Assert.Throws(typeof(InvalidOperationException), () =>
-                {
-                    try
-                    {
-                        updateSlotDefaultValue.Invoke(slot, new object[] { new RDMDefaultSlotValue(2) });
-                    }
-                    catch (TargetInvocationException t)
-                    {
-                        throw t.InnerException;
-                    }
-                });
-                Assert.Throws(typeof(InvalidOperationException), () =>
-                {
-                    try
-                    {
-                        updateSlotInfo.Invoke(slot, new object[] { new RDMSlotInfo(2) });
-                    }
-                    catch (TargetInvocationException t)
-                    {
-                        throw t.InnerException;
-                    }
-                });
-                Assert.Throws(typeof(InvalidOperationException), () =>
-                {
-                    try
-                    {
-                        updateSlotDescription.Invoke(slot, new object[] { new RDMSlotDescription(2) });
-                    }
-                    catch (TargetInvocationException t)
-                    {
-                        throw t.InnerException;
-                    }
-                });
+                Assert.Throws(typeof(InvalidOperationException), () => Helper.ThrowInnerException<TargetInvocationException>(() => updateSlotDefaultValue.Invoke(slot, new object[] { new RDMDefaultSlotValue(2) })));
+                Assert.Throws(typeof(InvalidOperationException), () => Helper.ThrowInnerException<TargetInvocationException>(() => updateSlotInfo.Invoke(slot, new object[] { new RDMSlotInfo(2) })));
+                Assert.Throws(typeof(InvalidOperationException), () => Helper.ThrowInnerException<TargetInvocationException>(() => updateSlotDescription.Invoke(slot, new object[] { new RDMSlotDescription(2) })));
             });
             Assert.Multiple(() =>
             {
