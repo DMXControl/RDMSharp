@@ -16,7 +16,7 @@ namespace RDMSharpTests.RDM.Devices
             remote = new MockDevice(uid, false);
         }
         [TearDown]
-        public async Task TearDown()
+        public void TearDown()
         {
             generated.Dispose();
             remote.Dispose();
