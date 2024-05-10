@@ -21,13 +21,10 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --configuration Release --no-restore
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v4.3.1
-      with:
-        path: RDMSharp/bin/Release/**/RDMSharp.dll
-    - name: Publish RDMSharp
-      uses: brandedoutcast/publish-nuget@v2.5.2
-      with:
-          PROJECT_FILE_PATH: RDMSharp/RDMSharp.csproj
-          NUGET_KEY: ${{secrets.NUGET_KEY}}
-          PACKAGE_NAME: RDMSharp
+    - name: Create Nuget Package
+      run: dotnet pack --configuration Release
+    - name: Upload to Github Feed
+      run: dotnet nuget push RDMSharp/bin/Release/RDMSharp.*.nupkg --api-key ${{secrets.GITHUB_TOKEN}} -s https://nuget.pkg.github.com/DMXControl/index.json
+    - name: Upload to Nuget.org
+      run: dotnet nuget push RDMSharp/bin/Release/RDMSharp.*.nupkg --api-key ${{secrets.NUGET_KEY}} -s https://api.nuget.org/v3/index.json
+
