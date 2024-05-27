@@ -2,7 +2,6 @@ using RDMSharp.ParameterWrapper;
 using RDMSharp.ParameterWrapper.Generic;
 using RDMSharp.ParameterWrapper.SGM;
 using System.Collections.ObjectModel;
-using System.Text;
 
 namespace RDMSharpTests.RDM
 {
@@ -444,7 +443,7 @@ namespace RDMSharpTests.RDM
                 if (type == typeof(RDMProxiedDeviceCount))
                     return new RDMProxiedDeviceCount(3);
                 if (type == typeof(RDMProxiedDevices))
-                    return new RDMProxiedDevices([new RDMUID(EManufacturer.Swisson_AG, 1342143), new RDMUID(EManufacturer.DMXControlProjects_eV, 334412), new RDMUID(EManufacturer.Martin_Professional_AS, 3123)]);
+                    return new RDMProxiedDevices([new UID((ushort)EManufacturer.Swisson_AG, 1342143), new UID((ushort)EManufacturer.DMXControlProjects_eV, 334412), new UID((ushort)EManufacturer.Martin_Professional_AS, 3123)]);
                 if (type == typeof(RDMSelfTestDescription))
                     return new RDMSelfTestDescription(3);
                 if (type == typeof(RDMSensorDefinition))
@@ -522,11 +521,11 @@ namespace RDMSharpTests.RDM
                 if (type == typeof(GetEndpointTimingDescriptionResponse))
                     return new GetEndpointTimingDescriptionResponse(1, "Test Timing");
                 if (type == typeof(GetEndpointRespondersResponse))
-                    return new GetEndpointRespondersResponse(1, [new RDMUID(EManufacturer.Swisson_AG, 1342143), new RDMUID(EManufacturer.DMXControlProjects_eV, 334412), new RDMUID(EManufacturer.Martin_Professional_AS, 3123)]);
+                    return new GetEndpointRespondersResponse(1, [new UID((ushort)EManufacturer.Swisson_AG, 1342143), new UID((ushort)EManufacturer.DMXControlProjects_eV, 334412), new UID((ushort)EManufacturer.Martin_Professional_AS, 3123)]);
                 if (type == typeof(GetEndpointResponderListChangeResponse))
                     return new GetEndpointResponderListChangeResponse(1, 55);
                 if (type == typeof(GetBindingAndControlFieldsResponse))
-                    return new GetBindingAndControlFieldsResponse(1, new RDMUID(EManufacturer.Swisson_AG, 1342143), 22, new RDMUID(EManufacturer.Martin_Professional_AS, 3123));
+                    return new GetBindingAndControlFieldsResponse(1, new UID((ushort)EManufacturer.Swisson_AG, 1342143), 22, new UID((ushort)EManufacturer.Martin_Professional_AS, 3123));
                 if (type == typeof(GetBackgroundQueuedStatusPolicyResponse))
                     return new GetBackgroundQueuedStatusPolicyResponse(21, 55);
                 if (type == typeof(GetBackgroundQueuedStatusPolicyDescriptionResponse))
@@ -536,7 +535,7 @@ namespace RDMSharpTests.RDM
                 if (type == typeof(SetEndpointTimingRequest))
                     return new SetEndpointTimingRequest(22, 34);
                 if (type == typeof(GetBindingAndControlFieldsRequest))
-                    return new GetBindingAndControlFieldsRequest(22, new RDMUID(EManufacturer.Martin_Professional_AS, 3123));
+                    return new GetBindingAndControlFieldsRequest(22, new UID((ushort)EManufacturer.Martin_Professional_AS, 3123));
                 if (type == typeof(ERDM_DisplayInvert))
                     return ERDM_DisplayInvert.AUTO;
                 if (type == typeof(ERDM_LampMode))

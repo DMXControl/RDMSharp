@@ -18,7 +18,7 @@ namespace RDMSharpTests.Devices.Mock
                 registerEvent();
             }
         }
-        public AbstractMockGeneratedDevice(RDMUID uid, ERDM_Parameter[] parameters, string manufacturer) : base(uid, parameters, manufacturer)
+        public AbstractMockGeneratedDevice(UID uid, ERDM_Parameter[] parameters, string manufacturer) : base(uid, parameters, manufacturer)
         {
             registerEvent();
         }

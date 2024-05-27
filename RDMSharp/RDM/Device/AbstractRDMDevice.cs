@@ -25,7 +25,7 @@ namespace RDMSharp
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public RDMUID UID { get; private set; }
+        public UID UID { get; private set; }
         public DateTime LastSeen { get; private set; }
         public bool Present { get; internal set; }
         public bool DiscoveryMuted { get; private set; }
@@ -53,7 +53,7 @@ namespace RDMSharp
         public virtual bool IsGenerated { get; private protected set; }
         public bool AllDataPulled { get; private set; }
 
-        public AbstractRDMDevice(RDMUID uid)
+        public AbstractRDMDevice(UID uid)
         {
             asyncRDMRequestHelper = new AsyncRDMRequestHelper(sendRDMRequestMessage);
             UID = uid;
@@ -219,7 +219,7 @@ namespace RDMSharp
                                 DestUID = rdmMessage.SourceUID,
                                 ParameterData = new DiscMuteUnmuteResponse().ToPayloadData()
                             };
-                            return rdmMessage.DestUID != RDMUID.Broadcast ? response : null;
+                            return rdmMessage.DestUID != UID.Broadcast ? response : null;
                         case ERDM_Parameter.DISC_UN_MUTE:
                             DiscoveryMuted = false;
                             response = new RDMMessage
@@ -230,7 +230,7 @@ namespace RDMSharp
                                 DestUID = rdmMessage.SourceUID,
                                 ParameterData = new DiscMuteUnmuteResponse().ToPayloadData()
                             };
-                            return rdmMessage.DestUID != RDMUID.Broadcast ? response : null;
+                            return rdmMessage.DestUID != UID.Broadcast ? response : null;
                         case ERDM_Parameter.DISC_UNIQUE_BRANCH when !DiscoveryMuted && rdmMessage.Value is DiscUniqueBranchRequest discUniqueBranchRequest:
                             if (UID >= discUniqueBranchRequest.StartUid && UID <= discUniqueBranchRequest.EndUid)
                             {

@@ -6,14 +6,14 @@ namespace RDMSharp
     {
         public GetBindingAndControlFieldsRequest(
             ushort endpointId = default,
-            RDMUID uid = default)
+            UID uid = default)
         {
             this.EndpointId = endpointId;
             this.UID = uid;
         }
 
         public ushort EndpointId { get; private set; }
-        public RDMUID UID { get; private set; }
+        public UID UID { get; private set; }
         public const int PDL = 0x08;
 
         public override string ToString()

@@ -15,8 +15,8 @@ namespace RDMSharpTests
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
         public void TestRDMDiscoveryStatus()
         {
-            RDMDiscoveryStatus status1 = new RDMDiscoveryStatus(3, (ulong)(RDMUID.Broadcast - 1), "Test", new RDMUID(0x1234, 0x56789fab), 11);
-            RDMDiscoveryStatus status2 = new RDMDiscoveryStatus(6, (ulong)(RDMUID.Broadcast - 1) / 2, "Test2", new RDMUID(0x1234, 0x56789fab), 22);
+            RDMDiscoveryStatus status1 = new RDMDiscoveryStatus(3, (ulong)(UID.Broadcast - 1), "Test", new UID(0x1234, 0x56789fab), 11);
+            RDMDiscoveryStatus status2 = new RDMDiscoveryStatus(6, (ulong)(UID.Broadcast - 1) / 2, "Test2", new UID(0x1234, 0x56789fab), 22);
             Assert.Multiple(() =>
             {
                 Assert.That(status1, Is.Not.EqualTo(status2));

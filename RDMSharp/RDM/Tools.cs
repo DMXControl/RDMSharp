@@ -147,12 +147,12 @@ namespace RDMSharp
                             _resArray[byteIndex] |= mask;
                     }
                     return _resArray;
-                case RDMUID[] @uidArray:
+                case UID[] @uidArray:
                     List<byte> lBytes = new List<byte>();
-                    foreach (RDMUID uid in @uidArray)
+                    foreach (UID uid in @uidArray)
                         lBytes.AddRange(uid.ToBytes());
                     return lBytes.ToArray();
-                case RDMUID @uid:
+                case UID @uid:
                     return @uid.ToBytes().ToArray();
 
                 case IPv4Address @ipv4Address:
@@ -294,13 +294,13 @@ namespace RDMSharp
             data = data.Skip(length).ToArray();
             return res;
         }
-        public static RDMUID DataToRDMUID(ref byte[] data)
+        public static UID DataToRDMUID(ref byte[] data)
         {
             const int length = 6;
             if (data.Length < length)
                 throw new IndexOutOfRangeException();
 
-            return new RDMUID(DataToUShort(ref data), DataToUInt(ref data)); ;
+            return new UID(DataToUShort(ref data), DataToUInt(ref data)); ;
         }
 
         public static string DataToString(ref byte[] data, int take = 0)

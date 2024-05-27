@@ -115,7 +115,7 @@ namespace RDMSharp
             }
         }
 
-        protected AbstractGeneratedRDMDevice(RDMUID uid, ERDM_Parameter[] parameters, string manufacturer = null) : base(uid)
+        protected AbstractGeneratedRDMDevice(UID uid, ERDM_Parameter[] parameters, string manufacturer = null) : base(uid)
         {
             if (!((ushort)ManufacturerID).Equals(uid.ManufacturerID))
                 throw new Exception($"{uid.ManufacturerID} not match the {ManufacturerID}");
@@ -148,7 +148,7 @@ namespace RDMSharp
             #endregion
 
             #region ManufacturerLabel
-            string _manufacturer = Enum.GetName(typeof(EManufacturer), uid.Manufacturer);
+            string _manufacturer = Enum.GetName(typeof(EManufacturer), (EManufacturer)uid.ManufacturerID);
 
             if (string.IsNullOrWhiteSpace(_manufacturer))
                 _manufacturer = manufacturer;

@@ -30,7 +30,7 @@
                 {
                     Parameter = ERDM_Parameter.DISC_UNIQUE_BRANCH,
                     Command = ERDM_Command.DISCOVERY_COMMAND,
-                    ParameterData = new DiscUniqueBranchRequest(RDMUID.Empty, RDMUID.Broadcast - 1).ToPayloadData()
+                    ParameterData = new DiscUniqueBranchRequest(UID.Empty, UID.Broadcast - 1).ToPayloadData()
                 };
 
                 Assert.That(m.Equals(m), Is.True);
@@ -63,8 +63,8 @@
             //Example taken from RDM Spec
             RDMMessage m = new RDMMessage
             {
-                DestUID = new RDMUID(0x1234, 0x56789abc),
-                SourceUID = new RDMUID(0xcba9, 0x87654321),
+                DestUID = new UID(0x1234, 0x56789abc),
+                SourceUID = new UID(0xcba9, 0x87654321),
                 PortID_or_Responsetype = 1,
                 Command = ERDM_Command.GET_COMMAND,
                 Parameter = ERDM_Parameter.STATUS_MESSAGES,
@@ -79,8 +79,8 @@
         {
             RDMMessage m = new RDMMessage
             {
-                DestUID = new RDMUID(0x1234, 0x56789abc),
-                SourceUID = new RDMUID(0x02B0, 0x00112233),
+                DestUID = new UID(0x1234, 0x56789abc),
+                SourceUID = new UID(0x02B0, 0x00112233),
                 PortID_or_Responsetype = 1,
                 Command = ERDM_Command.SET_COMMAND,
                 Parameter = ERDM_Parameter.DMX_START_ADDRESS,
@@ -95,8 +95,8 @@
         {
             RDMMessage m = new RDMMessage
             {
-                DestUID = new RDMUID(0x1234, 0x56789abc),
-                SourceUID = new RDMUID(0xcba9, 0x87654321),
+                DestUID = new UID(0x1234, 0x56789abc),
+                SourceUID = new UID(0xcba9, 0x87654321),
                 PortID_or_Responsetype = 1,
                 Command = ERDM_Command.SET_COMMAND,
                 Parameter = ERDM_Parameter.DMX_START_ADDRESS,
@@ -111,8 +111,8 @@
         {
             RDMMessage m = new RDMMessage
             {
-                DestUID = new RDMUID(0x1234, 0x56789abc),
-                SourceUID = new RDMUID(0x02B0, 0x00112233),
+                DestUID = new UID(0x1234, 0x56789abc),
+                SourceUID = new UID(0x02B0, 0x00112233),
                 Command = ERDM_Command.DISCOVERY_COMMAND,
                 Parameter = ERDM_Parameter.DISC_MUTE
             };

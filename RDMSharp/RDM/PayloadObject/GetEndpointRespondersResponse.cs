@@ -6,7 +6,7 @@ namespace RDMSharp
 {
     public class GetEndpointRespondersResponse : AbstractRDMPayloadObject
     {
-        public GetEndpointRespondersResponse(uint listChangedNumber = 0, params RDMUID[] uids)
+        public GetEndpointRespondersResponse(uint listChangedNumber = 0, params UID[] uids)
         {
             this.ListChangedNumber = listChangedNumber;
             this.UIDs = uids;
@@ -19,7 +19,7 @@ namespace RDMSharp
         /// (due to power-on reset, start of software, etc) this field shall be initialized to 0.
         /// </summary>
         public uint ListChangedNumber { get; private set; }
-        public RDMUID[] UIDs { get; private set; }
+        public UID[] UIDs { get; private set; }
         public const int PDL_MIN = 0x07;
         public const int PDL_MAX = 0xE5;
 
@@ -29,7 +29,7 @@ namespace RDMSharp
             b.AppendLine("GetEndpointRespondersResponse");
             b.AppendLine($"ListChangedNumber: {ListChangedNumber.ToString("X")}");
             b.AppendLine($"UIDs:");
-            foreach (RDMUID uid in UIDs)
+            foreach (UID uid in UIDs)
                 b.AppendLine(uid.ToString());
 
             return b.ToString();
@@ -46,7 +46,7 @@ namespace RDMSharp
 
             uint listChangedNumber = Tools.DataToUInt(ref data);
 
-            List<RDMUID> uids = new List<RDMUID>();
+            List<UID> uids = new List<UID>();
             while (data.Length >= 6)
                 uids.Add(Tools.DataToRDMUID(ref data));
 

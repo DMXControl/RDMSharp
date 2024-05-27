@@ -2,7 +2,7 @@
 {
     internal sealed class MockDevice : AbstractMockDevice
     {
-        public MockDevice(RDMUID uid, bool imitateRealConditions) : base(uid, imitateRealConditions)
+        public MockDevice(UID uid, bool imitateRealConditions) : base(uid, imitateRealConditions)
         {
         }
     }

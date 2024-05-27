@@ -9,14 +9,14 @@ namespace RDMSharp
         public readonly ulong RangeLeftToSearch;
         public readonly double RangeDoneInPercent = 0;
         public readonly string CurrentStatus;
-        public readonly RDMUID? LastFoundUid;
+        public readonly UID? LastFoundUid;
         public readonly ulong MessageCount;
 
-        public RDMDiscoveryStatus(in int found, in ulong left2search, in string status, RDMUID? lastFoundUid, ulong messageCount)
+        public RDMDiscoveryStatus(in int found, in ulong left2search, in string status, UID? lastFoundUid, ulong messageCount)
         {
             this.FoundDevices = found;
             this.RangeLeftToSearch = left2search;
-            var rangeLeftToSearchInPercent = left2search / (double)(ulong)(RDMUID.Broadcast - 1);
+            var rangeLeftToSearchInPercent = left2search / (double)(ulong)(UID.Broadcast - 1);
             this.RangeDoneInPercent = 1 - rangeLeftToSearchInPercent;
             this.CurrentStatus = status;
             this.LastFoundUid = lastFoundUid;
@@ -33,7 +33,7 @@ namespace RDMSharp
             return FoundDevices == other.FoundDevices &&
                    RangeLeftToSearch == other.RangeLeftToSearch &&
                    CurrentStatus == other.CurrentStatus &&
-                   EqualityComparer<RDMUID?>.Default.Equals(LastFoundUid, other.LastFoundUid) &&
+                   EqualityComparer<UID?>.Default.Equals(LastFoundUid, other.LastFoundUid) &&
                    MessageCount == other.MessageCount;
         }
 

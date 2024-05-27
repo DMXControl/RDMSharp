@@ -37,9 +37,9 @@ namespace RDMSharp
             asyncRDMRequestHelper.ReceiveMethode(rdmMessage);
         }
 
-        public async Task<IReadOnlyCollection<RDMUID>> PerformDiscovery(IProgress<RDMDiscoveryStatus> progress = null, bool full = true)
+        public async Task<IReadOnlyCollection<UID>> PerformDiscovery(IProgress<RDMDiscoveryStatus> progress = null, bool full = true)
         {
-            if (DiscoveryInProgress) return new List<RDMUID>();
+            if (DiscoveryInProgress) return new List<UID>();
             DiscoveryInProgress = true;
 
             //Send DISC_UN_MUTE
@@ -52,7 +52,7 @@ namespace RDMSharp
                     {
                         Command = ERDM_Command.DISCOVERY_COMMAND,
                         Parameter = ERDM_Parameter.DISC_UN_MUTE,
-                        DestUID = RDMUID.Broadcast,
+                        DestUID = UID.Broadcast,
                     };
                     unmuted = await SendRDMMessage(m);
                 }
@@ -64,14 +64,14 @@ namespace RDMSharp
             }
             //Start Binary Search for each
             var erg = new RDMDiscoveryContext(progress);
-            await DiscoverDevicesBinarySearch(RDMUID.Empty, RDMUID.Broadcast - 1, erg);
+            await DiscoverDevicesBinarySearch(UID.Empty, UID.Broadcast - 1, erg);
 
             DiscoveryInProgress = false;
             return erg.FoundUIDs.ToList();
         }
 
 
-        private async Task DiscoverDevicesBinarySearch(RDMUID uidStart, RDMUID uidEnd, RDMDiscoveryContext context)
+        private async Task DiscoverDevicesBinarySearch(UID uidStart, UID uidEnd, RDMDiscoveryContext context)
         {
             //Robust Code Check
             if (uidStart > uidEnd) return;
@@ -94,7 +94,7 @@ namespace RDMSharp
                 {
                     Command = ERDM_Command.DISCOVERY_COMMAND,
                     Parameter = ERDM_Parameter.DISC_UNIQUE_BRANCH,
-                    DestUID = RDMUID.Broadcast,
+                    DestUID = UID.Broadcast,
                     SubDevice = SubDevice.Root,
                     ParameterData = new DiscUniqueBranchRequest(uidStart, uidEnd).ToPayloadData()
                 };
@@ -130,7 +130,7 @@ namespace RDMSharp
                     else if (muted == null) //An already muted Device answered again! We try to fix by carving out the UID
                     {
                         //Split Range at number of Device
-                        RDMUID shittyDevice = response.SourceUID;
+                        UID shittyDevice = response.SourceUID;
                         if (shittyDevice == uidStart) await DiscoverDevicesBinarySearch(uidStart + 1, uidEnd, context);
                         else if (shittyDevice == uidEnd) await DiscoverDevicesBinarySearch(uidStart, uidEnd - 1, context);
                         else if (shittyDevice > uidStart && shittyDevice < uidEnd)
@@ -165,7 +165,7 @@ namespace RDMSharp
                 var offByOneContext = new RDMDiscoveryContext();
 
                 //AL 2020-12-08: Not sure whether usefull
-                //msg = String.Format("Doing OffByOne Check for Range {0} - {1}", RDMUID.FromULong(uidStart), RDMUID.FromULong(uidEnd));
+                //msg = String.Format("Doing OffByOne Check for Range {0} - {1}", UID.FromULong(uidStart), UID.FromULong(uidEnd));
                 //context.Status = msg;
 
                 await DiscoverDevicesBinarySearch(uidStart, uidStart + mid3, offByOneContext);
@@ -183,7 +183,7 @@ namespace RDMSharp
             }
         }
 
-        private async Task<bool?> TryMuteSingleDeviceAndAdd(RDMUID uid, RDMDiscoveryContext context)
+        private async Task<bool?> TryMuteSingleDeviceAndAdd(UID uid, RDMDiscoveryContext context)
         {
             if (context.AlreadyFound(uid))
             {

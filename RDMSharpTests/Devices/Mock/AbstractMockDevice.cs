@@ -18,7 +18,7 @@ namespace RDMSharpTests.Devices.Mock
                 registerEvent();
             }
         }
-        public AbstractMockDevice(RDMUID uid, bool _imitateRealConditions = false) : base(uid)
+        public AbstractMockDevice(UID uid, bool _imitateRealConditions = false) : base(uid)
         {
             ImitateRealConditions = _imitateRealConditions;
             registerEvent();

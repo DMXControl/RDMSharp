@@ -10,7 +10,7 @@ namespace RDMSharpTests.RDM.PayloadObject
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            DiscMuteUnmuteResponse discMute = new DiscMuteUnmuteResponse(true, bindingUID: new RDMUID(223, 434));
+            DiscMuteUnmuteResponse discMute = new DiscMuteUnmuteResponse(true, bindingUID: new UID(223, 434));
 
             byte[] data = discMute.ToPayloadData();
 
@@ -36,7 +36,7 @@ namespace RDMSharpTests.RDM.PayloadObject
                 Assert.That(res, Is.EqualTo(src));
             });
 
-            discMute = new DiscMuteUnmuteResponse(false, true, bindingUID: new RDMUID(223, 434));
+            discMute = new DiscMuteUnmuteResponse(false, true, bindingUID: new UID(223, 434));
 
             data = discMute.ToPayloadData();
 
@@ -61,7 +61,7 @@ namespace RDMSharpTests.RDM.PayloadObject
                 Assert.That(res, Is.EqualTo(src));
             });
 
-            discMute = new DiscMuteUnmuteResponse(false, false, true, bindingUID: new RDMUID(223, 434));
+            discMute = new DiscMuteUnmuteResponse(false, false, true, bindingUID: new UID(223, 434));
 
             data = discMute.ToPayloadData();
 

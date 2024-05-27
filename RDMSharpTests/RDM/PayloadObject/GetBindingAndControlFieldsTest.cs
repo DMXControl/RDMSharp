@@ -10,7 +10,7 @@ namespace RDMSharpTests.RDM.PayloadObject
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            GetBindingAndControlFieldsRequest getBindingAndControlFieldsRequest = new GetBindingAndControlFieldsRequest(1, new RDMUID(1233, 4231414));
+            GetBindingAndControlFieldsRequest getBindingAndControlFieldsRequest = new GetBindingAndControlFieldsRequest(1, new UID(1233, 4231414));
             byte[] data = getBindingAndControlFieldsRequest.ToPayloadData();
 
             RDMMessage message = new RDMMessage()
@@ -34,7 +34,7 @@ namespace RDMSharpTests.RDM.PayloadObject
             });
             Assert.That(res, Is.EqualTo(src));
 
-            GetBindingAndControlFieldsResponse getBindingAndControlFieldsResponse = new GetBindingAndControlFieldsResponse(1, new RDMUID(1213, 34444), 1234, new RDMUID(542, 476436));
+            GetBindingAndControlFieldsResponse getBindingAndControlFieldsResponse = new GetBindingAndControlFieldsResponse(1, new UID(1213, 34444), 1234, new UID(542, 476436));
             data = getBindingAndControlFieldsResponse.ToPayloadData();
 
             message = new RDMMessage()

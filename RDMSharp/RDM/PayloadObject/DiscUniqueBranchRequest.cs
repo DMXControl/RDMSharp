@@ -5,14 +5,14 @@ namespace RDMSharp
 {
     public class DiscUniqueBranchRequest : AbstractRDMPayloadObject
     {
-        public DiscUniqueBranchRequest(in RDMUID startUid, in RDMUID endUid)
+        public DiscUniqueBranchRequest(in UID startUid, in UID endUid)
         {
             StartUid = startUid;
             EndUid = endUid;
         }
 
-        public RDMUID StartUid { get; private set; }
-        public RDMUID EndUid { get; private set; }
+        public UID StartUid { get; private set; }
+        public UID EndUid { get; private set; }
 
         public const int PDL = 12;
 

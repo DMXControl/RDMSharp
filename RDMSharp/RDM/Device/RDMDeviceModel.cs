@@ -13,7 +13,7 @@ namespace RDMSharp
     {
         private static ConcurrentDictionary<int, RDMDeviceModel> knownDeviceModels;
         public static IReadOnlyCollection<RDMDeviceModel> KnownDeviceModels => knownDeviceModels.Values.ToList();
-        internal static RDMDeviceModel getDeviceModel(RDMUID uid, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
+        internal static RDMDeviceModel getDeviceModel(UID uid, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
         {
             knownDeviceModels ??= new ConcurrentDictionary<int, RDMDeviceModel>();
             var kdm = knownDeviceModels.Values.FirstOrDefault(dm => dm.IsModelOf(uid, deviceInfo));
@@ -35,7 +35,7 @@ namespace RDMSharp
 
         public ushort ManufacturerID { get; private set; }
         public EManufacturer Manufacturer { get; private set; }
-        public RDMUID CurrentUsedUID { get; private set; }
+        public UID CurrentUsedUID { get; private set; }
 
         public event EventHandler Initialized;
         public bool IsInitialized { get; private set; } = false;
@@ -92,7 +92,7 @@ namespace RDMSharp
         public event PropertyChangedEventHandler PropertyChanged;
         private readonly Func<RDMMessage, Task> sendRdmFunktion;
 
-        internal RDMDeviceModel(RDMUID uid, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
+        internal RDMDeviceModel(UID uid, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
         {
             this.sendRdmFunktion = sendRdmFunktion;
             DeviceInfo = deviceInfo;
@@ -346,7 +346,7 @@ namespace RDMSharp
             }
         }
 
-        public bool IsModelOf(RDMUID uid, RDMDeviceInfo other)
+        public bool IsModelOf(UID uid, RDMDeviceInfo other)
         {
             var deviceInfo = this.DeviceInfo;
             if (this.ManufacturerID != uid.ManufacturerID)

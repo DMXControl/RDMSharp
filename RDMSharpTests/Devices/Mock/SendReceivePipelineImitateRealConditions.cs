@@ -9,7 +9,7 @@
         {
             if (!rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
                 if (!rdmMessage.SourceUID.IsValidDeviceUID)
-                    rdmMessage.SourceUID = new RDMUID(0x1fff, 0x44444444);
+                    rdmMessage.SourceUID = new UID(0x1fff, 0x44444444);
 
             if (rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
             {

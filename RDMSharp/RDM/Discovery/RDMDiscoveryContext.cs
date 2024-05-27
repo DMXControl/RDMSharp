@@ -7,13 +7,13 @@ namespace RDMSharp
 {
     internal class RDMDiscoveryContext
     {
-        private readonly HashSet<RDMUID> _foundUids = new HashSet<RDMUID>();
-        private readonly HashSet<RDMUID> _falseOnUids = new HashSet<RDMUID>();
+        private readonly HashSet<UID> _foundUids = new HashSet<UID>();
+        private readonly HashSet<UID> _falseOnUids = new HashSet<UID>();
         private readonly ConcurrentDictionary<ulong, RemovedUIDRange> removedRange = new ConcurrentDictionary<ulong, RemovedUIDRange>();
-        private ulong rangeToSearch = (ulong)(RDMUID.Broadcast - 1);
+        private ulong rangeToSearch = (ulong)(UID.Broadcast - 1);
         private string _statusString;
         private RDMDiscoveryStatus _status = new RDMDiscoveryStatus();
-        private RDMUID? lastFoundUid;
+        private UID? lastFoundUid;
         private ulong messageCount;
 
 
@@ -24,35 +24,35 @@ namespace RDMSharp
             this._progress = progress;
         }
 
-        internal bool AlreadyFound(RDMUID uid) => _foundUids.Contains(uid);
+        internal bool AlreadyFound(UID uid) => _foundUids.Contains(uid);
 
-        internal void AddFound(RDMUID uid)
+        internal void AddFound(UID uid)
         {
             _foundUids.Add(uid);
             lastFoundUid = uid;
             UpdateReport();
         }
 
-        internal void AddFound(IEnumerable<RDMUID> uid)
+        internal void AddFound(IEnumerable<UID> uid)
         {
             _foundUids.UnionWith(uid);
             lastFoundUid = uid.LastOrDefault();
             UpdateReport();
         }
-        internal void AddFalseOn(RDMUID uid)
+        internal void AddFalseOn(UID uid)
         {
             _falseOnUids.Add(uid);
         }
-        internal bool IsFalseOn(RDMUID uid)
+        internal bool IsFalseOn(UID uid)
         {
             return _falseOnUids.Contains(uid);
         }
 
         internal int FoundCount => _foundUids.Count;
 
-        internal IReadOnlyCollection<RDMUID> FoundUIDs => _foundUids.ToList();
+        internal IReadOnlyCollection<UID> FoundUIDs => _foundUids.ToList();
 
-        internal void RemoveRange(RDMUID uidStart, RDMUID uidEnd)
+        internal void RemoveRange(UID uidStart, UID uidEnd)
         {
             var newRemovedRange = new RemovedUIDRange(uidStart, uidEnd);
             var overlap = removedRange.FirstOrDefault(r => areRangesOverlapping(r.Value.StartUID, r.Value.EndUID, newRemovedRange.StartUID, newRemovedRange.EndUID));
@@ -90,10 +90,10 @@ namespace RDMSharp
             foreach (var r in removedRange)
                 sumDelta += (ulong)r.Value.Delta;
 
-            rangeToSearch = (ulong)(RDMUID.Broadcast - 1) - sumDelta;
+            rangeToSearch = (ulong)(UID.Broadcast - 1) - sumDelta;
             UpdateReport();
 
-            static bool areRangesOverlapping(RDMUID start1, RDMUID end1, RDMUID start2, RDMUID end2)
+            static bool areRangesOverlapping(UID start1, UID end1, UID start2, UID end2)
             {
                 if (start1 <= end2 && end1 >= start2)// Check for overlap
                     return true;
@@ -144,11 +144,11 @@ namespace RDMSharp
     }
     internal class RemovedUIDRange
     {
-        public readonly RDMUID StartUID;
-        public readonly RDMUID EndUID;
-        public readonly RDMUID Delta;
+        public readonly UID StartUID;
+        public readonly UID EndUID;
+        public readonly UID Delta;
 
-        public RemovedUIDRange(in RDMUID startUID, in RDMUID endUID)
+        public RemovedUIDRange(in UID startUID, in UID endUID)
         {
             StartUID = startUID;
             EndUID = endUID;
@@ -156,7 +156,7 @@ namespace RDMSharp
         }
         public static RemovedUIDRange Merge(RemovedUIDRange one, RemovedUIDRange other)
         {
-            return new RemovedUIDRange(new RDMUID(Math.Min((ulong)one.StartUID, (ulong)other.StartUID)), new RDMUID(Math.Max((ulong)one.EndUID, (ulong)other.EndUID)));
+            return new RemovedUIDRange(new UID(Math.Min((ulong)one.StartUID, (ulong)other.StartUID)), new UID(Math.Max((ulong)one.EndUID, (ulong)other.EndUID)));
         }
         public override string ToString()
         {

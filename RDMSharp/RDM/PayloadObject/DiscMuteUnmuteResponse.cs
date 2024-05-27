@@ -10,7 +10,7 @@ namespace RDMSharp
             bool subDeviceFlag = false,
             bool bootLoaderFlag = false,
             bool proxiedDeviceFlag = false,
-            RDMUID? bindingUID = null)
+            UID? bindingUID = null)
         {
             ManagedProxyFlag = managedProxyFlag;
             SubDeviceFlag = subDeviceFlag;
@@ -36,7 +36,7 @@ namespace RDMSharp
         /// </summary>
         public bool ProxiedDeviceFlag { get; private set; }
 
-        public RDMUID? BindingUID { get; private set; } = null;
+        public UID? BindingUID { get; private set; } = null;
 
         public const int PDL = 2;
         public const int PDLWithBindUID = 8;
@@ -58,15 +58,15 @@ namespace RDMSharp
             RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL, PDLWithBindUID);
 
             bool[] boolArray = Tools.DataToBoolArray(ref data, 16);
-            RDMUID? rdmUID = null;
+            UID? uid = null;
             if (data.Length == PDLWithBindUID - PDL)
-                rdmUID = Tools.DataToRDMUID(ref data);
+                uid = Tools.DataToRDMUID(ref data);
             var i = new DiscMuteUnmuteResponse(
             managedProxyFlag: boolArray[0],
             subDeviceFlag: boolArray[1],
             bootLoaderFlag: boolArray[2],
             proxiedDeviceFlag: boolArray[3],
-            bindingUID: rdmUID);
+            bindingUID: uid);
 
             return i;
         }

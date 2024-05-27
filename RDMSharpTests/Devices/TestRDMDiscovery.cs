@@ -7,7 +7,7 @@ namespace RDMSharpTests.RDM.Devices
         private static readonly Random random = new Random();
         private readonly List<MockGeneratedDevice1> mockDevices = new List<MockGeneratedDevice1>();
         private MockDiscoveryTool? mockDiscoveryTool;
-        private List<RDMUID>? expected;
+        private List<UID>? expected;
         [SetUp]
         public void Setup()
         {
@@ -78,15 +78,15 @@ namespace RDMSharpTests.RDM.Devices
         [Test]
         public async Task TestDiscovery1()
         {
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4444)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4445)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4446)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4447)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4448)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 21314)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 25252)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 636436)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 23252525)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 4444)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 4445)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 4446)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 4447)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 4448)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 21314)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 25252)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 636436)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 23252525)));
 
             expected = mockDevices.Select(m => m.UID).ToList();
             await AssertDiscovery();
@@ -94,15 +94,15 @@ namespace RDMSharpTests.RDM.Devices
         [Test]
         public async Task TestDiscovery2()
         {
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 234254)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 234243)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 234254)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 234243)));
 
             expected = mockDevices.Select(m => m.UID).ToList();
             await AssertDiscovery();
 
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 0x123400)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 0x567800)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 0x9abc00)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 0x123400)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 0x567800)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 0x9abc00)));
 
             expected = mockDevices.Select(m => m.UID).Except(expected).ToList();
             await AssertDiscovery(false); // Discover only new Devices
@@ -113,21 +113,21 @@ namespace RDMSharpTests.RDM.Devices
         [Test]
         public async Task TestDiscovery3()
         {
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 234254)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 234243)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 124367)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 64687)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 487755)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 9696)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 7474574)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4784757)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 747747)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 7800)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 90789)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 225677856)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 989089)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4)));
-            mockDevices.Add(new MockGeneratedDevice1(new RDMUID(0x9fff, 4757342)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 234254)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 234243)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 124367)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 64687)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 487755)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 9696)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 7474574)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 4784757)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 747747)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 7800)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 90789)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 225677856)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 989089)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 4)));
+            mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 4757342)));
 
             expected = mockDevices.Select(m => m.UID).ToList();
             await AssertDiscovery();
@@ -144,7 +144,7 @@ namespace RDMSharpTests.RDM.Devices
                     id = (uint)random.Next();
                 }
                 while (!ids.Add(id));
-                var m = new MockGeneratedDevice1(new RDMUID(0x9fff, id));
+                var m = new MockGeneratedDevice1(new UID(0x9fff, id));
                 mockDevices.Add(m);
             }
 

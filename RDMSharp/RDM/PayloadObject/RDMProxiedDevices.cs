@@ -6,12 +6,12 @@ namespace RDMSharp
 {
     public class RDMProxiedDevices : AbstractRDMPayloadObject
     {
-        public RDMProxiedDevices(params RDMUID[] devices)
+        public RDMProxiedDevices(params UID[] devices)
         {
             this.Devices = devices;
         }
 
-        public RDMUID[] Devices { get; private set; }
+        public UID[] Devices { get; private set; }
         public const int PDL_MIN = 0;
         public const int PDL_MAX = 0xE4;
 
@@ -20,7 +20,7 @@ namespace RDMSharp
             StringBuilder b = new StringBuilder();
             b.AppendLine("RDMProxiedDevices");
             b.AppendLine($"Devices:");
-            foreach (RDMUID device in Devices)
+            foreach (UID device in Devices)
                 b.AppendLine(device.ToString());
 
             return b.ToString();
@@ -35,7 +35,7 @@ namespace RDMSharp
         {
             RDMMessageInvalidPDLException.ThrowIfInvalidPDLRange(data, PDL_MIN, PDL_MAX);
 
-            List<RDMUID> uids = new List<RDMUID>();
+            List<UID> uids = new List<UID>();
             while (data.Length >= 6)
                 uids.Add(Tools.DataToRDMUID(ref data));
 

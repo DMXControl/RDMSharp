@@ -11,7 +11,7 @@ namespace RDMSharpTests.RDM.Devices
         [SetUp]
         public void Setup()
         {
-            var uid = new RDMUID(0x9fff, 1);
+            var uid = new UID(0x9fff, 1);
             generated = new MockGeneratedDevice1(uid);
             remote = new MockDevice(uid, false);
         }

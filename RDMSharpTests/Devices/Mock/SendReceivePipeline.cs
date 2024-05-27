@@ -10,9 +10,9 @@
         public static void RDMMessageSend(long identifyer, RDMMessage rdmMessage)
         {
             if (!rdmMessage.DestUID.IsValidDeviceUID)
-                rdmMessage.DestUID = new RDMUID(0x1fff, 44444444);
+                rdmMessage.DestUID = new UID(0x1fff, 44444444);
             if (!rdmMessage.SourceUID.IsValidDeviceUID)
-                rdmMessage.SourceUID = new RDMUID(0x1fff, 0x44444444);
+                rdmMessage.SourceUID = new UID(0x1fff, 0x44444444);
 
 #if DEBUG
             Console.WriteLine(rdmMessage);

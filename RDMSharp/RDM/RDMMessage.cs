@@ -59,7 +59,7 @@ namespace RDMSharp
                                             ((data[dataIndex + 9] & data[dataIndex + 10]) << 8) |
                                              (data[dataIndex + 11] & data[dataIndex + 12]));
 
-                    SourceUID = new RDMUID(manId, devId);
+                    SourceUID = new UID(manId, devId);
                     return;
                 }
                 else
@@ -86,8 +86,8 @@ namespace RDMSharp
 
             byte paramLength = data[23];
 
-            SourceUID = new RDMUID(manIdSource, devIdSource);
-            DestUID = new RDMUID(manIdDest, devIdDest);
+            SourceUID = new UID(manIdSource, devIdSource);
+            DestUID = new UID(manIdDest, devIdDest);
             TransactionCounter = data[15];
             PortID_or_Responsetype = data[16];
             MessageCounter = data[17];
@@ -117,9 +117,9 @@ namespace RDMSharp
             }
         }
 
-        public RDMUID SourceUID { get; set; }
+        public UID SourceUID { get; set; }
 
-        public RDMUID DestUID { get; set; }
+        public UID DestUID { get; set; }
 
         public byte TransactionCounter { get; set; }
 

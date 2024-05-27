@@ -10,7 +10,7 @@ namespace RDMSharpTests.RDM.PayloadObject
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            DiscUniqueBranchRequest discUniqueBranch = new DiscUniqueBranchRequest(new RDMUID(223, 434), new RDMUID(3333, 99999));
+            DiscUniqueBranchRequest discUniqueBranch = new DiscUniqueBranchRequest(new UID(223, 434), new UID(3333, 99999));
 
             byte[] data = discUniqueBranch.ToPayloadData();
 

@@ -6,7 +6,7 @@ namespace RDMSharp
 {
     public interface IRDMDevice : IDisposable, INotifyPropertyChanged
     {
-        RDMUID UID { get; }
+        UID UID { get; }
         DateTime LastSeen { get; }
         bool Present { get; }
 

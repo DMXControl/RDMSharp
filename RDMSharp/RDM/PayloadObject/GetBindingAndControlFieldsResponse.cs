@@ -6,9 +6,9 @@ namespace RDMSharp
     {
         public GetBindingAndControlFieldsResponse(
             ushort endpointId = default,
-            RDMUID uid = default,
+            UID uid = default,
             ushort controlField = default,
-            RDMUID bindingUID = default)
+            UID bindingUID = default)
         {
             this.EndpointId = endpointId;
             this.UID = uid;
@@ -17,9 +17,9 @@ namespace RDMSharp
         }
 
         public ushort EndpointId { get; private set; }
-        public RDMUID UID { get; private set; }
+        public UID UID { get; private set; }
         public ushort ControlField { get; private set; }
-        public RDMUID BindingUID { get; private set; }
+        public UID BindingUID { get; private set; }
         public const int PDL = 0x10;
 
         public override string ToString()

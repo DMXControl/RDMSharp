@@ -11,11 +11,11 @@ namespace RDMSharpTests.RDM.PayloadObject
         public void ToPayloadAndFromMessageTest()
         {
             RDMProxiedDevices proxiedDevices = new RDMProxiedDevices(
-                new RDMUID(214567834),
-                new RDMUID(2723737),
-                new RDMUID(5959076060),
-                new RDMUID(067060),
-                new RDMUID(32490538486848484));
+                new UID(214567834),
+                new UID(2723737),
+                new UID(5959076060),
+                new UID(067060),
+                new UID(32490538486848484));
 
             byte[] data = proxiedDevices.ToPayloadData();
 
