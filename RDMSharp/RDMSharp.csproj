@@ -31,7 +31,7 @@
 		<None Include="Icons\RDMSharp.png" Pack="true" PackagePath="" />
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="DMXControlProjects.WellKnownDataTypes" Version="0.0.1" />
+	  <PackageReference Include="DMXControlProjects.WellKnownDataTypes" Version="0.0.2" />
 	  <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
 	</ItemGroup>
 </Project>
