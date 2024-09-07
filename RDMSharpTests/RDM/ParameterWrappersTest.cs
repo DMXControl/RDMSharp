@@ -135,7 +135,7 @@ namespace RDMSharpTests.RDM
         };
         private static readonly ERDM_Parameter[] sgmParameters = new ERDM_Parameter[]
         {
-            ERDM_Parameter.SERIAL_NUMBER,
+            ERDM_Parameter.SERIAL_NUMBER_SGM,
             ERDM_Parameter.REFRESH_RATE,
             ERDM_Parameter.DIMMING_CURVE,
             ERDM_Parameter.FAN_MODE,
