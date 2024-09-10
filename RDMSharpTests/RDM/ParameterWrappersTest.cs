@@ -107,6 +107,31 @@ namespace RDMSharpTests.RDM
             ERDM_Parameter.DNS_HOSTNAME,
             ERDM_Parameter.DNS_DOMAIN_NAME
         };
+        private static readonly ERDM_Parameter[] e1_37_5Parameters = new ERDM_Parameter[]
+        {
+            ERDM_Parameter.MANUFACTURER_URL,
+            ERDM_Parameter.PRODUCT_URL,
+            ERDM_Parameter.FIRMWARE_URL,
+            ERDM_Parameter.SERIAL_NUMBER,
+            ERDM_Parameter.DEVICE_INFO_OFFSTAGE,
+            ERDM_Parameter.TEST_DATA,
+            ERDM_Parameter.COMMS_STATUS_NSC,
+            ERDM_Parameter.IDENTIFY_TIMEOUT,
+            ERDM_Parameter.POWER_OFF_READY,
+            ERDM_Parameter.SHIPPING_LOCK,
+            ERDM_Parameter.LIST_TAGS,
+            ERDM_Parameter.ADD_TAG,
+            ERDM_Parameter.REMOVE_TAG,
+            ERDM_Parameter.CHECK_TAG,
+            ERDM_Parameter.CLEAR_TAGS,
+            ERDM_Parameter.DEVICE_UNIT_NUMBER,
+            ERDM_Parameter.DMX_PERSONALITY_ID,
+            ERDM_Parameter.SENSOR_TYPE_CUSTOM,
+            ERDM_Parameter.SENSOR_UNIT_CUSTOM,
+            ERDM_Parameter.METADATA_PARAMETER_VERSION,
+            ERDM_Parameter.METADATA_JSON,
+            ERDM_Parameter.METADATA_JSON_URL
+        };
         private static readonly ERDM_Parameter[] e1_37_7Parameters = new ERDM_Parameter[]
         {
             ERDM_Parameter.ENDPOINT_LIST,
@@ -163,7 +188,7 @@ namespace RDMSharpTests.RDM
         [Test]
         public void CheckAllParametersArDefined()
         {
-            var parameterLeft = parameters.Except(e1_20Parameters).Except(e1_37_1Parameters).Except(e1_37_2Parameters).Except(e1_37_7Parameters).Except(e1_33Parameters).Except(sgmParameters).ToList();
+            var parameterLeft = parameters.Except(e1_20Parameters).Except(e1_37_1Parameters).Except(e1_37_2Parameters).Except(e1_37_5Parameters).Except(e1_37_7Parameters).Except(e1_33Parameters).Except(sgmParameters).ToList();
 
             Assert.Multiple(() =>
             {
@@ -187,6 +212,12 @@ namespace RDMSharpTests.RDM
         public void CheckE1_37_2WrappersDefined()
         {
             var notDefinedParameters = e1_37_2Parameters.Except(parameterWrappers.Select(pw => pw.Parameter)).ToArray();
+            Assert.That(notDefinedParameters, Is.Empty, $"The not defined Parameters:{Environment.NewLine}{ParameterWrappersTest.ParametersToString(notDefinedParameters)}");
+        }
+        [Test]
+        public void CheckE1_37_5WrappersDefined()
+        {
+            var notDefinedParameters = e1_37_5Parameters.Except(parameterWrappers.Select(pw => pw.Parameter)).ToArray();
             Assert.That(notDefinedParameters, Is.Empty, $"The not defined Parameters:{Environment.NewLine}{ParameterWrappersTest.ParametersToString(notDefinedParameters)}");
         }
         [Test]
@@ -236,6 +267,9 @@ namespace RDMSharpTests.RDM
 
                 foreach (ERDM_Parameter parameter in e1_37_2Parameters)
                     Assert.That(parameterWrappers.Where(pw => pw.Parameter == parameter).ToList(), Has.Count.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
+               
+                foreach (ERDM_Parameter parameter in e1_37_5Parameters)
+                    Assert.That(parameterWrappers.Where(pw => pw.Parameter == parameter).ToList(), Has.Count.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
 
                 foreach (ERDM_Parameter parameter in e1_37_7Parameters)
                     Assert.That(parameterWrappers.Where(pw => pw.Parameter == parameter).ToList(), Has.Count.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
@@ -281,6 +315,11 @@ namespace RDMSharpTests.RDM
         public void ParameterWrapperE1_37_2TestFwBw()
         {
             TestParameterWrapperForwardBackwardSerialization(e1_37_2Parameters.Select(p => manager.GetRDMParameterWrapperByID(p)));
+        }
+        [Test]
+        public void ParameterWrapperE1_37_5TestFwBw()
+        {
+            TestParameterWrapperForwardBackwardSerialization(e1_37_5Parameters.Select(p => manager.GetRDMParameterWrapperByID(p)));
         }
         [Test]
         public void ParameterWrapperE1_37_7TestFwBw()
