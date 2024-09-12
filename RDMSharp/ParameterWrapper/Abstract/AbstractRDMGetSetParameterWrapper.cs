@@ -2,7 +2,7 @@
 
 namespace RDMSharp.ParameterWrapper
 {
-    public abstract class AbstractRDMGetSetParameterWrapper<GetRequest, GetResponse, SetRequest, SetResponse> : AbstractRDMParameterWrapper<GetRequest, GetResponse, SetRequest, SetResponse>, IRDMGetParameterWrapper<GetRequest, GetResponse>, IRDMSetParameterWrapper<SetRequest, SetResponse>
+    public abstract class AbstractRDMGetSetParameterWrapper<GetRequest, GetResponse, SetRequest, SetResponse> : AbstractRDMParameterWrapper<GetRequest, GetResponse, SetRequest, SetResponse>, IRDMGetParameterWrapper<GetRequest, GetResponse>, IRDMSetParameterWrapper<SetRequest, SetResponse>, IRDMGetParameterWrapperRequestRanged, IRDMGetParameterWrapperRequestRanged<GetRequest>
     {
         public override sealed ERDM_CommandClass CommandClass => ERDM_CommandClass.GET | ERDM_CommandClass.SET;
 
@@ -97,12 +97,12 @@ namespace RDMSharp.ParameterWrapper
         }
         #endregion
         public abstract IRequestRange GetRequestRange(object value);
-        IRequestRange IRDMGetParameterWrapperRequest.GetRequestRange(object value)
+        IRequestRange IRDMGetParameterWrapperRequestRanged.GetRequestRange(object value)
         {
             return this.GetRequestRange(value);
         }
 
-        IRequestRange<GetRequest> IRDMGetParameterWrapperRequest<GetRequest>.GetRequestRange(object value)
+        IRequestRange<GetRequest> IRDMGetParameterWrapperRequestRanged<GetRequest>.GetRequestRange(object value)
         {
             return (IRequestRange<GetRequest>)this.GetRequestRange(value);
         }

@@ -158,7 +158,7 @@ namespace RDMSharp
                             if (request != null)
                                 await processMessage(await requestParameter(request));
                             return;
-                        case IRDMGetParameterWrapperRequest getParameter:
+                        case IRDMGetParameterWrapperRequestRanged getParameter:
                             await doRange(getParameter);
                             return;
 
@@ -181,7 +181,7 @@ namespace RDMSharp
 
 
                     await processMessage(await requestParameter(request));
-                    async Task doRange(IRDMGetParameterWrapperRequest getParameterWrapperRequest)
+                    async Task doRange(IRDMGetParameterWrapperRequestRanged getParameterWrapperRequest)
                     {
                         ERDM_Parameter descriptive;
                         object dVal = null;

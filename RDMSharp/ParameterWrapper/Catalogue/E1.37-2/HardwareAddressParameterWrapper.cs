@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.ParameterWrapper
 {
-    public sealed class HardwareAddressParameterWrapper : AbstractRDMGetParameterWrapper<uint, GetHardwareAddressResponse>
+    public sealed class HardwareAddressParameterWrapper : AbstractRDMGetParameterWrapperRanged<uint, GetHardwareAddressResponse>
     {
         public HardwareAddressParameterWrapper() : base(ERDM_Parameter.INTERFACE_HARDWARE_ADDRESS_TYPE)
         {

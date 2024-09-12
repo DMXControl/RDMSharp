@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.ParameterWrapper
 {
-    public sealed class IPv4Address_NetmaskParameterWrapper : AbstractRDMGetParameterWrapper<uint, GetIPv4CurrentAddressResponse>
+    public sealed class IPv4Address_NetmaskParameterWrapper : AbstractRDMGetParameterWrapperRanged<uint, GetIPv4CurrentAddressResponse>
     {
         public IPv4Address_NetmaskParameterWrapper() : base(ERDM_Parameter.IPV4_CURRENT_ADDRESS)
         {

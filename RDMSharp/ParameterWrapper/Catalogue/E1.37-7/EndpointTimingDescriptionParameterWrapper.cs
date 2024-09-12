@@ -2,7 +2,7 @@
 
 namespace RDMSharp.ParameterWrapper
 {
-    public sealed class EndpointTimingDescriptionParameterWrapper : AbstractRDMGetParameterWrapper<byte, GetEndpointTimingDescriptionResponse>, IRDMBlueprintDescriptionListParameterWrapper
+    public sealed class EndpointTimingDescriptionParameterWrapper : AbstractRDMGetParameterWrapperRanged<byte, GetEndpointTimingDescriptionResponse>, IRDMBlueprintDescriptionListParameterWrapper
     {
         public EndpointTimingDescriptionParameterWrapper() : base(ERDM_Parameter.ENDPOINT_TIMING_DESCRIPTION)
         {

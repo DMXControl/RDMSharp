@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.ParameterWrapper
 {
-    public sealed class InterfaceNameParameterWrapper : AbstractRDMGetParameterWrapper<uint, GetInterfaceNameResponse>
+    public sealed class InterfaceNameParameterWrapper : AbstractRDMGetParameterWrapperRanged<uint, GetInterfaceNameResponse>
     {
         public InterfaceNameParameterWrapper() : base(ERDM_Parameter.INTERFACE_LABEL)
         {

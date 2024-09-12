@@ -750,7 +750,7 @@ namespace RDMSharp
                     case IRDMGetParameterWrapperWithEmptyGetRequest @emptyGetRequest:
                         tasks.Add(processResponseMessage(await requestParameter(@emptyGetRequest.BuildGetRequestMessage())));
                         break;
-                    case IRDMGetParameterWrapperRequest<byte> @byteGetRequest:
+                    case IRDMGetParameterWrapperRequestRanged<byte> @byteGetRequest:
                         foreach (ERDM_Parameter para in @byteGetRequest.DescriptiveParameters)
                         {
                             this.DeviceModel.ParameterValues.TryGetValue(para, out val);
@@ -761,7 +761,7 @@ namespace RDMSharp
                             tasks.Add(processResponseMessage(await requestParameter(@byteGetRequest.BuildGetRequestMessage(r))));
 
                         break;
-                    case IRDMGetParameterWrapperRequest<ushort> @ushortGetRequest:
+                    case IRDMGetParameterWrapperRequestRanged<ushort> @ushortGetRequest:
                         foreach (ERDM_Parameter para in @ushortGetRequest.DescriptiveParameters)
                         {
                             this.DeviceModel.ParameterValues.TryGetValue(para, out val);
@@ -772,7 +772,7 @@ namespace RDMSharp
                             tasks.Add(processResponseMessage(await requestParameter(@ushortGetRequest.BuildGetRequestMessage(r))));
 
                         break;
-                    case IRDMGetParameterWrapperRequest<uint> @uintGetRequest:
+                    case IRDMGetParameterWrapperRequestRanged<uint> @uintGetRequest:
                         foreach (ERDM_Parameter para in @uintGetRequest.DescriptiveParameters)
                         {
                             this.DeviceModel.ParameterValues.TryGetValue(para, out val);

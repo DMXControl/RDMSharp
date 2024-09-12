@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.ParameterWrapper
 {
-    public sealed class BindingAndControlFieldsParameterWrapper : AbstractRDMGetParameterWrapper<GetBindingAndControlFieldsRequest, GetBindingAndControlFieldsResponse>
+    public sealed class BindingAndControlFieldsParameterWrapper : AbstractRDMGetParameterWrapperRanged<GetBindingAndControlFieldsRequest, GetBindingAndControlFieldsResponse>
     {
         public BindingAndControlFieldsParameterWrapper() : base(ERDM_Parameter.BINDING_CONTROL_FIELDS)
         {

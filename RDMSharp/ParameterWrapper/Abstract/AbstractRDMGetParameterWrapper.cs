@@ -81,16 +81,22 @@ namespace RDMSharp.ParameterWrapper
             return this.buildGetResponseMessage(getResponseValue);
         }
 
+        #endregion
+    }
+    public abstract class AbstractRDMGetParameterWrapperRanged<GetRequest, GetResponse> : AbstractRDMGetParameterWrapper<GetRequest, GetResponse>, IRDMGetParameterWrapperRequestRanged, IRDMGetParameterWrapperRequestRanged<GetRequest>
+    {
+        protected AbstractRDMGetParameterWrapperRanged(in ERDM_Parameter parameter) : base(parameter)
+        {
+        }
         public abstract IRequestRange GetRequestRange(object value);
-        IRequestRange IRDMGetParameterWrapperRequest.GetRequestRange(object value)
+        IRequestRange IRDMGetParameterWrapperRequestRanged.GetRequestRange(object value)
         {
             return this.GetRequestRange(value);
         }
 
-        IRequestRange<GetRequest> IRDMGetParameterWrapperRequest<GetRequest>.GetRequestRange(object value)
+        IRequestRange<GetRequest> IRDMGetParameterWrapperRequestRanged<GetRequest>.GetRequestRange(object value)
         {
             return (IRequestRange<GetRequest>)this.GetRequestRange(value);
         }
-        #endregion
     }
 }

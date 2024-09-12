@@ -2,7 +2,7 @@
 
 namespace RDMSharp.ParameterWrapper
 {
-    public sealed class LockStateDescriptionParameterWrapper : AbstractRDMGetParameterWrapper<byte, RDMLockStateDescription>, IRDMBlueprintDescriptionListParameterWrapper
+    public sealed class LockStateDescriptionParameterWrapper : AbstractRDMGetParameterWrapperRanged<byte, RDMLockStateDescription>, IRDMBlueprintDescriptionListParameterWrapper
     {
         public LockStateDescriptionParameterWrapper() : base(ERDM_Parameter.LOCK_STATE_DESCRIPTION)
         {

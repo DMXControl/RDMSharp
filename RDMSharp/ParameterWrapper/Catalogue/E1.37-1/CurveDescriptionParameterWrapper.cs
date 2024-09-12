@@ -2,7 +2,7 @@
 
 namespace RDMSharp.ParameterWrapper
 {
-    public sealed class CurveDescriptionParameterWrapper : AbstractRDMGetParameterWrapper<byte, RDMCurveDescription>, IRDMBlueprintDescriptionListParameterWrapper
+    public sealed class CurveDescriptionParameterWrapper : AbstractRDMGetParameterWrapperRanged<byte, RDMCurveDescription>, IRDMBlueprintDescriptionListParameterWrapper
     {
         public CurveDescriptionParameterWrapper() : base(ERDM_Parameter.CURVE_DESCRIPTION)
         {

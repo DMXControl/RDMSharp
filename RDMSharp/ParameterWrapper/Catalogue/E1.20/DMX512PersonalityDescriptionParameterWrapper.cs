@@ -2,7 +2,7 @@
 
 namespace RDMSharp.ParameterWrapper
 {
-    public sealed class DMX512PersonalityDescriptionParameterWrapper : AbstractRDMGetParameterWrapper<byte, RDMDMXPersonalityDescription>, IRDMBlueprintDescriptionListParameterWrapper
+    public sealed class DMX512PersonalityDescriptionParameterWrapper : AbstractRDMGetParameterWrapperRanged<byte, RDMDMXPersonalityDescription>, IRDMBlueprintDescriptionListParameterWrapper
     {
         public DMX512PersonalityDescriptionParameterWrapper() : base(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION)
         {
