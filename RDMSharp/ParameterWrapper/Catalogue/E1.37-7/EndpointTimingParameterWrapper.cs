@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace RDMSharp.ParameterWrapper
 {
-    public sealed class EndpointTimingParameterWrapper : AbstractRDMGetSetParameterWrapper<ushort, GetEndpointTimingResponse, SetEndpointTimingRequest, ushort>
+    public sealed class EndpointTimingParameterWrapper : AbstractRDMGetSetParameterWrapperRanged<ushort, GetEndpointTimingResponse, SetEndpointTimingRequest, ushort>
     {
         public EndpointTimingParameterWrapper() : base(ERDM_Parameter.ENDPOINT_TIMING)
         {

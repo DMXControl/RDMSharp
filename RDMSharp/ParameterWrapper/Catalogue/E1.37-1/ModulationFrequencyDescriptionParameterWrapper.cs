@@ -2,7 +2,7 @@
 
 namespace RDMSharp.ParameterWrapper
 {
-    public sealed class ModulationFrequencyDescriptionParameterWrapper : AbstractRDMGetParameterWrapper<byte, RDMModulationFrequencyDescription>, IRDMBlueprintDescriptionListParameterWrapper
+    public sealed class ModulationFrequencyDescriptionParameterWrapper : AbstractRDMGetParameterWrapperRanged<byte, RDMModulationFrequencyDescription>, IRDMBlueprintDescriptionListParameterWrapper
     {
         public ModulationFrequencyDescriptionParameterWrapper() : base(ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION)
         {

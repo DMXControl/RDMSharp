@@ -2,7 +2,7 @@
 
 namespace RDMSharp.ParameterWrapper
 {
-    public sealed class SensorValueParameterWrapper : AbstractRDMGetSetParameterWrapper<byte, RDMSensorValue, byte, RDMSensorValue>
+    public sealed class SensorValueParameterWrapper : AbstractRDMGetSetParameterWrapperRanged<byte, RDMSensorValue, byte, RDMSensorValue>
     {
         public SensorValueParameterWrapper() : base(ERDM_Parameter.SENSOR_VALUE)
         {

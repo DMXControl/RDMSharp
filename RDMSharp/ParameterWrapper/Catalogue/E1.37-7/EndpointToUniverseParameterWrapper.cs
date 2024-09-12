@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.ParameterWrapper
 {
-    public sealed class EndpointToUniverseParameterWrapper : AbstractRDMGetSetParameterWrapper<ushort, GetSetEndpointToUniverse, GetSetEndpointToUniverse, ushort>
+    public sealed class EndpointToUniverseParameterWrapper : AbstractRDMGetSetParameterWrapperRanged<ushort, GetSetEndpointToUniverse, GetSetEndpointToUniverse, ushort>
     {
         public EndpointToUniverseParameterWrapper() : base(ERDM_Parameter.ENDPOINT_TO_UNIVERSE)
         {

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace RDMSharp.ParameterWrapper
 {
-    public sealed class StatusMessageParameterWrapper : AbstractRDMGetParameterWrapper<ERDM_Status, RDMStatusMessage[]>
+    public sealed class StatusMessageParameterWrapper : AbstractRDMGetParameterWrapperRanged<ERDM_Status, RDMStatusMessage[]>
     {
         public override ERDM_SupportedSubDevice SupportedGetSubDevices => ERDM_SupportedSubDevice.ROOT;
         public StatusMessageParameterWrapper() : base(ERDM_Parameter.STATUS_MESSAGES)

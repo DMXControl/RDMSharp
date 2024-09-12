@@ -2,7 +2,7 @@
 
 namespace RDMSharp.ParameterWrapper
 {
-    public sealed class ParameterDescriptionParameterWrapper : AbstractRDMGetParameterWrapper<ERDM_Parameter, RDMParameterDescription>, IRDMBlueprintParameterWrapper
+    public sealed class ParameterDescriptionParameterWrapper : AbstractRDMGetParameterWrapperRanged<ERDM_Parameter, RDMParameterDescription>, IRDMBlueprintParameterWrapper
     {
         public override ERDM_SupportedSubDevice SupportedGetSubDevices => ERDM_SupportedSubDevice.ROOT;
         public ParameterDescriptionParameterWrapper() : base(ERDM_Parameter.PARAMETER_DESCRIPTION)

@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.ParameterWrapper
 {
-    public sealed class SelfTestDescriptionParameterWrapper : AbstractRDMGetParameterWrapper<byte, RDMSelfTestDescription>, IRDMBlueprintParameterWrapper
+    public sealed class SelfTestDescriptionParameterWrapper : AbstractRDMGetParameterWrapperRanged<byte, RDMSelfTestDescription>, IRDMBlueprintParameterWrapper
     {
         public SelfTestDescriptionParameterWrapper() : base(ERDM_Parameter.SELF_TEST_DESCRIPTION)
         {

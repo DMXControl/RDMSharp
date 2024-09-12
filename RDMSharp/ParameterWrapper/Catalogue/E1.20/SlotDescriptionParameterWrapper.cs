@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace RDMSharp.ParameterWrapper
 {
-    public sealed class SlotDescriptionParameterWrapper : AbstractRDMGetParameterWrapper<ushort, RDMSlotDescription>, IRDMDescriptionParameterWrapper
+    public sealed class SlotDescriptionParameterWrapper : AbstractRDMGetParameterWrapperRanged<ushort, RDMSlotDescription>, IRDMDescriptionParameterWrapper
     {
         public SlotDescriptionParameterWrapper() : base(ERDM_Parameter.SLOT_DESCRIPTION)
         {

@@ -2,7 +2,7 @@
 
 namespace RDMSharp.ParameterWrapper
 {
-    public sealed class OutputResponseTimeDescriptionParameterWrapper : AbstractRDMGetParameterWrapper<byte, RDMOutputResponseTimeDescription>, IRDMBlueprintDescriptionListParameterWrapper
+    public sealed class OutputResponseTimeDescriptionParameterWrapper : AbstractRDMGetParameterWrapperRanged<byte, RDMOutputResponseTimeDescription>, IRDMBlueprintDescriptionListParameterWrapper
     {
         public OutputResponseTimeDescriptionParameterWrapper() : base(ERDM_Parameter.OUTPUT_RESPONSE_TIME_DESCRIPTION)
         {

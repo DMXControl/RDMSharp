@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.ParameterWrapper
 {
-    public sealed class EndpointBackgroundDiscoveryParameterWrapper : AbstractRDMGetSetParameterWrapper<ushort, GetSetEndpointBackgroundDiscovery, GetSetEndpointBackgroundDiscovery, ushort>
+    public sealed class EndpointBackgroundDiscoveryParameterWrapper : AbstractRDMGetSetParameterWrapperRanged<ushort, GetSetEndpointBackgroundDiscovery, GetSetEndpointBackgroundDiscovery, ushort>
     {
         public EndpointBackgroundDiscoveryParameterWrapper() : base(ERDM_Parameter.BACKGROUND_DISCOVERY)
         {

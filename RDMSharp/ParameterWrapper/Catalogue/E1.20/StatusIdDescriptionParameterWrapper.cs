@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.ParameterWrapper
 {
-    public sealed class StatusIdDescriptionParameterWrapper : AbstractRDMGetParameterWrapper<ushort, string>, IRDMBlueprintParameterWrapper
+    public sealed class StatusIdDescriptionParameterWrapper : AbstractRDMGetParameterWrapperRanged<ushort, string>, IRDMBlueprintParameterWrapper
     {
         public override ERDM_SupportedSubDevice SupportedGetSubDevices => ERDM_SupportedSubDevice.ROOT;
         public StatusIdDescriptionParameterWrapper() : base(ERDM_Parameter.STATUS_ID_DESCRIPTION)

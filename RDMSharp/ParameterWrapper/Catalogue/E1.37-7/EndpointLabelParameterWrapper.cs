@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.ParameterWrapper
 {
-    public sealed class EndpointLabelParameterWrapper : AbstractRDMGetSetParameterWrapper<ushort, GetSetEndpointLabel, GetSetEndpointLabel, ushort>
+    public sealed class EndpointLabelParameterWrapper : AbstractRDMGetSetParameterWrapperRanged<ushort, GetSetEndpointLabel, GetSetEndpointLabel, ushort>
     {
         public EndpointLabelParameterWrapper() : base(ERDM_Parameter.ENDPOINT_LABEL)
         {

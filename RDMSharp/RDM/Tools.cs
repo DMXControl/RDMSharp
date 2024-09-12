@@ -1,4 +1,6 @@
-﻿using System;
+﻿using org.dmxc.wkdt.Light.RDM;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -318,6 +320,7 @@ namespace RDMSharp
             }
             return res;
         }
+        
         public static bool DataToBool(ref byte[] data)
         {
             const int length = 1;

@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.ParameterWrapper
 {
-    public sealed class EndpointRDMTrafficEnableParameterWrapper : AbstractRDMGetSetParameterWrapper<ushort, GetSetEndpointRDMTrafficEnable, GetSetEndpointRDMTrafficEnable, ushort>
+    public sealed class EndpointRDMTrafficEnableParameterWrapper : AbstractRDMGetSetParameterWrapperRanged<ushort, GetSetEndpointRDMTrafficEnable, GetSetEndpointRDMTrafficEnable, ushort>
     {
         public EndpointRDMTrafficEnableParameterWrapper() : base(ERDM_Parameter.RDM_TRAFFIC_ENABLE)
         {

@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.ParameterWrapper
 {
-    public sealed class BackgroundQueuedStatusMessagePolicyDescriptionParameterWrapper : AbstractRDMGetParameterWrapper<ushort, GetBackgroundQueuedStatusPolicyDescriptionResponse>, IRDMBlueprintDescriptionListParameterWrapper
+    public sealed class BackgroundQueuedStatusMessagePolicyDescriptionParameterWrapper : AbstractRDMGetParameterWrapperRanged<ushort, GetBackgroundQueuedStatusPolicyDescriptionResponse>, IRDMBlueprintDescriptionListParameterWrapper
     {
         public BackgroundQueuedStatusMessagePolicyDescriptionParameterWrapper() : base(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY_DESCRIPTION)
         {
