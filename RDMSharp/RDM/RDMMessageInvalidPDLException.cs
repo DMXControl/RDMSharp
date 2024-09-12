@@ -19,7 +19,7 @@ namespace RDMSharp
         }
         internal static void ThrowIfInvalidPDL(byte[] payloadData, params int[] expectedPDL)
         {
-            if (!expectedPDL.Contains(payloadData.Length)) throw new RDMMessageInvalidPDLException(payloadData, $"PayloadDataLength is fitting the given Values {string.Join(";", expectedPDL)}");
+            if (!expectedPDL.Contains(payloadData.Length)) throw new RDMMessageInvalidPDLException(payloadData, $"PayloadDataLength {payloadData.Length} isn't fitting the given Values {string.Join(";", expectedPDL)}");
         }
         internal static void ThrowIfInvalidPDL(RDMMessage msg, params int[] expectedPDL)
         {
@@ -30,12 +30,12 @@ namespace RDMSharp
             ArgumentNullException.ThrowIfNull(msg);
 #endif
 
-            if (!expectedPDL.Contains(msg.PDL)) throw new RDMMessageInvalidPDLException(msg, $"PayloadDataLength is fitting the given Values {string.Join(";", expectedPDL)}");
+            if (!expectedPDL.Contains(msg.PDL)) throw new RDMMessageInvalidPDLException(msg, $"PayloadDataLength {msg.PDL} isn't fitting the given Values {string.Join(";", expectedPDL)}");
         }
         internal static void ThrowIfInvalidPDLRange(byte[] payloadData, int expectedMinPDL, int expectedMaxPDL)
         {
-            if (payloadData.Length < expectedMinPDL) throw new RDMMessageInvalidPDLException(payloadData, $"PayloadDataLength is fitting the given Range {payloadData.Length} < {expectedMinPDL}");
-            if (payloadData.Length > expectedMaxPDL) throw new RDMMessageInvalidPDLException(payloadData, $"PayloadDataLength is fitting the given Range {payloadData.Length} > {expectedMaxPDL}");
+            if (payloadData.Length < expectedMinPDL) throw new RDMMessageInvalidPDLException(payloadData, $"PayloadDataLength {payloadData.Length} isn't fitting the given Range {payloadData.Length} < {expectedMinPDL}");
+            if (payloadData.Length > expectedMaxPDL) throw new RDMMessageInvalidPDLException(payloadData, $"PayloadDataLength {payloadData.Length} isn't fitting the given Range {payloadData.Length} > {expectedMaxPDL}");
         }
         internal static void ThrowIfInvalidPDLRange(RDMMessage msg, int expectedMinPDL, int expectedMaxPDL)
         {
@@ -46,8 +46,8 @@ namespace RDMSharp
             ArgumentNullException.ThrowIfNull(msg);
 #endif
 
-            if (msg.PDL < expectedMinPDL) throw new RDMMessageInvalidPDLException(msg, $"PayloadDataLength is fitting the given Range {msg.PDL} < {expectedMinPDL}");
-            if (msg.PDL > expectedMaxPDL) throw new RDMMessageInvalidPDLException(msg, $"PayloadDataLength is fitting the given Range {msg.PDL} > {expectedMaxPDL}");
+            if (msg.PDL < expectedMinPDL) throw new RDMMessageInvalidPDLException(msg, $"PayloadDataLength {msg.PDL} isn't fitting the given Range {msg.PDL} < {expectedMinPDL}");
+            if (msg.PDL > expectedMaxPDL) throw new RDMMessageInvalidPDLException(msg, $"PayloadDataLength {msg.PDL} isn't fitting the given Range {msg.PDL} > {expectedMaxPDL}");
         }
     }
 }

@@ -8,7 +8,7 @@ namespace RDMSharp
         public GetDeviceInfoOffstageRequest(
             byte rootPersonality = 1,
             ushort subDeviceRequested = 0,
-            ushort subDevicePersonalityRequested = 0)
+            byte subDevicePersonalityRequested = 0)
         {
             RootPersonality = rootPersonality;
             SubDeviceRequested = subDeviceRequested;
@@ -17,7 +17,7 @@ namespace RDMSharp
 
         public byte RootPersonality { get; private set; }
         public ushort SubDeviceRequested { get; private set; }
-        public ushort SubDevicePersonalityRequested { get; private set; }
+        public byte SubDevicePersonalityRequested { get; private set; }
         public const int PDL = 4;
 
         public override string ToString()
@@ -42,7 +42,7 @@ namespace RDMSharp
             var i = new GetDeviceInfoOffstageRequest(
                 rootPersonality: Tools.DataToByte(ref data),
                 subDeviceRequested: Tools.DataToUShort(ref data),
-                subDevicePersonalityRequested: Tools.DataToUShort(ref data)
+                subDevicePersonalityRequested: Tools.DataToByte(ref data)
             );
 
             return i;

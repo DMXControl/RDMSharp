@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.ParameterWrapper
 {
-    public sealed class IdentifyEndpointParameterWrapper : AbstractRDMGetSetParameterWrapper<ushort, GetSetIdentifyEndpoint, GetSetIdentifyEndpoint, ushort>
+    public sealed class IdentifyEndpointParameterWrapper : AbstractRDMGetSetParameterWrapperRanged<ushort, GetSetIdentifyEndpoint, GetSetIdentifyEndpoint, ushort>
     {
         public IdentifyEndpointParameterWrapper() : base(ERDM_Parameter.IDENTIFY_ENDPOINT)
         {

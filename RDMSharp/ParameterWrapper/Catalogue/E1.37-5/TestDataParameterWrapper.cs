@@ -1,8 +1,7 @@
 ﻿namespace RDMSharp.ParameterWrapper
 {
-    public sealed class TestDataParameterWrapper : AbstractRDMParameterWrapper<ushort, byte[], byte[], byte[]>
+    public sealed class TestDataParameterWrapper : AbstractRDMGetSetParameterWrapper<ushort, byte[], byte[], byte[]>
     {
-        public override sealed ERDM_CommandClass CommandClass => ERDM_CommandClass.GET | ERDM_CommandClass.SET;
         public TestDataParameterWrapper() : base(ERDM_Parameter.TEST_DATA)
         {
         }

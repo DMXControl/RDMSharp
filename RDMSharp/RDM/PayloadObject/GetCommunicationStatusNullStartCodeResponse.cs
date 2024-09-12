@@ -27,7 +27,7 @@ namespace RDMSharp
         public ushort? MinimumSlotCount { get; private set; }
         public ushort? MaximumSlotCount { get; private set; }
         public uint? NumberOfPacketsWithAnError { get; private set; }
-        public const int PDL = 13;
+        public const int PDL = 0x13;
 
         public override string ToString()
         {

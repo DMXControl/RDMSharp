@@ -280,7 +280,7 @@ namespace RDMSharpTests.RDM
                 foreach (ERDM_Parameter parameter in sgmParameters)
                     Assert.That(parameterWrappers.Where(pw => pw.Parameter == parameter).ToList(), Has.Count.EqualTo(1), $"There are more then one ParameterWrapper for the Parameter: {parameter}");
             });
-            Assert.That(e1_20Parameters.Length + e1_37_1Parameters.Length + e1_37_2Parameters.Length + e1_37_7Parameters.Length + e1_33Parameters.Length + sgmParameters.Length, Is.EqualTo(parameterWrappers.Count));
+            Assert.That(e1_20Parameters.Length + e1_37_1Parameters.Length + e1_37_2Parameters.Length + e1_37_5Parameters.Length + e1_37_7Parameters.Length + e1_33Parameters.Length + sgmParameters.Length, Is.EqualTo(parameterWrappers.Count));
         }
         [Test]
         public void GenericParameterWrapperTestFwBw()
@@ -333,298 +333,323 @@ namespace RDMSharpTests.RDM
         }
         private static void TestParameterWrapperForwardBackwardSerialization(IEnumerable<IRDMParameterWrapper> wrappers)
         {
-            object value = getValue(null!);
-            foreach (var wrapper in wrappers)
+            Assert.Multiple(() =>
             {
-                byte tested = 0;
-
-                if (wrapper is IRDMGetParameterWrapperRequest getRequest)
+                object value = getValue(null!);
+                foreach (var wrapper in wrappers)
                 {
-                    tested++;
-                    value = getValue(getRequest.GetRequestType);
-                    value.GetHashCode();//For Coverage;
+                    byte tested = 0;
 
-                    Assert.That(value, Is.Not.Null);
-                    var data = getRequest.GetRequestObjectToParameterData(value);
-                    var res = getRequest.GetRequestParameterDataToObject(data);
-                    Assert.That(res, Is.EqualTo(value));
+                    if (wrapper is IRDMGetParameterWrapperRequest getRequest)
+                    {
+                        tested++;
+                        value = getValue(getRequest.GetRequestType);
+                        Assert.That(value, Is.Not.Null, $"Wrapper {wrapper}");
+                        value.GetHashCode();//For Coverage;
 
-                    RDMMessage buildGetRequestMessage = getRequest.BuildGetRequestMessage(value);
-                    Assert.That(buildGetRequestMessage, Is.Not.Null);
+                        var data = getRequest.GetRequestObjectToParameterData(value);
+                        var res = getRequest.GetRequestParameterDataToObject(data);
+                        Assert.That(res, Is.EqualTo(value), $"Wrapper {wrapper}");
+
+                        RDMMessage buildGetRequestMessage = getRequest.BuildGetRequestMessage(value);
+                        Assert.That(buildGetRequestMessage, Is.Not.Null, $"Wrapper {wrapper}");
+                    }
+                    if (wrapper is IRDMGetParameterWrapperResponse getResponse)
+                    {
+                        tested++;
+                        value = getValue(getResponse.GetResponseType);
+                        Assert.That(value, Is.Not.Null, $"Wrapper {wrapper}");
+                        value.GetHashCode();//For Coverage;
+
+                        var data = getResponse.GetResponseObjectToParameterData(value);
+                        var res = getResponse.GetResponseParameterDataToObject(data);
+                        Assert.That(res, Is.EqualTo(value), $"Wrapper {wrapper}");
+
+                        RDMMessage buildGetResponseMessage = getResponse.BuildGetResponseMessage(value);
+                        Assert.That(buildGetResponseMessage, Is.Not.Null, $"Wrapper {wrapper}");
+                    }
+                    if (wrapper is IRDMSetParameterWrapperRequest setRequest)
+                    {
+                        tested++;
+                        value = getValue(setRequest.SetRequestType);
+                        Assert.That(value, Is.Not.Null, $"Wrapper {wrapper}");
+                        value.GetHashCode();//For Coverage;
+
+                        var data = setRequest.SetRequestObjectToParameterData(value);
+                        var res = setRequest.SetRequestParameterDataToObject(data);
+                        Assert.That(res, Is.EqualTo(value), $"Wrapper {wrapper}");
+
+                        RDMMessage buildSetRequestMessage = setRequest.BuildSetRequestMessage(value);
+                        Assert.That(buildSetRequestMessage, Is.Not.Null, $"Wrapper {wrapper}");
+                    }
+                    if (wrapper is IRDMSetParameterWrapperResponse setResponse)
+                    {
+                        tested++;
+                        value = getValue(setResponse.SetResponseType);
+                        Assert.That(value, Is.Not.Null, $"Wrapper {wrapper}");
+                        value.GetHashCode();//For Coverage;
+
+                        var data = setResponse.SetResponseObjectToParameterData(value);
+                        var res = setResponse.SetResponseParameterDataToObject(data);
+                        Assert.That(res, Is.EqualTo(value), $"Wrapper {wrapper}");
+
+
+                        RDMMessage buildSetResponseMessage = setResponse.BuildSetResponseMessage(value);
+                        Assert.That(buildSetResponseMessage, Is.Not.Null, $"Wrapper {wrapper}");
+                    }
+                    if (wrapper is IRDMGetParameterWrapperWithEmptyGetRequest iGetParameterWrapperEmptyRequest)
+                    {
+                        tested++;
+                        RDMMessage buildGetRequestMessage = iGetParameterWrapperEmptyRequest.BuildGetRequestMessage();
+                        Assert.That(buildGetRequestMessage, Is.Not.Null, $"Wrapper {wrapper}");
+                    }
+                    if (wrapper is IRDMGetParameterWrapperWithEmptyGetResponse iGetParameterWrapperEmptyResponse)
+                    {
+                        tested++;
+                        RDMMessage buildGetResponseMessage = iGetParameterWrapperEmptyResponse.BuildGetResponseMessage();
+                        Assert.That(buildGetResponseMessage, Is.Not.Null, $"Wrapper {wrapper}");
+                    }
+                    if (wrapper is IRDMSetParameterWrapperWithEmptySetRequest iSetParameterWrapperEmptyRequest)
+                    {
+                        tested++;
+                        RDMMessage buildSetRequestMessage = iSetParameterWrapperEmptyRequest.BuildSetRequestMessage();
+                        Assert.That(buildSetRequestMessage, Is.Not.Null, $"Wrapper {wrapper}");
+                    }
+                    if (wrapper is IRDMSetParameterWrapperWithEmptySetResponse iSetParameterWrapperEmptyResponse)
+                    {
+                        tested++;
+                        RDMMessage buildSetResponseMessage = iSetParameterWrapperEmptyResponse.BuildSetResponseMessage();
+                        Assert.That(buildSetResponseMessage, Is.Not.Null, $"Wrapper {wrapper}");
+                    }
+                    if (wrapper is AbstractRDMParameterWrapper<Empty, Empty, Empty, Empty> abstractRDMParameterWrapperEmpty4)
+                    {
+                        tested++;
+                        Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.GetRequestObjectToParameterData(null); });
+                        Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.GetRequestParameterDataToObject(null); });
+
+                        Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.GetResponseObjectToParameterData(null); });
+                        Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.GetResponseParameterDataToObject(null); });
+
+                        Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.SetRequestObjectToParameterData(null); });
+                        Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.SetRequestParameterDataToObject(null); });
+
+                        Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.SetResponseObjectToParameterData(null); });
+                        Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.SetResponseParameterDataToObject(null); });
+                    }
+                    Assert.That(tested, Is.AtLeast(2), $"At {wrapper}");
                 }
-                if (wrapper is IRDMGetParameterWrapperResponse getResponse)
+
+                static object getValue(Type type)
                 {
-                    tested++;
-                    value = getValue(getResponse.GetResponseType);
-                    value.GetHashCode();//For Coverage;
+                    if (type == typeof(string))
+                        return "Test String";
+                    if (type == typeof(bool))
+                        return true;
+                    if (type == typeof(sbyte))
+                        return (sbyte)55;
+                    if (type == typeof(byte))
+                        return (byte)99;
+                    if (type == typeof(short))
+                        return (short)-0x1234;
+                    if (type == typeof(ushort))
+                        return (ushort)1523;
+                    if (type == typeof(ushort?))
+                        return (ushort?)1523;
+                    if (type == typeof(int))
+                        return (int)-0x123334;
+                    if (type == typeof(uint))
+                        return (uint)154523;
+                    if (type == typeof(byte[]))
+                        return new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+                    if (type == typeof(RDMRealTimeClock))
+                        return new RDMRealTimeClock(DateTime.Now);
+                    if (type == typeof(RDMDMXPersonality))
+                        return new RDMDMXPersonality(3, 4);
+                    if (type == typeof(RDMCurve))
+                        return new RDMCurve(3, 4);
+                    if (type == typeof(RDMPresetPlayback))
+                        return new RDMPresetPlayback(3, 200);
+                    if (type == typeof(RDMSensorValue))
+                        return new RDMSensorValue(3, 200);
+                    if (type == typeof(RDMPresetStatus))
+                        return new RDMPresetStatus(3, 200);
+                    if (type == typeof(RDMCommunicationStatus))
+                        return new RDMCommunicationStatus(3, 200);
+                    if (type == typeof(RDMDeviceInfo))
+                        return new RDMDeviceInfo(3, 200);
+                    if (type == typeof(RDMDMXPersonalityDescription))
+                        return new RDMDMXPersonalityDescription(3, 200);
+                    if (type == typeof(RDMParameterDescription))
+                        return new RDMParameterDescription(3, 200);
+                    if (type == typeof(RDMProxiedDeviceCount))
+                        return new RDMProxiedDeviceCount(3);
+                    if (type == typeof(RDMProxiedDevices))
+                        return new RDMProxiedDevices([new UID((ushort)EManufacturer.Swisson_AG, 1342143), new UID((ushort)EManufacturer.DMXControlProjects_eV, 334412), new UID((ushort)EManufacturer.Martin_Professional_AS, 3123)]);
+                    if (type == typeof(RDMSelfTestDescription))
+                        return new RDMSelfTestDescription(3);
+                    if (type == typeof(RDMSensorDefinition))
+                        return new RDMSensorDefinition(3);
+                    if (type == typeof(RDMSlotDescription))
+                        return new RDMSlotDescription(3);
+                    if (type == typeof(GetBrokerStatusResponse))
+                        return new GetBrokerStatusResponse(true, ERDM_BrokerStatus.ACTIVE);
+                    if (type == typeof(GetSetComponentScope))
+                        return new GetSetComponentScope(3, scopeString: "eqadeqew", new IPv4Address(123, 45, 22, 4));
+                    if (type == typeof(TCPCommsEntry))
+                        return new TCPCommsEntry("eqadeqew");
+                    if (type == typeof(RDMCurveDescription))
+                        return new RDMCurveDescription(3);
+                    if (type == typeof(RDMDimmerInfo))
+                        return new RDMDimmerInfo(3, 200);
+                    if (type == typeof(RDMDMXBlockAddress))
+                        return new RDMDMXBlockAddress(3, 200);
+                    if (type == typeof(RDMDMX_xxxx_Mode))
+                        return new RDMDMX_xxxx_Mode(3, 200);
+                    if (type == typeof(SetLockPinRequest))
+                        return new SetLockPinRequest(3, 200);
+                    if (type == typeof(RDMLockStateDescription))
+                        return new RDMLockStateDescription(3);
+                    if (type == typeof(GetLockStateResponse))
+                        return new GetLockStateResponse(3, 200);
+                    if (type == typeof(RDMMinimumLevel))
+                        return new RDMMinimumLevel(3, 200);
+                    if (type == typeof(RDMModulationFrequencyDescription))
+                        return new RDMModulationFrequencyDescription(3, 200);
+                    if (type == typeof(RDMModulationFrequency))
+                        return new RDMModulationFrequency(3, 200);
+                    if (type == typeof(RDMOutputResponseTimeDescription))
+                        return new RDMOutputResponseTimeDescription(3);
+                    if (type == typeof(RDMOutputResponseTime))
+                        return new RDMOutputResponseTime(3, 200);
+                    if (type == typeof(SetLockStateRequest))
+                        return new SetLockStateRequest(12314, 23);
+                    if (type == typeof(RDMPresetInfo))
+                        return new RDMPresetInfo(true, true, true, true, true, true, 12354, 21567, 7432, 23467, 7632, 24567, 7532, 23456, ushort.MaxValue, 23456, 6543, ushort.MaxValue, 5432);
+                    if (type == typeof(GetInterfaceListResponse))
+                        return new GetInterfaceListResponse(new InterfaceDescriptor(1, 444), new InterfaceDescriptor(4, 32));
+                    if (type == typeof(GetInterfaceNameResponse))
+                        return new GetInterfaceNameResponse(2, "Test");
+                    if (type == typeof(GetHardwareAddressResponse))
+                        return new GetHardwareAddressResponse(9, new MACAddress(12, 34, 56, 88, 55, 32));
+                    if (type == typeof(GetSetIPV4_xxx_Mode))
+                        return new GetSetIPV4_xxx_Mode(2, true);
+                    if (type == typeof(GetIPv4CurrentAddressResponse))
+                        return new GetIPv4CurrentAddressResponse(4, new IPv4Address(123, 45, 22, 4), 12, ERDM_DHCPStatusMode.ACTIVE);
+                    if (type == typeof(GetSetIPv4StaticAddress))
+                        return new GetSetIPv4StaticAddress(3, new IPv4Address(123, 45, 22, 4), 20);
+                    if (type == typeof(GetSetIPv4DefaultRoute))
+                        return new GetSetIPv4DefaultRoute(5, new IPv4Address(153, 49, 122, 234));
+                    if (type == typeof(GetSetIPv4NameServer))
+                        return new GetSetIPv4NameServer(2, new IPv4Address(123, 45, 22, 4));
+                    if (type == typeof(GetEndpointListResponse))
+                        return new GetEndpointListResponse(1, new EndpointDescriptor(4, ERDM_EndpointType.PHYSICAL), new EndpointDescriptor(7, ERDM_EndpointType.VIRTUAL));
+                    if (type == typeof(GetSetIdentifyEndpoint))
+                        return new GetSetIdentifyEndpoint(3, true);
+                    if (type == typeof(GetSetEndpointToUniverse))
+                        return new GetSetEndpointToUniverse(1, 55);
+                    if (type == typeof(GetSetEndpointMode))
+                        return new GetSetEndpointMode(1, ERDM_EndpointMode.OUTPUT);
+                    if (type == typeof(GetSetEndpointLabel))
+                        return new GetSetEndpointLabel(3, "Test Endpoint Label");
+                    if (type == typeof(GetSetEndpointRDMTrafficEnable))
+                        return new GetSetEndpointRDMTrafficEnable(56, true);
+                    if (type == typeof(GetDiscoveryStateResponse))
+                        return new GetDiscoveryStateResponse(1, 545, ERDM_DiscoveryState.NOT_ACTIVE);
+                    if (type == typeof(GetSetEndpointBackgroundDiscovery))
+                        return new GetSetEndpointBackgroundDiscovery(1, true);
+                    if (type == typeof(GetEndpointTimingResponse))
+                        return new GetEndpointTimingResponse(1, 44, 55);
+                    if (type == typeof(GetEndpointTimingDescriptionResponse))
+                        return new GetEndpointTimingDescriptionResponse(1, "Test Timing");
+                    if (type == typeof(GetEndpointRespondersResponse))
+                        return new GetEndpointRespondersResponse(1, [new UID((ushort)EManufacturer.Swisson_AG, 1342143), new UID((ushort)EManufacturer.DMXControlProjects_eV, 334412), new UID((ushort)EManufacturer.Martin_Professional_AS, 3123)]);
+                    if (type == typeof(GetEndpointResponderListChangeResponse))
+                        return new GetEndpointResponderListChangeResponse(1, 55);
+                    if (type == typeof(GetBindingAndControlFieldsResponse))
+                        return new GetBindingAndControlFieldsResponse(1, new UID((ushort)EManufacturer.Swisson_AG, 1342143), 22, new UID((ushort)EManufacturer.Martin_Professional_AS, 3123));
+                    if (type == typeof(GetBackgroundQueuedStatusPolicyResponse))
+                        return new GetBackgroundQueuedStatusPolicyResponse(21, 55);
+                    if (type == typeof(GetBackgroundQueuedStatusPolicyDescriptionResponse))
+                        return new GetBackgroundQueuedStatusPolicyDescriptionResponse(21, "Test QueuedStatusPolicyDescription");
+                    if (type == typeof(SetDiscoveryStateRequest))
+                        return new SetDiscoveryStateRequest(22, ERDM_DiscoveryState.INCOMPLETE);
+                    if (type == typeof(SetEndpointTimingRequest))
+                        return new SetEndpointTimingRequest(22, 34);
+                    if (type == typeof(GetBindingAndControlFieldsRequest))
+                        return new GetBindingAndControlFieldsRequest(22, new UID((ushort)EManufacturer.Martin_Professional_AS, 3123));
+                    if (type == typeof(GetDeviceInfoOffstageRequest))
+                        return new GetDeviceInfoOffstageRequest(23, 3, 1);
+                    if (type == typeof(GetDeviceInfoOffstageResponse))
+                        return new GetDeviceInfoOffstageResponse(23, 3, 1, (RDMDeviceInfo)getValue(typeof(RDMDeviceInfo)));
+                    if (type == typeof(GetCommunicationStatusNullStartCodeResponse))
+                        return new GetCommunicationStatusNullStartCodeResponse(23, 3, 1, 3, 2, 99);
+                    if (type == typeof(RDMPersonalityId))
+                        return new RDMPersonalityId(23, 0x3442, 0x9994);
+                    if (type == typeof(RDMSensorTypeCustomDefine))
+                        return new RDMSensorTypeCustomDefine(0x99, "Test Sensor Type");
+                    if (type == typeof(RDMSensorUnitCustomDefine))
+                        return new RDMSensorUnitCustomDefine(0xee, "~");
+                    if (type == typeof(RDMMetadataParameterVersion))
+                        return new RDMMetadataParameterVersion(ERDM_Parameter.BATTERY_EXTENSION, 33);
+                    if (type == typeof(RDMMetadataJson))
+                        return new RDMMetadataJson(ERDM_Parameter.BATTERY_EXTENSION, "{\r\n  \"name\": \"FIRMWARE_URL\",\r\n  \"notes\": \"E1.37-5\",\r\n  \"manufacturer_id\": 0,\r\n  \"pid\": 210,\r\n  \"version\": 1,\r\n  \"get_request_subdevice_range\": [ \"root\", \"subdevices\" ],\r\n  \"get_request\": [],\r\n  \"get_response\": [\r\n    {\r\n      \"name\": \"url\",\r\n      \"type\": \"string\",\r\n      \"notes\": \"The spec says that the minimum length is 5, but we shouldn't restrict because that would imply we know what the URL scheme is.\",\r\n      \"format\": \"url\"\r\n    }\r\n  ]\r\n}");
 
-                    Assert.That(value, Is.Not.Null);
-                    var data = getResponse.GetResponseObjectToParameterData(value);
-                    var res = getResponse.GetResponseParameterDataToObject(data);
-                    Assert.That(res, Is.EqualTo(value));
 
-                    RDMMessage buildGetResponseMessage = getResponse.BuildGetResponseMessage(value);
-                    Assert.That(buildGetResponseMessage, Is.Not.Null);
+
+                    if (type == typeof(ERDM_DisplayInvert))
+                        return ERDM_DisplayInvert.AUTO;
+                    if (type == typeof(ERDM_LampMode))
+                        return ERDM_LampMode.ON_MODE_AFTER_CAL;
+                    if (type == typeof(ERDM_LampState))
+                        return ERDM_LampState.STANDBY;
+                    if (type == typeof(ERDM_IdentifyMode))
+                        return ERDM_IdentifyMode.LOUD;
+                    if (type == typeof(ERDM_PowerState))
+                        return ERDM_PowerState.STANDBY;
+                    if (type == typeof(ERDM_ResetType))
+                        return ERDM_ResetType.Warm;
+                    if (type == typeof(ERDM_Status))
+                        return ERDM_Status.GET_LAST_MESSAGE;
+                    if (type == typeof(ERDM_MergeMode))
+                        return ERDM_MergeMode.DMX_ONLY;
+                    if (type == typeof(ERDM_BrokerStatus))
+                        return ERDM_BrokerStatus.ACTIVE;
+                    if (type == typeof(ERDM_ShippingLockState))
+                        return ERDM_ShippingLockState.PARTIALLY_LOCKED;
+
+                    if (type == typeof(ERDM_Parameter))
+                        return ERDM_Parameter.LAMP_HOURS;
+                    if (type == typeof(ERDM_Parameter[]))
+                        return e1_20Parameters;
+                    if (type == typeof(RDMStatusMessage[]))
+                        return new RDMStatusMessage[] { new RDMStatusMessage(1, ERDM_Status.ERROR, ERDM_StatusMessage.BREAKER_TRIP), new RDMStatusMessage(1, ERDM_Status.WARNING, ERDM_StatusMessage.WATTS) };
+                    if (type == typeof(RDMSlotInfo[]))
+                        return new RDMSlotInfo[] { new RDMSlotInfo(1, ERDM_SlotType.PRIMARY, ERDM_SlotCategory.PAN), new RDMSlotInfo(2, ERDM_SlotType.SEC_FINE, ERDM_SlotCategory.PAN), new RDMSlotInfo(3, ERDM_SlotType.PRIMARY, ERDM_SlotCategory.TILT), new RDMSlotInfo(4, ERDM_SlotType.SEC_FINE, ERDM_SlotCategory.TILT) };
+                    if (type == typeof(ERDM_ProductDetail[]))
+                        return new ERDM_ProductDetail[] { ERDM_ProductDetail.ANALOG_DEMULTIPLEX, ERDM_ProductDetail.BUBBLE, ERDM_ProductDetail.CONFETTI, ERDM_ProductDetail.CO2 };
+                    if (type == typeof(string[]))
+                        return new string[] { "de", "en", "es" };
+                    if (type == typeof(RDMDefaultSlotValue[]))
+                        return new RDMDefaultSlotValue[] { new RDMDefaultSlotValue(1, 128), new RDMDefaultSlotValue(2, 12), new RDMDefaultSlotValue(3, 44), };
+
+                    #region SGM
+                    if (type == typeof(RefreshRate))
+                        return new RefreshRate((byte)34);
+                    if (type == typeof(EDimmingCurve))
+                        return EDimmingCurve.GAMMA_CORRECTED;
+                    if (type == typeof(EFanMode))
+                        return EFanMode.HIGH;
+                    if (type == typeof(EDimMode))
+                        return EDimMode.MAX_POWER;
+                    if (type == typeof(EInvertPixelOrder))
+                        return EInvertPixelOrder.INVERT;
+                    if (type == typeof(EBatteryExtension))
+                        return EBatteryExtension._20H;
+                    #endregion
+
+                    return null!;
                 }
-                if (wrapper is IRDMSetParameterWrapperRequest setRequest)
-                {
-                    tested++;
-                    value = getValue(setRequest.SetRequestType);
-                    value.GetHashCode();//For Coverage;
-
-                    Assert.That(value, Is.Not.Null);
-                    var data = setRequest.SetRequestObjectToParameterData(value);
-                    var res = setRequest.SetRequestParameterDataToObject(data);
-                    Assert.That(res, Is.EqualTo(value));
-
-                    RDMMessage buildSetRequestMessage = setRequest.BuildSetRequestMessage(value);
-                    Assert.That(buildSetRequestMessage, Is.Not.Null);
-                }
-                if (wrapper is IRDMSetParameterWrapperResponse setResponse)
-                {
-                    tested++;
-                    value = getValue(setResponse.SetResponseType);
-                    value.GetHashCode();//For Coverage;
-
-                    Assert.That(value, Is.Not.Null);
-                    var data = setResponse.SetResponseObjectToParameterData(value);
-                    var res = setResponse.SetResponseParameterDataToObject(data);
-                    Assert.That(res, Is.EqualTo(value));
-
-
-                    RDMMessage buildSetResponseMessage = setResponse.BuildSetResponseMessage(value);
-                    Assert.That(buildSetResponseMessage, Is.Not.Null);
-                }
-                if (wrapper is IRDMGetParameterWrapperWithEmptyGetRequest iGetParameterWrapperEmptyRequest)
-                {
-                    tested++;
-                    RDMMessage buildGetRequestMessage = iGetParameterWrapperEmptyRequest.BuildGetRequestMessage();
-                    Assert.That(buildGetRequestMessage, Is.Not.Null);
-                }
-                if (wrapper is IRDMGetParameterWrapperWithEmptyGetResponse iGetParameterWrapperEmptyResponse)
-                {
-                    tested++;
-                    RDMMessage buildGetResponseMessage = iGetParameterWrapperEmptyResponse.BuildGetResponseMessage();
-                    Assert.That(buildGetResponseMessage, Is.Not.Null);
-                }
-                if (wrapper is IRDMSetParameterWrapperWithEmptySetRequest iSetParameterWrapperEmptyRequest)
-                {
-                    tested++;
-                    RDMMessage buildSetRequestMessage = iSetParameterWrapperEmptyRequest.BuildSetRequestMessage();
-                    Assert.That(buildSetRequestMessage, Is.Not.Null);
-                }
-                if (wrapper is IRDMSetParameterWrapperWithEmptySetResponse iSetParameterWrapperEmptyResponse)
-                {
-                    tested++;
-                    RDMMessage buildSetResponseMessage = iSetParameterWrapperEmptyResponse.BuildSetResponseMessage();
-                    Assert.That(buildSetResponseMessage, Is.Not.Null);
-                }
-                if (wrapper is AbstractRDMParameterWrapper<Empty, Empty, Empty, Empty> abstractRDMParameterWrapperEmpty4)
-                {
-                    tested++;
-                    Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.GetRequestObjectToParameterData(null); });
-                    Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.GetRequestParameterDataToObject(null); });
-
-                    Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.GetResponseObjectToParameterData(null); });
-                    Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.GetResponseParameterDataToObject(null); });
-
-                    Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.SetRequestObjectToParameterData(null); });
-                    Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.SetRequestParameterDataToObject(null); });
-
-                    Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.SetResponseObjectToParameterData(null); });
-                    Assert.Throws(typeof(NotSupportedException), () => { abstractRDMParameterWrapperEmpty4.SetResponseParameterDataToObject(null); });
-                }
-                Assert.That(tested, Is.AtLeast(2));
-            }
-
-            static object getValue(Type type)
-            {
-                if (type == typeof(string))
-                    return "Test String";
-                if (type == typeof(bool))
-                    return true;
-                if (type == typeof(sbyte))
-                    return (sbyte)55;
-                if (type == typeof(byte))
-                    return (byte)99;
-                if (type == typeof(short))
-                    return (short)-0x1234;
-                if (type == typeof(ushort))
-                    return (ushort)1523;
-                if (type == typeof(ushort?))
-                    return (ushort?)1523;
-                if (type == typeof(int))
-                    return (int)-0x123334;
-                if (type == typeof(uint))
-                    return (uint)154523;
-                if (type == typeof(byte[]))
-                    return new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
-                if (type == typeof(RDMRealTimeClock))
-                    return new RDMRealTimeClock(DateTime.Now);
-                if (type == typeof(RDMDMXPersonality))
-                    return new RDMDMXPersonality(3, 4);
-                if (type == typeof(RDMCurve))
-                    return new RDMCurve(3, 4);
-                if (type == typeof(RDMPresetPlayback))
-                    return new RDMPresetPlayback(3, 200);
-                if (type == typeof(RDMSensorValue))
-                    return new RDMSensorValue(3, 200);
-                if (type == typeof(RDMPresetStatus))
-                    return new RDMPresetStatus(3, 200);
-                if (type == typeof(RDMCommunicationStatus))
-                    return new RDMCommunicationStatus(3, 200);
-                if (type == typeof(RDMDeviceInfo))
-                    return new RDMDeviceInfo(3, 200);
-                if (type == typeof(RDMDMXPersonalityDescription))
-                    return new RDMDMXPersonalityDescription(3, 200);
-                if (type == typeof(RDMParameterDescription))
-                    return new RDMParameterDescription(3, 200);
-                if (type == typeof(RDMProxiedDeviceCount))
-                    return new RDMProxiedDeviceCount(3);
-                if (type == typeof(RDMProxiedDevices))
-                    return new RDMProxiedDevices([new UID((ushort)EManufacturer.Swisson_AG, 1342143), new UID((ushort)EManufacturer.DMXControlProjects_eV, 334412), new UID((ushort)EManufacturer.Martin_Professional_AS, 3123)]);
-                if (type == typeof(RDMSelfTestDescription))
-                    return new RDMSelfTestDescription(3);
-                if (type == typeof(RDMSensorDefinition))
-                    return new RDMSensorDefinition(3);
-                if (type == typeof(RDMSlotDescription))
-                    return new RDMSlotDescription(3);
-                if (type == typeof(GetBrokerStatusResponse))
-                    return new GetBrokerStatusResponse(true, ERDM_BrokerStatus.ACTIVE);
-                if (type == typeof(GetSetComponentScope))
-                    return new GetSetComponentScope(3, scopeString: "eqadeqew", new IPv4Address(123, 45, 22, 4));
-                if (type == typeof(TCPCommsEntry))
-                    return new TCPCommsEntry("eqadeqew");
-                if (type == typeof(RDMCurveDescription))
-                    return new RDMCurveDescription(3);
-                if (type == typeof(RDMDimmerInfo))
-                    return new RDMDimmerInfo(3, 200);
-                if (type == typeof(RDMDMXBlockAddress))
-                    return new RDMDMXBlockAddress(3, 200);
-                if (type == typeof(RDMDMX_xxxx_Mode))
-                    return new RDMDMX_xxxx_Mode(3, 200);
-                if (type == typeof(SetLockPinRequest))
-                    return new SetLockPinRequest(3, 200);
-                if (type == typeof(RDMLockStateDescription))
-                    return new RDMLockStateDescription(3);
-                if (type == typeof(GetLockStateResponse))
-                    return new GetLockStateResponse(3, 200);
-                if (type == typeof(RDMMinimumLevel))
-                    return new RDMMinimumLevel(3, 200);
-                if (type == typeof(RDMModulationFrequencyDescription))
-                    return new RDMModulationFrequencyDescription(3, 200);
-                if (type == typeof(RDMModulationFrequency))
-                    return new RDMModulationFrequency(3, 200);
-                if (type == typeof(RDMOutputResponseTimeDescription))
-                    return new RDMOutputResponseTimeDescription(3);
-                if (type == typeof(RDMOutputResponseTime))
-                    return new RDMOutputResponseTime(3, 200);
-                if (type == typeof(SetLockStateRequest))
-                    return new SetLockStateRequest(12314, 23);
-                if (type == typeof(RDMPresetInfo))
-                    return new RDMPresetInfo(true, true, true, true, true, true, 12354, 21567, 7432, 23467, 7632, 24567, 7532, 23456, ushort.MaxValue, 23456, 6543, ushort.MaxValue, 5432);
-                if (type == typeof(GetInterfaceListResponse))
-                    return new GetInterfaceListResponse(new InterfaceDescriptor(1, 444), new InterfaceDescriptor(4, 32));
-                if (type == typeof(GetInterfaceNameResponse))
-                    return new GetInterfaceNameResponse(2, "Test");
-                if (type == typeof(GetHardwareAddressResponse))
-                    return new GetHardwareAddressResponse(9, new MACAddress(12, 34, 56, 88, 55, 32));
-                if (type == typeof(GetSetIPV4_xxx_Mode))
-                    return new GetSetIPV4_xxx_Mode(2, true);
-                if (type == typeof(GetIPv4CurrentAddressResponse))
-                    return new GetIPv4CurrentAddressResponse(4, new IPv4Address(123, 45, 22, 4), 12, ERDM_DHCPStatusMode.ACTIVE);
-                if (type == typeof(GetSetIPv4StaticAddress))
-                    return new GetSetIPv4StaticAddress(3, new IPv4Address(123, 45, 22, 4), 20);
-                if (type == typeof(GetSetIPv4DefaultRoute))
-                    return new GetSetIPv4DefaultRoute(5, new IPv4Address(153, 49, 122, 234));
-                if (type == typeof(GetSetIPv4NameServer))
-                    return new GetSetIPv4NameServer(2, new IPv4Address(123, 45, 22, 4));
-                if (type == typeof(GetEndpointListResponse))
-                    return new GetEndpointListResponse(1, new EndpointDescriptor(4, ERDM_EndpointType.PHYSICAL), new EndpointDescriptor(7, ERDM_EndpointType.VIRTUAL));
-                if (type == typeof(GetSetIdentifyEndpoint))
-                    return new GetSetIdentifyEndpoint(3, true);
-                if (type == typeof(GetSetEndpointToUniverse))
-                    return new GetSetEndpointToUniverse(1, 55);
-                if (type == typeof(GetSetEndpointMode))
-                    return new GetSetEndpointMode(1, ERDM_EndpointMode.OUTPUT);
-                if (type == typeof(GetSetEndpointLabel))
-                    return new GetSetEndpointLabel(3, "Test Endpoint Label");
-                if (type == typeof(GetSetEndpointRDMTrafficEnable))
-                    return new GetSetEndpointRDMTrafficEnable(56, true);
-                if (type == typeof(GetDiscoveryStateResponse))
-                    return new GetDiscoveryStateResponse(1, 545, ERDM_DiscoveryState.NOT_ACTIVE);
-                if (type == typeof(GetSetEndpointBackgroundDiscovery))
-                    return new GetSetEndpointBackgroundDiscovery(1, true);
-                if (type == typeof(GetEndpointTimingResponse))
-                    return new GetEndpointTimingResponse(1, 44, 55);
-                if (type == typeof(GetEndpointTimingDescriptionResponse))
-                    return new GetEndpointTimingDescriptionResponse(1, "Test Timing");
-                if (type == typeof(GetEndpointRespondersResponse))
-                    return new GetEndpointRespondersResponse(1, [new UID((ushort)EManufacturer.Swisson_AG, 1342143), new UID((ushort)EManufacturer.DMXControlProjects_eV, 334412), new UID((ushort)EManufacturer.Martin_Professional_AS, 3123)]);
-                if (type == typeof(GetEndpointResponderListChangeResponse))
-                    return new GetEndpointResponderListChangeResponse(1, 55);
-                if (type == typeof(GetBindingAndControlFieldsResponse))
-                    return new GetBindingAndControlFieldsResponse(1, new UID((ushort)EManufacturer.Swisson_AG, 1342143), 22, new UID((ushort)EManufacturer.Martin_Professional_AS, 3123));
-                if (type == typeof(GetBackgroundQueuedStatusPolicyResponse))
-                    return new GetBackgroundQueuedStatusPolicyResponse(21, 55);
-                if (type == typeof(GetBackgroundQueuedStatusPolicyDescriptionResponse))
-                    return new GetBackgroundQueuedStatusPolicyDescriptionResponse(21, "Test QueuedStatusPolicyDescription");
-                if (type == typeof(SetDiscoveryStateRequest))
-                    return new SetDiscoveryStateRequest(22, ERDM_DiscoveryState.INCOMPLETE);
-                if (type == typeof(SetEndpointTimingRequest))
-                    return new SetEndpointTimingRequest(22, 34);
-                if (type == typeof(GetBindingAndControlFieldsRequest))
-                    return new GetBindingAndControlFieldsRequest(22, new UID((ushort)EManufacturer.Martin_Professional_AS, 3123));
-                if (type == typeof(ERDM_DisplayInvert))
-                    return ERDM_DisplayInvert.AUTO;
-                if (type == typeof(ERDM_LampMode))
-                    return ERDM_LampMode.ON_MODE_AFTER_CAL;
-                if (type == typeof(ERDM_LampState))
-                    return ERDM_LampState.STANDBY;
-                if (type == typeof(ERDM_IdentifyMode))
-                    return ERDM_IdentifyMode.LOUD;
-                if (type == typeof(ERDM_PowerState))
-                    return ERDM_PowerState.STANDBY;
-                if (type == typeof(ERDM_ResetType))
-                    return ERDM_ResetType.Warm;
-                if (type == typeof(ERDM_Status))
-                    return ERDM_Status.GET_LAST_MESSAGE;
-                if (type == typeof(ERDM_MergeMode))
-                    return ERDM_MergeMode.DMX_ONLY;
-                if (type == typeof(ERDM_BrokerStatus))
-                    return ERDM_BrokerStatus.ACTIVE;
-
-                if (type == typeof(ERDM_Parameter))
-                    return ERDM_Parameter.LAMP_HOURS;
-                if (type == typeof(ERDM_Parameter[]))
-                    return e1_20Parameters;
-                if (type == typeof(RDMStatusMessage[]))
-                    return new RDMStatusMessage[] { new RDMStatusMessage(1, ERDM_Status.ERROR, ERDM_StatusMessage.BREAKER_TRIP), new RDMStatusMessage(1, ERDM_Status.WARNING, ERDM_StatusMessage.WATTS) };
-                if (type == typeof(RDMSlotInfo[]))
-                    return new RDMSlotInfo[] { new RDMSlotInfo(1, ERDM_SlotType.PRIMARY, ERDM_SlotCategory.PAN), new RDMSlotInfo(2, ERDM_SlotType.SEC_FINE, ERDM_SlotCategory.PAN), new RDMSlotInfo(3, ERDM_SlotType.PRIMARY, ERDM_SlotCategory.TILT), new RDMSlotInfo(4, ERDM_SlotType.SEC_FINE, ERDM_SlotCategory.TILT) };
-                if (type == typeof(ERDM_ProductDetail[]))
-                    return new ERDM_ProductDetail[] { ERDM_ProductDetail.ANALOG_DEMULTIPLEX, ERDM_ProductDetail.BUBBLE, ERDM_ProductDetail.CONFETTI, ERDM_ProductDetail.CO2 };
-                if (type == typeof(string[]))
-                    return new string[] { "de", "en", "es" };
-                if (type == typeof(RDMDefaultSlotValue[]))
-                    return new RDMDefaultSlotValue[] { new RDMDefaultSlotValue(1, 128), new RDMDefaultSlotValue(2, 12), new RDMDefaultSlotValue(3, 44), };
-                #region SGM
-                if (type == typeof(RefreshRate))
-                    return new RefreshRate((byte)34);
-                if (type == typeof(EDimmingCurve))
-                    return EDimmingCurve.GAMMA_CORRECTED;
-                if (type == typeof(EFanMode))
-                    return EFanMode.HIGH;
-                if (type == typeof(EDimMode))
-                    return EDimMode.MAX_POWER;
-                if (type == typeof(EInvertPixelOrder))
-                    return EInvertPixelOrder.INVERT;
-                if (type == typeof(EBatteryExtension))
-                    return EBatteryExtension._20H;
-                #endregion
-
-                return null!;
-            }
+            });
         }
 
         private static string ParametersToString(params ERDM_Parameter[] parameters)

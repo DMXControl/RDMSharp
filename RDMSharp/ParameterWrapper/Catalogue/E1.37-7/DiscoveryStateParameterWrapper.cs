@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.ParameterWrapper
 {
-    public sealed class DiscoveryStateParameterWrapper : AbstractRDMGetSetParameterWrapper<ushort, GetDiscoveryStateResponse, SetDiscoveryStateRequest, ushort>
+    public sealed class DiscoveryStateParameterWrapper : AbstractRDMGetSetParameterWrapperRanged<ushort, GetDiscoveryStateResponse, SetDiscoveryStateRequest, ushort>
     {
         public DiscoveryStateParameterWrapper() : base(ERDM_Parameter.DISCOVERY_STATE)
         {

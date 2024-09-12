@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Primitives;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RDMSharp.ParameterWrapper
 {
@@ -14,7 +15,7 @@ namespace RDMSharp.ParameterWrapper
         protected override string[] getResponseParameterDataToValue(byte[] parameterData)
         {
             var rawString = Tools.DataToString(ref parameterData);
-            return rawString.Split((char)0);
+            return rawString.Split((char)0).Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
         }
 
         protected override byte[] getResponseValueToParameterData(string[] value)

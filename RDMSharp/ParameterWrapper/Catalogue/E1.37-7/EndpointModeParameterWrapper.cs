@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.ParameterWrapper
 {
-    public sealed class EndpointModeParameterWrapper : AbstractRDMGetSetParameterWrapper<ushort, GetSetEndpointMode, GetSetEndpointMode, ushort>
+    public sealed class EndpointModeParameterWrapper : AbstractRDMGetSetParameterWrapperRanged<ushort, GetSetEndpointMode, GetSetEndpointMode, ushort>
     {
         public EndpointModeParameterWrapper() : base(ERDM_Parameter.ENDPOINT_MODE)
         {
