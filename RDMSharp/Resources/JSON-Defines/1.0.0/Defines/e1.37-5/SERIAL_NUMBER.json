@@ -1,0 +1,16 @@
+{
+  "name": "SERIAL_NUMBER",
+  "notes": "E1.37-5",
+  "manufacturer_id": 0,
+  "pid": 211,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "serial_number",
+      "type": "string",
+      "maxLength": 231
+    }
+  ]
+}

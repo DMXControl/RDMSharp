@@ -1,0 +1,18 @@
+{
+  "name": "INTERFACE_RENEW_DHCP",
+  "notes": "E1.37-2",
+  "manufacturer_id": 0,
+  "pid": 1799,
+  "version": 1,
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": [
+    {
+      "name": "id",
+      "type": "uint32",
+      "ranges": [
+        { "minimum": 1, "maximum": 4294967040 }
+      ]
+    }
+  ],
+  "set_response": []
+}

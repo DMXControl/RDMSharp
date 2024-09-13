@@ -1,0 +1,25 @@
+{
+  "name": "SENSOR_UNIT_CUSTOM",
+  "notes": "E1.37-5",
+  "manufacturer_id": 0,
+  "pid": 529,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
+    {
+      "name": "sensor_unit",
+      "type": "uint8",
+      "ranges": [
+        { "minimum": 128, "maximum": 255 }
+      ]
+    }
+  ],
+  "get_response": [
+    { "$ref": "#/get_request/0" },
+    {
+      "name": "label",
+      "type": "string",
+      "maxLength": 32
+    }
+  ]
+}

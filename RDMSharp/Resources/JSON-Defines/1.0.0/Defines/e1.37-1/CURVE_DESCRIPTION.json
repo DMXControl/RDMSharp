@@ -1,0 +1,20 @@
+{
+  "name": "CURVE_DESCRIPTION",
+  "notes": "E1.37-1",
+  "manufacturer_id": 0,
+  "pid": 836,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
+    { "name": "curve", "type": "uint8" }
+  ],
+  "get_response": [
+    { "name": "curve", "type": "uint8" },
+    {
+      "name": "description",
+      "type": "string",
+      "maxLength": 32,
+      "restrictToASCII": true
+    }
+  ]
+}

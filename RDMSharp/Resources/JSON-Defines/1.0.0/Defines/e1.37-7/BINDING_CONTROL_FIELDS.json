@@ -1,0 +1,37 @@
+{
+  "name": "BINDING_CONTROL_FIELDS",
+  "notes": "E1.37-7",
+  "manufacturer_id": 0,
+  "pid": 2317,
+  "version": 1,
+  "get_request_subdevice_range": [ "root" ],
+  "get_request": [
+    {
+      "name": "endpoint_id",
+      "type": "uint16",
+      "ranges": [
+        { "minimum": 1, "maximum": 63999 }
+      ]
+    },
+    {
+      "name": "uid",
+      "type": "bytes",
+      "format": "uid"
+    }
+  ],
+  "get_response": [
+    { "$ref": "#/get_request/0" },
+    { "$ref": "#/get_request/1" },
+    {
+      "name": "control",
+      "type": "uint16",
+      "notes": "See \"Table 7-3: Control Field\" in ANSI E1.20-202x."
+    },
+    {
+      "name": "binding_uid",
+      "type": "bytes",
+      "notes": "All zeros means no Binding UID present in the DISC_MUTE response.",
+      "format": "uid"
+    }
+  ]
+}

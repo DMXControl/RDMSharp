@@ -1,0 +1,49 @@
+{
+  "name": "IPV4_CURRENT_ADDRESS",
+  "notes": "E1.37-2",
+  "manufacturer_id": 0,
+  "pid": 1797,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
+    {
+      "name": "id",
+      "type": "uint32",
+      "ranges": [
+        { "minimum": 1, "maximum": 4294967040 }
+      ]
+    }
+  ],
+  "get_response": [
+    {
+      "name": "id",
+      "type": "uint32",
+      "ranges": [
+        { "minimum": 1, "maximum": 4294967040 }
+      ]
+    },
+    {
+      "name": "address",
+      "type": "bytes",
+      "notes": "All zeros means IPV4_UNCONFIGURED.",
+      "format": "ipv4"
+    },
+    {
+      "name": "netmask",
+      "type": "uint8",
+      "ranges": [
+        { "minimum": 0, "maximum": 32 }
+      ]
+    },
+    {
+      "name": "dhcp_status",
+      "type": "uint8",
+      "labels": [
+        { "name": "INACTIVE", "value": 0 },
+        { "name": "ACTIVE", "value": 1 },
+        { "name": "UNKNOWN", "value": 2 }
+      ],
+      "restrictToLabeled": true
+    }
+  ]
+}

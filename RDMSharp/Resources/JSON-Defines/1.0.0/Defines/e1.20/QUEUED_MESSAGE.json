@@ -1,0 +1,22 @@
+{
+  "name": "QUEUED_MESSAGE",
+  "manufacturer_id": 0,
+  "pid": 32,
+  "version": 1,
+  "get_request_subdevice_range": [ "root" ],
+  "get_request": [
+    {
+      "name": "status_type",
+      "type": "uint8",
+      "labels": [
+        { "name": "STATUS_NONE", "value": 0 },
+        { "name": "STATUS_GET_LAST_MESSAGE", "value": 1 },
+        { "name": "STATUS_ADVISORY", "value": 2 },
+        { "name": "STATUS_WARNING", "value": 3 },
+        { "name": "STATUS_ERROR", "value": 4 }
+      ],
+      "restrictToLabeled": true
+    }
+  ],
+  "get_response": "different_pid"
+}

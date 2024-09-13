@@ -1,0 +1,19 @@
+{
+  "name": "DEVICE_LABEL",
+  "manufacturer_id": 0,
+  "pid": 130,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "label",
+      "type": "string",
+      "maxLength": 32,
+      "restrictToASCII": true
+    }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": "get_response",
+  "set_response": []
+}

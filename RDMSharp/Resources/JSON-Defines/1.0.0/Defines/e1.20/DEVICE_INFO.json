@@ -1,0 +1,109 @@
+{
+  "name": "DEVICE_INFO",
+  "manufacturer_id": 0,
+  "pid": 96,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    { "name": "protocol_major", "type": "uint8" },
+    { "name": "protocol_minor", "type": "uint8" },
+    { "name": "device_model_id", "type": "uint16" },
+    {
+      "name": "product_category",
+      "type": "uint16",
+      "labels": [
+        { "name": "NOT_DECLARED", "value": 0 },
+        { "name": "FIXTURE", "value": 256 },
+        { "name": "FIXTURE_FIXED", "value": 257 },
+        { "name": "FIXTURE_MOVING_YOKE", "value": 258 },
+        { "name": "FIXTURE_MOVING_MIRROR", "value": 259 },
+        { "name": "FIXTURE_OTHER", "value": 511 },
+        { "name": "FIXTURE_ACCESSORY", "value": 512 },
+        { "name": "FIXTURE_ACCESSORY_COLOR", "value": 513 },
+        { "name": "FIXTURE_ACCESSORY_YOKE", "value": 514 },
+        { "name": "FIXTURE_ACCESSORY_MIRROR", "value": 515 },
+        { "name": "FIXTURE_ACCESSORY_EFFECT", "value": 516 },
+        { "name": "FIXTURE_ACCESSORY_BEAM", "value": 517 },
+        { "name": "FIXTURE_ACCESSORY_OTHER", "value": 767 },
+        { "name": "PROJECTOR", "value": 768 },
+        { "name": "PROJECTOR_FIXED", "value": 769 },
+        { "name": "PROJECTOR_MOVING_YOKE", "value": 770 },
+        { "name": "PROJECTOR_MOVING_MIRROR", "value": 771 },
+        { "name": "PROJECTOR_OTHER", "value": 1023 },
+        { "name": "ATMOSPHERIC", "value": 1024 },
+        { "name": "ATMOSPHERIC_EFFECT", "value": 1025 },
+        { "name": "ATMOSPHERIC_PYRO", "value": 1026 },
+        { "name": "ATMOSPHERIC_OTHER", "value": 1279 },
+        { "name": "DIMMER", "value": 1280 },
+        { "name": "DIMMER_AC_INCANDESCENT", "value": 1281 },
+        { "name": "DIMMER_AC_FLUORESCENT", "value": 1282 },
+        { "name": "DIMMER_AC_COLD_CATHODE", "value": 1283 },
+        { "name": "DIMMER_AC_NONDIM", "value": 1284 },
+        { "name": "DIMMER_AC_ELV", "value": 1285 },
+        { "name": "DIMMER_AC_OTHER", "value": 1286 },
+        { "name": "DIMMER_DC_LEVEL", "value": 1287 },
+        { "name": "DIMMER_DC_PWM", "value": 1288 },
+        { "name": "DIMMER_CS_LED", "value": 1289 },
+        { "name": "DIMMER_OTHER", "value": 1535 },
+        { "name": "POWER", "value": 1536 },
+        { "name": "POWER_CONTROL", "value": 1537 },
+        { "name": "POWER_SOURCE", "value": 1538 },
+        { "name": "POWER_OTHER", "value": 1791 },
+        { "name": "SCENIC", "value": 1792 },
+        { "name": "SCENIC_DRIVE", "value": 1793 },
+        { "name": "SCENIC_OTHER", "value": 2047 },
+        { "name": "DATA", "value": 2048 },
+        { "name": "DATA_DISTRIBUTION", "value": 2049 },
+        { "name": "DATA_CONVERSION", "value": 2050 },
+        { "name": "DATA_OTHER", "value": 2303 },
+        { "name": "AV", "value": 2304 },
+        { "name": "AV_AUDIO", "value": 2305 },
+        { "name": "AV_VIDEO", "value": 2306 },
+        { "name": "AV_OTHER", "value": 2559 },
+        { "name": "MONITOR", "value": 2560 },
+        { "name": "MONITOR_AC_LINE_POWER", "value": 2561 },
+        { "name": "MONITOR_DC_POWER", "value": 2562 },
+        { "name": "MONITOR_ENVIRONMENTAL", "value": 2563 },
+        { "name": "MONITOR_OTHER", "value": 2815 },
+        { "name": "CONTROL", "value": 28672 },
+        { "name": "CONTROL_CONTROLLER", "value": 28673 },
+        { "name": "CONTROL_BACKUP_DEVICE", "value": 28674 },
+        { "name": "CONTROL_OTHER", "value": 28927 },
+        { "name": "TEST", "value": 28928 },
+        { "name": "TEST_EQUIPMENT", "value": 28929 },
+        { "name": "TEST_OTHER", "value": 29183 },
+        { "name": "OTHER", "value": 32767 }
+      ]
+    },
+    { "name": "software_version_id", "type": "uint32" },
+    {
+      "name": "dmx_footprint",
+      "type": "uint16",
+      "ranges": [
+        { "minimum": 0, "maximum": 512 }
+      ]
+    },
+    {
+      "name": "current_personality",
+      "type": "uint8",
+      "ranges": [
+        { "minimum": 1, "maximum": 255 }
+      ]
+    },
+    { "name": "personality_count", "type": "uint8" },
+    {
+      "name": "dmx_start_address",
+      "type": "uint16",
+      "ranges": [
+        { "minimum": 1, "maximum": 512 },
+        { "minimum": 65535, "maximum": 65535 }
+      ],
+      "labels": [
+        { "name": "No Footprint", "value": 65535 }
+      ]
+    },
+    { "name": "sub_device_count", "type": "uint16" },
+    { "name": "sensor_count", "type": "uint8" }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "DEVICE_MODEL_DESCRIPTION",
+  "manufacturer_id": 0,
+  "pid": 128,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "description",
+      "type": "string",
+      "maxLength": 32,
+      "restrictToASCII": true
+    }
+  ]
+}

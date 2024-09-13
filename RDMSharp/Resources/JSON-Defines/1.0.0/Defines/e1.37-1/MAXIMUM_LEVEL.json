@@ -1,0 +1,15 @@
+{
+  "name": "MAXIMUM_LEVEL",
+  "notes": "E1.37-1",
+  "manufacturer_id": 0,
+  "pid": 834,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    { "name": "max_level", "type": "uint16" }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": "get_response",
+  "set_response": []
+}

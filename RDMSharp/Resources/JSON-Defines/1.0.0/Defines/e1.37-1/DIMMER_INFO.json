@@ -1,0 +1,55 @@
+{
+  "name": "DIMMER_INFO",
+  "notes": "E1.37-1",
+  "manufacturer_id": 0,
+  "pid": 832,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "min_level_lower_limit",
+      "type": "uint16",
+      "labels": [
+        { "name": "Not Implemented", "value": 0 }
+      ]
+    },
+    {
+      "name": "min_level_upper_limit",
+      "type": "uint16",
+      "labels": [
+        { "name": "Not Implemented", "value": 0 }
+      ]
+    },
+    {
+      "name": "max_level_lower_limit",
+      "type": "uint16",
+      "labels": [
+        { "name": "Not Implemented", "value": 65535 }
+      ]
+    },
+    {
+      "name": "max_level_upper_limit",
+      "type": "uint16",
+      "labels": [
+        { "name": "Not Implemented", "value": 65535 }
+      ]
+    },
+    { "name": "curve_count", "type": "uint8" },
+    {
+      "name": "levels_resolution_bits",
+      "type": "uint8",
+      "ranges": [
+        { "minimum": 1, "maximum": 16 }
+      ]
+    },
+    {
+      "name": "min_level_split_levels_supported",
+      "type": "boolean",
+      "labels": [
+        { "name": "Not Supported", "value": false },
+        { "name": "Supported", "value": true }
+      ]
+    }
+  ]
+}

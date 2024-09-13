@@ -1,0 +1,91 @@
+{
+  "name": "PRESET_STATUS",
+  "notes": "E1.37-1",
+  "manufacturer_id": 0,
+  "pid": 4162,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
+    {
+      "name": "scene_num",
+      "type": "uint16",
+      "ranges": [
+        { "minimum": 1, "maximum": 65534 }
+      ]
+    }
+  ],
+  "get_response": [
+    {
+      "name": "scene_num",
+      "type": "uint16",
+      "ranges": [
+        { "minimum": 1, "maximum": 65534 }
+      ]
+    },
+    {
+      "name": "up_fade_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1
+    },
+    {
+      "name": "down_fade_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1
+    },
+    {
+      "name": "wait_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1
+    },
+    {
+      "name": "programmed",
+      "type": "uint8",
+      "labels": [
+        { "name": "NOT_PROGRAMMED", "value": 0 },
+        { "name": "PROGRAMMED", "value": 1 },
+        { "name": "PROGRAMMED_READ_ONLY", "value": 2 }
+      ],
+      "restrictToLabeled": true
+    }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": [
+    {
+      "name": "scene_num",
+      "type": "uint16",
+      "ranges": [
+        { "minimum": 1, "maximum": 65534 }
+      ]
+    },
+    {
+      "name": "up_fade_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1
+    },
+    {
+      "name": "down_fade_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1
+    },
+    {
+      "name": "wait_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1
+    },
+    {
+      "name": "clear_preset",
+      "type": "boolean",
+      "labels": [
+        { "name": "Don't Clear", "value": false },
+        { "name": "Clear", "value": true }
+      ]
+    }
+  ],
+  "set_response": []
+}

@@ -1,0 +1,21 @@
+{
+  "name": "LANGUAGE",
+  "manufacturer_id": 0,
+  "pid": 176,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "language_code",
+      "type": "string",
+      "pattern": "^[a-zA-Z]{2}$",
+      "resources": [ "https://en.wikipedia.org/wiki/ISO_639-1" ],
+      "minLength": 2,
+      "maxLength": 2
+    }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": "get_response",
+  "set_response": []
+}

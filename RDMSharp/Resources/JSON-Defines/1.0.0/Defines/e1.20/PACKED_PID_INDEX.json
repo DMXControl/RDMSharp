@@ -1,0 +1,35 @@
+{
+  "name": "PACKED_PID_INDEX",
+  "manufacturer_id": 0,
+  "pid": -1,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
+    {
+      "name": "pid",
+      "type": "uint16",
+      "notes": "Some PIDs are disallowed from being packed. See \"Table A-3: RDM Categories/Parameter ID Defines\" of the ANSI E1.20-202x specification."
+    },
+    { "name": "first_item", "type": "uint16" },
+    {
+      "name": "item_count",
+      "type": "uint16",
+      "labels": [
+        { "name": "All Data", "value": 65535 }
+      ]
+    }
+  ],
+  "get_response": [
+    { "name": "pid", "type": "uint16" },
+    { "name": "first_item", "type": "uint16" },
+    { "name": "entry_count", "type": "uint8" },
+    {
+      "name": "entries",
+      "type": "list",
+      "itemType": { "type": "pdEnvelope" }
+    }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices" ],
+  "set_request": "get_response",
+  "set_response": []
+}

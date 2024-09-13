@@ -1,0 +1,23 @@
+{
+  "name": "DISPLAY_INVERT",
+  "manufacturer_id": 0,
+  "pid": 1280,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "setting",
+      "type": "uint8",
+      "labels": [
+        { "name": "Off", "value": 0 },
+        { "name": "On", "value": 1 },
+        { "name": "Auto", "value": 2 }
+      ],
+      "restrictToLabeled": true
+    }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": "get_response",
+  "set_response": []
+}

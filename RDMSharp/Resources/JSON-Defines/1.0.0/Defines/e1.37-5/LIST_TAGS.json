@@ -1,0 +1,16 @@
+{
+  "name": "LIST_TAGS",
+  "notes": "E1.37-5",
+  "manufacturer_id": 0,
+  "pid": 1617,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "tags",
+      "type": "bytes",
+      "notes": "NUL-delimited."
+    }
+  ]
+}

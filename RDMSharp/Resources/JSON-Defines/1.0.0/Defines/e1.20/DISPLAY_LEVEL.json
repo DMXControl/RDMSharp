@@ -1,0 +1,21 @@
+{
+  "name": "DISPLAY_LEVEL",
+  "manufacturer_id": 0,
+  "pid": 1281,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "level",
+      "type": "uint8",
+      "labels": [
+        { "name": "Off", "value": 0 },
+        { "name": "Full", "value": 255 }
+      ]
+    }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": "get_response",
+  "set_response": []
+}

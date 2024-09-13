@@ -1,0 +1,33 @@
+{
+  "name": "SUPPORTED_PARAMETERS_ENHANCED",
+  "manufacturer_id": 0,
+  "pid": -1,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "pids",
+      "type": "list",
+      "itemType": {
+        "type": "compound",
+        "subtypes": [
+          { "name": "pid", "type": "uint16" },
+          {
+            "name": "pid_support",
+            "type": "bitField",
+            "size": 16,
+            "bits": [
+              { "name": "get_supported", "index": 0 },
+              { "name": "set_supported", "index": 1 },
+              { "name": "packed_pid_sub_get_supported", "index": 2 },
+              { "name": "packed_pid_sub_set_supported", "index": 3 },
+              { "name": "packed_pid_index_get_supported", "index": 4 },
+              { "name": "packed_pid_index_set_supported", "index": 5 }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
