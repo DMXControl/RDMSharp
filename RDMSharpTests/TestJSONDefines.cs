@@ -2,7 +2,7 @@ using RDMSharp.Metadata;
 
 namespace RDMSharpTests
 {
-    public class TestJSONMetadataDefines
+    public class TestMetadataFactoryStuff
     {
         [SetUp]
         public void Setup()
@@ -15,15 +15,6 @@ namespace RDMSharpTests
             Console.OutputEncoding = System.Text.Encoding.Default;
         }
 
-        [Test]
-        public void TestJSONDefinesResources()
-        {
-            string[] resources = JSONDefinesResources.GetResources();
-            Assert.That(resources, Is.Not.Empty);
-            Assert.That(resources, Has.Length.EqualTo(130));
-            string[] schemas = resources.Where(r => r.EndsWith("schema.json")).ToArray();
-            Assert.That(schemas, Has.Length.EqualTo(1));
-        }
         [Test]
         public void TestMetadataFactory()
         {

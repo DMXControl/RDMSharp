@@ -1,23 +1,23 @@
 ﻿using System;
-using System.IO;
 using System.Text.RegularExpressions;
 
 namespace RDMSharp.Metadata
 {
-    public readonly struct MetadataDefineVersion
+    public readonly struct MetadataVersion
     {
         public readonly string Version;
-        public readonly string Define;
         public readonly string Path;
         public readonly string Name;
-        public MetadataDefineVersion(string path) : this(getVersion(path), getDefine(path), path)
+        public readonly bool IsSchema;
+        public MetadataVersion(string path) : this(getVersion(path), getName(path), getIsSchema(path), path)
         {
         }
-        public MetadataDefineVersion(string version, string define, string path)
+        public MetadataVersion(string version, string name, bool isSchema, string path)
         {
             Version = version;
-            Define = define;
             Path = path;
+            Name = name;
+            IsSchema = isSchema;
             string pattern = @"[^\.]+\.[json]+$";
             var match = Regex.Match(Path, pattern);
 
@@ -40,12 +40,21 @@ namespace RDMSharp.Metadata
             else
                 throw new Exception($"Can't extract Version from Path: {path}");
         }
-        private static string getDefine(string path)
+        private static bool getIsSchema(string path)
         {
-            var assembly = typeof(MetadataFactory).Assembly;
-            using Stream stream = assembly.GetManifestResourceStream(path);
-            using StreamReader reader = new StreamReader(stream);
-            return reader.ReadToEnd();
+            return path.ToLower().EndsWith("schema.json");
+        }
+        private static string getName(string path)
+        {
+            string pattern = @"[^\.]+\.[json]+$";
+            var match = Regex.Match(path, pattern);
+
+            if (match.Success)
+            {
+                return match.Value;
+            }
+            else
+                throw new Exception($"Can't extract Name from Path: {path}");
         }
         public override string ToString()
         {
