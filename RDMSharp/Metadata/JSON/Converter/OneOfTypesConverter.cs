@@ -78,6 +78,8 @@ namespace RDMSharp.Metadata.JSON.Converter
                 JsonSerializer.Serialize(writer, value.BitFieldType.Value, options);
             else if (value.BooleanType != null)
                 JsonSerializer.Serialize(writer, value.BooleanType.Value, options);
+            else if (value.ReferenceType != null)
+                JsonSerializer.Serialize(writer, value.ReferenceType.Value, options);
             else if (value.IntegerType != null)
                 JsonSerializer.Serialize(writer, value.IntegerType.Value, options);
             else if (value.StringType != null)
