@@ -24,17 +24,44 @@ namespace RDMSharp.Metadata
         [JsonPropertyName("set_response_subdevice_range")]
         public readonly SubdevicesForResponses[] SetResponseSubdeviceRange { get; }
 
+        [JsonPropertyName("get_request")]
+        public readonly Command GetRequest { get; }
+        [JsonPropertyName("get_response")]
+        public readonly Command GetResponse { get; }
+        [JsonPropertyName("set_request")]
+        public readonly Command SetRequest { get; }
+        [JsonPropertyName("set_response")]
+        public readonly Command SetResponse { get; }
+
         [JsonConstructor]
-        public MetadataJSONObjectDefine(string name, ushort manufacturerID, ushort pID, ushort version, SubdevicesForRequests[] getRequestSubdeviceRange, SubdevicesForResponses[] getResponseSubdeviceRange, SubdevicesForRequests[] setReequestsSubdeviceRange, SubdevicesForResponses[] setResponseSubdeviceRange)
+        public MetadataJSONObjectDefine(
+            string name,
+            ushort manufacturerID,
+            ushort pID,
+            ushort version,
+            SubdevicesForRequests[] getRequestSubdeviceRange,
+            SubdevicesForResponses[] getResponseSubdeviceRange,
+            SubdevicesForRequests[] setReequestsSubdeviceRange,
+            SubdevicesForResponses[] setResponseSubdeviceRange,
+            Command getRequest,
+            Command getResponse,
+            Command setRequest,
+            Command setResponse)
         {
             Name = name;
             ManufacturerID = manufacturerID;
             PID = pID;
             Version = version;
+
             GetRequestSubdeviceRange = getRequestSubdeviceRange;
             GetResponseSubdeviceRange = getResponseSubdeviceRange;
             SetReequestsSubdeviceRange = setReequestsSubdeviceRange;
             SetResponseSubdeviceRange = setResponseSubdeviceRange;
+
+            GetRequest = getRequest;
+            GetResponse = getResponse;
+            SetRequest = setRequest;
+            SetResponse = setResponse;
         }
 
         public override string ToString()
