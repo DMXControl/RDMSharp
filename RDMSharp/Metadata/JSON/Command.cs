@@ -27,11 +27,18 @@ namespace RDMSharp.Metadata.JSON
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public readonly OneOf? SingleField { get; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public readonly OneOf[] ListOfFields { get; }
+        public readonly OneOf[]? ListOfFields { get; }
 
         public bool GetIsEmpty()
         {
-            return !(EnumValue.HasValue || SingleField.HasValue || ListOfFields.Length == 0);
+            if (EnumValue != null)
+                return false;
+            if (SingleField != null)
+                return false;
+            if (ListOfFields != null)
+                return ListOfFields.Length == 0;
+
+            return true;
         }
         public Command(ECommandDublicte enumValue)
         {

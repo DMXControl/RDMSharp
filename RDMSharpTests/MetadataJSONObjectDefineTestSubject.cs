@@ -1,11 +1,17 @@
 ﻿using RDMSharp.Metadata;
 using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace RDMSharpTests
 {
     public class MetadataJSONObjectDefineTestSubject
     {
         public static readonly object[] TestSubjects = getTestSubjects();
+        internal static string[] GetResources()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            return assembly.GetManifestResourceNames();
+        }
         private static object[] getTestSubjects()
         {
             List<MetadataJSONObjectDefineTestSubject> instances = new List<MetadataJSONObjectDefineTestSubject>();
@@ -24,8 +30,28 @@ namespace RDMSharpTests
                 }
                 instances.Add(new MetadataJSONObjectDefineTestSubject(schema, new MetadataBag(mv)));
             }
+            foreach (var mv in GetResources().Select(r => new MetadataVersion(r)))
+            {
+                var _schema = schemaList.First(s => s.Version.Equals(mv.Version));
+                if (!versionSchemas.TryGetValue(_schema.Version, out MetadataBag schema))
+                {
+                    schema = new MetadataBag(_schema);
+                    versionSchemas.TryAdd(_schema.Version, schema);
+                }
+                instances.Add(new MetadataJSONObjectDefineTestSubject(schema, new MetadataBag(mv.Version,mv.Name,mv.IsSchema,getContent(mv.Path),mv.Path)));
+            }
             return instances.ToArray();
         }
+        private static string getContent(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return null;
+            var assembly = typeof(MetadataJSONObjectDefineTestSubject).Assembly;
+            using Stream stream = assembly.GetManifestResourceStream(path);
+            using StreamReader reader = new StreamReader(stream);
+            return reader.ReadToEnd();
+        }
+
         public readonly MetadataBag Schema;
         public readonly MetadataBag Define;
 

@@ -22,6 +22,8 @@ namespace RDMSharp.Metadata
         }
         private static string getContent(string path)
         {
+            if (string.IsNullOrWhiteSpace(path))
+                return null;
             var assembly = typeof(MetadataFactory).Assembly;
             using Stream stream = assembly.GetManifestResourceStream(path);
             using StreamReader reader = new StreamReader(stream);

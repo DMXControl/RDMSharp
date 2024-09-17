@@ -9,6 +9,9 @@ namespace RDMSharp.Metadata
     {
         [JsonPropertyName("name")]
         public readonly string Name { get; }
+        [JsonPropertyName("displayName")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public readonly string? DisplayName { get; }
         [JsonPropertyName("notes")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public readonly string? Notes { get; }
@@ -29,7 +32,7 @@ namespace RDMSharp.Metadata
         [JsonPropertyName("set_request_subdevice_range")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyOrder(15)]
-        public readonly SubdevicesForRequests[]? SetReequestsSubdeviceRange { get; }
+        public readonly SubdevicesForRequests[]? SetRequestsSubdeviceRange { get; }
         [JsonPropertyName("set_response_subdevice_range")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyOrder(17)]
@@ -55,13 +58,14 @@ namespace RDMSharp.Metadata
         [JsonConstructor]
         public MetadataJSONObjectDefine(
             string name,
+            string? displayName,
             string? notes,
             ushort manufacturerID,
             ushort pID,
             ushort version,
             SubdevicesForRequests[]? getRequestSubdeviceRange,
             SubdevicesForResponses[]? getResponseSubdeviceRange,
-            SubdevicesForRequests[]? setReequestsSubdeviceRange,
+            SubdevicesForRequests[]? setRequestsSubdeviceRange,
             SubdevicesForResponses[]? setResponseSubdeviceRange,
             Command? getRequest,
             Command? getResponse,
@@ -69,6 +73,7 @@ namespace RDMSharp.Metadata
             Command? setResponse)
         {
             Name = name;
+            DisplayName = displayName;
             Notes = notes;
             ManufacturerID = manufacturerID;
             PID = pID;
@@ -76,7 +81,7 @@ namespace RDMSharp.Metadata
 
             GetRequestSubdeviceRange = getRequestSubdeviceRange;
             GetResponseSubdeviceRange = getResponseSubdeviceRange;
-            SetReequestsSubdeviceRange = setReequestsSubdeviceRange;
+            SetRequestsSubdeviceRange = setRequestsSubdeviceRange;
             SetResponseSubdeviceRange = setResponseSubdeviceRange;
 
             GetRequest = getRequest;

@@ -1,0 +1,62 @@
+{
+  "name": "MOCK_DISPLAY_NAME",
+  "displayName": "Mock Display Name",
+  "manufacturer_id": 4365,
+  "pid": 4874,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
+    {
+      "name": "timeout",
+      "displayName": "Timeout",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": 0,
+      "labels": [
+        {
+          "name": "Disabled",
+          "displayName": "Disabled Label",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "name": "label",
+      "displayName": "Label",
+      "type": "string",
+      "maxLength": 32,
+      "restrictToASCII": true
+    },
+    {
+      "name": "status",
+      "displayName": "Status",
+      "type": "boolean"
+    },
+    {
+      "name": "slots",
+      "displayName": "Slots",
+      "type": "list",
+      "itemType": {
+        "displayName": "Compound",
+        "type": "compound",
+        "subtypes": [
+          {
+            "name": "id",
+            "type": "uint16"
+          },
+          {
+            "name": "type",
+            "type": "uint8"
+          },
+          {
+            "name": "label_id",
+            "type": "uint16"
+          }
+        ]
+      },
+      "minItems": 2,
+      "maxItems": 6
+    }
+  ],
+  "get_response": "get_request"
+}

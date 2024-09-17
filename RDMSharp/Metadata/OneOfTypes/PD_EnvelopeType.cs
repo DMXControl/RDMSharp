@@ -7,7 +7,7 @@ namespace RDMSharp.Metadata.OneOfTypes
     {
         [JsonPropertyName("name")]
         [JsonPropertyOrder(1)]
-        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public override string Name { get; }
         [JsonPropertyName("displayName")]
         [JsonPropertyOrder(2)]
@@ -22,9 +22,14 @@ namespace RDMSharp.Metadata.OneOfTypes
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public override string[]? Resources { get; }
 
-        [JsonPropertyName("length")]
+        [JsonPropertyName("type")]
         [JsonPropertyOrder(3)]
-        public byte Length { get; }
+        public string Type { get; }
+
+        [JsonPropertyName("length")]
+        [JsonPropertyOrder(6)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public byte? Length { get; }
 
 
         [JsonConstructor]
@@ -32,12 +37,14 @@ namespace RDMSharp.Metadata.OneOfTypes
                                string? displayName,
                                string? notes,
                                string[]? resources,
-                               byte length) : base()
+                               string type,
+                               byte? length) : base()
         {
             Name = name;
             DisplayName = displayName;
             Notes = notes;
             Resources = resources;
+            Type = type;
             Length = length;
         }
 

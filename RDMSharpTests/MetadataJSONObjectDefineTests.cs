@@ -3,6 +3,9 @@ using RDMSharp.Metadata;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Newtonsoft.Json.Linq;
+using RDMSharp.Metadata.JSON;
+using NUnit.Framework.Internal.Commands;
+using RDMSharp.Metadata.OneOfTypes;
 
 namespace RDMSharpTests
 {
@@ -28,19 +31,133 @@ namespace RDMSharpTests
         [Test]
         public void TestDeseriaizeAndSerialize()
         {
-            MetadataJSONObjectDefine deserialized = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(testSubject.Define.Content);
+            try
+            {
+                MetadataJSONObjectDefine deserialized = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(testSubject.Define.Content);
+                Assert.That(deserialized.Version, Is.AtLeast(1));
+                Assert.That(deserialized.Name, Is.Not.WhiteSpace);
+                Assert.That(deserialized.Name, Is.Not.Empty);
+                string serialized = JsonSerializer.Serialize(deserialized);
+
+                var original = JToken.Parse(PrittyJSON(testSubject.Define.Content));
+                var smashed = JToken.Parse(PrittyJSON(serialized));
+
+                Assert.Multiple(() =>
+                {
+                    Assert.That(JToken.DeepEquals(smashed, original));
+
+
+                    Warn.Unless(PrittyJSON(serialized), Is.EqualTo(PrittyJSON(testSubject.Define.Content)));
+                });
+            }
+            catch (JsonException ex)
+            {
+#if !NET7_0_OR_GREATER
+                Warn.If(ex.Message, Is.EqualTo("Unexpected JSON format Type: int128 for FieldContainer.").Or.EqualTo("Unexpected JSON format Type: uint128 for FieldContainer."), "Due to .NET6 limitations");
+                return;
+#else
+                throw;
+#endif
+            }
+        }
+        [Test]
+        public void TestDeseriaizedObject()
+        {
+            MetadataJSONObjectDefine deserialized = new MetadataJSONObjectDefine();
+            testString(testSubject.Define.ToString());
+            try
+            {
+                deserialized = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(testSubject.Define.Content);
+            }
+            catch (JsonException ex)
+            {
+#if !NET7_0_OR_GREATER
+                Warn.If(ex.Message, Is.EqualTo("Unexpected JSON format Type: int128 for FieldContainer.").Or.EqualTo("Unexpected JSON format Type: uint128 for FieldContainer."), "Due to .NET6 limitations");
+                return;
+#else
+                throw;
+#endif
+            }
             Assert.That(deserialized.Version, Is.AtLeast(1));
             Assert.That(deserialized.Name, Is.Not.WhiteSpace);
             Assert.That(deserialized.Name, Is.Not.Empty);
-            string serialized = JsonSerializer.Serialize(deserialized);
 
-            var original = JToken.Parse(PrittyJSON(testSubject.Define.Content));
-            var smashed = JToken.Parse(PrittyJSON(serialized));
+            testString(deserialized.ToString());
 
-            Assert.That(JToken.DeepEquals(smashed, original));
+            if (deserialized.GetRequestSubdeviceRange != null)
+            {
+                testString(string.Join("; ", deserialized.GetRequestSubdeviceRange.Select(r => r.ToString()))!);
+            }
+            if (deserialized.GetResponseSubdeviceRange != null)
+            {
+                testString(string.Join("; ", deserialized.GetResponseSubdeviceRange.Select(r => r.ToString()))!);
+            }
+            if (deserialized.SetRequestsSubdeviceRange != null)
+            {
+                testString(string.Join("; ", deserialized.SetRequestsSubdeviceRange.Select(r => r.ToString()))!);
+            }
+            if (deserialized.SetResponseSubdeviceRange != null)
+            {
+                testString(string.Join("; ", deserialized.SetResponseSubdeviceRange.Select(r => r.ToString()))!);
+            }
+
+            if (deserialized.GetRequest != null)
+                testCommand(deserialized.GetRequest.Value);
+
+            if (deserialized.GetResponse != null)
+                testCommand(deserialized.GetResponse.Value);
+
+            if (deserialized.SetRequest != null)
+                testCommand(deserialized.SetRequest.Value);
+
+            if (deserialized.SetResponse != null)
+                testCommand(deserialized.SetResponse.Value);
 
 
-           Warn.Unless(PrittyJSON(serialized),Is.EqualTo(PrittyJSON(testSubject.Define.Content)));
+            void testString(string str)
+            {
+                Assert.That(str, Is.Not.WhiteSpace);
+                Assert.That(str, Is.Not.Empty);
+                Assert.That(str, Does.Not.Contain("{"));
+                Assert.That(str, Does.Not.Contain("}"));
+            }
+            void testCommand(Command command)
+            {
+                testString(command.ToString()!);
+                if(command.EnumValue is Command.ECommandDublicte _enum)
+                {
+                    Assert.That(command.GetIsEmpty(), Is.False);
+                    testString(_enum.ToString()!);
+                    return;
+                }
+                else if (command.SingleField is OneOfTypes singleField)
+                {
+                    Assert.That(command.GetIsEmpty(), Is.False);
+                    testString(singleField.ToString()!);
+                    if (singleField.ObjectType is CommonPropertiesForNamed common)
+                        testCommon(common);
+                    return;
+                }
+                else if (command.ListOfFields is OneOfTypes[] listOfFields)
+                {
+                    if (listOfFields.Length != 0)
+                    {
+                        Assert.That(command.GetIsEmpty(), Is.False);
+                        testString(string.Join("; ", listOfFields.Select(r => r.ToString()))!);
+                        foreach (var field in listOfFields)
+                        {
+                            if (field.ObjectType is CommonPropertiesForNamed common)
+                                testCommon(common);
+                        }
+                        return;
+                    }
+                }
+                Assert.That(command.GetIsEmpty(), Is.True);
+            }
+            void testCommon(CommonPropertiesForNamed common)
+            {
+                testString(common.ToString()!);
+            }
         }
 
         private static string PrittyJSON(string jsonString)

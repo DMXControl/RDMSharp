@@ -1,5 +1,4 @@
-﻿using Humanizer.Localisation;
-using RDMSharp.Metadata.JSON;
+﻿using RDMSharp.Metadata.JSON;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.OneOfTypes
