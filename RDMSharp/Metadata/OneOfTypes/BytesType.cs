@@ -2,7 +2,7 @@
 
 namespace RDMSharp.Metadata.OneOfTypes
 {
-    public readonly struct StringType
+    public readonly struct BytesType
     {
 
         [JsonPropertyName("name")]
@@ -12,41 +12,25 @@ namespace RDMSharp.Metadata.OneOfTypes
         public readonly string Type { get; }
         [JsonPropertyName("format")]
         public readonly string? Format { get; }
-        [JsonPropertyName("pattern")]
-        public readonly string? Pattern { get; }
         [JsonPropertyName("minLength")]
         public readonly ulong? MinLength { get; }
         [JsonPropertyName("maxLength")]
         public readonly ulong? MaxLength { get; }
-        [JsonPropertyName("minBytes")]
-        public readonly ulong? MinBytes { get; }
-        [JsonPropertyName("maxBytes")]
-        public readonly ulong? MaxBytes { get; }
-        [JsonPropertyName("restrictToASCII")]
-        public readonly bool? RestrictToASCII { get; }
 
 
         [JsonConstructor]
-        public StringType(
+        public BytesType(
             string name,
             string type,
             string? format,
-            string? pattern,
             ulong? minLength,
-            ulong? maxLength,
-            ulong? minBytes,
-            ulong? maxBytes,
-            bool? restrictToASCII)
+            ulong? maxLength)
         {
             Name = name;
             Type = type;
             Format = format;
-            Pattern = pattern;
             MinLength = minLength;
             MaxLength = maxLength;
-            MinBytes = minBytes;
-            MaxBytes = maxBytes;
-            RestrictToASCII = restrictToASCII;
         }
 
         public override string ToString()

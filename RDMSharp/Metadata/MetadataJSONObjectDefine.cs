@@ -25,13 +25,13 @@ namespace RDMSharp.Metadata
         public readonly SubdevicesForResponses[] SetResponseSubdeviceRange { get; }
 
         [JsonPropertyName("get_request")]
-        public readonly Command GetRequest { get; }
+        public readonly Command? GetRequest { get; }
         [JsonPropertyName("get_response")]
-        public readonly Command GetResponse { get; }
+        public readonly Command? GetResponse { get; }
         [JsonPropertyName("set_request")]
-        public readonly Command SetRequest { get; }
+        public readonly Command? SetRequest { get; }
         [JsonPropertyName("set_response")]
-        public readonly Command SetResponse { get; }
+        public readonly Command? SetResponse { get; }
 
         [JsonConstructor]
         public MetadataJSONObjectDefine(
@@ -43,10 +43,10 @@ namespace RDMSharp.Metadata
             SubdevicesForResponses[] getResponseSubdeviceRange,
             SubdevicesForRequests[] setReequestsSubdeviceRange,
             SubdevicesForResponses[] setResponseSubdeviceRange,
-            Command getRequest,
-            Command getResponse,
-            Command setRequest,
-            Command setResponse)
+            Command? getRequest,
+            Command? getResponse,
+            Command? setRequest,
+            Command? setResponse)
         {
             Name = name;
             ManufacturerID = manufacturerID;
