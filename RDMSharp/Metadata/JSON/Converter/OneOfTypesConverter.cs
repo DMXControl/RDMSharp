@@ -150,7 +150,7 @@ namespace RDMSharp.Metadata.JSON.Converter
             else if (value.CompoundType != null)
                 JsonSerializer.Serialize(writer, value.CompoundType, options);
 
-            else if (value.PD_EnvelopeType != null)
+            else if (value.PD_EnvelopeType.HasValue)
                 JsonSerializer.Serialize(writer, value.PD_EnvelopeType.Value, options);
             else
                 throw new NotImplementedException();
