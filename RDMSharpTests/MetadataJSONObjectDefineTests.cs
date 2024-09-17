@@ -2,6 +2,7 @@
 using RDMSharp.Metadata;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Newtonsoft.Json.Linq;
 
 namespace RDMSharpTests
 {
@@ -32,7 +33,14 @@ namespace RDMSharpTests
             Assert.That(deserialized.Name, Is.Not.WhiteSpace);
             Assert.That(deserialized.Name, Is.Not.Empty);
             string serialized = JsonSerializer.Serialize(deserialized);
-            Assert.That(PrittyJSON(serialized),Is.EqualTo(PrittyJSON(testSubject.Define.Content)));
+
+            var original = JToken.Parse(PrittyJSON(testSubject.Define.Content));
+            var smashed = JToken.Parse(PrittyJSON(serialized));
+
+            Assert.That(JToken.DeepEquals(smashed, original));
+
+
+           Warn.Unless(PrittyJSON(serialized),Is.EqualTo(PrittyJSON(testSubject.Define.Content)));
         }
 
         private static string PrittyJSON(string jsonString)
@@ -41,7 +49,7 @@ namespace RDMSharpTests
 
             var options = new JsonSerializerOptions
             {
-                WriteIndented = true,
+                WriteIndented = false,
             };
 
             string formattedJson = JsonSerializer.Serialize(jsonObject, options);

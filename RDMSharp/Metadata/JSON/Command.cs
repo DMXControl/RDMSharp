@@ -18,7 +18,9 @@ namespace RDMSharp.Metadata.JSON
             [JsonPropertyName("set_request")]
             SetRequest,
             [JsonPropertyName("set_response")]
-            SetResponse
+            SetResponse,
+            [JsonPropertyName("different_pid")]
+            DifferentDid
         }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public readonly ECommandDublicte? EnumValue { get; }

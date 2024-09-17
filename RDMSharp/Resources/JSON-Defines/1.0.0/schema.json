@@ -211,7 +211,8 @@
             "get_request",
             "get_response",
             "set_request",
-            "set_response"
+            "set_response",
+            "different_pid"
           ]
         }
       ]

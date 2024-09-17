@@ -1,9 +1,0 @@
-{
-  "name": "QUEUED_MESSAGE_PID_SUBSCRIBE  WHERE IS THIS IN THE SPEC?",
-  "manufacturer_id": 0,
-  "pid": -1,
-  "version": 1,
-  "get_request_subdevice_range": [ "root", "subdevices" ],
-  "get_request": [],
-  "get_response": []
-}
