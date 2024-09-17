@@ -22,6 +22,8 @@ namespace RDMSharp.Metadata.JSON.Converter
             else if (reader.TokenType == JsonTokenType.StartArray)
             {
                 var listOfFields = JsonSerializer.Deserialize<OneOf[]>(ref reader, options);
+                if (listOfFields.Length == 0)
+                    return new Command();
                 return new Command(listOfFields);
             }
 
@@ -30,7 +32,9 @@ namespace RDMSharp.Metadata.JSON.Converter
 
         public override void Write(Utf8JsonWriter writer, Command value, JsonSerializerOptions options)
         {
-            if (value.EnumValue.HasValue)
+            if (value.GetIsEmpty())
+                JsonSerializer.Serialize(writer, new object[0], options);
+            else if (value.EnumValue.HasValue)
                 JsonSerializer.Serialize(writer, value.EnumValue.Value, options);
             else if (value.SingleField != null)
                 JsonSerializer.Serialize(writer, value.SingleField.Value, options);

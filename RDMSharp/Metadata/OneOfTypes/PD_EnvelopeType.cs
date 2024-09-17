@@ -50,10 +50,10 @@ namespace RDMSharp.Metadata.OneOfTypes
 
         public override string ToString()
         {
-            if (string.IsNullOrWhiteSpace(Name))
-                return $"PDL: {Length} ({Length:X2})";
-
-            return $"PDL: {Length} ({Length:X2}) {base.ToString()}";
+            if (Length.HasValue)
+                return $"PDL: {Length} ({Length:X2}) {base.ToString()}".Trim();
+            
+            return base.ToString();
         }
     }
 }

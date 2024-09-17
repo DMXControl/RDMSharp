@@ -45,10 +45,5 @@ namespace RDMSharp.Metadata.OneOfTypes
             Type = type;
             Subtypes = subtypes;
         }
-
-        public override string ToString()
-        {
-            return $"{Name}";
-        }
     }
 }

@@ -114,14 +114,14 @@ namespace RDMSharpTests
                 testCommand(deserialized.SetResponse.Value);
 
 
-            void testString(string str)
+            static void testString(string str)
             {
                 Assert.That(str, Is.Not.WhiteSpace);
                 Assert.That(str, Is.Not.Empty);
                 Assert.That(str, Does.Not.Contain("{"));
                 Assert.That(str, Does.Not.Contain("}"));
             }
-            void testCommand(Command command)
+            static void testCommand(Command command)
             {
                 testString(command.ToString()!);
                 if(command.EnumValue is Command.ECommandDublicte _enum)
@@ -154,9 +154,38 @@ namespace RDMSharpTests
                 }
                 Assert.That(command.GetIsEmpty(), Is.True);
             }
-            void testCommon(CommonPropertiesForNamed common)
+            static void testCommon(CommonPropertiesForNamed common)
             {
                 testString(common.ToString()!);
+                if (common is IntegerType<byte> integerByte)
+                    testIntegerType(integerByte);
+                else if (common is IntegerType<sbyte> integerSByte)
+                    testIntegerType(integerSByte);
+                else if (common is IntegerType<short> integerShort)
+                    testIntegerType(integerShort);
+                else if (common is IntegerType<ushort> integerUShort)
+                    testIntegerType(integerUShort);
+                else if (common is IntegerType<int> integerInt)
+                    testIntegerType(integerInt);
+                else if (common is IntegerType<uint> integerUInt)
+                    testIntegerType(integerUInt);
+                else if (common is IntegerType<long> integerLong)
+                    testIntegerType(integerLong);
+                else if (common is IntegerType<ulong> integerULong)
+                    testIntegerType(integerULong);
+#if NET7_0_OR_GREATER
+                else if (common is IntegerType<Int128> integerInt128)
+                    testIntegerType(integerInt128);
+                else if (common is IntegerType<UInt128> integerUInt128)
+                    testIntegerType(integerUInt128);
+#endif
+            }
+            static void testIntegerType<T>(IntegerType<T> integerType)
+            {
+                testString(integerType.ToString()!);
+                if (integerType.Ranges != null)
+                    foreach (Range<T> range in integerType.Ranges)
+                        testString(range.ToString()!);
             }
         }
 
