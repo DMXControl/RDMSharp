@@ -33,7 +33,7 @@ namespace RDMSharp.Metadata
         private static void fillDefaultMetadataVersionList()
         {
             metadataVersionList.AddRange(GetResources().Select(r => new MetadataVersion(r)));
-
+            return;
             if (metadataVersionDefinesBagDictionary == null)
                 metadataVersionDefinesBagDictionary = new Dictionary<MetadataVersion, List<MetadataJSONObjectDefine>>();
 
@@ -45,7 +45,7 @@ namespace RDMSharp.Metadata
                 var schema = schemaList.First(s => s.Version.Equals(mv.Version));
                 if(!versionSchemas.TryGetValue(schema.Version, out JsonSchema jsonSchema))
                 {
-                    jsonSchema= JsonSchema.FromText(new MetadataBag(schema).Content); ;
+                    jsonSchema= JsonSchema.FromText(new MetadataBag(schema).Content);
                     versionSchemas.TryAdd(schema.Version, jsonSchema);
                 }
                 MetadataBag metadataBag = new MetadataBag(mv);

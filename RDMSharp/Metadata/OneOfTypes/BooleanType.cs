@@ -1,25 +1,49 @@
-﻿using System.Linq;
+﻿using RDMSharp.Metadata.JSON;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.OneOfTypes
 {
-    public readonly struct BooleanType
+    public class BooleanType : CommonPropertiesForNamed
     {
         [JsonPropertyName("name")]
-        public readonly string Name { get; }
+        [JsonPropertyOrder(1)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+        public override string Name { get; }
+        [JsonPropertyName("displayName")]
+        [JsonPropertyOrder(2)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string DisplayName { get; }
+        [JsonPropertyName("notes")]
+        [JsonPropertyOrder(4)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string? Notes { get; }
+        [JsonPropertyName("resources")]
+        [JsonPropertyOrder(5)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string[]? Resources { get; }
+
         [JsonPropertyName("type")]
-        public readonly string Type { get; }
+        [JsonPropertyOrder(3)]
+        public string Type { get; }
         [JsonPropertyName("labels")]
-        public readonly LabeledBooleanType[]? Labels { get; }
+        [JsonPropertyOrder(5)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public LabeledBooleanType[]? Labels { get; }
 
 
         [JsonConstructor]
-        public BooleanType(
-            string name,
-            string type,
-            LabeledBooleanType[]? labels)
+        public BooleanType(string name,
+                           string? displayName,
+                           string? notes,
+                           string[]? resources,
+                           string type,
+                           LabeledBooleanType[]? labels) : base()
         {
             Name = name;
+            DisplayName = displayName;
+            Notes = notes;
+            Resources = resources;
             Type = type;
             Labels = labels;
         }

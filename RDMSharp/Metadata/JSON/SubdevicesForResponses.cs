@@ -6,6 +6,7 @@ namespace RDMSharp.Metadata.JSON
     [JsonConverter(typeof(SubdevicesForResponsesConverter))]
     public readonly struct SubdevicesForResponses
     {
+        [JsonConverter(typeof(CustomEnumConverter<ESubdevicesForResponses>))]
         public enum ESubdevicesForResponses
         {
             [JsonPropertyName("root")]
@@ -17,7 +18,9 @@ namespace RDMSharp.Metadata.JSON
             [JsonPropertyName("match")]
             Match
         }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public readonly ESubdevicesForResponses? EnumValue { get; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public readonly SubdeviceType? ObjectValue { get; }
         public SubdevicesForResponses(ESubdevicesForResponses enumValue)
         {

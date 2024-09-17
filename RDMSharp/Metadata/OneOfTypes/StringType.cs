@@ -1,44 +1,78 @@
-﻿using System.Text.Json.Serialization;
+﻿using RDMSharp.Metadata.JSON;
+using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.OneOfTypes
 {
-    public readonly struct StringType
+    public class StringType : CommonPropertiesForNamed
     {
-
         [JsonPropertyName("name")]
-        public readonly string Name { get; }
+        [JsonPropertyOrder(1)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+        public override string Name { get; }
+        [JsonPropertyName("displayName")]
+        [JsonPropertyOrder(2)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string DisplayName { get; }
+        [JsonPropertyName("notes")]
+        [JsonPropertyOrder(25)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string? Notes { get; }
+        [JsonPropertyName("resources")]
+        [JsonPropertyOrder(5)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string[]? Resources { get; }
 
         [JsonPropertyName("type")]
-        public readonly string Type { get; }
+        [JsonPropertyOrder(3)]
+        public string Type { get; }
         [JsonPropertyName("format")]
-        public readonly string? Format { get; }
+        [JsonPropertyOrder(21)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Format { get; }
         [JsonPropertyName("pattern")]
-        public readonly string? Pattern { get; }
+        [JsonPropertyOrder(22)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Pattern { get; }
         [JsonPropertyName("minLength")]
-        public readonly ulong? MinLength { get; }
+        [JsonPropertyOrder(31)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ulong? MinLength { get; }
         [JsonPropertyName("maxLength")]
-        public readonly ulong? MaxLength { get; }
+        [JsonPropertyOrder(32)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ulong? MaxLength { get; }
         [JsonPropertyName("minBytes")]
-        public readonly ulong? MinBytes { get; }
+        [JsonPropertyOrder(41)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ulong? MinBytes { get; }
         [JsonPropertyName("maxBytes")]
-        public readonly ulong? MaxBytes { get; }
+        [JsonPropertyOrder(42)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ulong? MaxBytes { get; }
         [JsonPropertyName("restrictToASCII")]
-        public readonly bool? RestrictToASCII { get; }
+        [JsonPropertyOrder(51)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? RestrictToASCII { get; }
 
 
         [JsonConstructor]
-        public StringType(
-            string name,
-            string type,
-            string? format,
-            string? pattern,
-            ulong? minLength,
-            ulong? maxLength,
-            ulong? minBytes,
-            ulong? maxBytes,
-            bool? restrictToASCII)
+        public StringType(string name,
+                          string? displayName,
+                          string? notes,
+                          string[]? resources,
+                          string type,
+                          string? format,
+                          string? pattern,
+                          ulong? minLength,
+                          ulong? maxLength,
+                          ulong? minBytes,
+                          ulong? maxBytes,
+                          bool? restrictToASCII)
         {
             Name = name;
+            DisplayName = displayName;
+            Notes = notes;
+            Resources = resources;
             Type = type;
             Format = format;
             Pattern = pattern;
@@ -51,7 +85,7 @@ namespace RDMSharp.Metadata.OneOfTypes
 
         public override string ToString()
         {
-            return Name;
+            return base.ToString();
         }
     }
 }

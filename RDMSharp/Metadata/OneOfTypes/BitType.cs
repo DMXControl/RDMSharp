@@ -1,13 +1,24 @@
-﻿using System.Text.Json.Serialization;
+﻿using RDMSharp.Metadata.JSON;
+using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.OneOfTypes
 {
-    public readonly struct BitType
+    public class BitType : CommonPropertiesForNamed
     {
         [JsonConstructor]
-        public BitType(string name, string type, ushort index, bool? reserved, bool? valueIfReserved)
+        public BitType(string name,
+                       string? displayName,
+                       string? notes,
+                       string[]? resources,
+                       string? type,
+                       ushort index,
+                       bool? reserved,
+                       bool? valueIfReserved) : base()
         {
             Name = name;
+            DisplayName = displayName;
+            Notes = notes;
+            Resources = resources;
             Type = type;
             Index = index;
             Reserved = reserved;
@@ -15,15 +26,37 @@ namespace RDMSharp.Metadata.OneOfTypes
         }
 
         [JsonPropertyName("name")]
-        public readonly string Name { get; }
+        [JsonPropertyOrder(1)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+        public override string Name { get; }
+        [JsonPropertyName("displayName")]
+        [JsonPropertyOrder(2)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string DisplayName { get; }
+        [JsonPropertyName("notes")]
+        [JsonPropertyOrder(4)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string? Notes { get; }
+        [JsonPropertyName("resources")]
+        [JsonPropertyOrder(5)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string[]? Resources { get; }
+
         [JsonPropertyName("type")]
-        public readonly string Type { get; }
+        [JsonPropertyOrder(3)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Type { get; }
         [JsonPropertyName("index")]
-        public readonly ushort Index { get; }
+        [JsonPropertyOrder(21)]
+        public ushort Index { get; }
         [JsonPropertyName("reserved")]
-        public readonly bool? Reserved { get; }
+        [JsonPropertyOrder(31)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? Reserved { get; }
         [JsonPropertyName("valueIfReserved")]
-        public readonly bool? ValueIfReserved { get; }
+        [JsonPropertyOrder(32)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? ValueIfReserved { get; }
 
         public override string ToString()
         {

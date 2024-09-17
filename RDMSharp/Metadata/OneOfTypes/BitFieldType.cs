@@ -1,14 +1,25 @@
-﻿using System.Linq;
+﻿using RDMSharp.Metadata.JSON;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.OneOfTypes
 {
-    public readonly struct BitFieldType
+    public class BitFieldType : CommonPropertiesForNamed
     {
         [JsonConstructor]
-        public BitFieldType(string name, string type, ushort size, bool? valueForUnspecified, BitType[] bits)
+        public BitFieldType(string name,
+                            string? displayName,
+                            string? notes,
+                            string[]? resources,
+                            string type,
+                            ushort size,
+                            bool? valueForUnspecified,
+                            BitType[] bits) : base()
         {
             Name = name;
+            DisplayName = displayName;
+            Notes = notes;
+            Resources = resources;
             Type = type;
             Size = size;
             ValueForUnspecified = valueForUnspecified;
@@ -16,17 +27,38 @@ namespace RDMSharp.Metadata.OneOfTypes
         }
 
         [JsonPropertyName("name")]
-        public readonly string Name { get; }
+        [JsonPropertyOrder(1)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+        public override string Name { get; }
+        [JsonPropertyName("displayName")]
+        [JsonPropertyOrder(2)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string DisplayName { get; }
+        [JsonPropertyName("notes")]
+        [JsonPropertyOrder(4)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string? Notes { get; }
+        [JsonPropertyName("resources")]
+        [JsonPropertyOrder(5)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string[]? Resources { get; }
+
         [JsonPropertyName("type")]
-        public readonly string Type { get; }
+        [JsonPropertyOrder(3)]
+        public string Type { get; }
 
         [JsonPropertyName("size")]
-        public readonly ushort Size { get; }
+        [JsonPropertyOrder(31)]
+        public ushort Size { get; }
 
         [JsonPropertyName("valueForUnspecified")]
-        public readonly bool? ValueForUnspecified { get; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonPropertyOrder(32)]
+        public bool? ValueForUnspecified { get; }
         [JsonPropertyName("bits")]
-        public readonly BitType[] Bits { get; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonPropertyOrder(41)]
+        public BitType[] Bits { get; }
 
         public override string ToString()
         {

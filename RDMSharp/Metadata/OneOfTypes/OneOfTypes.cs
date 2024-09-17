@@ -110,49 +110,49 @@ namespace RDMSharp.Metadata.OneOfTypes
 
         public override string ToString()
         {
-            if (BitType.HasValue)
-                return BitType.Value.ToString();
+            if (BitType != null)
+                return BitType.ToString();
 
-            if (BitFieldType.HasValue)
-                return BitFieldType.Value.ToString();
+            if (BitFieldType != null)
+                return BitFieldType.ToString();
 
-            if (BytesType.HasValue)
-                return BytesType.Value.ToString();
+            if (BytesType != null)
+                return BytesType.ToString();
 
-            if (BooleanType.HasValue)
-                return BooleanType.Value.ToString();
+            if (BooleanType != null)
+                return BooleanType.ToString();
 
-            if (IntegerType_UInt8.HasValue)
-                return IntegerType_UInt8.Value.ToString();
-            if (IntegerType_UInt8.HasValue)
-                return IntegerType_UInt8.Value.ToString();
+            if (IntegerType_UInt8 != null)
+                return IntegerType_UInt8.ToString();
+            if (IntegerType_UInt8 != null)
+                return IntegerType_UInt8.ToString();
 
-            if (IntegerType_UInt16.HasValue)
-                return IntegerType_UInt16.Value.ToString();
-            if (IntegerType_UInt16.HasValue)
-                return IntegerType_UInt16.Value.ToString();
+            if (IntegerType_UInt16 != null)
+                return IntegerType_UInt16.ToString();
+            if (IntegerType_UInt16 != null)
+                return IntegerType_UInt16.ToString();
 
-            if (IntegerType_UInt32.HasValue)
-                return IntegerType_UInt32.Value.ToString();
-            if (IntegerType_UInt32.HasValue)
-                return IntegerType_UInt32.Value.ToString();
+            if (IntegerType_UInt32 != null)
+                return IntegerType_UInt32.ToString();
+            if (IntegerType_UInt32 != null  )
+                return IntegerType_UInt32.ToString();
 
-            if (IntegerType_UInt64.HasValue)
-                return IntegerType_UInt64.Value.ToString();
-            if (IntegerType_UInt64.HasValue)
-                return IntegerType_UInt64.Value.ToString();
+            if (IntegerType_UInt64 != null)
+                return IntegerType_UInt64.ToString();
+            if (IntegerType_UInt64 != null)
+                return IntegerType_UInt64.ToString();
 #if NET7_0_OR_GREATER
-            if (IntegerType_UInt128.HasValue)
-                return IntegerType_UInt128.Value.ToString();
-            if (IntegerType_UInt128.HasValue)
-                return IntegerType_UInt128.Value.ToString();
+            if (IntegerType_UInt128 != null)
+                return IntegerType_UInt128.ToString();
+            if (IntegerType_UInt128 != null)
+                return IntegerType_UInt128.ToString();
 #endif
 
-            if (ReferenceType.HasValue)
-                return ReferenceType.Value.ToString();
+            if (ReferenceType != null)
+                return ReferenceType.ToString();
 
-            if (StringType.HasValue)
-                return StringType.Value.ToString();
+            if (StringType != null)
+                return StringType.ToString();
 
             if (ListType != null)
                 return ListType.ToString();
@@ -160,8 +160,8 @@ namespace RDMSharp.Metadata.OneOfTypes
             if (CompoundType != null)
                 return CompoundType.ToString();
 
-            if (PD_EnvelopeType.HasValue)
-                return PD_EnvelopeType.Value.ToString();
+            if (PD_EnvelopeType != null)
+                return PD_EnvelopeType.ToString();
 
             return base.ToString();
         }

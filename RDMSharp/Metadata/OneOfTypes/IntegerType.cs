@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Humanizer.Localisation;
+using RDMSharp.Metadata.JSON;
+using RDMSharp.Metadata.JSON.Converter;
 using System.Linq;
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.OneOfTypes
 {
+    [JsonConverter(typeof(CustomEnumConverter<EIntegerType>))]
     public enum EIntegerType
     {
         [JsonPropertyName("int8")]
@@ -29,38 +30,70 @@ namespace RDMSharp.Metadata.OneOfTypes
         [JsonPropertyName("uint128")]
         UInt128
     }
-    public readonly struct IntegerType<T>
+    public class  IntegerType<T>: CommonPropertiesForNamed
     {
         [JsonPropertyName("name")]
-        public readonly string Name { get; }
+        [JsonPropertyOrder(1)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+        public override string Name { get; }
+        [JsonPropertyName("displayName")]
+        [JsonPropertyOrder(2)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string DisplayName { get; }
+        [JsonPropertyName("notes")]
+        [JsonPropertyOrder(4)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string? Notes { get; }
+        [JsonPropertyName("resources")]
+        [JsonPropertyOrder(5)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string[]? Resources { get; }
+
         [JsonPropertyName("type")]
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public readonly EIntegerType Type { get; }
+        [JsonPropertyOrder(3)]
+        public EIntegerType Type { get; }
         [JsonPropertyName("labels")]
-        public readonly LabeledIntegerType[]? Labels { get; }
+        [JsonPropertyOrder(31)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public LabeledIntegerType[]? Labels { get; }
         [JsonPropertyName("restrictToLabeled")]
-        public readonly bool? RestrictToLabeled { get; }
+        [JsonPropertyOrder(32)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? RestrictToLabeled { get; }
         [JsonPropertyName("ranges")]
-        public readonly Range<T>[]? Ranges { get; }
+        [JsonPropertyOrder(11)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public Range<T>[]? Ranges { get; }
         [JsonPropertyName("units")]
-        public readonly ERDM_SensorUnit? Units { get; }
+        [JsonPropertyOrder(21)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ERDM_SensorUnit? Units { get; }
         [JsonPropertyName("prefixPower")]
-        public readonly int? PrefixPower { get; } = 0;
+        [JsonPropertyOrder(22)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? PrefixPower { get; } = 0;
         [JsonPropertyName("prefixBase")]
-        public readonly int? PrefixBase { get; } = 10;
+        [JsonPropertyOrder(23)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? PrefixBase { get; } = 10;
 
         [JsonConstructor]
-        public IntegerType(
-            string name,
-            EIntegerType type,
-            LabeledIntegerType[]? labels,
-            bool? restrictToLabeled,
-            Range<T>[]? ranges,
-            ERDM_SensorUnit? units,
-            int? prefixPower,
-            int? prefixBase)
+        public IntegerType(string name,
+                           string? displayName,
+                           string? notes,
+                           string[]? resources,
+                           EIntegerType type,
+                           LabeledIntegerType[]? labels,
+                           bool? restrictToLabeled,
+                           Range<T>[]? ranges,
+                           ERDM_SensorUnit? units,
+                           int? prefixPower,
+                           int? prefixBase) : base()
         {
             Name = name;
+            DisplayName = displayName;
+            Notes = notes;
+            Resources = resources;
             Type = type;
             Labels = labels;
             RestrictToLabeled = restrictToLabeled;

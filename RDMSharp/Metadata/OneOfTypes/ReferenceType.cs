@@ -1,6 +1,5 @@
 ﻿using RDMSharp.Metadata.JSON;
 using System;
-using System.Data;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.OneOfTypes
@@ -9,7 +8,9 @@ namespace RDMSharp.Metadata.OneOfTypes
     {
         [JsonPropertyName("$ref")]
         public readonly string URI { get; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
         public readonly Command.ECommandDublicte Command { get; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
         public readonly ushort Pointer { get; }
 
         [JsonConstructor]

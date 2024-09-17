@@ -6,6 +6,7 @@ namespace RDMSharp.Metadata.JSON
     [JsonConverter(typeof(SubdevicesForRequestsConverter))]
     public readonly struct SubdevicesForRequests
     {
+        [JsonConverter(typeof(CustomEnumConverter<ESubdevicesForRequests>))]
         public enum ESubdevicesForRequests
         {
             [JsonPropertyName("root")]
@@ -15,7 +16,9 @@ namespace RDMSharp.Metadata.JSON
             [JsonPropertyName("broadcast")]
             Broadcast
         }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public readonly ESubdevicesForRequests? EnumValue { get; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public readonly SubdeviceType? ObjectValue { get; }
         public SubdevicesForRequests(ESubdevicesForRequests enumValue)
         {

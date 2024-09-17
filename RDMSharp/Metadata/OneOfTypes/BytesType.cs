@@ -1,32 +1,58 @@
-﻿using System.Text.Json.Serialization;
+﻿using RDMSharp.Metadata.JSON;
+using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.OneOfTypes
 {
-    public readonly struct BytesType
+    public class BytesType : CommonPropertiesForNamed
     {
-
         [JsonPropertyName("name")]
-        public readonly string Name { get; }
+        [JsonPropertyOrder(1)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+        public override string Name { get; }
+        [JsonPropertyName("displayName")]
+        [JsonPropertyOrder(2)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string DisplayName { get; }
+        [JsonPropertyName("notes")]
+        [JsonPropertyOrder(4)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string? Notes { get; }
+        [JsonPropertyName("resources")]
+        [JsonPropertyOrder(5)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string[]? Resources { get; }
 
         [JsonPropertyName("type")]
-        public readonly string Type { get; }
+        [JsonPropertyOrder(3)]
+        public string Type { get; }
         [JsonPropertyName("format")]
-        public readonly string? Format { get; }
+        [JsonPropertyOrder(11)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Format { get; }
         [JsonPropertyName("minLength")]
-        public readonly ulong? MinLength { get; }
+        [JsonPropertyOrder(12)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ulong? MinLength { get; }
         [JsonPropertyName("maxLength")]
-        public readonly ulong? MaxLength { get; }
+        [JsonPropertyOrder(13)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ulong? MaxLength { get; }
 
 
         [JsonConstructor]
-        public BytesType(
-            string name,
-            string type,
-            string? format,
-            ulong? minLength,
-            ulong? maxLength)
+        public BytesType(string name,
+                         string? displayName,
+                         string? notes,
+                         string[]? resources,
+                         string type,
+                         string? format,
+                         ulong? minLength,
+                         ulong? maxLength) : base()
         {
             Name = name;
+            DisplayName = displayName;
+            Notes = notes;
+            Resources = resources;
             Type = type;
             Format = format;
             MinLength = minLength;

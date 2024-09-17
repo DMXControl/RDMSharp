@@ -1,21 +1,42 @@
-﻿using System.Text.Json;
+﻿using RDMSharp.Metadata.JSON;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.OneOfTypes
 {
-    public readonly struct LabeledIntegerType
+    public class LabeledIntegerType : CommonPropertiesForNamed
     {
         [JsonPropertyName("name")]
-        public readonly string Name { get; }
+        [JsonPropertyOrder(1)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+        public override string Name { get; }
+        [JsonPropertyName("displayName")]
+        [JsonPropertyOrder(2)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string DisplayName { get; }
+        [JsonPropertyName("notes")]
+        [JsonPropertyOrder(4)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string? Notes { get; }
+        [JsonPropertyName("resources")]
+        [JsonPropertyOrder(5)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string[]? Resources { get; }
+
         [JsonPropertyName("value")]
-        public readonly long Value { get; }
+        [JsonPropertyOrder(3)]
+        public long Value { get; }
 
         [JsonConstructor]
-        public LabeledIntegerType(
-            string name,
-            long value)
+        public LabeledIntegerType(string name,
+                                  string? displayName,
+                                  string? notes,
+                                  string[]? resources,
+                                  long value) : base()
         {
             Name = name;
+            DisplayName = displayName;
+            Notes = notes;
+            Resources = resources;
             Value = value;
         }
 

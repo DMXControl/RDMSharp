@@ -10,12 +10,7 @@ namespace RDMSharp.Metadata.JSON.Converter
         {
             if (reader.TokenType == JsonTokenType.String)
             {
-                var _options = new JsonSerializerOptions(options)
-                {
-                    Converters = { new JsonStringEnumConverter() },
-                    PropertyNameCaseInsensitive = true
-                };
-                var enumValue = JsonSerializer.Deserialize<SubdevicesForRequests.ESubdevicesForRequests>(ref reader, _options);
+                var enumValue = JsonSerializer.Deserialize<SubdevicesForRequests.ESubdevicesForRequests>(ref reader, options);
                 return new SubdevicesForRequests(enumValue);
             }
             else if (reader.TokenType == JsonTokenType.StartObject || reader.TokenType == JsonTokenType.Number)
@@ -30,7 +25,11 @@ namespace RDMSharp.Metadata.JSON.Converter
         public override void Write(Utf8JsonWriter writer, SubdevicesForRequests value, JsonSerializerOptions options)
         {
             if (value.EnumValue.HasValue)
-                JsonSerializer.Serialize(writer, value.EnumValue.Value, options);
+                JsonSerializer.Serialize(writer, value.EnumValue.Value, new JsonSerializerOptions(options)
+                {
+                    Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
             else if (value.ObjectValue != null)
                 JsonSerializer.Serialize(writer, value.ObjectValue, options);
         }

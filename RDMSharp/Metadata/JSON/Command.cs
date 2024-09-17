@@ -8,6 +8,7 @@ namespace RDMSharp.Metadata.JSON
     [JsonConverter(typeof(CommandConverter))]
     public readonly struct Command
     {
+        [JsonConverter(typeof(CustomEnumConverter<ECommandDublicte>))]
         public enum ECommandDublicte
         {
             [JsonPropertyName("get_request")]
@@ -19,8 +20,11 @@ namespace RDMSharp.Metadata.JSON
             [JsonPropertyName("set_response")]
             SetResponse
         }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public readonly ECommandDublicte? EnumValue { get; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public readonly OneOf? SingleField { get; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public readonly OneOf[] ListOfFields { get; }
 
         public bool GetIsEmpty()

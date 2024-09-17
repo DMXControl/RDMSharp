@@ -11,13 +11,8 @@ namespace RDMSharp.Metadata.JSON.Converter
         {
             if (reader.TokenType == JsonTokenType.String)
             {
-                var _options = new JsonSerializerOptions(options)
-                {
-                    Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower) },
-                    PropertyNameCaseInsensitive = true
-                };
-                var enumValue = JsonSerializer.Deserialize<Command.ECommandDublicte>(ref reader, _options);
-                return new Command(Command.ECommandDublicte.GetResponse);
+                var enumValue = JsonSerializer.Deserialize<Command.ECommandDublicte>(ref reader, options);
+                return new Command(enumValue);
             }
             else if (reader.TokenType == JsonTokenType.StartObject)
             {

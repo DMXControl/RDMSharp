@@ -99,50 +99,53 @@ namespace RDMSharp.Metadata.JSON.Converter
                     break;
             }
 
-            throw new JsonException("Unexpected JSON format for FieldContainer.");
+            throw new JsonException($"Unexpected JSON format Type: {type} for FieldContainer.");
         }
 
         public override void Write(Utf8JsonWriter writer, OneOf value, JsonSerializerOptions options)
         {
-            if (value.BitType.HasValue)
-                JsonSerializer.Serialize(writer, value.BitType.Value, options);
+            if (value.BitType != null)
+                JsonSerializer.Serialize(writer, value.BitType, options);
 
             else if (value.BitFieldType != null)
-                JsonSerializer.Serialize(writer, value.BitFieldType.Value, options);
+                JsonSerializer.Serialize(writer, value.BitFieldType, options);
 
             else if (value.BooleanType != null)
-                JsonSerializer.Serialize(writer, value.BooleanType.Value, options);
+                JsonSerializer.Serialize(writer, value.BooleanType, options);
+
+            else if (value.BytesType != null)
+                JsonSerializer.Serialize(writer, value.BytesType, options);
 
             else if (value.ReferenceType != null)
-                JsonSerializer.Serialize(writer, value.ReferenceType.Value, options);
+                JsonSerializer.Serialize(writer, value.ReferenceType, options);
 
-            else if (value.IntegerType_UInt8.HasValue)
-                JsonSerializer.Serialize(writer, value.IntegerType_UInt8.Value, options);
-            else if (value.IntegerType_Int8.HasValue)
-                JsonSerializer.Serialize(writer, value.IntegerType_Int8.Value, options);
+            else if (value.IntegerType_UInt8 != null)
+                JsonSerializer.Serialize(writer, value.IntegerType_UInt8, options);
+            else if (value.IntegerType_Int8 != null)
+                JsonSerializer.Serialize(writer, value.IntegerType_Int8, options);
 
-            else if (value.IntegerType_UInt16.HasValue)
-                JsonSerializer.Serialize(writer, value.IntegerType_UInt16.Value, options);
-            else if (value.IntegerType_Int16.HasValue)
-                JsonSerializer.Serialize(writer, value.IntegerType_Int16.Value, options);
+            else if (value.IntegerType_UInt16 != null)
+                JsonSerializer.Serialize(writer, value.IntegerType_UInt16, options);
+            else if (value.IntegerType_Int16 != null)
+                JsonSerializer.Serialize(writer, value.IntegerType_Int16, options);
 
-            else if (value.IntegerType_UInt32.HasValue)
-                JsonSerializer.Serialize(writer, value.IntegerType_UInt32.Value, options);
-            else if (value.IntegerType_Int32.HasValue)
-                JsonSerializer.Serialize(writer, value.IntegerType_Int32.Value, options);
+            else if (value.IntegerType_UInt32 != null)
+                JsonSerializer.Serialize(writer, value.IntegerType_UInt32, options);
+            else if (value.IntegerType_Int32 != null)
+                JsonSerializer.Serialize(writer, value.IntegerType_Int32, options);
 
-            else if (value.IntegerType_UInt64.HasValue)
-                JsonSerializer.Serialize(writer, value.IntegerType_UInt64.Value, options);
-            else if (value.IntegerType_Int64.HasValue)
-                JsonSerializer.Serialize(writer, value.IntegerType_Int64.Value, options);
+            else if (value.IntegerType_UInt64 != null)
+                JsonSerializer.Serialize(writer, value.IntegerType_UInt64, options);
+            else if (value.IntegerType_Int64 != null)
+                JsonSerializer.Serialize(writer, value.IntegerType_Int64, options);
 #if NET7_0_OR_GREATER
-            else if (value.IntegerType_UInt128.HasValue)
-                JsonSerializer.Serialize(writer, value.IntegerType_UInt128.Value, options);
-            else if (value.IntegerType_Int128.HasValue)
-                JsonSerializer.Serialize(writer, value.IntegerType_Int128.Value, options);
+            else if (value.IntegerType_UInt128 != null)
+                JsonSerializer.Serialize(writer, value.IntegerType_UInt128, options);
+            else if (value.IntegerType_Int128 != null)
+                JsonSerializer.Serialize(writer, value.IntegerType_Int128, options);
 #endif
             else if (value.StringType != null)
-                JsonSerializer.Serialize(writer, value.StringType.Value, options);
+                JsonSerializer.Serialize(writer, value.StringType, options);
 
             else if (value.ListType != null)
                 JsonSerializer.Serialize(writer, value.ListType, options);
@@ -150,8 +153,8 @@ namespace RDMSharp.Metadata.JSON.Converter
             else if (value.CompoundType != null)
                 JsonSerializer.Serialize(writer, value.CompoundType, options);
 
-            else if (value.PD_EnvelopeType.HasValue)
-                JsonSerializer.Serialize(writer, value.PD_EnvelopeType.Value, options);
+            else if (value.PD_EnvelopeType != null)
+                JsonSerializer.Serialize(writer, value.PD_EnvelopeType, options);
             else
                 throw new NotImplementedException();
         }

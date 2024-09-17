@@ -6,7 +6,9 @@ namespace RDMSharp.Metadata.JSON
     [JsonConverter(typeof(SubdeviceTypeConverter))]
     public readonly struct SubdeviceType
     {
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public readonly ushort? Value { get; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public readonly SubdeviceRange? Range { get; }
         public SubdeviceType(ushort value) : this()
         {
