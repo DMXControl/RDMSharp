@@ -88,11 +88,6 @@ namespace RDMSharp.Metadata.JSON.Converter
                 case "string":
                     var stringType = element.Deserialize<StringType>(options);
                     return new OneOf(stringType);
-
-
-                case null:
-                default:
-                    break;
             }
 
             throw new JsonException($"Unexpected JSON format Type: {type} for FieldContainer.");
