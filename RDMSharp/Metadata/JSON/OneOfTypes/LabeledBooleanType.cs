@@ -1,7 +1,7 @@
 ﻿using RDMSharp.Metadata.JSON;
 using System.Text.Json.Serialization;
 
-namespace RDMSharp.Metadata.OneOfTypes
+namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
     public class LabeledBooleanType : CommonPropertiesForNamed
     {
@@ -16,11 +16,11 @@ namespace RDMSharp.Metadata.OneOfTypes
         [JsonPropertyName("notes")]
         [JsonPropertyOrder(4)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string? Notes { get; }
+        public override string Notes { get; }
         [JsonPropertyName("resources")]
         [JsonPropertyOrder(5)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string[]? Resources { get; }
+        public override string[] Resources { get; }
 
         [JsonPropertyName("value")]
         [JsonPropertyOrder(3)]
@@ -28,10 +28,10 @@ namespace RDMSharp.Metadata.OneOfTypes
 
         [JsonConstructor]
         public LabeledBooleanType(string name,
-                                  string? displayName,
-                                  string? notes,
-                                  string[]? resources,
-                                  bool value) :base()
+                                  string displayName,
+                                  string notes,
+                                  string[] resources,
+                                  bool value) : base()
         {
             Name = name;
             DisplayName = displayName;

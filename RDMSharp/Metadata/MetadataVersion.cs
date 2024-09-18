@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+
+[assembly: InternalsVisibleTo("RDMSharpTests")]
 
 namespace RDMSharp.Metadata
 {
@@ -18,18 +21,15 @@ namespace RDMSharp.Metadata
             Path = path;
             Name = name;
             IsSchema = isSchema;
-            string pattern = @"[^\.]+\.[json]+$";
-            var match = Regex.Match(Path, pattern);
-
-            if (match.Success)
-            {
-                Name = match.Value;
-            }
-            else
-                throw new Exception($"Can't extract Name from Path: {path}");
         }
-        private static string getVersion(string path)
+        internal static string getVersion(string path)
         {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentNullException(nameof(path));
+
+            if (!path.ToLower().EndsWith(".json"))
+                throw new ArgumentException($"The given Paths should end with .json ({nameof(path)})");
+
             string pattern = @"_(\d+)\._(\d+)\._(\d+)";
             var match = Regex.Match(path, pattern);
 
@@ -38,14 +38,23 @@ namespace RDMSharp.Metadata
                 return match.Value.Replace("_", "");
             }
             else
-                throw new Exception($"Can't extract Version from Path: {path}");
+                throw new FormatException($"Can't extract Version from Path: {path}");
         }
-        private static bool getIsSchema(string path)
+        internal static bool getIsSchema(string path)
         {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentNullException(nameof(path));
+
+            if (!path.ToLower().EndsWith(".json"))
+                throw new ArgumentException($"The given Paths should end with .json ({nameof(path)})");
+
             return path.ToLower().EndsWith("schema.json");
         }
-        private static string getName(string path)
+        internal static string getName(string path)
         {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentNullException(nameof(path));
+
             string pattern = @"[^\.]+\.[json]+$";
             var match = Regex.Match(path, pattern);
 
@@ -54,7 +63,7 @@ namespace RDMSharp.Metadata
                 return match.Value;
             }
             else
-                throw new Exception($"Can't extract Name from Path: {path}");
+                throw new FormatException($"The given Paths should end with .json ({nameof(path)})");
         }
         public override string ToString()
         {

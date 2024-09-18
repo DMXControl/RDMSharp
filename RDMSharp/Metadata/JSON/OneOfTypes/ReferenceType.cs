@@ -2,7 +2,7 @@
 using System;
 using System.Text.Json.Serialization;
 
-namespace RDMSharp.Metadata.OneOfTypes
+namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
     public readonly struct ReferenceType
     {
@@ -17,15 +17,12 @@ namespace RDMSharp.Metadata.OneOfTypes
         public ReferenceType(string uri)
         {
             URI = uri;
-            // Entferne das '#' und zerlege den Rest in Segmente
             if (uri.StartsWith("#"))
             {
-                string fragment = uri.Substring(1); // Entfernt das '#'
+                string fragment = uri.Substring(1);
 
-                // Zerlege den Pfad in einzelne Teile
                 string[] segments = fragment.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
-                // Ausgabe der einzelnen Teile
                 switch (segments[0])
                 {
                     case "get_request":

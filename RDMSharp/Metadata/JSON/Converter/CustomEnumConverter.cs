@@ -27,7 +27,7 @@ namespace RDMSharp.Metadata.JSON.Converter
             var field = typeof(T).GetField(value.ToString());
 
             var attribute = field.GetCustomAttribute<JsonPropertyNameAttribute>();
-            string enumString = attribute?.Name ?? value.ToString();
+            string enumString = attribute.Name;
 
             writer.WriteStringValue(enumString);
         }

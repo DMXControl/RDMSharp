@@ -1,7 +1,7 @@
 ﻿using RDMSharp.Metadata.JSON;
 using System.Text.Json.Serialization;
 
-namespace RDMSharp.Metadata.OneOfTypes
+namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
     public class StringType : CommonPropertiesForNamed
     {
@@ -16,11 +16,11 @@ namespace RDMSharp.Metadata.OneOfTypes
         [JsonPropertyName("notes")]
         [JsonPropertyOrder(25)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string? Notes { get; }
+        public override string Notes { get; }
         [JsonPropertyName("resources")]
         [JsonPropertyOrder(5)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string[]? Resources { get; }
+        public override string[] Resources { get; }
 
         [JsonPropertyName("type")]
         [JsonPropertyOrder(3)]
@@ -28,11 +28,11 @@ namespace RDMSharp.Metadata.OneOfTypes
         [JsonPropertyName("format")]
         [JsonPropertyOrder(21)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Format { get; }
+        public string Format { get; }
         [JsonPropertyName("pattern")]
         [JsonPropertyOrder(22)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Pattern { get; }
+        public string Pattern { get; }
         [JsonPropertyName("minLength")]
         [JsonPropertyOrder(31)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -57,12 +57,12 @@ namespace RDMSharp.Metadata.OneOfTypes
 
         [JsonConstructor]
         public StringType(string name,
-                          string? displayName,
-                          string? notes,
-                          string[]? resources,
+                          string displayName,
+                          string notes,
+                          string[] resources,
                           string type,
-                          string? format,
-                          string? pattern,
+                          string format,
+                          string pattern,
                           ulong? minLength,
                           ulong? maxLength,
                           ulong? minBytes,

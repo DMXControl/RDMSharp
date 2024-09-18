@@ -32,11 +32,7 @@ namespace RDMSharp.Metadata.JSON
         }
         public override string ToString()
         {
-            if (EnumValue.HasValue)
-                return EnumValue.Value.ToString();
-            if (ObjectValue.HasValue)
-                return ObjectValue.Value.ToString();
-            return base.ToString();
+            return EnumValue?.ToString() ?? ObjectValue.ToString();
         }
     }
 }

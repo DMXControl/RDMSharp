@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace RDMSharp.Metadata.OneOfTypes
+namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
     public readonly struct Range<T>
     {

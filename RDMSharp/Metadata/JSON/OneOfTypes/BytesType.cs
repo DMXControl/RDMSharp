@@ -1,10 +1,9 @@
 ﻿using RDMSharp.Metadata.JSON;
-using System.Linq;
 using System.Text.Json.Serialization;
 
-namespace RDMSharp.Metadata.OneOfTypes
+namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
-    public class BooleanType : CommonPropertiesForNamed
+    public class BytesType : CommonPropertiesForNamed
     {
         [JsonPropertyName("name")]
         [JsonPropertyOrder(1)]
@@ -17,42 +16,52 @@ namespace RDMSharp.Metadata.OneOfTypes
         [JsonPropertyName("notes")]
         [JsonPropertyOrder(4)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string? Notes { get; }
+        public override string Notes { get; }
         [JsonPropertyName("resources")]
         [JsonPropertyOrder(5)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string[]? Resources { get; }
+        public override string[] Resources { get; }
 
         [JsonPropertyName("type")]
         [JsonPropertyOrder(3)]
         public string Type { get; }
-        [JsonPropertyName("labels")]
-        [JsonPropertyOrder(5)]
+        [JsonPropertyName("format")]
+        [JsonPropertyOrder(11)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public LabeledBooleanType[]? Labels { get; }
+        public string Format { get; }
+        [JsonPropertyName("minLength")]
+        [JsonPropertyOrder(12)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ulong? MinLength { get; }
+        [JsonPropertyName("maxLength")]
+        [JsonPropertyOrder(13)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ulong? MaxLength { get; }
 
 
         [JsonConstructor]
-        public BooleanType(string name,
-                           string? displayName,
-                           string? notes,
-                           string[]? resources,
-                           string type,
-                           LabeledBooleanType[]? labels) : base()
+        public BytesType(string name,
+                         string displayName,
+                         string notes,
+                         string[] resources,
+                         string type,
+                         string format,
+                         ulong? minLength,
+                         ulong? maxLength) : base()
         {
             Name = name;
             DisplayName = displayName;
             Notes = notes;
             Resources = resources;
             Type = type;
-            Labels = labels;
+            Format = format;
+            MinLength = minLength;
+            MaxLength = maxLength;
         }
+
         public override string ToString()
         {
-            if (Labels == null)
-                return Name;
-
-            return $"{Name} [ {string.Join("; ", Labels.Select(l => l.ToString()))} ]";
+            return Name;
         }
     }
 }

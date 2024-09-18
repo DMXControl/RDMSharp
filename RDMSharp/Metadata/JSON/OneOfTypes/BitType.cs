@@ -1,29 +1,28 @@
 ﻿using RDMSharp.Metadata.JSON;
-using System.Linq;
 using System.Text.Json.Serialization;
 
-namespace RDMSharp.Metadata.OneOfTypes
+namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
-    public class BitFieldType : CommonPropertiesForNamed
+    public class BitType : CommonPropertiesForNamed
     {
         [JsonConstructor]
-        public BitFieldType(string name,
-                            string? displayName,
-                            string? notes,
-                            string[]? resources,
-                            string type,
-                            ushort size,
-                            bool? valueForUnspecified,
-                            BitType[] bits) : base()
+        public BitType(string name,
+                       string displayName,
+                       string notes,
+                       string[] resources,
+                       string type,
+                       ushort index,
+                       bool? reserved,
+                       bool? valueIfReserved) : base()
         {
             Name = name;
             DisplayName = displayName;
             Notes = notes;
             Resources = resources;
             Type = type;
-            Size = size;
-            ValueForUnspecified = valueForUnspecified;
-            Bits = bits;
+            Index = index;
+            Reserved = reserved;
+            ValueIfReserved = valueIfReserved;
         }
 
         [JsonPropertyName("name")]
@@ -37,32 +36,31 @@ namespace RDMSharp.Metadata.OneOfTypes
         [JsonPropertyName("notes")]
         [JsonPropertyOrder(4)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string? Notes { get; }
+        public override string Notes { get; }
         [JsonPropertyName("resources")]
         [JsonPropertyOrder(5)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string[]? Resources { get; }
+        public override string[] Resources { get; }
 
         [JsonPropertyName("type")]
         [JsonPropertyOrder(3)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string Type { get; }
-
-        [JsonPropertyName("size")]
+        [JsonPropertyName("index")]
+        [JsonPropertyOrder(21)]
+        public ushort Index { get; }
+        [JsonPropertyName("reserved")]
         [JsonPropertyOrder(31)]
-        public ushort Size { get; }
-
-        [JsonPropertyName("valueForUnspecified")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public bool? Reserved { get; }
+        [JsonPropertyName("valueIfReserved")]
         [JsonPropertyOrder(32)]
-        public bool? ValueForUnspecified { get; }
-        [JsonPropertyName("bits")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        [JsonPropertyOrder(41)]
-        public BitType[] Bits { get; }
+        public bool? ValueIfReserved { get; }
 
         public override string ToString()
         {
-            return $"{Name} [ {string.Join("; ", Bits.Select(b => b.ToString()))} ]";
+            return $"{Index} -> {Name}";
         }
     }
 }

@@ -1,9 +1,9 @@
 ﻿using RDMSharp.Metadata.JSON;
 using System.Text.Json.Serialization;
 
-namespace RDMSharp.Metadata.OneOfTypes
+namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
-    public class PD_EnvelopeType : CommonPropertiesForNamed
+    public class CompoundType : CommonPropertiesForNamed
     {
         [JsonPropertyName("name")]
         [JsonPropertyOrder(1)]
@@ -16,44 +16,34 @@ namespace RDMSharp.Metadata.OneOfTypes
         [JsonPropertyName("notes")]
         [JsonPropertyOrder(4)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string? Notes { get; }
+        public override string Notes { get; }
         [JsonPropertyName("resources")]
         [JsonPropertyOrder(5)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string[]? Resources { get; }
+        public override string[] Resources { get; }
 
         [JsonPropertyName("type")]
         [JsonPropertyOrder(3)]
         public string Type { get; }
-
-        [JsonPropertyName("length")]
-        [JsonPropertyOrder(6)]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public byte? Length { get; }
+        [JsonPropertyName("subtypes")]
+        [JsonPropertyOrder(11)]
+        public OneOfTypes[] Subtypes { get; }
 
 
         [JsonConstructor]
-        public PD_EnvelopeType(string name,
-                               string? displayName,
-                               string? notes,
-                               string[]? resources,
-                               string type,
-                               byte? length) : base()
+        public CompoundType(string name,
+                            string displayName,
+                            string notes,
+                            string[] resources,
+                            string type,
+                            OneOfTypes[] subtypes)
         {
             Name = name;
             DisplayName = displayName;
             Notes = notes;
             Resources = resources;
             Type = type;
-            Length = length;
-        }
-
-        public override string ToString()
-        {
-            if (Length.HasValue)
-                return $"PDL: {Length} ({Length:X2}) {base.ToString()}".Trim();
-            
-            return base.ToString();
+            Subtypes = subtypes;
         }
     }
 }

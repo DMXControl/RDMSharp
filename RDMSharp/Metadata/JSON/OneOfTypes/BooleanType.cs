@@ -1,9 +1,10 @@
 ﻿using RDMSharp.Metadata.JSON;
+using System.Linq;
 using System.Text.Json.Serialization;
 
-namespace RDMSharp.Metadata.OneOfTypes
+namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
-    public class ListType : CommonPropertiesForNamed
+    public class BooleanType : CommonPropertiesForNamed
     {
         [JsonPropertyName("name")]
         [JsonPropertyOrder(1)]
@@ -16,51 +17,42 @@ namespace RDMSharp.Metadata.OneOfTypes
         [JsonPropertyName("notes")]
         [JsonPropertyOrder(4)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string? Notes { get; }
+        public override string Notes { get; }
         [JsonPropertyName("resources")]
         [JsonPropertyOrder(5)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string[]? Resources { get; }
+        public override string[] Resources { get; }
 
         [JsonPropertyName("type")]
         [JsonPropertyOrder(3)]
         public string Type { get; }
-        [JsonPropertyName("itemType")]
-        [JsonPropertyOrder(21)]
-        public OneOfTypes ItemType { get; }
-        [JsonPropertyName("minItems")]
-        [JsonPropertyOrder(31)]
+        [JsonPropertyName("labels")]
+        [JsonPropertyOrder(5)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? MinItems { get; }
-        [JsonPropertyName("maxItems")]
-        [JsonPropertyOrder(32)]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? MaxItems { get; }
+        public LabeledBooleanType[] Labels { get; }
 
 
         [JsonConstructor]
-        public ListType(string name,
-                        string? displayName,
-                        string? notes,
-                        string[]? resources,
-                        string type,
-                        OneOfTypes itemType,
-                        int? minItems,
-                        int? maxItems) : base()
+        public BooleanType(string name,
+                           string displayName,
+                           string notes,
+                           string[] resources,
+                           string type,
+                           LabeledBooleanType[] labels) : base()
         {
             Name = name;
             DisplayName = displayName;
             Notes = notes;
             Resources = resources;
             Type = type;
-            ItemType = itemType;
-            MinItems = minItems;
-            MaxItems = maxItems;
+            Labels = labels;
         }
-
         public override string ToString()
         {
-            return $"{Name}";
+            if (Labels == null)
+                return Name;
+
+            return $"{Name} [ {string.Join("; ", Labels.Select(l => l.ToString()))} ]";
         }
     }
 }

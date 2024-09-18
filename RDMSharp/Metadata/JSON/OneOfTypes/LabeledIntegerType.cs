@@ -1,13 +1,13 @@
 ﻿using RDMSharp.Metadata.JSON;
 using System.Text.Json.Serialization;
 
-namespace RDMSharp.Metadata.OneOfTypes
+namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
-    public class CompoundType : CommonPropertiesForNamed
+    public class LabeledIntegerType : CommonPropertiesForNamed
     {
         [JsonPropertyName("name")]
         [JsonPropertyOrder(1)]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public override string Name { get; }
         [JsonPropertyName("displayName")]
         [JsonPropertyOrder(2)]
@@ -16,34 +16,33 @@ namespace RDMSharp.Metadata.OneOfTypes
         [JsonPropertyName("notes")]
         [JsonPropertyOrder(4)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string? Notes { get; }
+        public override string Notes { get; }
         [JsonPropertyName("resources")]
         [JsonPropertyOrder(5)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string[]? Resources { get; }
+        public override string[] Resources { get; }
 
-        [JsonPropertyName("type")]
+        [JsonPropertyName("value")]
         [JsonPropertyOrder(3)]
-        public string Type { get; }
-        [JsonPropertyName("subtypes")]
-        [JsonPropertyOrder(11)]
-        public OneOfTypes[] Subtypes { get; }
-
+        public long Value { get; }
 
         [JsonConstructor]
-        public CompoundType(string name,
-                            string? displayName,
-                            string? notes,
-                            string[]? resources,
-                            string type,
-                            OneOfTypes[] subtypes)
+        public LabeledIntegerType(string name,
+                                  string displayName,
+                                  string notes,
+                                  string[] resources,
+                                  long value) : base()
         {
             Name = name;
             DisplayName = displayName;
             Notes = notes;
             Resources = resources;
-            Type = type;
-            Subtypes = subtypes;
+            Value = value;
+        }
+
+        public override string ToString()
+        {
+            return $"{Value} -> {Name}";
         }
     }
 }

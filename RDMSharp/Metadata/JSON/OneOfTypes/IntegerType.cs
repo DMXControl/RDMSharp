@@ -4,7 +4,7 @@ using RDMSharp.Metadata.JSON.Converter;
 using System.Linq;
 using System.Text.Json.Serialization;
 
-namespace RDMSharp.Metadata.OneOfTypes
+namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
     [JsonConverter(typeof(CustomEnumConverter<EIntegerType>))]
     public enum EIntegerType
@@ -30,7 +30,7 @@ namespace RDMSharp.Metadata.OneOfTypes
         [JsonPropertyName("uint128")]
         UInt128
     }
-    public class  IntegerType<T>: CommonPropertiesForNamed
+    public class IntegerType<T> : CommonPropertiesForNamed
     {
         [JsonPropertyName("name")]
         [JsonPropertyOrder(1)]
@@ -43,11 +43,11 @@ namespace RDMSharp.Metadata.OneOfTypes
         [JsonPropertyName("notes")]
         [JsonPropertyOrder(4)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string? Notes { get; }
+        public override string Notes { get; }
         [JsonPropertyName("resources")]
         [JsonPropertyOrder(5)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string[]? Resources { get; }
+        public override string[] Resources { get; }
 
         [JsonPropertyName("type")]
         [JsonPropertyOrder(3)]
@@ -55,7 +55,7 @@ namespace RDMSharp.Metadata.OneOfTypes
         [JsonPropertyName("labels")]
         [JsonPropertyOrder(31)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public LabeledIntegerType[]? Labels { get; }
+        public LabeledIntegerType[] Labels { get; }
         [JsonPropertyName("restrictToLabeled")]
         [JsonPropertyOrder(32)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -63,7 +63,7 @@ namespace RDMSharp.Metadata.OneOfTypes
         [JsonPropertyName("ranges")]
         [JsonPropertyOrder(11)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public Range<T>[]? Ranges { get; }
+        public Range<T>[] Ranges { get; }
         [JsonPropertyName("units")]
         [JsonPropertyOrder(21)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -79,13 +79,13 @@ namespace RDMSharp.Metadata.OneOfTypes
 
         [JsonConstructor]
         public IntegerType(string name,
-                           string? displayName,
-                           string? notes,
-                           string[]? resources,
+                           string displayName,
+                           string notes,
+                           string[] resources,
                            EIntegerType type,
-                           LabeledIntegerType[]? labels,
+                           LabeledIntegerType[] labels,
                            bool? restrictToLabeled,
-                           Range<T>[]? ranges,
+                           Range<T>[] ranges,
                            ERDM_SensorUnit? units,
                            int? prefixPower,
                            int? prefixBase) : base()

@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Text.Json.Serialization;
 using RDMSharp.Metadata.JSON.Converter;
-using OneOf= RDMSharp.Metadata.OneOfTypes.OneOfTypes;
+using OneOf = RDMSharp.Metadata.JSON.OneOfTypes.OneOfTypes;
 
 namespace RDMSharp.Metadata.JSON
 {

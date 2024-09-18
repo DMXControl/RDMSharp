@@ -33,7 +33,7 @@ namespace RDMSharp.Metadata
         private static void fillDefaultMetadataVersionList()
         {
             metadataVersionList.AddRange(GetResources().Select(r => new MetadataVersion(r)));
-            return;
+
             if (metadataVersionDefinesBagDictionary == null)
                 metadataVersionDefinesBagDictionary = new Dictionary<MetadataVersion, List<MetadataJSONObjectDefine>>();
 
@@ -57,10 +57,6 @@ namespace RDMSharp.Metadata
                         metadataVersionDefinesBagDictionary.Add(schema, new List<MetadataJSONObjectDefine>());
 
                     metadataVersionDefinesBagDictionary[schema].Add(jsonDefine);
-                }
-                else
-                {
-
                 }
             }
         }

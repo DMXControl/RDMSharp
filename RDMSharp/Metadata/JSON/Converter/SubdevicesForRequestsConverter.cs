@@ -13,13 +13,8 @@ namespace RDMSharp.Metadata.JSON.Converter
                 var enumValue = JsonSerializer.Deserialize<SubdevicesForRequests.ESubdevicesForRequests>(ref reader, options);
                 return new SubdevicesForRequests(enumValue);
             }
-            else if (reader.TokenType == JsonTokenType.StartObject || reader.TokenType == JsonTokenType.Number)
-            {
-                var objectValue = JsonSerializer.Deserialize<SubdeviceType>(ref reader, options);
-                return new SubdevicesForRequests(objectValue);
-            }
-
-            throw new JsonException("Unexpected JSON format for FieldContainer.");
+            var objectValue = JsonSerializer.Deserialize<SubdeviceType>(ref reader, options);
+            return new SubdevicesForRequests(objectValue);
         }
 
         public override void Write(Utf8JsonWriter writer, SubdevicesForRequests value, JsonSerializerOptions options)

@@ -3,39 +3,33 @@ using System.Text.Json.Serialization;
 using RDMSharp.Metadata.JSON;
 using RDMSharp.Metadata.JSON.Converter;
 
-namespace RDMSharp.Metadata.OneOfTypes
+namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
     [JsonConverter(typeof(OneOfTypesConverter))]
     public readonly struct OneOfTypes
     {
-        public readonly CommonPropertiesForNamed? ObjectType;
-        public readonly BitType? BitType { get; }
-        public readonly BitFieldType? BitFieldType { get; }
-        public readonly BytesType? BytesType { get; }
-        public readonly BooleanType? BooleanType { get; }
-        public readonly IntegerType<byte>? IntegerType_UInt8 { get; }
-        public readonly IntegerType<sbyte>? IntegerType_Int8 { get; }
-        public readonly IntegerType<UInt16>? IntegerType_UInt16 { get; }
-        public readonly IntegerType<Int16>? IntegerType_Int16 { get; }
-        public readonly IntegerType<UInt32>? IntegerType_UInt32 { get; }
-        public readonly IntegerType<Int32>? IntegerType_Int32 { get; }
-        public readonly IntegerType<UInt64>? IntegerType_UInt64 { get; }
-        public readonly IntegerType<Int64>? IntegerType_Int64 { get; }
+        public readonly CommonPropertiesForNamed ObjectType;
+        public readonly BitFieldType BitFieldType { get; }
+        public readonly BytesType BytesType { get; }
+        public readonly BooleanType BooleanType { get; }
+        public readonly IntegerType<byte> IntegerType_UInt8 { get; }
+        public readonly IntegerType<sbyte> IntegerType_Int8 { get; }
+        public readonly IntegerType<ushort> IntegerType_UInt16 { get; }
+        public readonly IntegerType<short> IntegerType_Int16 { get; }
+        public readonly IntegerType<uint> IntegerType_UInt32 { get; }
+        public readonly IntegerType<int> IntegerType_Int32 { get; }
+        public readonly IntegerType<ulong> IntegerType_UInt64 { get; }
+        public readonly IntegerType<long> IntegerType_Int64 { get; }
 #if NET7_0_OR_GREATER
-        public readonly IntegerType<UInt128>? IntegerType_UInt128 { get; }
-        public readonly IntegerType<Int128>? IntegerType_Int128 { get; }
+        public readonly IntegerType<UInt128> IntegerType_UInt128 { get; }
+        public readonly IntegerType<Int128> IntegerType_Int128 { get; }
 #endif
         public readonly ReferenceType? ReferenceType { get; }
-        public readonly ListType? ListType { get; }
-        public readonly CompoundType? CompoundType { get; }
-        public readonly StringType? StringType { get; }
-        public readonly PD_EnvelopeType? PD_EnvelopeType { get; }
+        public readonly ListType ListType { get; }
+        public readonly CompoundType CompoundType { get; }
+        public readonly StringType StringType { get; }
+        public readonly PD_EnvelopeType PD_EnvelopeType { get; }
 
-        public OneOfTypes(BitType bitType)
-        {
-            BitType = bitType;
-            ObjectType = bitType;
-        }
         public OneOfTypes(BitFieldType bitFieldType)
         {
             BitFieldType = bitFieldType;
@@ -61,32 +55,32 @@ namespace RDMSharp.Metadata.OneOfTypes
             IntegerType_Int8 = integerType_Int8;
             ObjectType = integerType_Int8;
         }
-        public OneOfTypes(IntegerType<UInt16> integerType_UInt16)
+        public OneOfTypes(IntegerType<ushort> integerType_UInt16)
         {
             IntegerType_UInt16 = integerType_UInt16;
             ObjectType = integerType_UInt16;
         }
-        public OneOfTypes(IntegerType<Int16> integerType_Int16)
+        public OneOfTypes(IntegerType<short> integerType_Int16)
         {
             IntegerType_Int16 = integerType_Int16;
             ObjectType = integerType_Int16;
         }
-        public OneOfTypes(IntegerType<UInt32> integerType_UInt32)
+        public OneOfTypes(IntegerType<uint> integerType_UInt32)
         {
             IntegerType_UInt32 = integerType_UInt32;
             ObjectType = integerType_UInt32;
         }
-        public OneOfTypes(IntegerType<Int32> integerType_Int32)
+        public OneOfTypes(IntegerType<int> integerType_Int32)
         {
             IntegerType_Int32 = integerType_Int32;
             ObjectType = integerType_Int32;
         }
-        public OneOfTypes(IntegerType<UInt64> integerType_UInt64)
+        public OneOfTypes(IntegerType<ulong> integerType_UInt64)
         {
             IntegerType_UInt64 = integerType_UInt64;
             ObjectType = integerType_UInt64;
         }
-        public OneOfTypes(IntegerType<Int64> integerType_Int64)
+        public OneOfTypes(IntegerType<long> integerType_Int64)
         {
             IntegerType_Int64 = integerType_Int64;
             ObjectType = integerType_Int64;
@@ -130,13 +124,7 @@ namespace RDMSharp.Metadata.OneOfTypes
 
         public override string ToString()
         {
-            if (ObjectType != null)
-                return ObjectType.ToString();
-            
-            if (ReferenceType != null)
-                return ReferenceType.ToString();
-
-            return base.ToString();
+            return ObjectType?.ToString() ?? ReferenceType.ToString();
         }
     }
 }

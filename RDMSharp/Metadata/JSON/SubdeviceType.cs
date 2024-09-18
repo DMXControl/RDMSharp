@@ -21,11 +21,7 @@ namespace RDMSharp.Metadata.JSON
         }
         public override string ToString()
         {
-            if (Value.HasValue)
-                return $"Subdevice Value: {Value:X4}";
-            if (Range.HasValue)
-                return Range.ToString();
-            return base.ToString();
+            return Value?.ToString() ?? Range.ToString();
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Text.Json.Nodes;
 using Newtonsoft.Json.Linq;
 using RDMSharp.Metadata.JSON;
 using NUnit.Framework.Internal.Commands;
-using RDMSharp.Metadata.OneOfTypes;
+using RDMSharp.Metadata.JSON.OneOfTypes;
 
 namespace RDMSharpTests
 {
@@ -26,7 +26,10 @@ namespace RDMSharpTests
             JsonSchema jsonSchema = JsonSchema.FromText(testSubject.Schema.Content);
             var result = jsonSchema.Evaluate(JsonNode.Parse(testSubject.Define.Content));
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.IsValid, Is.True);
+            if (!testSubject.Define.Name.ToLower().Contains("invalid"))
+                Assert.That(result.IsValid, Is.True);
+            else
+                Assert.That(result.IsValid, Is.False);
         }
         [Test]
         public void TestDeseriaizeAndSerialize()
@@ -52,6 +55,9 @@ namespace RDMSharpTests
             }
             catch (JsonException ex)
             {
+                if (testSubject.Define.Name.ToLower().Contains("invalid"))
+                    return;
+
 #if !NET7_0_OR_GREATER
                 Warn.If(ex.Message, Is.EqualTo("Unexpected JSON format Type: int128 for FieldContainer.").Or.EqualTo("Unexpected JSON format Type: uint128 for FieldContainer."), "Due to .NET6 limitations");
                 return;
@@ -71,6 +77,8 @@ namespace RDMSharpTests
             }
             catch (JsonException ex)
             {
+                if (testSubject.Define.Name.ToLower().Contains("invalid"))
+                    return;
 #if !NET7_0_OR_GREATER
                 Warn.If(ex.Message, Is.EqualTo("Unexpected JSON format Type: int128 for FieldContainer.").Or.EqualTo("Unexpected JSON format Type: uint128 for FieldContainer."), "Due to .NET6 limitations");
                 return;
@@ -136,6 +144,8 @@ namespace RDMSharpTests
                     testString(singleField.ToString()!);
                     if (singleField.ObjectType is CommonPropertiesForNamed common)
                         testCommon(common);
+                    else if(singleField.ReferenceType is ReferenceType reference)
+                        testReference(reference);
                     return;
                 }
                 else if (command.ListOfFields is OneOfTypes[] listOfFields)
@@ -148,6 +158,8 @@ namespace RDMSharpTests
                         {
                             if (field.ObjectType is CommonPropertiesForNamed common)
                                 testCommon(common);
+                            else if (field.ReferenceType is ReferenceType reference)
+                                testReference(reference);
                         }
                         return;
                     }
@@ -179,6 +191,12 @@ namespace RDMSharpTests
                 else if (common is IntegerType<UInt128> integerUInt128)
                     testIntegerType(integerUInt128);
 #endif
+            }
+            static void testReference(ReferenceType reference)
+            {
+                testString(reference.ToString());
+                Assert.That(reference.Command, Is.EqualTo(Command.ECommandDublicte.GetRequest).Or.EqualTo(Command.ECommandDublicte.GetResponse).Or.EqualTo(Command.ECommandDublicte.SetRequest).Or.EqualTo(Command.ECommandDublicte.SetResponse));
+                Assert.That(reference.Pointer, Is.AtLeast(0));
             }
             static void testIntegerType<T>(IntegerType<T> integerType)
             {

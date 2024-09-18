@@ -1,8 +1,8 @@
-﻿using RDMSharp.Metadata.OneOfTypes;
+﻿using RDMSharp.Metadata.JSON.OneOfTypes;
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using OneOf = RDMSharp.Metadata.OneOfTypes.OneOfTypes;
+using OneOf = RDMSharp.Metadata.JSON.OneOfTypes.OneOfTypes;
 
 namespace RDMSharp.Metadata.JSON.Converter
 {
@@ -24,10 +24,6 @@ namespace RDMSharp.Metadata.JSON.Converter
             string type= typeProperty.GetString();
             switch (type)
             {
-                case "bit":
-                    var bitType = element.Deserialize<BitType>(options);
-                    return new OneOf(bitType);
-
                 case "bitField":
                     var bitFieldType = element.Deserialize<BitFieldType>(options);
                     return new OneOf(bitFieldType);
@@ -104,10 +100,7 @@ namespace RDMSharp.Metadata.JSON.Converter
 
         public override void Write(Utf8JsonWriter writer, OneOf value, JsonSerializerOptions options)
         {
-            if (value.BitType != null)
-                JsonSerializer.Serialize(writer, value.BitType, options);
-
-            else if (value.BitFieldType != null)
+            if (value.BitFieldType != null)
                 JsonSerializer.Serialize(writer, value.BitFieldType, options);
 
             else if (value.BooleanType != null)
@@ -155,8 +148,6 @@ namespace RDMSharp.Metadata.JSON.Converter
 
             else if (value.PD_EnvelopeType != null)
                 JsonSerializer.Serialize(writer, value.PD_EnvelopeType, options);
-            else
-                throw new NotImplementedException();
         }
     }
 }

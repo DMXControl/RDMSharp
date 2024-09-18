@@ -1,9 +1,9 @@
 ﻿using RDMSharp.Metadata.JSON;
 using System.Text.Json.Serialization;
 
-namespace RDMSharp.Metadata.OneOfTypes
+namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
-    public class BytesType : CommonPropertiesForNamed
+    public class ListType : CommonPropertiesForNamed
     {
         [JsonPropertyName("name")]
         [JsonPropertyOrder(1)]
@@ -16,52 +16,51 @@ namespace RDMSharp.Metadata.OneOfTypes
         [JsonPropertyName("notes")]
         [JsonPropertyOrder(4)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string? Notes { get; }
+        public override string Notes { get; }
         [JsonPropertyName("resources")]
         [JsonPropertyOrder(5)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string[]? Resources { get; }
+        public override string[] Resources { get; }
 
         [JsonPropertyName("type")]
         [JsonPropertyOrder(3)]
         public string Type { get; }
-        [JsonPropertyName("format")]
-        [JsonPropertyOrder(11)]
+        [JsonPropertyName("itemType")]
+        [JsonPropertyOrder(21)]
+        public OneOfTypes ItemType { get; }
+        [JsonPropertyName("minItems")]
+        [JsonPropertyOrder(31)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? Format { get; }
-        [JsonPropertyName("minLength")]
-        [JsonPropertyOrder(12)]
+        public int? MinItems { get; }
+        [JsonPropertyName("maxItems")]
+        [JsonPropertyOrder(32)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public ulong? MinLength { get; }
-        [JsonPropertyName("maxLength")]
-        [JsonPropertyOrder(13)]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public ulong? MaxLength { get; }
+        public int? MaxItems { get; }
 
 
         [JsonConstructor]
-        public BytesType(string name,
-                         string? displayName,
-                         string? notes,
-                         string[]? resources,
-                         string type,
-                         string? format,
-                         ulong? minLength,
-                         ulong? maxLength) : base()
+        public ListType(string name,
+                        string displayName,
+                        string notes,
+                        string[] resources,
+                        string type,
+                        OneOfTypes itemType,
+                        int? minItems,
+                        int? maxItems) : base()
         {
             Name = name;
             DisplayName = displayName;
             Notes = notes;
             Resources = resources;
             Type = type;
-            Format = format;
-            MinLength = minLength;
-            MaxLength = maxLength;
+            ItemType = itemType;
+            MinItems = minItems;
+            MaxItems = maxItems;
         }
 
         public override string ToString()
         {
-            return Name;
+            return DisplayName ?? Name;
         }
     }
 }

@@ -1,0 +1,42 @@
+{
+  "name": "MOCK_REFERENCE_TYPE",
+  "manufacturer_id": 3456,
+  "pid": 5678,
+  "version": 1,
+  "get_request_subdevice_range": [    "root",    "subdevices"  ],
+  "get_request": [
+    {
+      "name": "root_personality",
+      "type": "uint8",
+      "ranges": [
+        {
+          "minimum": 1,
+          "maximum": 255
+        }
+      ]
+    },
+    {
+      "name": "subdevice",
+      "type": "uint16",
+      "labels": [
+        {
+          "name": "root",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "name": "subdevice_personality",
+      "type": "uint8",
+      "labels": [
+        {
+          "name": "root",
+          "value": 0
+        }
+      ]
+    }
+  ],
+  "get_response": [
+    { "$ref": "#/set_response/0" }
+  ]
+}
