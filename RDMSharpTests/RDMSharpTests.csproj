@@ -29,14 +29,21 @@
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_128BIT_INTEGER_TEST.json" />
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_ALL_INTEGER_TEST_EXCEPT_128BIT.json" />
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_DISPLAY_NAME.json" />
+    <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_INVALID_BUT_SCHEMA_IS_VALID_REFERENCE_TYPE_NOT_DEFINED_1.json" />
+    <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_INVALID_BUT_SCHEMA_IS_VALID_REFERENCE_TYPE_NOT_DEFINED_2.json" />
+    <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_INVALID_BUT_SCHEMA_IS_VALID_REFERENCE_TYPE_NOT_DEFINED_3.json" />
+    <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_INVALID_BUT_SCHEMA_IS_VALID_REFERENCE_TYPE_NOT_DEFINED_4.json" />
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_INVALID_COMMAND_NUMBER.json" />
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_INVALID_ENUM.json" />
+    <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_INVALID_NO_GET_PAIR.json" />
+    <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_INVALID_NO_SET_PAIR.json" />
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_INVALID_ONEOF_TYPE.json" />
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_INVALID_SUBDEVICE_TYPE_REQUEST.json" />
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_INVALID_SUBDEVICE_TYPE_RESPONSE.json" />
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_PD_ENVELOPED.json" />
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_REFERENCE_TYPE.json" />
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_SINGLE_FIELD.json" />
+    <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_SINGLE_FIELD_REFERENCE.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RDMSharp\RDMSharp.csproj" />

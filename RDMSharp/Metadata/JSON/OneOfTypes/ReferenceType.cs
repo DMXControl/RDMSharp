@@ -42,6 +42,8 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 }
                 Pointer = ushort.Parse(segments[1]);
             }
+            else
+                throw new ArgumentException($"{nameof(uri)} has to start with \'#\'");
         }
         public ReferenceType(string uri, CommonPropertiesForNamed referencedObject) : this(uri)
         {

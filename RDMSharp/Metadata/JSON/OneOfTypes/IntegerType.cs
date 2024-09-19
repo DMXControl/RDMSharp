@@ -166,11 +166,11 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 case EIntegerType.UInt64:
                     return new PDL(8);
 
-                default:
 #if NET7_0_OR_GREATER
                 case EIntegerType.Int128:
                 case EIntegerType.UInt128:
 #endif
+                default:
                     return new PDL(16);
             }
         }

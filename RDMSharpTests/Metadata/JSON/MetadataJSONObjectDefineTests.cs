@@ -28,6 +28,8 @@ namespace RDMSharpTests.Metadata.JSON
             Assert.That(result, Is.Not.Null);
             if (!testSubject.Define.Name.ToLower().Contains("invalid"))
                 Assert.That(result.IsValid, Is.True);
+            else if (testSubject.Define.Name.ToLower().Contains("invalid_but_schema_is_valid"))
+                Assert.That(result.IsValid, Is.True);
             else
                 Assert.That(result.IsValid, Is.False);
         }

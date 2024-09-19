@@ -1,7 +1,9 @@
 ﻿using RDMSharp.Metadata.JSON;
 using RDMSharp.Metadata.JSON.OneOfTypes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata
@@ -73,6 +75,12 @@ namespace RDMSharp.Metadata
             Command? setRequest,
             Command? setResponse)
         {
+            if (getRequest.HasValue ^ getResponse.HasValue)
+                throw new JsonException($"Both {nameof(getRequest)} & {nameof(getResponse)} and have to be defined in {name}");
+
+            if (setRequest.HasValue ^ setResponse.HasValue)
+                throw new JsonException($"Both {nameof(setRequest)} & {nameof(setResponse)} and have to be defined in {name}");
+
             Name = name;
             DisplayName = displayName;
             Notes = notes;
@@ -136,16 +144,27 @@ namespace RDMSharp.Metadata
                     switch (reference.Command)
                     {
                         case Command.ECommandDublicte.GetRequest:
-                            reference = new ReferenceType(reference.URI, getRequest?.ListOfFields[reference.Pointer].ObjectType);
+                            if (!getRequest.HasValue)
+                                throw new JsonException($"The Referenced Command ({reference.Command.ToString()})is not defined");
+                            reference = new ReferenceType(reference.URI, getRequest.Value.ListOfFields[reference.Pointer].ObjectType);
                             break;
+
                         case Command.ECommandDublicte.GetResponse:
-                            reference = new ReferenceType(reference.URI, getResponse?.ListOfFields[reference.Pointer].ObjectType);
+                            if (!getResponse.HasValue)
+                                throw new JsonException($"The Referenced Command ({reference.Command.ToString()})is not defined");
+                            reference = new ReferenceType(reference.URI, getResponse.Value.ListOfFields[reference.Pointer].ObjectType);
                             break;
+
                         case Command.ECommandDublicte.SetRequest:
-                            reference = new ReferenceType(reference.URI, setRequest?.ListOfFields[reference.Pointer].ObjectType);
+                            if (!setRequest.HasValue)
+                                throw new JsonException($"The Referenced Command ({reference.Command.ToString()})is not defined");
+                            reference = new ReferenceType(reference.URI, setRequest.Value.ListOfFields[reference.Pointer].ObjectType);
                             break;
+
                         case Command.ECommandDublicte.SetResponse:
-                            reference = new ReferenceType(reference.URI, setResponse?.ListOfFields[reference.Pointer].ObjectType);
+                            if (!setResponse.HasValue)
+                                throw new JsonException($"The Referenced Command ({reference.Command.ToString()})is not defined");
+                            reference = new ReferenceType(reference.URI, setResponse.Value.ListOfFields[reference.Pointer].ObjectType);
                             break;
                     }
                     return new OneOfTypes(reference);
