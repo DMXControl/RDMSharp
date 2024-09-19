@@ -1,5 +1,5 @@
-﻿using RDMSharp.Metadata.JSON;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using RDMSharp.RDM;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
@@ -43,6 +43,11 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         public override string ToString()
         {
             return $"{Value} -> {Name}";
+        }
+
+        public override PDL GetDataLength()
+        {
+            throw new System.NotSupportedException();
         }
     }
 }

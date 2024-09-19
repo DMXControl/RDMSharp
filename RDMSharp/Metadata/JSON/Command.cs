@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Text.Json.Serialization;
 using RDMSharp.Metadata.JSON.Converter;
+using RDMSharp.RDM;
 using OneOf = RDMSharp.Metadata.JSON.OneOfTypes.OneOfTypes;
 
 namespace RDMSharp.Metadata.JSON
@@ -51,6 +52,17 @@ namespace RDMSharp.Metadata.JSON
         public Command(OneOf[] listOfFields)
         {
             ListOfFields = listOfFields;
+        }
+        public PDL GetDataLength()
+        {
+            if(GetIsEmpty())
+                return new PDL();
+            if (SingleField.HasValue)
+                return SingleField.Value.GetDataLength();
+            if (ListOfFields != null)
+                return new PDL(ListOfFields.Select(f => f.GetDataLength()).ToArray());
+
+            throw new System.NotSupportedException();
         }
         public override string ToString()
         {

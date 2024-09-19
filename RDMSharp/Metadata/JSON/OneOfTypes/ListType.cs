@@ -1,4 +1,5 @@
-﻿using RDMSharp.Metadata.JSON;
+﻿using RDMSharp.RDM;
+using System;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
@@ -31,11 +32,11 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         [JsonPropertyName("minItems")]
         [JsonPropertyOrder(31)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? MinItems { get; }
+        public uint? MinItems { get; }
         [JsonPropertyName("maxItems")]
         [JsonPropertyOrder(32)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int? MaxItems { get; }
+        public uint? MaxItems { get; }
 
 
         [JsonConstructor]
@@ -45,9 +46,15 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                         string[] resources,
                         string type,
                         OneOfTypes itemType,
-                        int? minItems,
-                        int? maxItems) : base()
+                        uint? minItems,
+                        uint? maxItems) : base()
         {
+            if (!"list".Equals(type))
+                throw new ArgumentException($"Argument {nameof(type)} has to be \"list\"");
+
+            if (itemType.IsEmpty())
+                throw new ArgumentException($"Argument {nameof(itemType)} is Empty, this is not allowed");
+
             Name = name;
             DisplayName = displayName;
             Notes = notes;
@@ -61,6 +68,41 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         public override string ToString()
         {
             return DisplayName ?? Name;
+        }
+
+        public override PDL GetDataLength()
+        {
+            uint min = 0;
+            uint max = 0;
+
+            if (MinItems.HasValue)
+                min = MinItems.Value;
+            if (MaxItems.HasValue)
+                max = MaxItems.Value;
+
+            PDL itemPDL = ItemType.GetDataLength();
+            if (itemPDL.Value.HasValue)
+            {
+                min *= itemPDL.Value.Value;
+                max *= itemPDL.Value.Value;
+            }
+            else
+            {
+                if (itemPDL.MinLength.HasValue)
+                    min *= itemPDL.MinLength.Value;
+                if (itemPDL.MaxLength.HasValue)
+                    max *= itemPDL.MaxLength.Value;
+            }
+
+            if (max == 0)
+                if (!MaxItems.HasValue)
+                    if (MinItems.HasValue)
+                        max = PDL.MAX_LENGTH;
+
+            if (min == max)
+                return new PDL(min);
+
+            return new PDL(min, max);
         }
     }
 }

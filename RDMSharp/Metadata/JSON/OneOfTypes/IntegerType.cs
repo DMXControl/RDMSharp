@@ -1,6 +1,6 @@
-﻿using Humanizer.Localisation;
-using RDMSharp.Metadata.JSON;
-using RDMSharp.Metadata.JSON.Converter;
+﻿using RDMSharp.Metadata.JSON.Converter;
+using RDMSharp.RDM;
+using System;
 using System.Linq;
 using System.Text.Json.Serialization;
 
@@ -90,6 +90,41 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                            int? prefixPower,
                            int? prefixBase) : base()
         {
+            T dummy = default;
+            switch (dummy)
+            {
+                case sbyte when type is not EIntegerType.Int8:
+                    throw new ArgumentException($"Argument {nameof(type)} has to be \"{EIntegerType.Int8}\"");
+
+                case byte when type is not EIntegerType.UInt8:
+                    throw new ArgumentException($"Argument {nameof(type)} has to be \"{EIntegerType.UInt8}\"");
+
+                case short when type is not EIntegerType.Int16:
+                    throw new ArgumentException($"Argument {nameof(type)} has to be \"{EIntegerType.Int16}\"");
+
+                case ushort when type is not EIntegerType.UInt16:
+                    throw new ArgumentException($"Argument {nameof(type)} has to be \"{EIntegerType.UInt16}\"");
+
+                case int when type is not EIntegerType.Int32:
+                    throw new ArgumentException($"Argument {nameof(type)} has to be \"{EIntegerType.Int32}\"");
+
+                case uint when type is not EIntegerType.UInt32:
+                    throw new ArgumentException($"Argument {nameof(type)} has to be \"{EIntegerType.UInt32}\"");
+
+                case long when type is not EIntegerType.Int64:
+                    throw new ArgumentException($"Argument {nameof(type)} has to be \"{EIntegerType.Int64}\"");
+
+                case ulong when type is not EIntegerType.UInt64:
+                    throw new ArgumentException($"Argument {nameof(type)} has to be \"{EIntegerType.UInt64}\"");
+#if NET7_0_OR_GREATER
+                case Int128 when type is not EIntegerType.Int128:
+                    throw new ArgumentException($"Argument {nameof(type)} has to be \"{EIntegerType.Int128}\"");
+
+                case UInt128 when type is not EIntegerType.UInt128:
+                    throw new ArgumentException($"Argument {nameof(type)} has to be \"{EIntegerType.UInt128}\"");
+#endif
+            }
+
             Name = name;
             DisplayName = displayName;
             Notes = notes;
@@ -109,6 +144,35 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 return $"{Name} {Type} -> [ {string.Join("; ", Labels.Select(l => l.ToString()))} ]";
 
             return $"{Name} {Type}";
+        }
+
+        public override PDL GetDataLength()
+        {
+            switch (Type)
+            {
+                case EIntegerType.Int8:
+                case EIntegerType.UInt8:
+                    return new PDL(1);
+
+                case EIntegerType.Int16:
+                case EIntegerType.UInt16:
+                    return new PDL(2);
+
+                case EIntegerType.Int32:
+                case EIntegerType.UInt32:
+                    return new PDL(4);
+
+                case EIntegerType.Int64:
+                case EIntegerType.UInt64:
+                    return new PDL(8);
+
+                default:
+#if NET7_0_OR_GREATER
+                case EIntegerType.Int128:
+                case EIntegerType.UInt128:
+#endif
+                    return new PDL(16);
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 using RDMSharp.Metadata;
 
-namespace RDMSharpTests
+namespace RDMSharpTests.Metadata
 {
     public class TestMetadataFactoryStuff
     {

@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Reflection;
 
-namespace RDMSharpTests
+namespace RDMSharpTests.Metadata.JSON
 {
     public class MetadataJSONObjectDefineTestSubject
     {
@@ -15,7 +15,7 @@ namespace RDMSharpTests
         private static object[] getTestSubjects()
         {
             List<MetadataJSONObjectDefineTestSubject> instances = new List<MetadataJSONObjectDefineTestSubject>();
-            List<MetadataVersion> metadataVersionList= new List<MetadataVersion>();
+            List<MetadataVersion> metadataVersionList = new List<MetadataVersion>();
             metadataVersionList.AddRange(MetadataFactory.GetResources().Select(r => new MetadataVersion(r)));
             var schemaList = MetadataFactory.GetMetadataSchemaVersions();
             ConcurrentDictionary<string, MetadataBag> versionSchemas = new ConcurrentDictionary<string, MetadataBag>();
@@ -38,7 +38,7 @@ namespace RDMSharpTests
                     schema = new MetadataBag(_schema);
                     versionSchemas.TryAdd(_schema.Version, schema);
                 }
-                instances.Add(new MetadataJSONObjectDefineTestSubject(schema, new MetadataBag(mv.Version,mv.Name,mv.IsSchema,getContent(mv.Path),mv.Path)));
+                instances.Add(new MetadataJSONObjectDefineTestSubject(schema, new MetadataBag(mv.Version, mv.Name, mv.IsSchema, getContent(mv.Path), mv.Path)));
             }
             return instances.ToArray();
         }

@@ -1,4 +1,5 @@
-﻿using RDMSharp.Metadata.JSON;
+﻿using RDMSharp.RDM;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
@@ -38,12 +39,23 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                             string type,
                             OneOfTypes[] subtypes)
         {
+            if (!"compound".Equals(type))
+                throw new System.ArgumentException($"Argument {nameof(type)} has to be \"compound\"");
+
+            if (((subtypes?.Length) ?? 0) < 1)
+                throw new System.ArgumentException($"Argument {nameof(subtypes)} has to be at least a size of 1");
+
             Name = name;
             DisplayName = displayName;
             Notes = notes;
             Resources = resources;
             Type = type;
             Subtypes = subtypes;
+        }
+
+        public override PDL GetDataLength()
+        {
+            return new PDL(Subtypes.Select(s => s.GetDataLength()).ToArray());
         }
     }
 }

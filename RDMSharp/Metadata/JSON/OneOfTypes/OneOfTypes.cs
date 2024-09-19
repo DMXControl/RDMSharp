@@ -1,7 +1,7 @@
-﻿using System;
+﻿using RDMSharp.Metadata.JSON.Converter;
+using RDMSharp.RDM;
+using System;
 using System.Text.Json.Serialization;
-using RDMSharp.Metadata.JSON;
-using RDMSharp.Metadata.JSON.Converter;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
@@ -120,6 +120,15 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         {
             PD_EnvelopeType = pdEnvelopeType;
             ObjectType = pdEnvelopeType;
+        }
+
+        public bool IsEmpty()
+        {
+            return ObjectType == null && ReferenceType == null;
+        }
+        public PDL GetDataLength()
+        {
+            return ObjectType?.GetDataLength() ?? ReferenceType?.GetDataLength() ?? new PDL();
         }
 
         public override string ToString()

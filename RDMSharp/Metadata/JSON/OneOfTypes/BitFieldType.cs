@@ -1,4 +1,5 @@
-﻿using RDMSharp.Metadata.JSON;
+﻿using RDMSharp.RDM;
+using System;
 using System.Linq;
 using System.Text.Json.Serialization;
 
@@ -16,6 +17,11 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                             bool? valueForUnspecified,
                             BitType[] bits) : base()
         {
+            if (!"bitField".Equals(type))
+                throw new ArgumentException($"Argument {nameof(type)} has to be \"bitField\"");
+            if (size % 8 != 0)
+                throw new ArgumentOutOfRangeException($"Argument {nameof(size)} has to be a multiple of 8");
+
             Name = name;
             DisplayName = displayName;
             Notes = notes;
@@ -59,6 +65,11 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyOrder(41)]
         public BitType[] Bits { get; }
+
+        public override PDL GetDataLength()
+        {
+            return new PDL((uint)(Size / 8));
+        }
 
         public override string ToString()
         {

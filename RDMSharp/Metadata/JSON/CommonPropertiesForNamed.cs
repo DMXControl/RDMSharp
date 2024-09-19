@@ -1,12 +1,12 @@
-﻿using RDMSharp.Metadata.JSON.Converter;
+﻿using System;
 using System.Linq;
 using System.Text.Json.Serialization;
+using RDMSharp.RDM;
 
 namespace RDMSharp.Metadata.JSON
 {
     public abstract class CommonPropertiesForNamed
     {
-
         [JsonPropertyName("name")]
         [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public abstract string Name { get; }
@@ -19,6 +19,8 @@ namespace RDMSharp.Metadata.JSON
         [JsonPropertyName("resources")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public abstract string[]? Resources { get; }
+
+        public abstract PDL GetDataLength();
 
         public override string ToString()
         {

@@ -1,4 +1,4 @@
-﻿using RDMSharp.Metadata.JSON;
+﻿using RDMSharp.RDM;
 using System;
 using System.Text.Json.Serialization;
 
@@ -12,6 +12,8 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         public readonly Command.ECommandDublicte Command { get; }
         [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
         public readonly ushort Pointer { get; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
+        public readonly CommonPropertiesForNamed? ReferencedObject { get; }
 
         [JsonConstructor]
         public ReferenceType(string uri)
@@ -40,6 +42,14 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 }
                 Pointer = ushort.Parse(segments[1]);
             }
+        }
+        public ReferenceType(string uri, CommonPropertiesForNamed referencedObject) : this(uri)
+        {
+            ReferencedObject = referencedObject;
+        }
+        public PDL GetDataLength()
+        {
+            return ReferencedObject?.GetDataLength() ?? new PDL();
         }
         public override string ToString()
         {

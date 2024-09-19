@@ -1,13 +1,13 @@
 ﻿using Json.Schema;
+using Newtonsoft.Json.Linq;
 using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using RDMSharp.Metadata.JSON.OneOfTypes;
+using RDMSharp.RDM;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Newtonsoft.Json.Linq;
-using RDMSharp.Metadata.JSON;
-using NUnit.Framework.Internal.Commands;
-using RDMSharp.Metadata.JSON.OneOfTypes;
 
-namespace RDMSharpTests
+namespace RDMSharpTests.Metadata.JSON
 {
     [TestFixtureSource(typeof(MetadataJSONObjectDefineTestSubject), nameof(MetadataJSONObjectDefineTestSubject.TestSubjects))]
     public class MetadataJSONObjectDefineTests
@@ -69,7 +69,7 @@ namespace RDMSharpTests
         [Test]
         public void TestDeseriaizedObject()
         {
-            MetadataJSONObjectDefine deserialized = new MetadataJSONObjectDefine();
+            MetadataJSONObjectDefine deserialized = null;
             testString(testSubject.Define.ToString());
             try
             {
@@ -110,16 +110,36 @@ namespace RDMSharpTests
             }
 
             if (deserialized.GetRequest != null)
+            {
                 testCommand(deserialized.GetRequest.Value);
+                deserialized.GetCommand(Command.ECommandDublicte.GetRequest, out Command? command);
+                if (command != null)
+                    testCommand(command.Value);
+            }
 
             if (deserialized.GetResponse != null)
+            {
                 testCommand(deserialized.GetResponse.Value);
+                deserialized.GetCommand(Command.ECommandDublicte.GetResponse, out Command? command);
+                if (command != null)
+                    testCommand(command.Value);
+            }
 
             if (deserialized.SetRequest != null)
+            {
                 testCommand(deserialized.SetRequest.Value);
+                deserialized.GetCommand(Command.ECommandDublicte.SetRequest, out Command? command);
+                if (command != null)
+                    testCommand(command.Value);
+            }
 
             if (deserialized.SetResponse != null)
+            {
                 testCommand(deserialized.SetResponse.Value);
+                deserialized.GetCommand(Command.ECommandDublicte.SetResponse, out Command? command);
+                if (command != null)
+                    testCommand(command.Value);
+            }
 
 
             static void testString(string str)
@@ -132,19 +152,24 @@ namespace RDMSharpTests
             static void testCommand(Command command)
             {
                 testString(command.ToString()!);
-                if(command.EnumValue is Command.ECommandDublicte _enum)
+                PDL? pdl = null;
+                if (command.EnumValue is Command.ECommandDublicte _enum)
                 {
                     Assert.That(command.GetIsEmpty(), Is.False);
                     testString(_enum.ToString()!);
                     return;
                 }
-                else if (command.SingleField is OneOfTypes singleField)
+
+                Assert.DoesNotThrow(() => { pdl = command.GetDataLength(); });
+                Assert.That(pdl.HasValue, Is.True);
+
+                if (command.SingleField is OneOfTypes singleField)
                 {
                     Assert.That(command.GetIsEmpty(), Is.False);
                     testString(singleField.ToString()!);
                     if (singleField.ObjectType is CommonPropertiesForNamed common)
                         testCommon(common);
-                    else if(singleField.ReferenceType is ReferenceType reference)
+                    else if (singleField.ReferenceType is ReferenceType reference)
                         testReference(reference);
                     return;
                 }

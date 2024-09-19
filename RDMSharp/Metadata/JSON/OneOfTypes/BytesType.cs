@@ -1,4 +1,5 @@
-﻿using RDMSharp.Metadata.JSON;
+﻿using RDMSharp.RDM;
+using System;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
@@ -32,11 +33,11 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         [JsonPropertyName("minLength")]
         [JsonPropertyOrder(12)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public ulong? MinLength { get; }
+        public uint? MinLength { get; }
         [JsonPropertyName("maxLength")]
         [JsonPropertyOrder(13)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public ulong? MaxLength { get; }
+        public uint? MaxLength { get; }
 
 
         [JsonConstructor]
@@ -46,9 +47,21 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                          string[] resources,
                          string type,
                          string format,
-                         ulong? minLength,
-                         ulong? maxLength) : base()
+                         uint? minLength,
+                         uint? maxLength) : base()
         {
+            if (!"bytes".Equals(type))
+                throw new ArgumentException($"Argument {nameof(type)} has to be \"bytes\"");
+            if (minLength.HasValue && maxLength.HasValue)
+                if (minLength > maxLength)
+                    throw new ArgumentOutOfRangeException($"Argument {nameof(minLength)} has to be <= {nameof(maxLength)}");
+            if (minLength.HasValue)
+                if (minLength > PDL.MAX_LENGTH)
+                    throw new ArgumentOutOfRangeException($"Argument {nameof(minLength)} has to be <= {PDL.MAX_LENGTH}");
+            if (maxLength.HasValue)
+                if (maxLength > PDL.MAX_LENGTH)
+                    throw new ArgumentOutOfRangeException($"Argument {nameof(maxLength)} has to be <= {PDL.MAX_LENGTH}");
+
             Name = name;
             DisplayName = displayName;
             Notes = notes;
@@ -62,6 +75,11 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         public override string ToString()
         {
             return Name;
+        }
+
+        public override PDL GetDataLength()
+        {
+            return new PDL((uint)(MinLength ?? 1), (uint)(MaxLength ?? PDL.MAX_LENGTH));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using RDMSharp.Metadata.JSON;
+﻿using RDMSharp.RDM;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
@@ -69,6 +69,9 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                           ulong? maxBytes,
                           bool? restrictToASCII)
         {
+            if (!"string".Equals(type))
+                throw new System.ArgumentException($"Argument {nameof(type)} has to be \"string\"");
+
             Name = name;
             DisplayName = displayName;
             Notes = notes;
@@ -86,6 +89,25 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         public override string ToString()
         {
             return base.ToString();
+        }
+
+        public override PDL GetDataLength()
+        {
+            uint min = 0;
+            uint? max = null;
+            if (MinLength.HasValue)
+                min = (uint)MinLength.Value;
+            if (MaxLength.HasValue)
+                max = (uint)MaxLength.Value;
+            if (MinBytes.HasValue)
+                min = (uint)MinBytes.Value;
+            if (MaxBytes.HasValue)
+                max = (uint)MaxBytes.Value;
+
+            if (!max.HasValue)
+                return new PDL(min, PDL.MAX_LENGTH);
+
+            return new PDL(min, max.Value);
         }
     }
 }

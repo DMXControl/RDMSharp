@@ -1,4 +1,4 @@
-﻿using RDMSharp.Metadata.JSON;
+﻿using RDMSharp.RDM;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
@@ -40,6 +40,9 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                                string type,
                                byte? length) : base()
         {
+            if (!"pdEnvelope".Equals(type))
+                throw new System.ArgumentException($"Argument {nameof(type)} has to be \"pdEnvelope\"");
+
             Name = name;
             DisplayName = displayName;
             Notes = notes;
@@ -54,6 +57,14 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 return $"PDL: {Length} ({Length:X2}) {base.ToString()}".Trim();
 
             return base.ToString();
+        }
+
+        public override PDL GetDataLength()
+        {
+            if(Length.HasValue)
+                return new PDL(Length.Value);
+
+            return new PDL();
         }
     }
 }
