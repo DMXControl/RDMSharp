@@ -40,6 +40,7 @@
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_INVALID_ONEOF_TYPE.json" />
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_INVALID_SUBDEVICE_TYPE_REQUEST.json" />
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_INVALID_SUBDEVICE_TYPE_RESPONSE.json" />
+    <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_INVALID_TYPE.json" />
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_PD_ENVELOPED.json" />
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_REFERENCE_TYPE.json" />
     <None Remove="Resources\JSON-Defines\1.0.0\Defines\Mocks\MOCK_SINGLE_FIELD.json" />
