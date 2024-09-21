@@ -53,6 +53,10 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         {
             return ReferencedObject?.GetDataLength() ?? new PDL();
         }
+        public byte[] ParsePayloadToData(DataTree dataTree)
+        {
+            return ReferencedObject.ParsePayloadToData(dataTree);
+        }
         public override string ToString()
         {
             return URI;

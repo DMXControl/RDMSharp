@@ -90,7 +90,22 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                            int? prefixPower,
                            int? prefixBase) : base()
         {
-            T dummy = default;
+            validateType<T>(type);
+            Name = name;
+            DisplayName = displayName;
+            Notes = notes;
+            Resources = resources;
+            Type = type;
+            Labels = labels;
+            RestrictToLabeled = restrictToLabeled;
+            Ranges = ranges;
+            Units = units;
+            PrefixPower = prefixPower;
+            PrefixBase = prefixBase;
+        }
+
+        private static void validateType<T>(EIntegerType type, T dummy = default)
+        {
             switch (dummy)
             {
                 case sbyte when type is not EIntegerType.Int8:
@@ -124,18 +139,6 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                     throw new ArgumentException($"Argument {nameof(type)} has to be \"{EIntegerType.UInt128}\"");
 #endif
             }
-
-            Name = name;
-            DisplayName = displayName;
-            Notes = notes;
-            Resources = resources;
-            Type = type;
-            Labels = labels;
-            RestrictToLabeled = restrictToLabeled;
-            Ranges = ranges;
-            Units = units;
-            PrefixPower = prefixPower;
-            PrefixBase = prefixBase;
         }
 
         public override string ToString()
@@ -167,6 +170,22 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                     return new PDL(8);
             }
             return new PDL(16);
+        }
+        public override byte[] ParsePayloadToData(DataTree dataTree)
+        {
+            if (!string.Equals(dataTree.Name, this.Name))
+                throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
+           
+            if(dataTree.Value is not T value)
+                throw new ArithmeticException($"The given Object from {nameof(dataTree.Value)} can't be parsed, it should be {typeof(T).Name}");
+
+            validateType<T>(Type, value);
+            var data = Tools.ValueToData(dataTree.Value);
+
+            if (GetDataLength().IsValid(data.Length))
+                throw new ArithmeticException($"Parsed DataLengt not fits Calculated DataLength");
+
+            return data;
         }
     }
 }

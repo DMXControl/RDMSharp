@@ -1,4 +1,5 @@
 ﻿using RDMSharp.RDM;
+using System;
 using System.Linq;
 using System.Text.Json.Serialization;
 
@@ -70,6 +71,23 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         public override PDL GetDataLength()
         {
             return new PDL(1);
+        }
+
+        public override byte[] ParsePayloadToData(DataTree dataTree)
+        {
+            if (!string.Equals(dataTree.Name, this.Name))
+                throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
+            if(dataTree.Value is bool value)
+            {
+                switch (value)
+                {
+                    case false:
+                        return new byte[] { 0x00 };
+                    case true:
+                        return new byte[] { 0x01 };
+                }
+            }
+            throw new ArithmeticException($"The given Object from {nameof(dataTree.Value)} can't be parsed");
         }
     }
 }

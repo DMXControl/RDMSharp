@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 using RDMSharp.RDM;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
@@ -47,7 +48,12 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
         public override PDL GetDataLength()
         {
-            throw new System.NotSupportedException();
+            throw new NotSupportedException();
+        }
+
+        public override byte[] ParsePayloadToData(DataTree dataTree)
+        {
+            throw new NotSupportedException();
         }
     }
 }

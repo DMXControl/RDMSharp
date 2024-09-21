@@ -81,5 +81,14 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         {
             return new PDL((uint)(MinLength ?? 1), (uint)(MaxLength ?? PDL.MAX_LENGTH));
         }
+        public override byte[] ParsePayloadToData(DataTree dataTree)
+        {
+            if (!string.Equals(dataTree.Name, this.Name))
+                throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
+            
+            /// ToDo
+            
+            throw new ArithmeticException($"The given Object from {nameof(dataTree.Value)} can't be parsed");
+        }
     }
 }

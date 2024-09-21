@@ -1,4 +1,6 @@
 ﻿using RDMSharp.RDM;
+using System.Collections.Generic;
+using System;
 using System.Linq;
 using System.Text.Json.Serialization;
 
@@ -56,6 +58,28 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         public override PDL GetDataLength()
         {
             return new PDL(Subtypes.Select(s => s.GetDataLength()).ToArray());
+        }
+        public override byte[] ParsePayloadToData(DataTree dataTree)
+        {
+            if (!string.Equals(dataTree.Name, this.Name))
+                throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
+
+            if(dataTree.Children.Length!= Subtypes.Length)
+                throw new ArithmeticException($"The given {nameof(dataTree)} and {nameof(Subtypes)} has different length ");
+
+            List<byte> data = new List<byte>();
+            for (int i = 0; i < dataTree.Children.Length; i++)
+            {
+                if (Subtypes[i].IsEmpty())
+                    throw new ArithmeticException($"The given Object from {nameof(Subtypes)}[{i}] is Empty");
+
+                data.AddRange(Subtypes[i].ParsePayloadToData(dataTree.Children[i]));
+            }
+
+            if (GetDataLength().IsValid(data.Count))
+                throw new ArithmeticException($"Parsed DataLengt not fits Calculated DataLength");
+
+            return data.ToArray();
         }
     }
 }

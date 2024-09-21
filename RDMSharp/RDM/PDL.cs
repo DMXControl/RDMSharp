@@ -21,7 +21,6 @@ namespace RDMSharp.RDM
 
             Value = value;
         }
-
         public PDL(uint minLength, uint maxLength) : this()
         {
             if (minLength > MAX_LENGTH)
@@ -38,7 +37,6 @@ namespace RDMSharp.RDM
                 Value = null;
             }
         }
-
         public PDL(params PDL[] pdls)
         {
             uint value = 0, min = 0, max = 0;
@@ -59,6 +57,14 @@ namespace RDMSharp.RDM
                 MaxLength = Math.Min(MAX_LENGTH, value + Math.Max(min, max));
                 Value = null;
             }
+        }
+
+        public bool IsValid(int length)
+        {
+            if (Value.HasValue)
+                return Value == length;
+
+            return MinLength <= length && length <= MaxLength;
         }
     }
 }

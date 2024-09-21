@@ -14,6 +14,22 @@
       "minimum": 0,
       "maximum": 65535
     },
+    "device_model_id": {
+      "$comment": "The Device Model ID is a 16-bit value determined by the manufacturer. Users may expect to see these values in the UI as hexadecimal.",
+      "title": "Device Model ID",
+      "description": "The Device Model ID.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "software_version_id": {
+      "$comment": "The Software Version ID is a 32-bit value determined by the manufacturer.",
+      "title": "Software Version ID",
+      "description": "The Software Version ID.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4294967295
+    },
     "pid": {
       "title": "PID",
       "description": "The parameter ID.",

@@ -22,6 +22,8 @@ namespace RDMSharp.Metadata.JSON
 
         public abstract PDL GetDataLength();
 
+        public abstract byte[] ParsePayloadToData(DataTree dataTree);
+
         public override string ToString()
         {
             if(!string.IsNullOrWhiteSpace(DisplayName))

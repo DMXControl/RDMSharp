@@ -1,6 +1,7 @@
 ﻿using RDMSharp.Metadata.JSON.Converter;
 using RDMSharp.RDM;
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
@@ -129,6 +130,16 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         public PDL GetDataLength()
         {
             return ObjectType?.GetDataLength() ?? ReferenceType?.GetDataLength() ?? new PDL();
+        }
+        public byte[] ParsePayloadToData(DataTree dataTree)
+        {
+            CommonPropertiesForNamed objectType = ObjectType ?? ReferenceType?.ReferencedObject;
+            var data = objectType.ParsePayloadToData(dataTree);
+
+            if (GetDataLength().IsValid(data.Length))
+                throw new ArithmeticException($"Parsed DataLengt not fits Calculated DataLength");
+
+            return data;
         }
 
         public override string ToString()

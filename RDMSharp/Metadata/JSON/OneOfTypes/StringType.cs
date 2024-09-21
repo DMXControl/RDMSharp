@@ -1,4 +1,6 @@
 ﻿using RDMSharp.RDM;
+using System;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
@@ -36,19 +38,19 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         [JsonPropertyName("minLength")]
         [JsonPropertyOrder(31)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public ulong? MinLength { get; }
+        public uint? MinLength { get; }
         [JsonPropertyName("maxLength")]
         [JsonPropertyOrder(32)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public ulong? MaxLength { get; }
+        public uint? MaxLength { get; }
         [JsonPropertyName("minBytes")]
         [JsonPropertyOrder(41)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public ulong? MinBytes { get; }
+        public uint? MinBytes { get; }
         [JsonPropertyName("maxBytes")]
         [JsonPropertyOrder(42)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public ulong? MaxBytes { get; }
+        public uint? MaxBytes { get; }
         [JsonPropertyName("restrictToASCII")]
         [JsonPropertyOrder(51)]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -63,14 +65,14 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                           string type,
                           string format,
                           string pattern,
-                          ulong? minLength,
-                          ulong? maxLength,
-                          ulong? minBytes,
-                          ulong? maxBytes,
+                          uint? minLength,
+                          uint? maxLength,
+                          uint? minBytes,
+                          uint? maxBytes,
                           bool? restrictToASCII)
         {
             if (!"string".Equals(type))
-                throw new System.ArgumentException($"Argument {nameof(type)} has to be \"string\"");
+                throw new ArgumentException($"Argument {nameof(type)} has to be \"string\"");
 
             Name = name;
             DisplayName = displayName;
@@ -108,6 +110,24 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 return new PDL(min, PDL.MAX_LENGTH);
 
             return new PDL(min, max.Value);
+        }
+        public override byte[] ParsePayloadToData(DataTree dataTree)
+        {
+            if (!string.Equals(dataTree.Name, this.Name))
+                throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
+
+            if (dataTree.Value is string @string)
+            {
+                if (MaxLength.HasValue)
+                    @string = @string.Substring(0, (int)MaxLength);
+
+                if (RestrictToASCII == true)
+                    Encoding.ASCII.GetBytes(@string);
+                else
+                    Encoding.UTF8.GetBytes(@string);
+            }
+
+            throw new ArithmeticException($"The given Object from {nameof(dataTree.Value)} can't be parsed");
         }
     }
 }

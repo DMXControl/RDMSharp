@@ -66,5 +66,10 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
             return new PDL();
         }
+
+        public override byte[] ParsePayloadToData(DataTree dataTree)
+        {
+            return new byte[0];
+        }
     }
 }

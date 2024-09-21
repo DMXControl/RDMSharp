@@ -20,6 +20,12 @@ namespace RDMSharp.Metadata
         public string? Notes { get; }
         [JsonPropertyName("manufacturer_id")]
         public ushort ManufacturerID { get; }
+        [JsonPropertyName("device_model_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ushort? DeviceModelID { get; }
+        [JsonPropertyName("software_version_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public uint? SoftwareVersionID { get; }
         [JsonPropertyName("pid")]
         public ushort PID { get; }
         [JsonPropertyName("version")]
@@ -64,6 +70,8 @@ namespace RDMSharp.Metadata
             string? displayName,
             string? notes,
             ushort manufacturerID,
+            ushort deviceModelID,
+            ushort softwareVersionID,
             ushort pID,
             ushort version,
             SubdevicesForRequests[]? getRequestSubdeviceRange,
@@ -85,6 +93,8 @@ namespace RDMSharp.Metadata
             DisplayName = displayName;
             Notes = notes;
             ManufacturerID = manufacturerID;
+            DeviceModelID = deviceModelID;
+            SoftwareVersionID = softwareVersionID;
             PID = pID;
             Version = version;
 
