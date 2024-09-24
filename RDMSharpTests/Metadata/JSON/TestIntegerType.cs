@@ -266,11 +266,12 @@ namespace RDMSharpTests.Metadata.JSON
                 Assert.That(parsedData, Is.EqualTo(new byte[] { 0, 0, 0, 100 }));
             });
         }
+        [Test]
         public void TestPrefix4Decimals()
         {
             var integerType = new IntegerType<int>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int32, null, null, null, null, -4, 10);
-            Assert.That(integerType.PrefixBase, Is.EqualTo(2));
-            Assert.That(integerType.PrefixPower, Is.EqualTo(10));
+            Assert.That(integerType.PrefixBase, Is.EqualTo(10));
+            Assert.That(integerType.PrefixPower, Is.EqualTo(-4));
 
             Assert.Multiple(() =>
             {

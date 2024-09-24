@@ -80,6 +80,9 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public int? PrefixBase { get; } = 10;
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
+        public double PrefixMultiplyer;
+
         [JsonConstructor]
         public IntegerType(string name,
                            string displayName,
@@ -105,6 +108,8 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             Units = units;
             PrefixPower = prefixPower;
             PrefixBase = prefixBase;
+
+            PrefixMultiplyer = Math.Pow(PrefixBase ?? 10, PrefixPower ?? 0);
         }
 
         private static void validateType<T>(EIntegerType type, T dummy = default)
@@ -177,24 +182,20 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
         private T convertFormatedValueToRaw<T>(object formated)
         {
-            int pBase = PrefixBase ?? 10;
-            int pPower = PrefixPower ?? 0;
-            if (pPower == 0)
+            if (PrefixMultiplyer == 1)
                 return (T)formated;
 
             object rawValue = null;
-
-            double multiplyer = (double)Math.Pow(pBase, pPower);
             switch (formated)
             {
                 case double _double:
-                    rawValue = _double / multiplyer;
+                    rawValue = _double / PrefixMultiplyer;
                     break;
                 case long _long:
-                    rawValue = _long / multiplyer;
+                    rawValue = _long / PrefixMultiplyer;
                     break;
                 case ulong _ulong:
-                    rawValue = _ulong / multiplyer;
+                    rawValue = _ulong / PrefixMultiplyer;
                     break;
 
                 default:
@@ -209,72 +210,69 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
         private object convertRawValueToFormated(T raw)
         {
-            int pBase = PrefixBase ?? 10;
-            int pPower = PrefixPower ?? 0;
-            if (pPower == 0)
+            if (PrefixMultiplyer == 1)
                 return raw;
 
-            double multiplicator = (long)Math.Pow(pBase, pPower);
-            bool isNegativ = Math.Sign(multiplicator) == -1;
+            bool isNegativ = Math.Sign(PrefixMultiplyer) == -1;
             bool isDezimal = PrefixPower < 0;
 
             switch (raw)
             {
                 case sbyte int8:
                     if (isDezimal)
-                        return (double)(multiplicator * int8);
+                        return (double)(PrefixMultiplyer * int8);
                     if (isNegativ)
-                        return (long)(multiplicator * int8);
-                    return (ulong)(multiplicator * int8);
+                        return (long)(PrefixMultiplyer * int8);
+                    return (ulong)(PrefixMultiplyer * int8);
 
                 case byte uint8:
                     if (isDezimal)
-                        return (double)(multiplicator * uint8);
+                        return (double)(PrefixMultiplyer * uint8);
                     if (isNegativ)
-                        return (long)(multiplicator * uint8);
-                    return (ulong)(multiplicator * uint8);
+                        return (long)(PrefixMultiplyer * uint8);
+                    return (ulong)(PrefixMultiplyer * uint8);
 
                 case short int16:
                     if (isDezimal)
-                        return (double)(multiplicator * int16);
+                        return (double)(PrefixMultiplyer * int16);
                     if (isNegativ)
-                        return (long)(multiplicator * int16);
-                    return (ulong)(multiplicator * int16);
+                        return (long)(PrefixMultiplyer * int16);
+                    return (ulong)(PrefixMultiplyer * int16);
 
                 case ushort uint16:
                     if (isDezimal)
-                        return (double)(multiplicator * uint16);
+                        return (double)(PrefixMultiplyer * uint16);
                     if (isNegativ)
-                        return (long)(multiplicator * uint16);
-                    return (ulong)(multiplicator * uint16);
+                        return (long)(PrefixMultiplyer * uint16);
+                    return (ulong)(PrefixMultiplyer * uint16);
 
                 case int int32:
                     if (isDezimal)
-                        return (double)(multiplicator * int32);
+                        return (double)(PrefixMultiplyer * int32);
                     if (isNegativ)
-                        return (long)(multiplicator * int32);
-                    return (ulong)(multiplicator * int32);
+                        return (long)(PrefixMultiplyer * int32);
+                    return (ulong)(PrefixMultiplyer * int32);
 
                 case uint uint32:
                     if (isDezimal)
-                        return (double)(multiplicator * uint32);
+                        return (double)(PrefixMultiplyer * uint32);
                     if (isNegativ)
-                        return (long)(multiplicator * uint32);
-                    return (ulong)(multiplicator * uint32);
+                        return (long)(PrefixMultiplyer * uint32);
+                    return (ulong)(PrefixMultiplyer * uint32);
 
                 case long int64:
                     if (isDezimal)
-                        return (double)(multiplicator * int64);
+                        return (double)(PrefixMultiplyer * int64);
                     if (isNegativ)
-                        return (long)(multiplicator * int64);
-                    return (ulong)(multiplicator * int64);
+                        return (long)(PrefixMultiplyer * int64);
+                    return (ulong)(PrefixMultiplyer * int64);
 
                 case ulong uint64:
                     if (isDezimal)
-                        return (double)(multiplicator * uint64);
+                        return (double)(PrefixMultiplyer * uint64);
                     if (isNegativ)
-                        return (long)(multiplicator * uint64);
-                    return (ulong)(multiplicator * uint64);
+                        return (long)(PrefixMultiplyer * uint64);
+                    return (ulong)(PrefixMultiplyer * uint64);
 
                 default:
                     return raw;
