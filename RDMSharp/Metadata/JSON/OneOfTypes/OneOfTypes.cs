@@ -135,7 +135,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             CommonPropertiesForNamed objectType = ObjectType ?? ReferenceType?.ReferencedObject;
             var data = objectType.ParsePayloadToData(dataTree);
 
-            if (GetDataLength().IsValid(data.Length))
+            if (!GetDataLength().IsValid(data.Length))
                 throw new ArithmeticException($"Parsed Data.Lenght not fits Calculated DataLength");
 
             return data;
@@ -144,7 +144,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         {
             CommonPropertiesForNamed objectType = ObjectType ?? ReferenceType?.ReferencedObject;
 
-            if (GetDataLength().IsValid(data.Length))
+            if (!GetDataLength().IsValid(data.Length))
                 throw new ArithmeticException($"Parsed Data.Lenght not fits Calculated DataLength");
 
             return objectType.ParseDataToPayload(ref data);

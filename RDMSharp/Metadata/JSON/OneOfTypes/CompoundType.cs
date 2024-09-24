@@ -77,7 +77,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 data.AddRange(Subtypes[i].ParsePayloadToData(dataTree.Children[i]));
             }
 
-            if (GetDataLength().IsValid(data.Count))
+            if (!GetDataLength().IsValid(data.Count))
                 throw new ArithmeticException($"Parsed DataLengt not fits Calculated DataLength");
 
             return data.ToArray();

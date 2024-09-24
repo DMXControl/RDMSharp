@@ -2,7 +2,9 @@
 using RDMSharp.RDM;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
@@ -172,27 +174,136 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             }
             return new PDL(16);
         }
+
+        private T convertFormatedValueToRaw<T>(object formated)
+        {
+            int pBase = PrefixBase ?? 10;
+            int pPower = PrefixPower ?? 0;
+            if (pPower == 0)
+                return (T)formated;
+
+            object rawValue = null;
+
+            double multiplyer = (double)Math.Pow(pBase, pPower);
+            switch (formated)
+            {
+                case double _double:
+                    rawValue = _double / multiplyer;
+                    break;
+                case long _long:
+                    rawValue = _long / multiplyer;
+                    break;
+                case ulong _ulong:
+                    rawValue = _ulong / multiplyer;
+                    break;
+
+                default:
+                    return (T)formated;
+            }
+
+            if (rawValue is not null)
+                return (T)Convert.ChangeType(rawValue, typeof(T));
+
+            throw new NotImplementedException();
+        }
+
+        private object convertRawValueToFormated(T raw)
+        {
+            int pBase = PrefixBase ?? 10;
+            int pPower = PrefixPower ?? 0;
+            if (pPower == 0)
+                return raw;
+
+            double multiplicator = (long)Math.Pow(pBase, pPower);
+            bool isNegativ = Math.Sign(multiplicator) == -1;
+            bool isDezimal = PrefixPower < 0;
+
+            switch (raw)
+            {
+                case sbyte int8:
+                    if (isDezimal)
+                        return (double)(multiplicator * int8);
+                    if (isNegativ)
+                        return (long)(multiplicator * int8);
+                    return (ulong)(multiplicator * int8);
+
+                case byte uint8:
+                    if (isDezimal)
+                        return (double)(multiplicator * uint8);
+                    if (isNegativ)
+                        return (long)(multiplicator * uint8);
+                    return (ulong)(multiplicator * uint8);
+
+                case short int16:
+                    if (isDezimal)
+                        return (double)(multiplicator * int16);
+                    if (isNegativ)
+                        return (long)(multiplicator * int16);
+                    return (ulong)(multiplicator * int16);
+
+                case ushort uint16:
+                    if (isDezimal)
+                        return (double)(multiplicator * uint16);
+                    if (isNegativ)
+                        return (long)(multiplicator * uint16);
+                    return (ulong)(multiplicator * uint16);
+
+                case int int32:
+                    if (isDezimal)
+                        return (double)(multiplicator * int32);
+                    if (isNegativ)
+                        return (long)(multiplicator * int32);
+                    return (ulong)(multiplicator * int32);
+
+                case uint uint32:
+                    if (isDezimal)
+                        return (double)(multiplicator * uint32);
+                    if (isNegativ)
+                        return (long)(multiplicator * uint32);
+                    return (ulong)(multiplicator * uint32);
+
+                case long int64:
+                    if (isDezimal)
+                        return (double)(multiplicator * int64);
+                    if (isNegativ)
+                        return (long)(multiplicator * int64);
+                    return (ulong)(multiplicator * int64);
+
+                case ulong uint64:
+                    if (isDezimal)
+                        return (double)(multiplicator * uint64);
+                    if (isNegativ)
+                        return (long)(multiplicator * uint64);
+                    return (ulong)(multiplicator * uint64);
+
+                default:
+                    return raw;
+            }
+            throw new NotImplementedException();
+        }
+
         public override byte[] ParsePayloadToData(DataTree dataTree)
         {
             if (!string.Equals(dataTree.Name, this.Name))
                 throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
-           
-            if(dataTree.Value is not T value)
-                throw new ArithmeticException($"The given Object from {nameof(dataTree.Value)} can't be parsed, it should be {typeof(T).Name}");
 
-            validateType<T>(Type, value);
-            var data = Tools.ValueToData(dataTree.Value);
-
-            if (GetDataLength().IsValid(data.Length))
-                throw new ArithmeticException($"Parsed DataLengt not fits Calculated DataLength");
+            var rawValue = convertFormatedValueToRaw<T>(dataTree.Value);
+            var data = Tools.ValueToData(rawValue);
 
             return data;
         }
         public override DataTree ParseDataToPayload(ref byte[] data)
         {
             List<DataTreeIssue> issueList = new List<DataTreeIssue>();
-            if (data.Length < GetDataLength().Value)
+            uint pdl = GetDataLength().Value.Value;
+
+            if (data.Length < pdl)
+            {
                 issueList.Add(new DataTreeIssue("Given Data not fits PDL"));
+                byte[] cloneData = new byte[pdl];
+                Array.Copy(data, cloneData, data.Length);
+                data = cloneData;
+            }
 
             object value = null;
 
@@ -232,7 +343,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 #endif
             }
 
-            return new DataTree(this.Name, 0, value, issueList.Count != 0 ? issueList.ToArray() : null);
+            return new DataTree(this.Name, 0, convertRawValueToFormated((T)value), issueList.Count != 0 ? issueList.ToArray() : null);
         }
     }
 }

@@ -1,6 +1,9 @@
-﻿namespace RDMSharp.Metadata
+﻿using System;
+using System.Collections.Generic;
+
+namespace RDMSharp.Metadata
 {
-    public readonly struct DataTree
+    public readonly struct DataTree : IEquatable<DataTree>
     {
         public readonly string Name;
         public readonly uint Index;
@@ -32,6 +35,35 @@
         public override string ToString()
         {
             return $"{Name}: {Value}";
-        } 
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is DataTree tree && Equals(tree);
+        }
+
+        public bool Equals(DataTree other)
+        {
+            return Name == other.Name &&
+                   Index == other.Index &&
+                   EqualityComparer<object>.Default.Equals(Value, other.Value) &&
+                   EqualityComparer<DataTree[]>.Default.Equals(Children, other.Children) &&
+                   EqualityComparer<DataTreeIssue[]>.Default.Equals(Issues, other.Issues);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Name, Index, Value, Children, Issues);
+        }
+
+        public static bool operator ==(DataTree left, DataTree right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(DataTree left, DataTree right)
+        {
+            return !(left == right);
+        }
     }
 }
