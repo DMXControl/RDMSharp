@@ -340,8 +340,14 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                     break;
 #endif
             }
+            string unit = null;
+            if (Units.HasValue)
+                unit = Tools.GetUnitSymbol(Units.Value);
+            DataTreeValueLabel[] labels = null;
+            if ((Labels?.Length ?? 0) != 0)
+                labels = Labels.Select(lb => new DataTreeValueLabel(lb.Value, (lb.DisplayName ?? lb.Name))).ToArray();
 
-            return new DataTree(this.Name, 0, convertRawValueToFormated((T)value), issueList.Count != 0 ? issueList.ToArray() : null);
+            return new DataTree(this.Name, 0, convertRawValueToFormated((T)value), issueList.Count != 0 ? issueList.ToArray() : null, unit, labels);
         }
     }
 }
