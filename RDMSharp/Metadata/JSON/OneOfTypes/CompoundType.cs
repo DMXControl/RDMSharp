@@ -42,10 +42,10 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                             OneOfTypes[] subtypes)
         {
             if (!"compound".Equals(type))
-                throw new System.ArgumentException($"Argument {nameof(type)} has to be \"compound\"");
+                throw new ArgumentException($"Argument {nameof(type)} has to be \"compound\"");
 
             if (((subtypes?.Length) ?? 0) < 1)
-                throw new System.ArgumentException($"Argument {nameof(subtypes)} has to be at least a size of 1");
+                throw new ArgumentException($"Argument {nameof(subtypes)} has to be at least a size of 1");
 
             Name = name;
             DisplayName = displayName;

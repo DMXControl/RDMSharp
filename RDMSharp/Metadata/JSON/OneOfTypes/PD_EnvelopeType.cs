@@ -1,4 +1,5 @@
 ﻿using RDMSharp.RDM;
+using System;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
@@ -41,7 +42,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                                byte? length) : base()
         {
             if (!"pdEnvelope".Equals(type))
-                throw new System.ArgumentException($"Argument {nameof(type)} has to be \"pdEnvelope\"");
+                throw new ArgumentException($"Argument {nameof(type)} has to be \"pdEnvelope\"");
 
             Name = name;
             DisplayName = displayName;

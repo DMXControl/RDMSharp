@@ -12,24 +12,31 @@ namespace RDMSharp.Metadata
     {
         [JsonPropertyName("name")]
         public string Name { get; }
+
         [JsonPropertyName("displayName")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? DisplayName { get; }
+
         [JsonPropertyName("notes")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Notes { get; }
         [JsonPropertyName("manufacturer_id")]
         public ushort ManufacturerID { get; }
+
         [JsonPropertyName("device_model_id")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public ushort? DeviceModelID { get; }
+
         [JsonPropertyName("software_version_id")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public uint? SoftwareVersionID { get; }
+
         [JsonPropertyName("pid")]
         public ushort PID { get; }
+
         [JsonPropertyName("version")]
         public ushort Version { get; }
+
         [JsonPropertyName("get_request_subdevice_range")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyOrder(11)]
@@ -70,8 +77,8 @@ namespace RDMSharp.Metadata
             string? displayName,
             string? notes,
             ushort manufacturerID,
-            ushort deviceModelID,
-            ushort softwareVersionID,
+            ushort? deviceModelID,
+            uint? softwareVersionID,
             ushort pID,
             ushort version,
             SubdevicesForRequests[]? getRequestSubdeviceRange,
@@ -103,10 +110,10 @@ namespace RDMSharp.Metadata
             SetRequestsSubdeviceRange = setRequestsSubdeviceRange;
             SetResponseSubdeviceRange = setResponseSubdeviceRange;
 
-            //GetRequest = getRequest;
-            //GetResponse = getResponse;
-            //SetRequest = setRequest;
-            //SetResponse = setResponse;
+            GetRequest = getRequest;
+            GetResponse = getResponse;
+            SetRequest = setRequest;
+            SetResponse = setResponse;
 
             if (getRequest.HasValue)
                 GetRequest = setReferenceObjects(getRequest.Value);

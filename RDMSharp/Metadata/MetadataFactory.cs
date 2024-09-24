@@ -27,7 +27,7 @@ namespace RDMSharp.Metadata
                 if (metadataVersionList == null)
                 {
                     metadataVersionList = new List<MetadataVersion>();
-                    fillDefaultMetadataVersionList();
+                    metadataVersionList.AddRange(GetResources().Select(r => new MetadataVersion(r)));
                 }
                 return metadataVersionList.AsReadOnly();
             }
@@ -78,17 +78,24 @@ namespace RDMSharp.Metadata
         }
         internal static MetadataJSONObjectDefine GetDefine(ParameterBag parameter)
         {
-            if (parameterBagDefineCache == null)
-                parameterBagDefineCache = new ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine>();
-
-            if(parameterBagDefineCache.TryGetValue(parameter, out var define))
-                return define;
-
-            define = getDefine(parameter);
-            if (define != null)
+            try
             {
-                parameterBagDefineCache.TryAdd(parameter, define);
-                return define;
+                if (parameterBagDefineCache == null)
+                    parameterBagDefineCache = new ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine>();
+
+                if (parameterBagDefineCache.TryGetValue(parameter, out var define))
+                    return define;
+
+                define = getDefine(parameter);
+                if (define != null)
+                {
+                    parameterBagDefineCache.TryAdd(parameter, define);
+                    return define;
+                }
+            }
+            catch (Exception ex)
+            {
+
             }
             throw new DefineNotFoundException($"{parameter}");
         }

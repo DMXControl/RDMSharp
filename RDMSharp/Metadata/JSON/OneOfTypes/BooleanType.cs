@@ -42,10 +42,10 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                            LabeledBooleanType[] labels) : base()
         {
             if (!"boolean".Equals(type))
-                throw new System.ArgumentException($"Argument {nameof(type)} has to be \"boolean\"");
+                throw new ArgumentException($"Argument {nameof(type)} has to be \"boolean\"");
 
             if (((labels?.Length) ?? 2) != 2)
-                throw new System.ArgumentException($"Argument {nameof(labels)} has to be null oa an array of 2");
+                throw new ArgumentException($"Argument {nameof(labels)} has to be null oa an array of 2");
 
             Name = name;
             DisplayName = displayName;
@@ -57,7 +57,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             if (labels != null)
             {
                 if (labels[0].Value == labels[1].Value)
-                    throw new System.ArgumentException($"Argument {nameof(labels)}, both Values are the same, one has to be false, the other true");
+                    throw new ArgumentException($"Argument {nameof(labels)}, both Values are the same, one has to be false, the other true");
             }
         }
         public override string ToString()
