@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Text.Json.Serialization;
+using System.Drawing;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
@@ -80,6 +81,19 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 throw new ArithmeticException($"Parsed DataLengt not fits Calculated DataLength");
 
             return data.ToArray();
+        }
+        public override DataTree ParseDataToPayload(ref byte[] data)
+        {
+            List<DataTree> subTypeDataTree = new List<DataTree>();
+            List<DataTreeIssue> issueList = new List<DataTreeIssue>();
+
+            for (int i = 0; i < Subtypes.Length; i++)
+            {
+                OneOfTypes subType = Subtypes[i];
+                subTypeDataTree.Add(new DataTree(subType.ParseDataToPayload(ref data), (uint)i));
+            }
+
+            return new DataTree(this.Name, 0, subTypeDataTree.OrderBy(b => b.Index), issueList.Count != 0 ? issueList.ToArray() : null);
         }
     }
 }

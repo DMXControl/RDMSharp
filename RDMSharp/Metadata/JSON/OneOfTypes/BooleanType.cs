@@ -1,5 +1,7 @@
 ﻿using RDMSharp.RDM;
 using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text.Json.Serialization;
 
@@ -88,6 +90,16 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 }
             }
             throw new ArithmeticException($"The given Object from {nameof(dataTree.Value)} can't be parsed");
+        }
+
+        public override DataTree ParseDataToPayload(ref byte[] data)
+        {
+            List<DataTreeIssue> issueList = new List<DataTreeIssue>();
+            if (data.Length != 1)
+                issueList.Add(new DataTreeIssue($"Data length is not 1"));
+
+            data = data.Skip(1).ToArray();
+            return new DataTree(this.Name, 0, Tools.DataToBool(ref data), issueList.Count != 0 ? issueList.ToArray() : null);
         }
     }
 }

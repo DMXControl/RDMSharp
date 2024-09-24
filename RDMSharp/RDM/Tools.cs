@@ -193,6 +193,12 @@ namespace RDMSharp
                     return DoEightByte((ulong)@long);
                 case ulong @ulong:
                     return DoEightByte(@ulong);
+#if NET7_0_OR_GREATER
+                case Int128 @long:
+                    return DoSixteenByte((UInt128)@long);
+                case UInt128 @ulong:
+                    return DoSixteenByte(@ulong);
+#endif
 
                 case string @string:
                     if (trim >= 1)
@@ -214,17 +220,21 @@ namespace RDMSharp
             byte[] DoTwoByte(ushort s) => new byte[] { (byte)(s >> 8), (byte)s };
             byte[] DoFourByte(uint i) => new byte[] { (byte)(i >> 24), (byte)(i >> 16), (byte)(i >> 8), (byte)i };
             byte[] DoEightByte(ulong i) => new byte[] { (byte)(i >> 56), (byte)(i >> 48), (byte)(i >> 40), (byte)(i >> 32), (byte)(i >> 24), (byte)(i >> 16), (byte)(i >> 8), (byte)i };
+#if NET7_0_OR_GREATER
+            byte[] DoSixteenByte(UInt128 i) => new byte[] { (byte)(i >> 120), (byte)(i >> 112), (byte)(i >> 104), (byte)(i >> 96), (byte)(i >> 88), (byte)(i >> 80), (byte)(i >> 72), (byte)(i >> 64), (byte)(i >> 56), (byte)(i >> 48), (byte)(i >> 40), (byte)(i >> 32), (byte)(i >> 24), (byte)(i >> 16), (byte)(i >> 8), (byte)i };
+#endif
         }
 
-        public static byte DataToByte(ref byte[] data)
+            public static byte DataToByte(ref byte[] data)
         {
             const int length = 1;
             if (data.Length < length)
                 throw new IndexOutOfRangeException();
 
-            byte res = (byte)data[0];
+            byte result = (byte)data[0];
+
             data = data.Skip(length).ToArray();
-            return res;
+            return result;
         }
         public static sbyte DataToSByte(ref byte[] data)
         {
@@ -232,9 +242,10 @@ namespace RDMSharp
             if (data.Length < length)
                 throw new IndexOutOfRangeException();
 
-            sbyte res = (sbyte)data[0];
+            sbyte result = (sbyte)data[0];
+
             data = data.Skip(length).ToArray();
-            return res;
+            return result;
         }
         public static short DataToShort(ref byte[] data)
         {
@@ -242,9 +253,10 @@ namespace RDMSharp
             if (data.Length < length)
                 throw new IndexOutOfRangeException();
 
-            short res = (short)((data[0] << 8) | data[1]);
+            short result = (short)((data[0] << 8) | data[1]);
+
             data = data.Skip(length).ToArray();
-            return res;
+            return result;
         }
         public static ushort DataToUShort(ref byte[] data)
         {
@@ -252,9 +264,10 @@ namespace RDMSharp
             if (data.Length < length)
                 throw new IndexOutOfRangeException();
 
-            ushort res = (ushort)((data[0] << 8) | data[1]);
+            ushort result = (ushort)((data[0] << 8) | data[1]);
+
             data = data.Skip(length).ToArray();
-            return res;
+            return result;
         }
         public static int DataToInt(ref byte[] data)
         {
@@ -262,9 +275,13 @@ namespace RDMSharp
             if (data.Length < length)
                 throw new IndexOutOfRangeException();
 
-            int res = (int)((data[0] << 24) | (data[1] << 16) | data[2] << 8 | data[3]);
+            int result = (int)data[0] << 24 |
+                         (int)data[1] << 16 |
+                         (int)data[2] << 8 |
+                         (int)data[3];
+
             data = data.Skip(length).ToArray();
-            return res;
+            return result;
         }
         public static uint DataToUInt(ref byte[] data)
         {
@@ -272,9 +289,13 @@ namespace RDMSharp
             if (data.Length < length)
                 throw new IndexOutOfRangeException();
 
-            uint res = (uint)((data[0] << 24) | (data[1] << 16) | data[2] << 8 | data[3]);
+            uint result = (uint)data[0] << 24 |
+                          (uint)data[1] << 16 |
+                          (uint)data[2] << 8 |
+                          (uint)data[3];
+
             data = data.Skip(length).ToArray();
-            return res;
+            return result;
         }
         public static long DataToLong(ref byte[] data)
         {
@@ -282,9 +303,17 @@ namespace RDMSharp
             if (data.Length < length)
                 throw new IndexOutOfRangeException();
 
-            long res = (long)((((long)data[0]) << 56) | (((long)data[1]) << 48) | (((long)data[2]) << 40) | (((long)data[3]) << 32) | (((long)data[4]) << 24) | (((long)data[5]) << 16) | ((long)data[6]) << 8 | ((long)data[7]));
+            long result = (long)data[0] << 56 |
+                          (long)data[1] << 48 |
+                          (long)data[2] << 40 | 
+                          (long)data[3] << 32 |
+                          (long)data[4] << 24 |
+                          (long)data[5] << 16 |
+                          (long)data[6] << 8 |
+                          (long)data[7];
+
             data = data.Skip(length).ToArray();
-            return res;
+            return result;
         }
         public static ulong DataToULong(ref byte[] data)
         {
@@ -292,10 +321,72 @@ namespace RDMSharp
             if (data.Length < length)
                 throw new IndexOutOfRangeException();
 
-            ulong res = (ulong)((((ulong)data[0]) << 56) | (((ulong)data[1]) << 48) | (((ulong)data[2]) << 40) | (((ulong)data[3]) << 32) | (((ulong)data[4]) << 24) | (((ulong)data[5]) << 16) | ((ulong)data[6]) << 8 | ((ulong)data[7]));
+            ulong result = (ulong)data[0] << 56 |
+                           (ulong)data[1] << 48 |
+                           (ulong)data[2] << 40 |
+                           (ulong)data[3] << 32 |
+                           (ulong)data[4] << 24 |
+                           (ulong)data[5] << 16 |
+                           (ulong)data[6] << 8 |
+                           (ulong)data[7];
+
             data = data.Skip(length).ToArray();
-            return res;
+            return result;
         }
+#if NET7_0_OR_GREATER
+        public static Int128 DataToInt128(ref byte[] data)
+        {
+            const int length = 16;
+            if (data.Length < length)
+                throw new IndexOutOfRangeException();
+
+            Int128 result = (Int128)data[0] << 120 |
+                            (Int128)data[1] << 112 |
+                            (Int128)data[2] << 104 |
+                            (Int128)data[3] << 96 |
+                            (Int128)data[4] << 88 |
+                            (Int128)data[5] << 80 |
+                            (Int128)data[6] << 72 |
+                            (Int128)data[7] << 64 |
+                            (Int128)data[8] << 56 |
+                            (Int128)data[9] << 48 |
+                            (Int128)data[10] << 40 |
+                            (Int128)data[11] << 32 |
+                            (Int128)data[12] << 24 |
+                            (Int128)data[13] << 16 |
+                            (Int128)data[14] << 8 |
+                            (Int128)data[15];
+
+            data = data.Skip(length).ToArray();
+            return result;
+        }
+        public static UInt128 DataToUInt128(ref byte[] data)
+        {
+            const int length = 16;
+            if (data.Length < length)
+                throw new IndexOutOfRangeException();
+
+            UInt128 result = (UInt128)data[0] << 120 |
+                             (UInt128)data[1] << 112 |
+                             (UInt128)data[2] << 104 |
+                             (UInt128)data[3] << 96 |
+                             (UInt128)data[4] << 88 |
+                             (UInt128)data[5] << 80 |
+                             (UInt128)data[6] << 72 |
+                             (UInt128)data[7] << 64 |
+                             (UInt128)data[8] << 56 |
+                             (UInt128)data[9] << 48 |
+                             (UInt128)data[10] << 40 |
+                             (UInt128)data[11] << 32 |
+                             (UInt128)data[12] << 24 |
+                             (UInt128)data[13] << 16 |
+                             (UInt128)data[14] << 8 |
+                             (UInt128)data[15];
+
+            data = data.Skip(length).ToArray();
+            return result;
+        }
+#endif
         public static UID DataToRDMUID(ref byte[] data)
         {
             const int length = 6;

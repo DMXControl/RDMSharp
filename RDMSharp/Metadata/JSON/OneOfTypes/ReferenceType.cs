@@ -1,6 +1,8 @@
 ﻿using RDMSharp.RDM;
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using System.Xml.Linq;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
@@ -56,6 +58,11 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         public byte[] ParsePayloadToData(DataTree dataTree)
         {
             return ReferencedObject.ParsePayloadToData(dataTree);
+        }
+
+        public DataTree ParseDataToPayload(ref byte[] data)
+        {
+            return ReferencedObject.ParseDataToPayload(ref data);
         }
         public override string ToString()
         {

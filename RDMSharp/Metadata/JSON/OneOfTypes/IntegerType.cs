@@ -1,6 +1,7 @@
 ﻿using RDMSharp.Metadata.JSON.Converter;
 using RDMSharp.RDM;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 
@@ -186,6 +187,52 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 throw new ArithmeticException($"Parsed DataLengt not fits Calculated DataLength");
 
             return data;
+        }
+        public override DataTree ParseDataToPayload(ref byte[] data)
+        {
+            List<DataTreeIssue> issueList = new List<DataTreeIssue>();
+            if (data.Length < GetDataLength().Value)
+                issueList.Add(new DataTreeIssue("Given Data not fits PDL"));
+
+            object value = null;
+
+            switch (this.Type)
+            {
+                case EIntegerType.Int8:
+                    value = Tools.DataToSByte(ref data);
+                    break;
+                case EIntegerType.UInt8:
+                    value = Tools.DataToByte(ref data);
+                    break;
+                case EIntegerType.Int16:
+                    value = Tools.DataToShort(ref data);
+                    break;
+                case EIntegerType.UInt16:
+                    value = Tools.DataToUShort(ref data);
+                    break;
+                case EIntegerType.Int32:
+                    value = Tools.DataToInt(ref data);
+                    break;
+                case EIntegerType.UInt32:
+                    value = Tools.DataToUInt(ref data);
+                    break;
+                case EIntegerType.Int64:
+                    value = Tools.DataToLong(ref data);
+                    break;
+                case EIntegerType.UInt64:
+                    value = Tools.DataToULong(ref data);
+                    break;
+#if NET7_0_OR_GREATER
+                case EIntegerType.Int128:
+                    value = Tools.DataToInt128(ref data);
+                    break;
+                case EIntegerType.UInt128:
+                    value = Tools.DataToUInt128(ref data);
+                    break;
+#endif
+            }
+
+            return new DataTree(this.Name, 0, value, issueList.Count != 0 ? issueList.ToArray() : null);
         }
     }
 }

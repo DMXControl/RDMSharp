@@ -1,5 +1,7 @@
 ﻿using RDMSharp.RDM;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -128,6 +130,38 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             }
 
             throw new ArithmeticException($"The given Object from {nameof(dataTree.Value)} can't be parsed");
+        }
+
+        public override DataTree ParseDataToPayload(ref byte[] data)
+        {
+            List<DataTreeIssue> issueList = new List<DataTreeIssue>();
+            if (MaxBytes.HasValue && data.Length > MaxBytes)
+                issueList.Add(new DataTreeIssue($"Data length exceeds {nameof(MaxBytes)}, the Data has {data.Length}, but {nameof(MaxBytes)} is {MaxBytes}"));
+            if (MinBytes.HasValue && data.Length < MinBytes)
+                issueList.Add(new DataTreeIssue($"Data length falls shorts of {nameof(MinBytes)}, the Data has {data.Length}, but {nameof(MinBytes)} is {MinBytes}"));
+            
+            string str = null;
+            uint length = (uint)data.Length;
+            if (MaxLength.HasValue)
+                length = MaxLength.Value;
+            if (MaxBytes.HasValue)
+                length = MaxBytes.Value;
+
+            if (data.Any(c => c == 0))
+                length = (uint)data.TakeWhile(c => c != 0).Count() + 1;
+
+            if (RestrictToASCII == true)
+                str = Encoding.ASCII.GetString(data, 0, (int)length);
+            else
+                str = Encoding.UTF8.GetString(data, 0, (int)length);
+
+            if (MaxLength.HasValue && str.Length > MaxLength)
+                issueList.Add(new DataTreeIssue($"String length exceeds {nameof(MaxLength)}, the Data has {str.Length}, but {nameof(MaxLength)} is {MaxLength}"));
+            if (MinLength.HasValue && str.Length < MinLength)
+                issueList.Add(new DataTreeIssue($"String length falls shorts of {nameof(MinLength)}, the Data has {str.Length}, but {nameof(MinLength)} is {MinLength}"));
+
+            data = data.Skip((int)length).ToArray();
+            return new DataTree(this.Name, 0, str, issueList.Count != 0 ? issueList.ToArray() : null);
         }
     }
 }

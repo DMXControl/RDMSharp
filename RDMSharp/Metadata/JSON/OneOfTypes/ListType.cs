@@ -124,5 +124,40 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
             return data.ToArray();
         }
+
+        public override DataTree ParseDataToPayload(ref byte[] data)
+        {
+            List<DataTree> dataTrees = new List<DataTree>();
+            List<DataTreeIssue> issueList = new List<DataTreeIssue>();
+
+            uint index = 0;
+            while (_continue(ref data))
+            {
+                dataTrees.Add(new DataTree(ItemType.ParseDataToPayload(ref data), index));
+                index++;
+            }
+
+            return new DataTree(Name, 0, dataTrees, issueList.Count != 0 ? issueList.ToArray() : null);
+
+            bool _continue(ref byte[] data)
+            {
+                if (data.Length == 0)
+                {
+                    if (MinItems.HasValue)
+                        if (dataTrees.Count < MinItems.Value)
+                            issueList.Add(new DataTreeIssue($"Given data falls shorts of {nameof(MinItems)}"));
+                    return false;
+                }
+                if (MaxItems.HasValue)
+                    if (dataTrees.Count > MaxItems.Value)
+                    {
+                        if (dataTrees.Count > 0)
+                            issueList.Add(new DataTreeIssue($"Given data exceeds {nameof(MaxItems)}"));
+                        return false;
+                    }
+
+                return true;
+            }
+        }
     }
 }

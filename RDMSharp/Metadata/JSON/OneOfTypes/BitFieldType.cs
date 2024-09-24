@@ -1,6 +1,8 @@
 ﻿using RDMSharp.RDM;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
@@ -79,10 +81,44 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         {
             if (!string.Equals(dataTree.Name, this.Name))
                 throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
+            if (dataTree.Children.Length != this.Bits.Length)
+                throw new ArithmeticException($"The given {nameof(dataTree.Children)}.{nameof(dataTree.Children.Length)}({dataTree.Children.Length}) not match {nameof(Bits)}.{nameof(Bits.Length)}({Bits.Length})");
 
-            /// ToDo
+            bool[] data = new bool[Size];
+            if (ValueForUnspecified.HasValue)
+                for (int i = 0; i < Size; i++)
+                    data[i] = ValueForUnspecified.Value;
 
-            throw new ArithmeticException($"The given Object from {nameof(dataTree.Value)} can't be parsed");
+            foreach (DataTree bitDataTree in dataTree.Children)
+            {
+                BitType bit = Bits.FirstOrDefault(b=>b.Name== bitDataTree.Name);
+                if (bit == null)
+                    throw new ArithmeticException($"Can't find matching BitType {bitDataTree.Name}");
+                if (bitDataTree.Index != bit.Index)
+                    throw new ArithmeticException($"The given DataTree {nameof(bitDataTree.Index)}({bitDataTree.Index}) not match BitType {nameof(bit.Index)}({bit.Index})");
+                if (bitDataTree.Value is not bool value)
+                    throw new ArithmeticException($"DataTree VAlue is not bool");
+
+                data[bit.Index] = value;
+            }
+
+            return Tools.ValueToData(data);
+        }
+        public override DataTree ParseDataToPayload(ref byte[] data)
+        {
+            List<DataTree> bitDataTrees = new List<DataTree>();
+            List<DataTreeIssue> issueList = new List<DataTreeIssue>();
+            int byteCount = (Size / 8);
+            if (byteCount != data.Length)
+                issueList.Add(new DataTreeIssue($"Data length not match given Size/8 ({byteCount})"));
+           
+            bool[] bools = Tools.DataToBoolArray(ref data, this.Size);
+            foreach (BitType bitType in Bits)
+                bitDataTrees.Add(new DataTree(bitType.Name, bitType.Index, bools[bitType.Index]));
+
+            data = data.Skip(byteCount).ToArray();
+
+            return new DataTree(this.Name, 0, bitDataTrees.OrderBy(b=>b.Index), issueList.Count != 0 ? issueList.ToArray() : null);
         }
     }
 }

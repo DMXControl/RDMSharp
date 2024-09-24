@@ -68,6 +68,10 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         {
             throw new NotSupportedException();
         }
+        public override DataTree ParseDataToPayload(ref byte[] data)
+        {
+            throw new NotSupportedException();
+        }
 
         public override string ToString()
         {
