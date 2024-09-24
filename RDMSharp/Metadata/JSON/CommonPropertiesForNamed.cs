@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using RDMSharp.RDM;
 using System.Text.Json.Serialization;
-using RDMSharp.RDM;
 
 namespace RDMSharp.Metadata.JSON
 {

@@ -1,39 +1,12 @@
-﻿using RDMSharp.Metadata.JSON.Converter;
-using RDMSharp.RDM;
+﻿using RDMSharp.RDM;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
-    [JsonConverter(typeof(CustomEnumConverter<EIntegerType>))]
-    public enum EIntegerType
-    {
-        [JsonPropertyName("int8")]
-        Int8,
-        [JsonPropertyName("int16")]
-        Int16,
-        [JsonPropertyName("int32")]
-        Int32,
-        [JsonPropertyName("int64")]
-        Int64,
-        [JsonPropertyName("int128")]
-        Int128,
-        [JsonPropertyName("uint8")]
-        UInt8,
-        [JsonPropertyName("uint16")]
-        UInt16,
-        [JsonPropertyName("uint32")]
-        UInt32,
-        [JsonPropertyName("uint64")]
-        UInt64,
-        [JsonPropertyName("uint128")]
-        UInt128
-    }
-    public class IntegerType<T> : CommonPropertiesForNamed
+    public class IntegerType<T> : CommonPropertiesForNamed, IIntegerType
     {
         [JsonPropertyName("name")]
         [JsonPropertyOrder(1)]
@@ -81,7 +54,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         public int? PrefixBase { get; } = 10;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
-        public double PrefixMultiplyer;
+        public double PrefixMultiplyer { get; }
 
         [JsonConstructor]
         public IntegerType(string name,
@@ -340,6 +313,12 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                     break;
 #endif
             }
+            if (Ranges != null)
+            {
+                if (!Ranges.Any(r => r.IsInRange((T)value)))
+                    issueList.Add(new DataTreeIssue("The Value is not in range of any Range"));
+            }
+
             string unit = null;
             if (Units.HasValue)
                 unit = Tools.GetUnitSymbol(Units.Value);

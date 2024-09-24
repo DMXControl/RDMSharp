@@ -1,4 +1,5 @@
 using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
 using RDMSharp.Metadata.JSON.OneOfTypes;
 using RDMSharp.RDM;
 
@@ -241,58 +242,153 @@ namespace RDMSharpTests.Metadata.JSON
         [Test]
         public void TestPrefix1024()
         {
-            var integerType = new IntegerType<int>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int32, null, null, null, null, 10, 2);
-            Assert.That(integerType.PrefixBase, Is.EqualTo(2));
-            Assert.That(integerType.PrefixPower, Is.EqualTo(10));
-
-            Assert.Multiple(() =>
+            CommonPropertiesForNamed[] types = new CommonPropertiesForNamed[]
             {
-                var data = new byte[] { 0, 0, 0, 0 };
-                var dataTree = integerType.ParseDataToPayload(ref data);
-                Assert.That(dataTree.Value, Is.EqualTo(0));
-                var parsedData = integerType.ParsePayloadToData(dataTree);
-                Assert.That(parsedData, Is.EqualTo(new byte[] { 0, 0, 0, 0 }));
+                 new IntegerType<sbyte>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int8, null, null, null, null, 10, 2),
+                 new IntegerType<byte>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt8, null, null, null, null, 10, 2),
+                 new IntegerType<short>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int16, null, null, null, null, 10, 2),
+                 new IntegerType<ushort>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt16, null, null, null, null, 10, 2),
+                 new IntegerType<int>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int32, null, null, null, null, 10, 2),
+                 new IntegerType<uint>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt32, null, null, null, null, 10, 2),
+                 new IntegerType<long>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int64, null, null, null, null, 10, 2),
+                 new IntegerType<ulong>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt64, null, null, null, null, 10, 2),
+            };
+            foreach (CommonPropertiesForNamed integerType in types)
+            {
+                Assert.That(((IIntegerType)integerType).PrefixBase, Is.EqualTo(2));
+                Assert.That(((IIntegerType)integerType).PrefixPower, Is.EqualTo(10));
+                Assert.That(((IIntegerType)integerType).PrefixMultiplyer, Is.EqualTo(1024));
 
-                data = new byte[] { 0, 0, 0, 1 };
-                dataTree = integerType.ParseDataToPayload(ref data);
-                Assert.That(dataTree.Value, Is.EqualTo(1024));
-                parsedData = integerType.ParsePayloadToData(dataTree);
-                Assert.That(parsedData, Is.EqualTo(new byte[] { 0, 0, 0, 1 }));
+                uint pdl = integerType.GetDataLength().Value.Value;
+                Assert.Multiple(() =>
+                {
+                    var data = new byte[pdl];
+                    var dataTree = integerType.ParseDataToPayload(ref data);
+                    Assert.That(dataTree.Value, Is.EqualTo(0));
+                    var parsedData = integerType.ParsePayloadToData(dataTree);
+                    data = new byte[pdl];
+                    Assert.That(parsedData, Is.EqualTo(data));
 
-                data = new byte[] { 0, 0, 0, 100 };
-                dataTree = integerType.ParseDataToPayload(ref data);
-                Assert.That(dataTree.Value, Is.EqualTo(102400));
-                parsedData = integerType.ParsePayloadToData(dataTree);
-                Assert.That(parsedData, Is.EqualTo(new byte[] { 0, 0, 0, 100 }));
-            });
+                    data = new byte[pdl];
+                    data[data.Length - 1] = 1;
+                    dataTree = integerType.ParseDataToPayload(ref data);
+                    Assert.That(dataTree.Value, Is.EqualTo(1024));
+                    parsedData = integerType.ParsePayloadToData(dataTree);
+                    data = new byte[pdl];
+                    data[data.Length - 1] = 1;
+                    Assert.That(parsedData, Is.EqualTo(data));
+
+                    data = new byte[pdl];
+                    data[data.Length - 1] = 100;
+                    dataTree = integerType.ParseDataToPayload(ref data);
+                    Assert.That(dataTree.Value, Is.EqualTo(102400));
+                    parsedData = integerType.ParsePayloadToData(dataTree);
+                    data = new byte[pdl];
+                    data[data.Length - 1] = 100;
+                    Assert.That(parsedData, Is.EqualTo(data));
+                });
+            }
+        }
+        [Test]
+        public void TestPrefix1024Negativ()
+        {
+            CommonPropertiesForNamed[] types = new CommonPropertiesForNamed[]
+            {
+                 new IntegerType<sbyte>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int8, null, null, null, null, 1, -1024),
+                 new IntegerType<byte>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt8, null, null, null, null, 1, -1024),
+                 new IntegerType<short>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int16, null, null, null, null, 1, -1024),
+                 new IntegerType<ushort>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt16, null, null, null, null, 1, -1024),
+                 new IntegerType<int>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int32, null, null, null, null, 1, -1024),
+                 new IntegerType<uint>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt32, null, null, null, null, 1, -1024),
+                 new IntegerType<long>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int64, null, null, null, null, 1, -1024),
+                 new IntegerType<ulong>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt64, null, null, null, null, 1, -1024),
+            };
+            foreach (CommonPropertiesForNamed integerType in types)
+            {
+                Assert.That(((IIntegerType)integerType).PrefixBase, Is.EqualTo(-1024));
+                Assert.That(((IIntegerType)integerType).PrefixPower, Is.EqualTo(1));
+                Assert.That(((IIntegerType)integerType).PrefixMultiplyer, Is.EqualTo(-1024));
+
+                uint pdl = integerType.GetDataLength().Value.Value;
+                Assert.Multiple(() =>
+                {
+                    string message= ((IIntegerType)integerType).Type.ToString();
+                    var data = new byte[pdl];
+                    var dataTree = integerType.ParseDataToPayload(ref data);
+                    Assert.That(dataTree.Value, Is.EqualTo(0), message);
+                    var parsedData = integerType.ParsePayloadToData(dataTree);
+                    data = new byte[pdl];
+                    Assert.That(parsedData, Is.EqualTo(data), message);
+
+                    data = new byte[pdl];
+                    data[data.Length - 1] = 1;
+                    dataTree = integerType.ParseDataToPayload(ref data);
+                    Assert.That(dataTree.Value, Is.EqualTo(-1024), message);
+                    parsedData = integerType.ParsePayloadToData(dataTree);
+                    data = new byte[pdl];
+                    data[data.Length - 1] = 1;
+                    Assert.That(parsedData, Is.EqualTo(data), message);
+
+                    data = new byte[pdl];
+                    data[data.Length - 1] = 100;
+                    dataTree = integerType.ParseDataToPayload(ref data);
+                    Assert.That(dataTree.Value, Is.EqualTo(-102400), message);
+                    parsedData = integerType.ParsePayloadToData(dataTree);
+                    data = new byte[pdl];
+                    data[data.Length - 1] = 100;
+                    Assert.That(parsedData, Is.EqualTo(data), message);
+                });
+            }
         }
         [Test]
         public void TestPrefix4Decimals()
         {
-            var integerType = new IntegerType<int>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int32, null, null, null, null, -4, 10);
-            Assert.That(integerType.PrefixBase, Is.EqualTo(10));
-            Assert.That(integerType.PrefixPower, Is.EqualTo(-4));
-
-            Assert.Multiple(() =>
+            CommonPropertiesForNamed[] types = new CommonPropertiesForNamed[]
             {
-                var data = new byte[] { 0, 0, 0, 0 };
-                var dataTree = integerType.ParseDataToPayload(ref data);
-                Assert.That(dataTree.Value, Is.EqualTo(0));
-                var parsedData = integerType.ParsePayloadToData(dataTree);
-                Assert.That(parsedData, Is.EqualTo(new byte[] { 0, 0, 0, 0 }));
+                 new IntegerType<sbyte>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int8, null, null, null, null, -4, 10),
+                 new IntegerType<byte>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt8, null, null, null, null, -4, 10),
+                 new IntegerType<short>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int16, null, null, null, null, -4, 10),
+                 new IntegerType<ushort>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt16, null, null, null, null, -4, 10),
+                 new IntegerType<int>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int32, null, null, null, null, -4, 10),
+                 new IntegerType<uint>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt32, null, null, null, null, -4, 10),
+                 new IntegerType<long>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int64, null, null, null, null, -4, 10),
+                 new IntegerType<ulong>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt64, null, null, null, null, -4, 10),
+            };
+            foreach (CommonPropertiesForNamed integerType in types)
+            {
+                Assert.That(((IIntegerType)integerType).PrefixBase, Is.EqualTo(10));
+                Assert.That(((IIntegerType)integerType).PrefixPower, Is.EqualTo(-4));
+                Assert.That(((IIntegerType)integerType).PrefixMultiplyer, Is.EqualTo(0.0001));
 
-                data = new byte[] { 0, 0, 0, 1 };
-                dataTree = integerType.ParseDataToPayload(ref data);
-                Assert.That(dataTree.Value, Is.EqualTo(0.0001));
-                parsedData = integerType.ParsePayloadToData(dataTree);
-                Assert.That(parsedData, Is.EqualTo(new byte[] { 0, 0, 0, 1 }));
+                uint pdl = integerType.GetDataLength().Value.Value;
+                Assert.Multiple(() =>
+                {
+                    var data = new byte[pdl];
+                    var dataTree = integerType.ParseDataToPayload(ref data);
+                    Assert.That(dataTree.Value, Is.EqualTo(0));
+                    var parsedData = integerType.ParsePayloadToData(dataTree);
+                    data = new byte[pdl];
+                    Assert.That(parsedData, Is.EqualTo(data));
 
-                data = new byte[] { 0, 0, 0, 100 };
-                dataTree = integerType.ParseDataToPayload(ref data);
-                Assert.That(dataTree.Value, Is.EqualTo(0.01));
-                parsedData = integerType.ParsePayloadToData(dataTree);
-                Assert.That(parsedData, Is.EqualTo(new byte[] { 0, 0, 0, 100 }));
-            });
+                    data = new byte[pdl];
+                    data[data.Length - 1] = 1;
+                    dataTree = integerType.ParseDataToPayload(ref data);
+                    Assert.That(dataTree.Value, Is.EqualTo(0.0001));
+                    parsedData = integerType.ParsePayloadToData(dataTree);
+                    data = new byte[pdl];
+                    data[data.Length - 1] = 1;
+                    Assert.That(parsedData, Is.EqualTo(data));
+
+                    data = new byte[pdl];
+                    data[data.Length - 1] = 100;
+                    dataTree = integerType.ParseDataToPayload(ref data);
+                    Assert.That(dataTree.Value, Is.EqualTo(0.01));
+                    parsedData = integerType.ParsePayloadToData(dataTree);
+                    data = new byte[pdl];
+                    data[data.Length - 1] = 100;
+                    Assert.That(parsedData, Is.EqualTo(data));
+                });
+            }
         }
 
         private void DoParseDataTest<T>(IntegerType<T> integerType, T value, byte[] expectedData, string message = null)
