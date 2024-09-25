@@ -40,6 +40,9 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             Resources = resources;
             Value = value;
         }
+        public LabeledBooleanType(string name, bool value) : this(name, null, null, null, value)
+        {
+        }
 
         public override string ToString()
         {

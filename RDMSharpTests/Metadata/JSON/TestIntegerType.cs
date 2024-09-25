@@ -242,6 +242,8 @@ namespace RDMSharpTests.Metadata.JSON
         [Test]
         public void TestPrefix1024()
         {
+            LabeledIntegerType[] labeledIntegerType = new LabeledIntegerType[] { new LabeledIntegerType("Test 0", 0), new LabeledIntegerType("Test 1", 1), new LabeledIntegerType("Test 100", 100), };
+            Range<long>[] ranges = new Range<long>[] { new Range<long>(0, 100) };
             CommonPropertiesForNamed[] types = new CommonPropertiesForNamed[]
             {
                  new IntegerType<sbyte>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int8, null, null, null, null, 10, 2),
@@ -250,7 +252,7 @@ namespace RDMSharpTests.Metadata.JSON
                  new IntegerType<ushort>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt16, null, null, null, null, 10, 2),
                  new IntegerType<int>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int32, null, null, null, null, 10, 2),
                  new IntegerType<uint>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt32, null, null, null, null, 10, 2),
-                 new IntegerType<long>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int64, null, null, null, null, 10, 2),
+                 new IntegerType<long>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.Int64, labeledIntegerType, null, ranges, ERDM_SensorUnit.BYTE, 10, 2),
                  new IntegerType<ulong>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt64, null, null, null, null, 10, 2),
             };
             foreach (CommonPropertiesForNamed integerType in types)

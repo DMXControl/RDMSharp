@@ -41,6 +41,11 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             Value = value;
         }
 
+        public LabeledIntegerType(string name, long value): this(name, null, null, null, value)
+        {
+
+        }
+
         public override string ToString()
         {
             return $"{Value} -> {Name}";

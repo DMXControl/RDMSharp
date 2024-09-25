@@ -18,6 +18,7 @@ namespace RDMSharpTests.Metadata.JSON
             });
 
             Assert.Throws(typeof(ArgumentException), () => pdEnvelopeType = new PD_EnvelopeType("NAME", "DISPLAY_NAME", "NOTES", null, "pdEnvelop", 2));
+
         }
     }
 }

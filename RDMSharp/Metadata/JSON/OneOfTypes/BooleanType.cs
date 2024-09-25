@@ -95,11 +95,25 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         public override DataTree ParseDataToPayload(ref byte[] data)
         {
             List<DataTreeIssue> issueList = new List<DataTreeIssue>();
-            if (data.Length != 1)
-                issueList.Add(new DataTreeIssue($"Data length is not 1"));
+            
+            uint pdl = GetDataLength().Value.Value;
+            if (data.Length < pdl)
+            {
+                issueList.Add(new DataTreeIssue("Given Data not fits PDL"));
+                byte[] cloneData = new byte[pdl];
+                Array.Copy(data, cloneData, data.Length);
+                data = cloneData;
+            }
 
-            data = data.Skip(1).ToArray();
-            return new DataTree(this.Name, 0, Tools.DataToBool(ref data), issueList.Count != 0 ? issueList.ToArray() : null);
+
+            DataTreeValueLabel[] labels = null;
+            if ((Labels?.Length ?? 0) != 0)
+                labels = Labels.Select(lb => new DataTreeValueLabel(lb.Value, (lb.DisplayName ?? lb.Name))).ToArray();
+
+            bool value = false;
+            value = Tools.DataToBool(ref data);
+
+            return new DataTree(this.Name, 0, value, issueList.Count != 0 ? issueList.ToArray() : null, labels: labels);
         }
     }
 }
