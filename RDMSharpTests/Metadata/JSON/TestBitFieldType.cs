@@ -66,7 +66,24 @@ namespace RDMSharpTests.Metadata.JSON
                 Assert.That(parsedDataTree.Value, Is.Null);
                 Assert.That(parsedDataTree.Children, Is.Not.Null);
 
-                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree("Different Name", dataTree.Index, dataTree.Value)), message);
+                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree("Different Name", dataTree.Index, children: dataTree.Children)), message);
+                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, children: dataTree.Children?.Take(2).ToArray())), message);
+                
+                var children = dataTree.Children!.ToArray();
+                children[1] = new DataTree("Other Name", children[1].Index, children[1].Value);
+                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, children: children)), message);
+
+                children = dataTree.Children!.ToArray();
+                children[1] = new DataTree(children[1].Name, 3, children[1].Value);
+                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, children: children)), message);
+                
+                children = dataTree.Children!.ToArray();
+                children[1] = new DataTree(children[1].Name, 0, children[1].Value);
+                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, children: children)), message);
+
+                children = dataTree.Children!.ToArray();
+                children[1] = new DataTree(children[1].Name, children[1].Index, 3);
+                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, children: children)), message);
             });
         }
     }

@@ -100,7 +100,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 BitType bit = Bits.FirstOrDefault(b=>b.Name== bitDataTree.Name);
                 if (bit == null)
                     throw new ArithmeticException($"Can't find matching BitType {bitDataTree.Name}");
-                if (Bits[bitDataTree.Index] != bit)
+                if (Bits.Length <= bitDataTree.Index || Bits[bitDataTree.Index] != bit)
                     throw new ArithmeticException($"The given DataTree {nameof(bitDataTree.Index)}({bitDataTree.Index}) not match BitType {nameof(bit.Index)}({bit.Index})");
                 if (bitDataTree.Value is not bool value)
                     throw new ArithmeticException($"DataTree Value is not bool");
