@@ -2,13 +2,50 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
     public class BitFieldType : CommonPropertiesForNamed
     {
+        [JsonPropertyName("name")]
+        [JsonPropertyOrder(1)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+        public override string Name { get; }
+
+        [JsonPropertyName("displayName")]
+        [JsonPropertyOrder(2)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string DisplayName { get; }
+
+        [JsonPropertyName("notes")]
+        [JsonPropertyOrder(4)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string Notes { get; }
+
+        [JsonPropertyName("resources")]
+        [JsonPropertyOrder(5)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public override string[] Resources { get; }
+
+        [JsonPropertyName("type")]
+        [JsonPropertyOrder(3)]
+        public string Type { get; }
+
+        [JsonPropertyName("size")]
+        [JsonPropertyOrder(31)]
+        public ushort Size { get; }
+
+        [JsonPropertyName("valueForUnspecified")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonPropertyOrder(32)]
+        public bool? ValueForUnspecified { get; }
+
+        [JsonPropertyName("bits")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonPropertyOrder(41)]
+        public BitType[] Bits { get; }
+
         [JsonConstructor]
         public BitFieldType(string name,
                             string displayName,
@@ -33,40 +70,9 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             ValueForUnspecified = valueForUnspecified;
             Bits = bits;
         }
-
-        [JsonPropertyName("name")]
-        [JsonPropertyOrder(1)]
-        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
-        public override string Name { get; }
-        [JsonPropertyName("displayName")]
-        [JsonPropertyOrder(2)]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string DisplayName { get; }
-        [JsonPropertyName("notes")]
-        [JsonPropertyOrder(4)]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string Notes { get; }
-        [JsonPropertyName("resources")]
-        [JsonPropertyOrder(5)]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public override string[] Resources { get; }
-
-        [JsonPropertyName("type")]
-        [JsonPropertyOrder(3)]
-        public string Type { get; }
-
-        [JsonPropertyName("size")]
-        [JsonPropertyOrder(31)]
-        public ushort Size { get; }
-
-        [JsonPropertyName("valueForUnspecified")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        [JsonPropertyOrder(32)]
-        public bool? ValueForUnspecified { get; }
-        [JsonPropertyName("bits")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        [JsonPropertyOrder(41)]
-        public BitType[] Bits { get; }
+        public BitFieldType(string name, ushort size, BitType[] bits) : this(name, null, null, null, "bitField", size, null, bits)
+        {
+        }
 
         public override PDL GetDataLength()
         {
@@ -94,10 +100,10 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 BitType bit = Bits.FirstOrDefault(b=>b.Name== bitDataTree.Name);
                 if (bit == null)
                     throw new ArithmeticException($"Can't find matching BitType {bitDataTree.Name}");
-                if (bitDataTree.Index != bit.Index)
+                if (Bits[bitDataTree.Index] != bit)
                     throw new ArithmeticException($"The given DataTree {nameof(bitDataTree.Index)}({bitDataTree.Index}) not match BitType {nameof(bit.Index)}({bit.Index})");
                 if (bitDataTree.Value is not bool value)
-                    throw new ArithmeticException($"DataTree VAlue is not bool");
+                    throw new ArithmeticException($"DataTree Value is not bool");
 
                 data[bit.Index] = value;
             }
@@ -110,15 +116,19 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             List<DataTreeIssue> issueList = new List<DataTreeIssue>();
             int byteCount = (Size / 8);
             if (byteCount != data.Length)
+            {
                 issueList.Add(new DataTreeIssue($"Data length not match given Size/8 ({byteCount})"));
-           
+                byte[] cloneData = new byte[byteCount];
+                Array.Copy(data, cloneData, data.Length);
+                data = cloneData;
+            }
             bool[] bools = Tools.DataToBoolArray(ref data, this.Size);
-            foreach (BitType bitType in Bits)
-                bitDataTrees.Add(new DataTree(bitType.Name, bitType.Index, bools[bitType.Index]));
-
-            data = data.Skip(byteCount).ToArray();
-
-            return new DataTree(this.Name, 0, bitDataTrees.OrderBy(b=>b.Index), issueList.Count != 0 ? issueList.ToArray() : null);
+            for (uint i = 0; i < Bits.Length; i++)
+            {
+                BitType bitType = Bits[i];
+                bitDataTrees.Add(new DataTree(bitType.Name, i, bools[bitType.Index]));
+            }
+            return new DataTree(this.Name, 0, children: bitDataTrees.OrderBy(b=>b.Index).ToArray(), issueList.Count != 0 ? issueList.ToArray() : null);
         }
     }
 }

@@ -25,8 +25,11 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             Reserved = reserved;
             ValueIfReserved = valueIfReserved;
         }
+        public BitType(string name, ushort index) : this(name, null, null, null, "bit", index, null, null)
+        {
+        }
 
-        [JsonPropertyName("name")]
+            [JsonPropertyName("name")]
         [JsonPropertyOrder(1)]
         [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public override string Name { get; }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RDMSharp.Metadata
 {
@@ -53,8 +54,27 @@ namespace RDMSharp.Metadata
             return Name == other.Name &&
                    Index == other.Index &&
                    EqualityComparer<object>.Default.Equals(Value, other.Value) &&
-                   EqualityComparer<DataTree[]>.Default.Equals(Children, other.Children) &&
-                   EqualityComparer<DataTreeIssue[]>.Default.Equals(Issues, other.Issues);
+                   compairArrays(this, other);
+
+            bool compairArrays(DataTree _this, DataTree other)
+            {
+                if (_this.Children != null)
+                {
+                    if (!_this.Children.SequenceEqual(other.Children))
+                        return false;
+                }
+                else if (other.Children != null)
+                    return false;
+                if (_this.Issues != null)
+                {
+                    if (!_this.Issues.SequenceEqual(other.Issues))
+                        return false;
+                }
+                else if (other.Issues != null)
+                    return false;
+
+                return true;
+            }
         }
 
         public override int GetHashCode()
