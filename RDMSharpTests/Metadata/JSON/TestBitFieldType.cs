@@ -34,6 +34,11 @@ namespace RDMSharpTests.Metadata.JSON
             var dataTree= new DataTree(bitFieldType.Name,0,new DataTree[] { new DataTree(bitTypes[0].Name, 0, true), new DataTree(bitTypes[1].Name, 1, true), new DataTree(bitTypes[2].Name, 2, true), });
 
             DoParseDataTest(bitFieldType, dataTree, new byte[] { 0b00010100, 0b10000000 });
+
+            bitFieldType = new BitFieldType("NAME_BIT_FIELD", 16, bitTypes, true);
+            dataTree = new DataTree(bitFieldType.Name, 0, new DataTree[] { new DataTree(bitTypes[0].Name, 0, false), new DataTree(bitTypes[1].Name, 1, false), new DataTree(bitTypes[2].Name, 2, false), });
+            Assert.That(bitFieldType.ValueForUnspecified, Is.True);
+            DoParseDataTest(bitFieldType, dataTree, new byte[] { 0b11101011, 0b01111111 });
         }
         private void DoParseDataTest(BitFieldType bitFieldType, DataTree dataTree, byte[] expectedData, string message = null)
         {

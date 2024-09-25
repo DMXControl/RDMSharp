@@ -70,7 +70,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             ValueForUnspecified = valueForUnspecified;
             Bits = bits;
         }
-        public BitFieldType(string name, ushort size, BitType[] bits) : this(name, null, null, null, "bitField", size, null, bits)
+        public BitFieldType(string name, ushort size, BitType[] bits, bool valueForUnspecified = false) : this(name, null, null, null, "bitField", size, valueForUnspecified, bits)
         {
         }
 
@@ -91,9 +91,9 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 throw new ArithmeticException($"The given {nameof(dataTree.Children)}.{nameof(dataTree.Children.Length)}({dataTree.Children.Length}) not match {nameof(Bits)}.{nameof(Bits.Length)}({Bits.Length})");
 
             bool[] data = new bool[Size];
-            if (ValueForUnspecified.HasValue)
+            if (ValueForUnspecified == true)
                 for (int i = 0; i < Size; i++)
-                    data[i] = ValueForUnspecified.Value;
+                    data[i] = true;
 
             foreach (DataTree bitDataTree in dataTree.Children)
             {
@@ -127,6 +127,16 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             {
                 BitType bitType = Bits[i];
                 bitDataTrees.Add(new DataTree(bitType.Name, i, bools[bitType.Index]));
+            }
+            bool valueForUnspecified = ValueForUnspecified == true;
+            for(int i = 0; i < bools.Length; i++)
+            {
+                if (Bits.Any(b => b.Index == i))
+                    continue;
+
+                bool bit= bools[i];
+                if (bit != valueForUnspecified)
+                    issueList.Add(new DataTreeIssue($"The Bit at Index {i} is Unspecified, but the Value is not {valueForUnspecified} as defined for Unspecified Bits"));
             }
             return new DataTree(this.Name, 0, children: bitDataTrees.OrderBy(b=>b.Index).ToArray(), issueList.Count != 0 ? issueList.ToArray() : null);
         }
