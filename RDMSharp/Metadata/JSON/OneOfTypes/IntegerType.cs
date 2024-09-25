@@ -259,6 +259,11 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
 
             var rawValue = convertFormatedValueToRaw<T>(dataTree.Value);
+            if (Ranges != null)
+            {
+                if (!Ranges.Any(r => r.IsInRange(rawValue)))
+                    throw new ArithmeticException("The Value is not in range of any Range");
+            }
             var data = Tools.ValueToData(rawValue);
 
             return data;
