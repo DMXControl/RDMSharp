@@ -160,6 +160,15 @@ namespace RDMSharpTests.Metadata.JSON
             dataTree = stringType.ParseDataToPayload(ref data);
             Assert.That(dataTree.Value, Is.EqualTo(string.Empty));
             Assert.That(dataTree.Issues, Has.Length.EqualTo(1));
+
+            data = new byte[] { 195, 132, 195, 132, 195, 132, 195, 132, 0 };
+            dataTree = stringType.ParseDataToPayload(ref data);
+            Assert.That(dataTree.Value, Is.EqualTo("컴컴"));
+            Assert.That(dataTree.Issues, Has.Length.EqualTo(1));
+            data = new byte[] { 195, 132, 195, 132, 195, 132, 195, 132, 119, 119, 0 };
+            dataTree = stringType.ParseDataToPayload(ref data);
+            Assert.That(dataTree.Value, Is.EqualTo("컴컴"));
+            Assert.That(dataTree.Issues, Has.Length.EqualTo(1));
         }
         [Test]
         public void TestParseBadFormatedData2()

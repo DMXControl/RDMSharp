@@ -199,12 +199,12 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 takenBytesCount = byteLength;
                 charLength = str.Length;
                 bool repeatParse = false;
-                if (MaxLength.HasValue && MaxLength < charLength)
+                if (MaxLength.HasValue && MaxLength.Value < charLength)
                 {
                     charLength = (int)MaxLength.Value;
                     repeatParse = true;
                 }
-                if (MaxBytes.HasValue && MaxBytes < byteLength)
+                if (MaxBytes.HasValue && MaxBytes.Value < byteLength)
                 {
                     byteLength = (int)MaxBytes.Value;
                     repeatParse = true;
