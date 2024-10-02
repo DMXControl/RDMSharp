@@ -89,7 +89,28 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             MaxBytes = maxBytes;
             RestrictToASCII = restrictToASCII;
         }
-
+        public StringType(
+            string name,
+            string displayName,
+            string notes,
+            string format,
+            string pattern,
+            uint length,
+            bool? restrictToASCII = null) : this(
+                name,
+                displayName,
+                notes,
+                null,
+                "string",
+                format,
+                pattern,
+                minLength: length,
+                maxLength: length,
+                null,
+                null,
+                restrictToASCII)
+        {
+        }
         public override string ToString()
         {
             return base.ToString();
@@ -120,13 +141,25 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
             if (dataTree.Value is string @string)
             {
-                if (MaxLength.HasValue)
-                    @string = @string.Substring(0, (int)MaxLength);
+                if (MinLength.HasValue && MinLength.Value > @string.Length)
+                    throw new ArithmeticException($"The given String is smaller then {nameof(MinLength)}: {MinLength}");
+                if (MaxLength.HasValue && MaxLength.Value < @string.Length)
+                    throw new ArithmeticException($"The given String is larger then {nameof(MaxLength)}: {MaxLength}");
 
+                Encoding encoder = null;
                 if (RestrictToASCII == true)
-                    Encoding.ASCII.GetBytes(@string);
+                    encoder = Encoding.ASCII;
                 else
-                    Encoding.UTF8.GetBytes(@string);
+                    encoder = Encoding.UTF8;
+
+                var data = encoder.GetBytes(@string);
+
+                if (MinBytes.HasValue && MinBytes.Value > data.Length)
+                    throw new ArithmeticException($"The given String encoded is smaller then {nameof(MinBytes)}: {MinBytes}");
+                if (MaxBytes.HasValue && MaxBytes.Value < data.Length)
+                    throw new ArithmeticException($"The given String encoded is larger then {nameof(MaxBytes)}: {MaxBytes}");
+
+                return data;
             }
 
             throw new ArithmeticException($"The given Object from {nameof(dataTree.Value)} can't be parsed");
@@ -135,32 +168,62 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         public override DataTree ParseDataToPayload(ref byte[] data)
         {
             List<DataTreeIssue> issueList = new List<DataTreeIssue>();
-            if (MaxBytes.HasValue && data.Length > MaxBytes)
+            if (MaxBytes.HasValue && data.Length > MaxBytes.Value)
                 issueList.Add(new DataTreeIssue($"Data length exceeds {nameof(MaxBytes)}, the Data has {data.Length}, but {nameof(MaxBytes)} is {MaxBytes}"));
-            if (MinBytes.HasValue && data.Length < MinBytes)
+            if (MinBytes.HasValue && data.Length < MinBytes.Value)
                 issueList.Add(new DataTreeIssue($"Data length falls shorts of {nameof(MinBytes)}, the Data has {data.Length}, but {nameof(MinBytes)} is {MinBytes}"));
             
             string str = null;
-            uint length = (uint)data.Length;
-            if (MaxLength.HasValue)
-                length = MaxLength.Value;
-            if (MaxBytes.HasValue)
-                length = MaxBytes.Value;
-
-            if (data.Any(c => c == 0))
-                length = (uint)data.TakeWhile(c => c != 0).Count() + 1;
-
+            byte[] dataBytes = data;
+            int charLength = 0;
+            int byteLength = 0;
+            int takenBytesCount = 0;
             if (RestrictToASCII == true)
-                str = Encoding.ASCII.GetString(data, 0, (int)length);
+                parse(Encoding.ASCII);
             else
-                str = Encoding.UTF8.GetString(data, 0, (int)length);
+                parse(Encoding.UTF8);
 
-            if (MaxLength.HasValue && str.Length > MaxLength)
+            void parse(Encoding encoder)
+            {
+                str = encoder.GetString(dataBytes);
+                takenBytesCount = dataBytes.Length;
+
+                string[] strings = str.Split((char)0);
+                if (strings.Where(s => string.IsNullOrEmpty(s)).Count() > 1)
+                    issueList.Add(new DataTreeIssue("More then one Null-Delimiter"));
+                if (strings.Skip(1).Any(s => !string.IsNullOrEmpty(s)))
+                    issueList.Add(new DataTreeIssue("Trailing Characters"));
+
+                str = strings.First();
+                byteLength = encoder.GetBytes(str).Length;
+                takenBytesCount = byteLength;
+                charLength = str.Length;
+                bool repeatParse = false;
+                if (MaxLength.HasValue && MaxLength < charLength)
+                {
+                    charLength = (int)MaxLength.Value;
+                    repeatParse = true;
+                }
+                if (MaxBytes.HasValue && MaxBytes < byteLength)
+                {
+                    byteLength = (int)MaxBytes.Value;
+                    repeatParse = true;
+                }
+                if (repeatParse)
+                {
+                    dataBytes = dataBytes.Take(byteLength).ToArray();
+                    str = encoder.GetString(dataBytes);
+                    takenBytesCount = dataBytes.Length;
+                }
+
+            }
+
+            if (MaxLength.HasValue && str.Length > MaxLength.Value)
                 issueList.Add(new DataTreeIssue($"String length exceeds {nameof(MaxLength)}, the Data has {str.Length}, but {nameof(MaxLength)} is {MaxLength}"));
-            if (MinLength.HasValue && str.Length < MinLength)
+            if (MinLength.HasValue && str.Length < MinLength.Value)
                 issueList.Add(new DataTreeIssue($"String length falls shorts of {nameof(MinLength)}, the Data has {str.Length}, but {nameof(MinLength)} is {MinLength}"));
 
-            data = data.Skip((int)length).ToArray();
+            data = data.Skip(takenBytesCount).ToArray();
             return new DataTree(this.Name, 0, str, issueList.Count != 0 ? issueList.ToArray() : null);
         }
     }
