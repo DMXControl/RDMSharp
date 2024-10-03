@@ -7,9 +7,15 @@ namespace RDMSharpTests.Metadata.JSON
 {
     public class TestStringType
     {
+        [TearDown]
+        public void Teardown()
+        {
+            Console.OutputEncoding = Encoding.Default;
+        }
         [Test]
         public void TestUTF8_Works()
         {
+            Console.OutputEncoding = Encoding.UTF8;
             string originalString = "Ä";
             byte[] byteArray = Encoding.UTF8.GetBytes(originalString);
             string resultString = Encoding.UTF8.GetString(byteArray);
@@ -55,6 +61,7 @@ namespace RDMSharpTests.Metadata.JSON
         [Test]
         public void TestParseFixedLengthASCII()
         {
+            Console.OutputEncoding = Encoding.ASCII;
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, null, 5, true);
             string str = "qwert";
             DataTree dataTree = new DataTree("NAME", 0, str);
@@ -70,6 +77,7 @@ namespace RDMSharpTests.Metadata.JSON
         [Test]
         public void TestParseFixedLengthInBytesUTF8()
         {
+            Console.OutputEncoding = Encoding.UTF8;
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, "string", null, null, null, null, minBytes: 8, maxBytes: 8, null);
             string str = "ÄÜÖß";
             DataTree dataTree = new DataTree("NAME", 0, str);
@@ -85,6 +93,7 @@ namespace RDMSharpTests.Metadata.JSON
         [Test]
         public void TestParseRangedLengthUTF8()
         {
+            Console.OutputEncoding = Encoding.UTF8;
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, "string", null, null, 4, 6, null, null, null);
             string str = "ÄÜÖß";
             DataTree dataTree = new DataTree("NAME", 0, str);
@@ -100,6 +109,7 @@ namespace RDMSharpTests.Metadata.JSON
         [Test]
         public void TestParseRangedLengthUTF8Mixed()
         {
+            Console.OutputEncoding = Encoding.UTF8;
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, "string", null, null, 4, 6, 4, 8, null);
             string str = "ÄUÖS";
             DataTree dataTree = new DataTree("NAME", 0, str);
@@ -116,6 +126,7 @@ namespace RDMSharpTests.Metadata.JSON
         [Test]
         public void TestParseExceptions()
         {
+            Console.OutputEncoding = Encoding.UTF8;
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, "string", null, null, 3, 6, 5, 8, null);
             string str = "12";
             DataTree dataTree = new DataTree("NAME FAIL", 0, str);
@@ -145,6 +156,7 @@ namespace RDMSharpTests.Metadata.JSON
         [Test]
         public void TestParseBadFormatedData1()
         {
+            Console.OutputEncoding = Encoding.UTF8;
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, "string", null, null, null, null, 2, 8, null);
             byte[] data = new byte[] { 195, 132, 0, 0, 0, 0 };
             var dataTree = stringType.ParseDataToPayload(ref data);
@@ -183,6 +195,7 @@ namespace RDMSharpTests.Metadata.JSON
         [Test]
         public void TestParseBadFormatedData2()
         {
+            Console.OutputEncoding = Encoding.UTF8;
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, "string", null, null, 2, 4, null, null, null);
             byte[] data = new byte[] { 195, 132, 0, 0, 0, 0 };
             var dataTree = stringType.ParseDataToPayload(ref data);
