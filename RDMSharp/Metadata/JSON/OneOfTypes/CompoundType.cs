@@ -86,6 +86,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         public override DataTree ParseDataToPayload(ref byte[] data)
         {
             List<DataTree> subTypeDataTree = new List<DataTree>();
+            List<DataTreeIssue> issueList = new List<DataTreeIssue>();
 
             int dataLength = data.Length;
 
@@ -96,9 +97,16 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             }
             dataLength -= data.Length;
 
-            validateDataLength(dataLength);
+            try
+            {
+                validateDataLength(dataLength);
+            }
+            catch (Exception e)
+            {
+                issueList.Add(new DataTreeIssue(e.Message));
+            }
 
-            return new DataTree(this.Name, 0, children: subTypeDataTree.OrderBy(b => b.Index).ToArray());
+            return new DataTree(this.Name, 0, children:subTypeDataTree.OrderBy(b => b.Index).ToArray(), issueList.Count != 0 ? issueList.ToArray() : null);
         }
 
         internal bool validateDataLength(int dataLength)

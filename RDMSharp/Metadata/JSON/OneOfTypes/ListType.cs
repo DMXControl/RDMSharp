@@ -100,8 +100,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
             if (max == 0)
                 if (!MaxItems.HasValue)
-                    if (MinItems.HasValue)
-                        max = PDL.MAX_LENGTH;
+                    max = PDL.MAX_LENGTH;
 
             if (min == max)
                 return new PDL(min);
@@ -115,12 +114,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
             List<byte> data = new List<byte>();
             for (int i = 0; i < dataTree.Children.Length; i++)
-            {
-                if(ItemType.IsEmpty())
-                    throw new ArithmeticException($"The given Object from {nameof(ItemType)} is Empty");
-
                 data.AddRange(ItemType.ParsePayloadToData(dataTree.Children[i]));
-            }
 
             validateDataLength(data.Count);
 
@@ -141,19 +135,19 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             }
             dataLength -= data.Length;
 
-            validateDataLength(dataLength);
+            try
+            {
+                validateDataLength(dataLength);
+            }
+            catch (Exception e)
+            {
+                issueList.Add(new DataTreeIssue(e.Message));
+            }
 
             return new DataTree(Name, 0, children: dataTrees.ToArray(), issueList.Count != 0 ? issueList.ToArray() : null);
 
             bool _continue(ref byte[] data)
             {
-                if (data.Length == 0)
-                {
-                    if (MinItems.HasValue)
-                        if (dataTrees.Count < MinItems.Value)
-                            issueList.Add(new DataTreeIssue($"Given data falls shorts of {nameof(MinItems)}"));
-                    return false;
-                }
                 if (MaxItems.HasValue)
                     if (dataTrees.Count > MaxItems.Value)
                     {
@@ -161,6 +155,13 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                             issueList.Add(new DataTreeIssue($"Given data exceeds {nameof(MaxItems)}"));
                         return false;
                     }
+                if (data.Length == 0)
+                {
+                    if (MinItems.HasValue)
+                        if (dataTrees.Count < MinItems.Value)
+                            issueList.Add(new DataTreeIssue($"Given data falls shorts of {nameof(MinItems)}"));
+                    return false;
+                }
 
                 return true;
             }
