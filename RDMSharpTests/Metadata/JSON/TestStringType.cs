@@ -17,10 +17,15 @@ namespace RDMSharpTests.Metadata.JSON
         {
             Console.OutputEncoding = Encoding.UTF8;
             string originalString = "Ä";
+            byte[] originalBytes = new byte[] { 195, 132 };
             byte[] byteArray = Encoding.UTF8.GetBytes(originalString);
             string resultString = Encoding.UTF8.GetString(byteArray);
+            byte[] resultByteArray = Encoding.UTF8.GetBytes(originalString);
+
 
             Assert.That(resultString, Is.EqualTo(originalString));
+            Assert.That(byteArray, Is.EqualTo(originalBytes));
+            Assert.That(resultByteArray, Is.EqualTo(originalBytes));
         }
         [Test]
         public void TestMany()
