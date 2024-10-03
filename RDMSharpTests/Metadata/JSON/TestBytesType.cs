@@ -58,6 +58,41 @@ namespace RDMSharpTests.Metadata.JSON
             Assert.Throws(typeof(ArithmeticException), () => new BytesType("Other Name", "DISPLAY_NAME", "NOTES", null, "bytes", "uid", null, null).ParsePayloadToData(dataTree));
             Assert.Throws(typeof(ArithmeticException), () => new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "xyz", null, null).ParsePayloadToData(dataTree));
         }
+        [Test]
+        public void TestParseUIDArrayEmpty()
+        {
+            var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "uid[]", null, null);
+            Assert.That(bytesType.GetDataLength().MinLength, Is.EqualTo(0));
+            var uidArray = new UID[0];
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, uidArray));
+            Assert.That(data, Is.EqualTo(new byte[0]));
+            var dataTree = bytesType.ParseDataToPayload(ref data);
+            Assert.That(data, Has.Length.EqualTo(0));
+            Assert.That(dataTree.Value, Is.Null);
+        }
+        [Test]
+        public void TestParseUIDArray()
+        {
+            var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "uid[]", null, null);
+            Assert.That(bytesType.GetDataLength().MinLength, Is.EqualTo(0));
+            var uidArray = new UID[] { new UID(0x4646, 0x12345678) , new UID(0x4646, 0x12345678) };
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, uidArray));
+            Assert.That(data, Is.EqualTo(new byte[] { 0x46, 0x46, 0x12, 0x34, 0x56, 0x78, 0x46, 0x46, 0x12, 0x34, 0x56, 0x78 }));
+            var corrupData = new List<byte>();
+            corrupData.AddRange(data);
+            var dataTree = bytesType.ParseDataToPayload(ref data);
+            Assert.That(data, Has.Length.EqualTo(0));
+            Assert.That(dataTree.Value, Is.EqualTo(uidArray));
+
+            corrupData.Add(1);
+            corrupData.Add(2);
+            data= corrupData.ToArray();
+            dataTree = bytesType.ParseDataToPayload(ref data);
+            Assert.That(data, Has.Length.EqualTo(2));
+            Assert.That(data, Is.EqualTo(new byte[] { 1, 2 }));
+            Assert.That(dataTree.Value, Is.EqualTo(uidArray));
+            Assert.That(dataTree.Issues, Has.Length.EqualTo(2));
+        }
 
         [Test]
         public void TestParseIPv4()
@@ -271,13 +306,13 @@ namespace RDMSharpTests.Metadata.JSON
             Assert.That(dataTree.Value, Is.Not.Null);
         }
         [Test]
-        public void TestParseFallbackStringArray()
+        public void TestParseFallbackUTF8Array()
         {
-            var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", null, null, null);
+            var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "utf8[]", null, null);
             var utf8 = "äöüß€!";
             var array = new string[] { utf8, utf8 };
             var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, array));
-            Assert.That(data, Is.EqualTo(new byte[] { 195, 164, 195, 182, 195, 188, 195, 159, 226, 130, 172, 33, 0, 195, 164, 195, 182, 195, 188, 195, 159, 226, 130, 172, 33 }));
+            Assert.That(data, Is.EqualTo(new byte[] { 195, 164, 195, 182, 195, 188, 195, 159, 226, 130, 172, 33, 0, 195, 164, 195, 182, 195, 188, 195, 159, 226, 130, 172, 33, 0 }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
             Assert.That(dataTree.Value, Is.Not.Null);
@@ -293,6 +328,12 @@ namespace RDMSharpTests.Metadata.JSON
             Assert.That(data, Has.Length.EqualTo(0));
             Assert.That(dataTree.Value, Is.Not.Null);
             Assert.That(dataTree.Value, Is.EqualTo(bytes));
+        }
+        [Test]
+        public void TestParseFallbackUnknownType()
+        {
+            var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "UNKNOWN", null, null);
+            Assert.Throws(typeof(ArithmeticException), () => bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, DateTime.Now)));
         }
     }
 }

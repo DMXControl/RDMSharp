@@ -82,23 +82,41 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
         public override PDL GetDataLength()
         {
-            switch (Format)
+            uint length = 0;
+            string format = Format;
+            bool noFixedSize = false;
+            if (!string.IsNullOrWhiteSpace(Format) && Format.EndsWith("[]"))
+                format = Format.Replace("[]", "");
+            switch (format)
             {
                 case "mac-address":
                 case "uid":
-                    return new PDL(6);
+                    length = 6;
+                    break;
                 case "ipv4":
                 case "float":
-                    return new PDL(4);
+                    length = 4;
+                    break;
                 case "ipv6":
                 case "uuid":
                 case "guid":
-                    return new PDL(16);
+                    length = 16;
+                    break;
                 case "double":
-                    return new PDL(8);
+                    length = 8;
+                    break;
                 case "pid":
-                    return new PDL(2);
+                    length = 2;
+                    break;
+                default:
+                    noFixedSize = true;
+                    break;
             }
+            if (!string.IsNullOrWhiteSpace(Format) && Format.EndsWith("[]"))
+                return new PDL(0, (uint)(Math.Truncate((double)PDL.MAX_LENGTH / length) * length));
+            else if (!noFixedSize)
+                return new PDL(length);
+
             return new PDL((uint)(MinLength ?? 1), (uint)(MaxLength ?? PDL.MAX_LENGTH));
         }
         public override byte[] ParsePayloadToData(DataTree dataTree)
@@ -106,142 +124,228 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             if (!string.Equals(dataTree.Name, this.Name))
                 throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
 
-            switch (Format)
+            if (!string.IsNullOrWhiteSpace(Format) && Format.EndsWith("[]") && dataTree.Value is Array typedArray)
             {
-                //Known from E1.37-5 (2024)
-                case "uid" when dataTree.Value is UID uid:
-                    return uid.ToBytes().ToArray();
-                case "ipv4" when dataTree.Value is IPv4Address ipv4:
-                    return (byte[])ipv4;
-                case "ipv6" when dataTree.Value is IPv6Address ipv6:
-                    return (byte[])ipv6;
-                case "mac-address" when dataTree.Value is MACAddress macAddress:
-                    return (byte[])macAddress;
-
-                //Known from E1.37-5 (2024) as uuid
-                case "uuid" when dataTree.Value is Guid uuid:
-                    return uuid.ToByteArray();
-                case "guid" when dataTree.Value is Guid guid:
-                    return guid.ToByteArray();
-
-                //Additional added, because there is no fancy way to di this with E1.37-5 (2024)
-                case "pid" when dataTree.Value is ERDM_Parameter pid:
-                    return Tools.ValueToData(pid);
-
-                //Additional added, because there is no fancy way to di this with E1.37-5 (2024)
-                case "double" when dataTree.Value is double _double:
-                    return BitConverter.GetBytes(_double);
-                case "float" when dataTree.Value is float _float:
-                    return BitConverter.GetBytes(_float);
-
-
-                //Additional added, because there is no fancy way to di this with E1.37-5 (2024)
-                case "ascii" when dataTree.Value is string ascii:
-                    return Encoding.ASCII.GetBytes(ascii);
-                case "utf8" when dataTree.Value is string utf8:
-                    return Encoding.UTF8.GetBytes(utf8);
-                case "utf32" when dataTree.Value is string utf32:
-                    return Encoding.UTF32.GetBytes(utf32);
-                case "unicode" when dataTree.Value is string unicode:
-                    return Encoding.Unicode.GetBytes(unicode);
-                case "big_edian_unicode" when dataTree.Value is string big_edian_unicode:
-                    return Encoding.BigEndianUnicode.GetBytes(big_edian_unicode);
-                case "latin1" when dataTree.Value is string latin1:
-                    return Encoding.Latin1.GetBytes(latin1);
-
-                //Fallback
-                default:
-                    if (dataTree.Value is string str)
-                        return Encoding.UTF8.GetBytes(str);
-                    if (dataTree.Value is string[] strArray)
-                        return Encoding.UTF8.GetBytes(string.Join((char)0, strArray));
-                    if (dataTree.Value is byte[] byteArray)
-                        return byteArray;
-                    break;
+                List<byte> bytes = new List<byte>();
+                string format = Format.Replace("[]", "");
+                for (int i = 0; i < typedArray.Length; i++)
+                {
+                    object value = typedArray.GetValue(i);
+                    bytes.AddRange(parseData(format, value));
+                    if (value is string)
+                        bytes.Add(0); //Null-Delimiter
+                }
+                return bytes.ToArray();
             }
+            else
+                return parseData(Format, dataTree.Value);
 
-            throw new ArithmeticException($"The given Object of {nameof(Format)}: \"{Format}\" can't be parsed from {nameof(dataTree.Value)}: {dataTree.Value}");
+            byte[] parseData(string format, object value)
+            {
+                Exception e = null;
+                try
+                {
+                    switch (format)
+                    {
+                        //Known from E1.37-5 (2024)
+                        case "uid" when value is UID uid:
+                            return uid.ToBytes().ToArray();
+                        case "ipv4" when value is IPv4Address ipv4:
+                            return (byte[])ipv4;
+                        case "ipv6" when value is IPv6Address ipv6:
+                            return (byte[])ipv6;
+                        case "mac-address" when value is MACAddress macAddress:
+                            return (byte[])macAddress;
+
+                        //Known from E1.37-5 (2024) as uuid
+                        case "uuid" when value is Guid uuid:
+                            return uuid.ToByteArray();
+                        case "guid" when value is Guid guid:
+                            return guid.ToByteArray();
+
+                        //Additional added, because there is no fancy way to di this with E1.37-5 (2024)
+                        case "pid" when value is ERDM_Parameter pid:
+                            return Tools.ValueToData(pid);
+
+                        //Additional added, because there is no fancy way to di this with E1.37-5 (2024)
+                        case "double" when value is double _double:
+                            return BitConverter.GetBytes(_double);
+                        case "float" when value is float _float:
+                            return BitConverter.GetBytes(_float);
+
+
+                        //Additional added, because there is no fancy way to di this with E1.37-5 (2024)
+                        case "ascii" when value is string ascii:
+                            return Encoding.ASCII.GetBytes(ascii);
+                        case "utf8" when value is string utf8:
+                            return Encoding.UTF8.GetBytes(utf8);
+                        case "utf32" when value is string utf32:
+                            return Encoding.UTF32.GetBytes(utf32);
+                        case "unicode" when value is string unicode:
+                            return Encoding.Unicode.GetBytes(unicode);
+                        case "big_edian_unicode" when value is string big_edian_unicode:
+                            return Encoding.BigEndianUnicode.GetBytes(big_edian_unicode);
+                        case "latin1" when value is string latin1:
+                            return Encoding.Latin1.GetBytes(latin1);
+
+                        //Fallback
+                        default:
+                            if (value is string str)
+                                return Encoding.UTF8.GetBytes(str);
+                            if (value is byte[] byteArray)
+                                return byteArray;
+                            throw new NotImplementedException($"There is no implementation for {nameof(Format)}: {Format} and Value: {value}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    e = ex;
+                }
+                throw new ArithmeticException($"The given Object of {nameof(Format)}: \"{Format}\" can't be parsed from {nameof(value)}: {value}", e);
+            }
         }
         public override DataTree ParseDataToPayload(ref byte[] data)
         {
             List<DataTreeIssue> issueList = new List<DataTreeIssue>();
             object value = null;
-            switch (Format)
+            if (!string.IsNullOrWhiteSpace(Format) && Format.EndsWith("[]"))
             {
-                //Known from E1.37-5 (2024)
-                case "uid":
-                    value = new UID(Tools.DataToUShort(ref data), Tools.DataToUInt(ref data));
-                    break;
-                case "ipv4":
-                    value = new IPv4Address(data.Take(4));
-                    data = data.Skip(4).ToArray();
-                    break;
-                case "ipv6":
-                    value = new IPv6Address(data.Take(16));
-                    data = data.Skip(16).ToArray();
-                    break;
-                case "mac-address":
-                    value = new MACAddress(data.Take(16));
-                    data = data.Skip(6).ToArray();
-                    break;
+                List<object> list = new List<object>();
+                while (data.Length > 0)
+                {
+                    try
+                    {
+                        string format = Format.Replace("[]", "");
+                        list.Add(parseData(format, ref data));
+                    }
+                    catch(Exception e)
+                    {
+                        issueList.Add(new DataTreeIssue(e.Message));
+                        break;
+                    }
+                }
+                if (data.Length > 0)
+                    issueList.Add(new DataTreeIssue("Data Length is not 0"));
 
-                //Known from E1.37-5 (2024) as uuid
-                case "uuid":
-                case "guid":
-                    value = new Guid(data.Take(16).ToArray());
-                    data = data.Skip(16).ToArray();
-                    break;
+                if (list.Count == 0)
+                    value = null;
+                else
+                {
+                    Type targetType=list.First().GetType();
+                    var array = Array.CreateInstance(targetType,list.Count);
+                    for (int i = 0; i < list.Count; i++)
+                        array.SetValue(Convert.ChangeType(list[i], targetType), i);
 
-                //Additional added, because there is no fancy way to di this with E1.37-5 (2024)
-                case "pid":
-                    value = Tools.DataToEnum<ERDM_Parameter>(ref data);
-                    break;
-
-                //Additional added, because there is no fancy way to di this with E1.37-5 (2024)
-                case "double":
-                    value = BitConverter.ToDouble(data, 0);
-                    data = data.Skip(8).ToArray();
-                    break;
-                case "float":
-                    value = BitConverter.ToSingle(data, 0);
-                    data = data.Skip(4).ToArray();
-                    break;
-
-
-                //Additional added, because there is no fancy way to di this with E1.37-5 (2024)
-                case "ascii":
-                    value = Encoding.ASCII.GetString(data);
-                    data = data.Skip(data.Length).ToArray();
-                    break;
-                case "utf8":
-                    value = Encoding.UTF8.GetString(data);
-                    data = data.Skip(data.Length).ToArray();
-                    break;
-                case "utf32":
-                    value = Encoding.UTF32.GetString(data);
-                    data = data.Skip(data.Length).ToArray();
-                    break;
-                case "unicode":
-                    value = Encoding.Unicode.GetString(data);
-                    data = data.Skip(data.Length).ToArray();
-                    break;
-                case "big_edian_unicode":
-                    value = Encoding.BigEndianUnicode.GetString(data);
-                    data = data.Skip(data.Length).ToArray();
-                    break;
-                case "latin1":
-                    value=Encoding.Latin1.GetString(data);
-                    data = data.Skip(data.Length).ToArray();
-                    break;
-
-                //Fallback
-                default:
-                    value = data;
-                    data = data.Skip(data.Length).ToArray();
-                    issueList.Add(new DataTreeIssue($"No Parser found for {nameof(Format)}: \"{Format}\""));
-                    break;
+                    value = array;
+                }
             }
+            else
+                value = parseData(Format, ref data);
+
+
             return new DataTree(this.Name, 0, value, issueList.Count != 0 ? issueList.ToArray() : null);
+
+            object parseData(string format, ref byte[] data)
+            {
+                void validateDataLength(int length, ref byte[] data)
+                {
+                    if (data.Length < length)
+                        throw new ArithmeticException("Data to short");
+                }
+                object value = null;
+                switch (format)
+                {
+                    //Known from E1.37-5 (2024)
+                    case "uid":
+                        validateDataLength(6, ref data);
+                        value = new UID(Tools.DataToUShort(ref data), Tools.DataToUInt(ref data));
+                        break;
+                    case "ipv4":
+                        validateDataLength(4, ref data);
+                        value = new IPv4Address(data.Take(4));
+                        data = data.Skip(4).ToArray();
+                        break;
+                    case "ipv6":
+                        validateDataLength(16, ref data);
+                        value = new IPv6Address(data.Take(16));
+                        data = data.Skip(16).ToArray();
+                        break;
+                    case "mac-address":
+                        validateDataLength(6, ref data);
+                        value = new MACAddress(data.Take(6));
+                        data = data.Skip(6).ToArray();
+                        break;
+
+                    //Known from E1.37-5 (2024) as uuid
+                    case "uuid":
+                    case "guid":
+                        validateDataLength(16, ref data);
+                        value = new Guid(data.Take(16).ToArray());
+                        data = data.Skip(16).ToArray();
+                        break;
+
+                    //Additional added, because there is no fancy way to di this with E1.37-5 (2024)
+                    case "pid":
+                        validateDataLength(2, ref data);
+                        value = Tools.DataToEnum<ERDM_Parameter>(ref data);
+                        break;
+
+                    //Additional added, because there is no fancy way to di this with E1.37-5 (2024)
+                    case "double":
+                        validateDataLength(8, ref data);
+                        value = BitConverter.ToDouble(data.Take(8).ToArray(), 0);
+                        data = data.Skip(8).ToArray();
+                        break;
+                    case "float":
+                        validateDataLength(4, ref data);
+                        value = BitConverter.ToSingle(data.Take(4).ToArray(), 0);
+                        data = data.Skip(4).ToArray();
+                        break;
+
+
+                    //Additional added, because there is no fancy way to di this with E1.37-5 (2024)
+                    case "ascii":
+                        value = getNullDelimitetData(Encoding.ASCII, ref data);
+                        break;
+                    case "utf8":
+                        value = getNullDelimitetData(Encoding.UTF8, ref data);
+                        break;
+                    case "utf32":
+                        value = getNullDelimitetData(Encoding.UTF32, ref data);
+                        break;
+                    case "unicode":
+                        value = getNullDelimitetData(Encoding.Unicode, ref data);
+                        break;
+                    case "big_edian_unicode":
+                        value = getNullDelimitetData(Encoding.BigEndianUnicode, ref data);
+                        break;
+                    case "latin1":
+                        value = getNullDelimitetData(Encoding.Latin1,ref data);
+                        break;
+
+                    //Fallback
+                    default:
+                        value = data;
+                        data = data.Skip(data.Length).ToArray();
+                        issueList.Add(new DataTreeIssue($"No Parser found for {nameof(Format)}: \"{Format}\""));
+                        break;
+                }
+                return value;
+
+                string getNullDelimitetData(Encoding encoding, ref byte[] data)
+                {
+                    string res = encoding.GetString(data);
+                    if (res.Contains('\0')) 
+                    {
+                        res = res.Split('\0')[0];
+                        int count = encoding.GetByteCount(res + "\0");
+                        data = data.Skip(count).ToArray();
+                    }
+                    else
+                        data = new byte[0];
+                    return res;
+                }
+            }
         }
     }
 }
