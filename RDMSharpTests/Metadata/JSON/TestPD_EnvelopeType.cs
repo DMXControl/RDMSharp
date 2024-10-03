@@ -24,8 +24,7 @@ namespace RDMSharpTests.Metadata.JSON
 
         [Test]
         public void TestParseData1()
-        {
-            
+        {            
             var pdEnvelopeType = new PD_EnvelopeType("NAME", "DISPLAY_NAME", "NOTES", null, "pdEnvelope", 2);
             var dataTree = new DataTree(pdEnvelopeType.Name, 0, null);
             var data = pdEnvelopeType.ParsePayloadToData(dataTree);

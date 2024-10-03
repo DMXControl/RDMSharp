@@ -1,11 +1,21 @@
 using RDMSharp.Metadata;
 using RDMSharp.Metadata.JSON.OneOfTypes;
 using RDMSharp.RDM;
+using System.Text;
 
 namespace RDMSharpTests.Metadata.JSON
 {
     public class TestStringType
     {
+        [Test]
+        public void TestUTF8_Works()
+        {
+            string originalString = "Ä";
+            byte[] byteArray = Encoding.UTF8.GetBytes(originalString);
+            string resultString = Encoding.UTF8.GetString(byteArray);
+
+            Assert.That(resultString, Is.EqualTo(originalString));
+        }
         [Test]
         public void TestMany()
         {
