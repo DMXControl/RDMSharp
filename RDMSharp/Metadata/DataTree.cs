@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 
 namespace RDMSharp.Metadata
 {
@@ -29,6 +30,9 @@ namespace RDMSharp.Metadata
         }
         public DataTree(string name, uint index, object value, DataTreeIssue[]? issues = null, string unit = null, DataTreeValueLabel[] labels = null) : this(name, index, issues)
         {
+            if (value is IEnumerable<DataTree> || value is DataTree[] children)
+                throw new ArgumentException($"Use other Constructor if you use {nameof(Children)}");
+
             Value = value;
             Unit = unit;
             Labels = labels;

@@ -2,7 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
+
+[assembly: InternalsVisibleTo("RDMSharpTests")]
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
@@ -76,23 +79,34 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 data.AddRange(Subtypes[i].ParsePayloadToData(dataTree.Children[i]));
             }
 
-            if (!GetDataLength().IsValid(data.Count))
-                throw new ArithmeticException($"Parsed DataLengt not fits Calculated DataLength");
+            validateDataLength(data.Count);
 
             return data.ToArray();
         }
         public override DataTree ParseDataToPayload(ref byte[] data)
         {
             List<DataTree> subTypeDataTree = new List<DataTree>();
-            List<DataTreeIssue> issueList = new List<DataTreeIssue>();
+
+            int dataLength = data.Length;
 
             for (int i = 0; i < Subtypes.Length; i++)
             {
                 OneOfTypes subType = Subtypes[i];
                 subTypeDataTree.Add(new DataTree(subType.ParseDataToPayload(ref data), (uint)i));
             }
+            dataLength -= data.Length;
 
-            return new DataTree(this.Name, 0, subTypeDataTree.OrderBy(b => b.Index), issueList.Count != 0 ? issueList.ToArray() : null);
+            validateDataLength(dataLength);
+
+            return new DataTree(this.Name, 0, children: subTypeDataTree.OrderBy(b => b.Index).ToArray());
+        }
+
+        internal bool validateDataLength(int dataLength)
+        {
+            if (!GetDataLength().IsValid(dataLength))
+                throw new ArithmeticException($"Parsed DataLength not fits Calculated DataLength");
+
+            return true;
         }
     }
 }

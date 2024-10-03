@@ -133,20 +133,11 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         public byte[] ParsePayloadToData(DataTree dataTree)
         {
             CommonPropertiesForNamed objectType = ObjectType ?? ReferenceType?.ReferencedObject;
-            var data = objectType.ParsePayloadToData(dataTree);
-
-            if (!GetDataLength().IsValid(data.Length))
-                throw new ArithmeticException($"Parsed Data.Lenght not fits Calculated DataLength");
-
-            return data;
+            return objectType.ParsePayloadToData(dataTree);
         }
         public DataTree ParseDataToPayload(ref byte[] data)
         {
             CommonPropertiesForNamed objectType = ObjectType ?? ReferenceType?.ReferencedObject;
-
-            if (!GetDataLength().IsValid(data.Length))
-                throw new ArithmeticException($"Parsed Data.Lenght not fits Calculated DataLength");
-
             return objectType.ParseDataToPayload(ref data);
         }
 

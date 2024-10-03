@@ -60,6 +60,11 @@ namespace RDMSharpTests.Metadata.JSON
                 Assert.That(pdl.MinLength, Is.EqualTo(32));
                 Assert.That(pdl.MaxLength, Is.EqualTo(PDL.MAX_LENGTH));
             });
+
+            Assert.Throws(typeof(ArithmeticException), () => listType.validateDataLength(0));
+            Assert.Throws(typeof(ArithmeticException), () => listType.validateDataLength(3));
+            Assert.DoesNotThrow(() => listType.validateDataLength(32));
+            Assert.DoesNotThrow(() => listType.validateDataLength(58905));
         }
     }
 }

@@ -1,7 +1,10 @@
 ﻿using RDMSharp.RDM;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
+
+[assembly: InternalsVisibleTo("RDMSharpTests")]
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
@@ -119,8 +122,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 data.AddRange(ItemType.ParsePayloadToData(dataTree.Children[i]));
             }
 
-            if (!GetDataLength().IsValid(data.Count))
-                throw new ArithmeticException($"Parsed DataLengt not fits Calculated DataLength");
+            validateDataLength(data.Count);
 
             return data.ToArray();
         }
@@ -131,13 +133,17 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             List<DataTreeIssue> issueList = new List<DataTreeIssue>();
 
             uint index = 0;
+            int dataLength = data.Length;
             while (_continue(ref data))
             {
                 dataTrees.Add(new DataTree(ItemType.ParseDataToPayload(ref data), index));
                 index++;
             }
+            dataLength -= data.Length;
 
-            return new DataTree(Name, 0, dataTrees, issueList.Count != 0 ? issueList.ToArray() : null);
+            validateDataLength(dataLength);
+
+            return new DataTree(Name, 0, children: dataTrees.ToArray(), issueList.Count != 0 ? issueList.ToArray() : null);
 
             bool _continue(ref byte[] data)
             {
@@ -158,6 +164,13 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
                 return true;
             }
+        }
+        internal bool validateDataLength(int dataLength)
+        {
+            if (!GetDataLength().IsValid(dataLength))
+                throw new ArithmeticException($"Parsed DataLength not fits Calculated DataLength");
+
+            return true;
         }
     }
 }
