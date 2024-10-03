@@ -50,7 +50,27 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
         public override string ToString()
         {
-            return $"Range: {Minimum:X4} - {Maximum:X4}";
+            switch (Minimum)
+            {
+                case byte:
+                case sbyte:
+                    return $"Range: {Minimum:X2} - {Maximum:X2}";
+                case short:
+                case ushort:
+                    return $"Range: {Minimum:X4} - {Maximum:X4}";
+                case int:
+                case uint:
+                    return $"Range: {Minimum:X8} - {Maximum:X8}";
+                case long:
+                case ulong:
+                    return $"Range: {Minimum:X16} - {Maximum:X16}";
+#if NET7_0_OR_GREATER
+                case Int128:
+                case UInt128:
+                    return $"Range: {Minimum:X32} - {Maximum:X32}";
+#endif
+            }
+            return $"Range: {Minimum} - {Maximum}";
         }
     }
 }
