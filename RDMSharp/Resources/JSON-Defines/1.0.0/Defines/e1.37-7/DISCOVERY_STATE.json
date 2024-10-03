@@ -1,0 +1,74 @@
+{
+  "name": "DISCOVERY_STATE",
+  "notes": "E1.37-7",
+  "manufacturer_id": 0,
+  "pid": 2311,
+  "version": 1,
+  "get_request_subdevice_range": [ "root" ],
+  "get_request": [
+    {
+      "name": "endpoint_id",
+      "type": "uint16",
+      "ranges": [
+        { "minimum": 1, "maximum": 63999 }
+      ]
+    }
+  ],
+  "get_response": [
+    { "$ref": "#/get_request/0" },
+    {
+      "name": "device_count",
+      "type": "uint16",
+      "ranges": [
+        { "minimum": 0, "maximum": 63999 },
+        { "minimum": 65535, "maximum": 65535 }
+      ],
+      "labels": [
+        { "name": "DISCOVERY_COUNT_INCOMPLETE", "value": 0 },
+        { "name": "DISCOVERY_COUNT_UNKNOWN", "value": 65535 }
+      ]
+    },
+    {
+      "name": "state",
+      "type": "uint8",
+      "ranges": [
+        { "minimum": 0, "maximum": 223 }
+      ],
+      "labels": [
+        { "name": "INCOMPLETE", "value": 0 },
+        { "name": "INCREMENTAL", "value": 1 },
+        { "name": "FULL", "value": 2 },
+        { "name": "NOT_ACTIVE", "value": 3 }
+      ]
+    }
+  ],
+  "set_request_subdevice_range": [ "root" ],
+  "set_request": [
+    {
+      "name": "endpoint_id",
+      "type": "uint16",
+      "ranges": [
+        { "minimum": 1, "maximum": 63999 },
+        { "minimum": 65535, "maximum": 65535 }
+      ],
+      "labels": [
+        { "name": "BROADCAST", "value": 65535 }
+      ]
+    },
+    {
+      "name": "state",
+      "type": "uint8",
+      "ranges": [
+        { "minimum": 1, "maximum": 223 }
+      ],
+      "labels": [
+        { "name": "INCREMENTAL", "value": 1 },
+        { "name": "FULL", "value": 2 },
+        { "name": "NOT_ACTIVE", "value": 3 }
+      ]
+    }
+  ],
+  "set_response": [
+    { "$ref": "#/set_request/0" }
+  ]
+}

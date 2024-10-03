@@ -1,0 +1,32 @@
+{
+  "name": "INTERFACE_LABEL",
+  "notes": "E1.37-2",
+  "manufacturer_id": 0,
+  "pid": 1793,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
+    {
+      "name": "id",
+      "type": "uint32",
+      "ranges": [
+        { "minimum": 1, "maximum": 4294967040 }
+      ]
+    }
+  ],
+  "get_response": [
+    {
+      "name": "id",
+      "type": "uint32",
+      "ranges": [
+        { "minimum": 1, "maximum": 4294967040 }
+      ]
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "maxLength": 32,
+      "restrictToASCII": true
+    }
+  ]
+}

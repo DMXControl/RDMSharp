@@ -1,0 +1,18 @@
+{
+  "name": "MOCK_128BIT_INTEGER_TEST",
+  "manufacturer_id": 4365,
+  "pid": 4874,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
+    {
+      "name": "timeout",
+      "type": "int128"
+    },
+    {
+      "name": "timeout",
+      "type": "uint128"
+    }
+  ],
+  "get_response": "get_request"
+}

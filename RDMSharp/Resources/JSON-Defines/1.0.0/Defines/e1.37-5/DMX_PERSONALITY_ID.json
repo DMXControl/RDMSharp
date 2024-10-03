@@ -1,0 +1,22 @@
+{
+  "name": "DMX_PERSONALITY_ID",
+  "notes": "E1.37-5",
+  "manufacturer_id": 0,
+  "pid": 226,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
+    {
+      "name": "personality",
+      "type": "uint8",
+      "ranges": [
+        { "minimum": 1, "maximum": 255 }
+      ]
+    }
+  ],
+  "get_response": [
+    { "$ref": "#/get_request/0" },
+    { "name": "major_id", "type": "uint32" },
+    { "name": "minor_id", "type": "uint32" }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "name": "ENDPOINT_TIMING",
+  "notes": "E1.37-7",
+  "manufacturer_id": 0,
+  "pid": 2313,
+  "version": 1,
+  "get_request_subdevice_range": [ "root" ],
+  "get_request": [
+    {
+      "name": "endpoint_id",
+      "type": "uint16",
+      "ranges": [
+        { "minimum": 1, "maximum": 63999 }
+      ]
+    }
+  ],
+  "get_response": [
+    { "$ref": "#/get_request/0" },
+    {
+      "name": "setting",
+      "type": "uint8",
+      "ranges": [
+        { "minimum": 1, "maximum": 255 }
+      ]
+    },
+    { "name": "setting_count", "type": "uint8" }
+  ],
+  "set_request_subdevice_range": [ "root" ],
+  "set_request": [
+    {
+      "name": "endpoint_id",
+      "type": "uint16",
+      "ranges": [
+        { "minimum": 1, "maximum": 63999 },
+        { "minimum": 65535, "maximum": 65535 }
+      ],
+      "labels": [
+        { "name": "BROADCAST", "value": 65535 }
+      ]
+    },
+    { "$ref": "#/get_response/1" }
+  ],
+  "set_response": [
+    { "$ref": "#/set_request/0" }
+  ]
+}

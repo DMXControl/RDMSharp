@@ -1,0 +1,21 @@
+{
+  "name": "DEFAULT_SLOT_VALUE",
+  "manufacturer_id": 0,
+  "pid": 290,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "slots",
+      "type": "list",
+      "itemType": {
+        "type": "compound",
+        "subtypes": [
+          { "name": "id", "type": "uint16" },
+          { "name": "default_value", "type": "uint8" }
+        ]
+      }
+    }
+  ]
+}

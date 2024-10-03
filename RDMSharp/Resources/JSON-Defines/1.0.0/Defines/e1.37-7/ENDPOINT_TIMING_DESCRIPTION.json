@@ -1,0 +1,26 @@
+{
+  "name": "ENDPOINT_TIMING_DESCRIPTION",
+  "notes": "E1.37-7",
+  "manufacturer_id": 0,
+  "pid": 2314,
+  "version": 1,
+  "get_request_subdevice_range": [ "root" ],
+  "get_request": [
+    {
+      "name": "setting",
+      "type": "uint8",
+      "ranges": [
+        { "minimum": 1, "maximum": 255 }
+      ]
+    }
+  ],
+  "get_response": [
+    { "$ref": "#/get_request/0" },
+    {
+      "name": "description",
+      "type": "string",
+      "maxLength": 32,
+      "restrictToASCII": true
+    }
+  ]
+}

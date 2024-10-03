@@ -1,0 +1,14 @@
+{
+  "name": "BOOT_SOFTWARE_VERSION_ID",
+  "manufacturer_id": 0,
+  "pid": 193,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "boot_software_version_id",
+      "type": "uint32"
+    }
+  ]
+}
