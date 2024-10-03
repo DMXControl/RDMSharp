@@ -1,4 +1,4 @@
-using RDMSharp.Metadata;
+ï»¿using RDMSharp.Metadata;
 using RDMSharp.Metadata.JSON.OneOfTypes;
 using RDMSharp.RDM;
 using System.Text;
@@ -16,7 +16,7 @@ namespace RDMSharpTests.Metadata.JSON
         public void TestUTF8_Works()
         {
             Console.OutputEncoding = Encoding.UTF8;
-            string originalString = "Ä";
+            string originalString = "Ã„";
             byte[] byteArray = Encoding.UTF8.GetBytes(originalString);
             string resultString = Encoding.UTF8.GetString(byteArray);
 
@@ -79,7 +79,7 @@ namespace RDMSharpTests.Metadata.JSON
         {
             Console.OutputEncoding = Encoding.UTF8;
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, "string", null, null, null, null, minBytes: 8, maxBytes: 8, null);
-            string str = "ÄÜÖß";
+            string str = "Ã„ÃœÃ–ÃŸ";
             DataTree dataTree = new DataTree("NAME", 0, str);
             byte[] data = stringType.ParsePayloadToData(dataTree);
             Assert.That(data, Is.EqualTo(new byte[] { 195, 132, 195, 156, 195, 150, 195, 159 }));
@@ -95,7 +95,7 @@ namespace RDMSharpTests.Metadata.JSON
         {
             Console.OutputEncoding = Encoding.UTF8;
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, "string", null, null, 4, 6, null, null, null);
-            string str = "ÄÜÖß";
+            string str = "Ã„ÃœÃ–ÃŸ";
             DataTree dataTree = new DataTree("NAME", 0, str);
             byte[] data = stringType.ParsePayloadToData(dataTree);
             Assert.That(data, Is.EqualTo(new byte[] { 195, 132, 195, 156, 195, 150, 195, 159 }));
@@ -111,7 +111,7 @@ namespace RDMSharpTests.Metadata.JSON
         {
             Console.OutputEncoding = Encoding.UTF8;
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, "string", null, null, 4, 6, 4, 8, null);
-            string str = "ÄUÖS";
+            string str = "Ã„UÃ–S";
             DataTree dataTree = new DataTree("NAME", 0, str);
             byte[] data = stringType.ParsePayloadToData(dataTree);
             Assert.That(data, Is.EqualTo(new byte[] { 195, 132, 85, 195, 150, 83 }));
@@ -142,10 +142,10 @@ namespace RDMSharpTests.Metadata.JSON
 
             stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, "string", null, null, null, null, 5, 8, null);
 
-            str = "ÄÖÜ4567";
+            str = "Ã„Ã–Ãœ4567";
             dataTree = new DataTree("NAME", 0, str);
             Assert.Throws(typeof(ArithmeticException), () => stringType.ParsePayloadToData(dataTree));
-            str = "ÄÖÜÜÖÄ";
+            str = "Ã„Ã–ÃœÃœÃ–Ã„";
             dataTree = new DataTree("NAME", 0, str);
             Assert.Throws(typeof(ArithmeticException), () => stringType.ParsePayloadToData(dataTree));
             str = null;
@@ -160,12 +160,12 @@ namespace RDMSharpTests.Metadata.JSON
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, "string", null, null, null, null, 2, 8, null);
             byte[] data = new byte[] { 195, 132, 0, 0, 0, 0 };
             var dataTree = stringType.ParseDataToPayload(ref data);
-            Assert.That(dataTree.Value, Is.EqualTo("Ä"));
+            Assert.That(dataTree.Value, Is.EqualTo("Ã„"));
             Assert.That(dataTree.Issues, Has.Length.EqualTo(1));
 
             data = new byte[] { 195, 132, 0, 0, 119, 0 };
             dataTree = stringType.ParseDataToPayload(ref data);
-            Assert.That(dataTree.Value, Is.EqualTo("Ä"));
+            Assert.That(dataTree.Value, Is.EqualTo("Ã„"));
             Assert.That(dataTree.Issues, Has.Length.EqualTo(2));
 
             data = new byte[] { 0, 0, 0, 0, 0, 0 };
@@ -185,11 +185,11 @@ namespace RDMSharpTests.Metadata.JSON
 
             data = new byte[] { 195, 132, 195, 132, 195, 132, 195, 132, 0 };
             dataTree = stringType.ParseDataToPayload(ref data);
-            Assert.That(dataTree.Value, Is.EqualTo("ÄÄÄÄ"));
+            Assert.That(dataTree.Value, Is.EqualTo("Ã„Ã„Ã„Ã„"));
             Assert.That(dataTree.Issues, Has.Length.EqualTo(1));
             data = new byte[] { 195, 132, 195, 132, 195, 132, 195, 132, 119, 119, 0 };
             dataTree = stringType.ParseDataToPayload(ref data);
-            Assert.That(dataTree.Value, Is.EqualTo("ÄÄÄÄ"));
+            Assert.That(dataTree.Value, Is.EqualTo("Ã„Ã„Ã„Ã„"));
             Assert.That(dataTree.Issues, Has.Length.EqualTo(1));
         }
         [Test]
@@ -199,12 +199,12 @@ namespace RDMSharpTests.Metadata.JSON
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, "string", null, null, 2, 4, null, null, null);
             byte[] data = new byte[] { 195, 132, 0, 0, 0, 0 };
             var dataTree = stringType.ParseDataToPayload(ref data);
-            Assert.That(dataTree.Value, Is.EqualTo("Ä"));
+            Assert.That(dataTree.Value, Is.EqualTo("Ã„"));
             Assert.That(dataTree.Issues, Has.Length.EqualTo(2));
 
             data = new byte[] { 195, 132, 119, 119, 119, 119, 0 };
             dataTree = stringType.ParseDataToPayload(ref data);
-            Assert.That(dataTree.Value, Is.EqualTo("Äwwww"));
+            Assert.That(dataTree.Value, Is.EqualTo("Ã„wwww"));
             Assert.That(dataTree.Issues, Has.Length.EqualTo(1));
         }
     }
