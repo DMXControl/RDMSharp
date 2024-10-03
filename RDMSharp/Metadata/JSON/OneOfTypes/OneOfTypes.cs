@@ -124,26 +124,28 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
         public bool IsEmpty()
         {
-            return ObjectType == null && ReferenceType == null;
+            return getObjectType() == null;
         }
         public PDL GetDataLength()
         {
-            return ObjectType?.GetDataLength() ?? ReferenceType?.GetDataLength() ?? new PDL();
+            return getObjectType()?.GetDataLength() ?? new PDL();
         }
         public byte[] ParsePayloadToData(DataTree dataTree)
         {
-            CommonPropertiesForNamed objectType = ObjectType ?? ReferenceType?.ReferencedObject;
-            return objectType.ParsePayloadToData(dataTree);
+            return getObjectType().ParsePayloadToData(dataTree);
         }
         public DataTree ParseDataToPayload(ref byte[] data)
         {
-            CommonPropertiesForNamed objectType = ObjectType ?? ReferenceType?.ReferencedObject;
-            return objectType.ParseDataToPayload(ref data);
+            return getObjectType().ParseDataToPayload(ref data);
+        }
+        private CommonPropertiesForNamed getObjectType()
+        {
+            return ObjectType ?? ReferenceType?.ReferencedObject;
         }
 
         public override string ToString()
         {
-            return ObjectType?.ToString() ?? ReferenceType.ToString();
+            return getObjectType()?.ToString();
         }
     }
 }

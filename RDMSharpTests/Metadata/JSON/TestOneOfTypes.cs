@@ -9,6 +9,7 @@ namespace RDMSharpTests.Metadata.JSON
         {
             var oneOfTypes = new OneOfTypes();
             Assert.That(oneOfTypes.IsEmpty, Is.True);
+            Assert.That(oneOfTypes.ToString(), Is.Null);
             Assert.DoesNotThrow(() =>
             {
                 Assert.That(oneOfTypes.GetDataLength().Value, Is.EqualTo(0));
