@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
 
 namespace RDMSharp.Metadata
 {
@@ -45,7 +44,7 @@ namespace RDMSharp.Metadata
 
         public override string ToString()
         {
-            return $"{Name}: {Value}";
+            return $"[{Index}] {Name}: {Value}";
         }
 
         public override bool Equals(object obj)
