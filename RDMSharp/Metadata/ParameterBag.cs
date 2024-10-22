@@ -8,7 +8,10 @@ namespace RDMSharp.Metadata
         public readonly ushort ManufacturerID { get; }
         public readonly ushort? DeviceModelID { get; }
         public readonly uint? SoftwareVersionID { get; }
-
+        public ParameterBag()
+        {
+            throw new NotSupportedException("Its not allowed to have an default of this Type");
+        }
         public ParameterBag(ERDM_Parameter pid, ushort manufacturerID = 0, ushort? deviceModelID = null, uint? softwareVersionID = null)
         {
             if ((ushort)pid >= 0x8000)
