@@ -1,0 +1,17 @@
+{
+  "name": "PRODUCT_URL",
+  "notes": "E1.37-5",
+  "manufacturer_id": 0,
+  "pid": 209,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "url",
+      "type": "string",
+      "notes": "The spec says that the minimum length is 5, but we shouldn't restrict because that would imply we know what the URL scheme is.",
+      "format": "url"
+    }
+  ]
+}

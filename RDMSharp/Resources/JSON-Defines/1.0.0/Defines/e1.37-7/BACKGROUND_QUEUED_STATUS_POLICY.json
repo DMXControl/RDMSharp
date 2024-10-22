@@ -1,0 +1,32 @@
+{
+  "name": "BACKGROUND_QUEUED_STATUS_POLICY",
+  "notes": "E1.37-7",
+  "manufacturer_id": 0,
+  "pid": 2318,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "policy_setting",
+      "type": "uint8",
+      "notes": "See \"Table 7-3: Control Field\" in ANSI E1.20-202x. The labeled values are just informative, but this contradicts with the spec (E1.37-7) saying \"must support this minimum set\".",
+      "labels": [
+        { "name": "STATUS_NONE", "value": 0 },
+        { "name": "STATUS_ADVISORY", "value": 1 },
+        { "name": "STATUS_WARNING", "value": 2 },
+        { "name": "STATUS_ERROR", "value": 3 }
+      ]
+    },
+    {
+      "name": "policy_setting_count",
+      "type": "uint8",
+      "notes": "Breaking with other message definitions (and this is not mentioned in the spec), the policy setting value starts at 0, unlike others which start at 1. This means that the maximum value is 254 since the count can be at most 255."
+    }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": [
+    { "$ref": "#/get_response/0" }
+  ],
+  "set_response": []
+}

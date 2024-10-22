@@ -1,0 +1,29 @@
+{
+  "name": "DNS_HOSTNAME",
+  "notes": "E1.37-2. This the host-specific part (or \"label\") of an internet host; it is prepended to the domain name using a dot ('.') to create a fully qualified domain name (FQDN).",
+  "manufacturer_id": 0,
+  "pid": 1804,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "hostname",
+      "type": "string",
+      "resources": [
+        "https://www.rfc-editor.org/rfc/rfc1123.html#section-2",
+        "https://www.rfc-editor.org/rfc/rfc1912.html#section-2.1",
+        "https://www.rfc-editor.org/rfc/rfc3696.html#section-2",
+        "https://stackoverflow.com/a/14622263"
+      ],
+      "pattern": "^(?!-)[a-zA-Z0-9-]{0,62}[a-zA-Z0-9]$",
+      "notes": "Some implementations don't support negative lookbehind in patterns. Alternative patterns without negative lookahead: \"^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9])$\", \"^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$\".",
+      "minLength": 1,
+      "maxLength": 63,
+      "restrictToASCII": true
+    }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": "get_response",
+  "set_response": []
+}

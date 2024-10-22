@@ -1,0 +1,114 @@
+{
+  "name": "PRESET_INFO",
+  "notes": "E1.37-1",
+  "manufacturer_id": 0,
+  "pid": 4161,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    { "name": "level_field_supported", "type": "boolean" },
+    { "name": "preset_sequence_supported", "type": "boolean" },
+    { "name": "split_times_supported", "type": "boolean" },
+    { "name": "dmx_fail_infinite_delay_time_supported", "type": "boolean" },
+    { "name": "dmx_fail_infinite_hold_time_supported", "type": "boolean" },
+    { "name": "startup_infinite_hold_time_supported", "type": "boolean" },
+    { "name": "max_scene_number", "type": "uint16" },
+    {
+      "name": "preset_min_fade_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1
+    },
+    {
+      "name": "preset_max_fade_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1
+    },
+    {
+      "name": "preset_min_wait_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1
+    },
+    {
+      "name": "preset_max_wait_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1
+    },
+    {
+      "name": "dmx_fail_min_delay_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1,
+      "labels": [
+        { "name": "Not Supported", "value": 65535 }
+      ]
+    },
+    {
+      "name": "dmx_fail_max_delay_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1,
+      "labels": [
+        { "name": "Not Supported", "value": 65535 }
+      ]
+    },
+    {
+      "name": "dmx_fail_min_hold_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1,
+      "labels": [
+        { "name": "Not Supported", "value": 65535 }
+      ]
+    },
+    {
+      "name": "dmx_fail_max_hold_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1,
+      "labels": [
+        { "name": "Not Supported", "value": 65535 }
+      ]
+    },
+    {
+      "name": "startup_min_delay_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1,
+      "labels": [
+        { "name": "Not Supported", "value": 65535 }
+      ]
+    },
+    {
+      "name": "startup_max_delay_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1,
+      "labels": [
+        { "name": "Not Supported", "value": 65535 }
+      ]
+    },
+    {
+      "name": "startup_min_hold_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1,
+      "labels": [
+        { "name": "Not Supported", "value": 65535 }
+      ]
+    },
+    {
+      "name": "startup_max_hold_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1,
+      "labels": [
+        { "name": "Not Supported", "value": 65535 }
+      ]
+    }
+  ]
+}

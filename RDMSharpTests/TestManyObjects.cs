@@ -1,3 +1,4 @@
+using RDMSharp.RDM;
 using System.Collections.Concurrent;
 using System.Reflection;
 
@@ -245,7 +246,7 @@ namespace RDMSharpTests
                 });
             }
         }
-            [Test]
+        [Test]
         public void TestGeneratedPersonality()
         {
             Assert.Throws(typeof(ArgumentOutOfRangeException), () => new GeneratedPersonality(0, "5CH RGB",
@@ -282,6 +283,65 @@ namespace RDMSharpTests
                 Assert.That(pers.SlotCount, Is.EqualTo(5));
                 Assert.That(pers.Description, Is.EqualTo("5CH RGB"));
                 Assert.That(pers.ID, Is.EqualTo(1));
+            });
+        }
+        [Test]
+        public void TestPDL()
+        {
+            Assert.Multiple(() =>
+            {
+                PDL pdl = new PDL();
+                Assert.That(pdl.Value.HasValue, Is.True);
+                Assert.That(pdl.MinLength.HasValue, Is.False);
+                Assert.That(pdl.MaxLength.HasValue, Is.False);
+                Assert.That(pdl.Value.Value, Is.EqualTo(0));
+
+                pdl = new PDL(13);
+                Assert.That(pdl.Value.HasValue, Is.True);
+                Assert.That(pdl.MinLength.HasValue, Is.False);
+                Assert.That(pdl.MaxLength.HasValue, Is.False);
+                Assert.That(pdl.Value.Value, Is.EqualTo(13));
+
+
+                pdl = new PDL(3, 5);
+                Assert.That(pdl.Value.HasValue, Is.False);
+                Assert.That(pdl.MinLength.HasValue, Is.True);
+                Assert.That(pdl.MaxLength.HasValue, Is.True);
+                Assert.That(pdl.MinLength.Value, Is.EqualTo(3));
+                Assert.That(pdl.MaxLength.Value, Is.EqualTo(5));
+
+                pdl = new PDL(5, 5);
+                Assert.That(pdl.Value.HasValue, Is.True);
+                Assert.That(pdl.MinLength.HasValue, Is.False);
+                Assert.That(pdl.MaxLength.HasValue, Is.False);
+                Assert.That(pdl.Value.Value, Is.EqualTo(5));
+
+
+                List<PDL> list = new List<PDL>();
+                list.Add(new PDL(1));
+                list.Add(new PDL(2));
+                list.Add(new PDL(3));
+                pdl = new PDL(list.ToArray());
+                Assert.That(pdl.Value.HasValue, Is.True);
+                Assert.That(pdl.MinLength.HasValue, Is.False);
+                Assert.That(pdl.MaxLength.HasValue, Is.False);
+                Assert.That(pdl.Value.Value, Is.EqualTo(6));
+
+                list.Clear();
+                list.Add(new PDL(1, 2));
+                list.Add(new PDL(1, 2));
+                list.Add(new PDL(3, 4));
+                pdl = new PDL(list.ToArray());
+                Assert.That(pdl.Value.HasValue, Is.False);
+                Assert.That(pdl.MinLength.HasValue, Is.True);
+                Assert.That(pdl.MaxLength.HasValue, Is.True);
+                Assert.That(pdl.MinLength.Value, Is.EqualTo(5));
+                Assert.That(pdl.MaxLength.Value, Is.EqualTo(8));
+
+
+                Assert.Throws(typeof(ArgumentOutOfRangeException), () => new PDL(uint.MaxValue));
+                Assert.Throws(typeof(ArgumentOutOfRangeException), () => new PDL(uint.MaxValue, 9));
+                Assert.Throws(typeof(ArgumentOutOfRangeException), () => new PDL(1, uint.MaxValue));
             });
         }
     }

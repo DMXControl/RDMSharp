@@ -1,0 +1,35 @@
+{
+  "name": "CAPTURE_PRESET",
+  "notes": "Either the first field or all four fields can be given.",
+  "manufacturer_id": 0,
+  "pid": 4144,
+  "version": 1,
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": [
+    {
+      "name": "scene_num",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1
+    },
+    {
+      "name": "up_fade_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1
+    },
+    {
+      "name": "down_fade_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1
+    },
+    {
+      "name": "wait_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1
+    }
+  ],
+  "set_response": []
+}

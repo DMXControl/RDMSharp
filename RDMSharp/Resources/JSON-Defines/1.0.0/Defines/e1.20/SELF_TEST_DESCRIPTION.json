@@ -1,0 +1,19 @@
+{
+  "name": "SELF_TEST_DESCRIPTION",
+  "manufacturer_id": 0,
+  "pid": 4129,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
+    { "name": "self_test_num", "type": "uint8" }
+  ],
+  "get_response": [
+    { "name": "self_test_num", "type": "uint8" },
+    {
+      "name": "label",
+      "type": "string",
+      "maxLength": 32,
+      "restrictToASCII": true
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "MOCK_ALL_INTEGER_TEST_EXCEPT_128BIT",
+  "manufacturer_id": 4365,
+  "pid": 4874,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
+    {
+      "name": "timeout",
+      "type": "int8"
+    },
+    {
+      "name": "timeout",
+      "type": "uint8"
+    },
+    {
+      "name": "timeout",
+      "type": "int16"
+    },
+    {
+      "name": "timeout",
+      "type": "uint16"
+    },
+    {
+      "name": "timeout",
+      "type": "int32"
+    },
+    {
+      "name": "timeout",
+      "type": "uint32"
+    },
+    {
+      "name": "timeout",
+      "type": "int64"
+    },
+    {
+      "name": "timeout",
+      "type": "uint64"
+    }
+  ],
+  "get_response": "get_request"
+}

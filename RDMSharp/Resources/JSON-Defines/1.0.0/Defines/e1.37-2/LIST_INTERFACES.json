@@ -1,0 +1,32 @@
+{
+  "name": "LIST_INTERFACES",
+  "notes": "E1.37-2",
+  "manufacturer_id": 0,
+  "pid": 1792,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "interfaces",
+      "type": "list",
+      "itemType": {
+        "type": "compound",
+        "subtypes": [
+          {
+            "name": "id",
+            "type": "uint32",
+            "ranges": [
+              { "minimum": 1, "maximum": 4294967040 }
+            ]
+          },
+          {
+            "name": "hardware_type",
+            "type": "uint16",
+            "resources": [ "https://www.iana.org/assignments/arp-parameters/arp-parameters.xhtml" ]
+          }
+        ]
+      }
+    }
+  ]
+}

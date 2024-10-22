@@ -169,7 +169,7 @@ namespace RDMSharp
 
             LastSeen = DateTime.UtcNow;
 
-            if (asyncRDMRequestHelper.ReceiveMethode(rdmMessage))
+            if (asyncRDMRequestHelper.ReceiveMessage(rdmMessage))
                 return;
 
             if ((rdmMessage.NackReason?.Length ?? 0) != 0)
@@ -183,7 +183,7 @@ namespace RDMSharp
         }
         private async Task<RequestResult> requestParameter(RDMMessage rdmMessage)
         {
-            return await asyncRDMRequestHelper.RequestParameter(rdmMessage);
+            return await asyncRDMRequestHelper.RequestMessage(rdmMessage);
         }
         private async void DeviceModel_Initialized(object sender, EventArgs e)
         {

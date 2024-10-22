@@ -34,7 +34,7 @@ namespace RDMSharp
 
         protected void ReceiveRDMMessage(RDMMessage rdmMessage)
         {
-            asyncRDMRequestHelper.ReceiveMethode(rdmMessage);
+            asyncRDMRequestHelper.ReceiveMessage(rdmMessage);
         }
 
         public async Task<IReadOnlyCollection<UID>> PerformDiscovery(IProgress<RDMDiscoveryStatus> progress = null, bool full = true)
@@ -99,7 +99,7 @@ namespace RDMSharp
                     ParameterData = new DiscUniqueBranchRequest(uidStart, uidEnd).ToPayloadData()
                 };
                 context.IncreaseMessageCounter();
-                var res = await asyncRDMRequestHelper.RequestParameter(m);
+                var res = await asyncRDMRequestHelper.RequestMessage(m);
                 if (res.Success)
                 {
                     success = res.Success;
@@ -202,7 +202,7 @@ namespace RDMSharp
                     Parameter = ERDM_Parameter.DISC_MUTE,
                     DestUID = uid
                 };
-                var res = await asyncRDMRequestHelper.RequestParameter(n);
+                var res = await asyncRDMRequestHelper.RequestMessage(n);
                 if (res.Success)
                 {
                     muted = res.Success;

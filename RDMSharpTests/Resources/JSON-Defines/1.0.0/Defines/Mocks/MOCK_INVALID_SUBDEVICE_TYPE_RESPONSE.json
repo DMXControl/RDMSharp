@@ -1,0 +1,10 @@
+{
+  "name": "MOCK_INVALID_SUBDEVICE_TYPE_RESPONSE",
+  "manufacturer_id": 3456,
+  "pid": 5678,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response_subdevice_range": [ "root", [ 2, 5 ], null ],
+  "get_response": []
+}

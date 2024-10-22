@@ -1,0 +1,19 @@
+{
+  "name": "METADATA_JSON",
+  "notes": "E1.37-5",
+  "manufacturer_id": 0,
+  "pid": 83,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
+    { "name": "pid", "type": "uint16" }
+  ],
+  "get_response": [
+    { "$ref": "#/get_request/0" },
+    {
+      "name": "json",
+      "type": "string",
+      "format": "json"
+    }
+  ]
+}

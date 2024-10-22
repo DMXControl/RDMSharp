@@ -1,0 +1,25 @@
+{
+  "name": "MOCK_PD_ENVELOPED",
+  "manufacturer_id": 4365,
+  "pid": 4874,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
+    {
+      "name": "timeout",
+      "displayName": "Timeout",
+      "type": "pdEnvelope",
+      "length": 21
+    },
+    {
+      "name": "subdevice_entry",
+      "type": "pdEnvelope"
+    },
+    {
+      "name": "entries",
+      "type": "list",
+      "itemType": { "type": "pdEnvelope" }
+    }
+  ],
+  "get_response": "get_request"
+}

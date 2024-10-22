@@ -1,0 +1,22 @@
+{
+  "name": "SLOT_INFO",
+  "manufacturer_id": 0,
+  "pid": 288,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "slots",
+      "type": "list",
+      "itemType": {
+        "type": "compound",
+        "subtypes": [
+          { "name": "id", "type": "uint16" },
+          { "name": "type", "type": "uint8" },
+          { "name": "label_id", "type": "uint16" }
+        ]
+      }
+    }
+  ]
+}
