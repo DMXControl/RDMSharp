@@ -225,7 +225,7 @@ namespace RDMSharp
             if (!rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
                 return;
 
-            if (asyncRDMRequestHelper.ReceiveMethode(rdmMessage))
+            if (asyncRDMRequestHelper.ReceiveMessage(rdmMessage))
                 return;
 
             await processMessage(rdmMessage);
@@ -233,7 +233,7 @@ namespace RDMSharp
 
         private async Task<RequestResult> requestParameter(RDMMessage rdmMessage)
         {
-            return await asyncRDMRequestHelper.RequestParameter(rdmMessage);
+            return await asyncRDMRequestHelper.RequestMessage(rdmMessage);
         }
 
         private async Task processMessage(RequestResult result)

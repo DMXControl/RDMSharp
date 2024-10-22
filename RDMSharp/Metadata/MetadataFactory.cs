@@ -102,6 +102,8 @@ namespace RDMSharp.Metadata
         private static MetadataJSONObjectDefine getDefine(ParameterBag parameter)
         {
             var version = GetMetadataSchemaVersions().First();
+            if (metadataVersionDefinesBagDictionary == null)
+                fillDefaultMetadataVersionList();
             var possibleDefines = metadataVersionDefinesBagDictionary[version].FindAll(d => d.PID == (ushort)parameter.PID && d.ManufacturerID == parameter.ManufacturerID);
             if (possibleDefines.Count == 1)
                 return possibleDefines[0];
@@ -142,14 +144,20 @@ namespace RDMSharp.Metadata
             if (_command is not Command command)
                 throw new InvalidOperationException();
 
-            if (payload is DataTree dataTree)
-            {
-                OneOfTypes[] oneofTypes = null;
-                if (command.SingleField.HasValue)
-                    oneofTypes = new OneOfTypes[] { command.SingleField.Value };
-                else if (command.ListOfFields.Length != 0)
-                    oneofTypes = command.ListOfFields;
+            if (command.GetIsEmpty())
+                return new byte[0];
 
+            if (payload is DataTree dataTree && command.SingleField.HasValue)
+                return command.SingleField.Value.ParsePayloadToData(dataTree);
+
+            if (payload is DataTree[] dataTreeArray && command.ListOfFields.Length != 0)
+            {
+                if (dataTreeArray.Length != command.ListOfFields.Length)
+                    throw new IndexOutOfRangeException();
+                List<byte> data = new List<byte>();
+                for (int i = 0; i < command.ListOfFields.Length; i++)
+                    data.AddRange(command.ListOfFields[i].ParsePayloadToData(dataTreeArray[i]));
+                return data.ToArray();
             }
 
             throw new ArithmeticException();
@@ -159,6 +167,20 @@ namespace RDMSharp.Metadata
             define.GetCommand(commandType, out Command? _command);
             if (_command is not Command command)
                 throw new InvalidOperationException();
+
+            if (command.GetIsEmpty())
+                return new byte[0];
+
+            if (command.SingleField.HasValue)
+                return command.SingleField.Value.ParseDataToPayload(ref data);
+
+            if (command.ListOfFields.Length != 0)
+            {
+                List<DataTree> tree = new List<DataTree>();
+                for (int i = 0; i < command.ListOfFields.Length; i++)
+                    tree.Add(command.ListOfFields[i].ParseDataToPayload(ref data));
+                return tree.ToArray();
+            }
 
             throw new ArithmeticException();
         }
