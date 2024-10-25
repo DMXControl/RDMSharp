@@ -86,6 +86,13 @@ namespace RDMSharp
                         return;
                     }
                     response = responseResult.Response;
+                    if (response.ResponseType == ERDM_ResponseType.ACK_TIMER && response.Value is AcknowledgeTimer timer)
+                    {
+                        await Task.Delay(timer.EstimidatedResponseTime);
+                        request.Parameter = ERDM_Parameter.QUEUED_MESSAGE;
+                        //Send Message on next loop
+                        continue;
+                    }
                     bytes.AddRange(response.ParameterData);
                     if (response.ResponseType == ERDM_ResponseType.ACK)
                     {
@@ -93,16 +100,11 @@ namespace RDMSharp
                         State = EPeerToPeerProcessState.Finished;
                         return;
                     }
-                    else if (response.ResponseType == ERDM_ResponseType.ACK_OVERFLOW)
+                    if (response.ResponseType == ERDM_ResponseType.ACK_OVERFLOW)
                     {
                         //Do nothing else send another Request
                         //Send Message on next loop
-                    }
-                    else if (response.ResponseType == ERDM_ResponseType.ACK_TIMER && response.Value is AcknowledgeTimer timer)
-                    {
-                        await Task.Delay(timer.EstimidatedResponseTime);
-                        request.Parameter = ERDM_Parameter.QUEUED_MESSAGE;
-                        //Send Message on next loop
+                        continue;
                     }
                 }
             }

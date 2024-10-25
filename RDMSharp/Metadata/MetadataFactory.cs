@@ -169,7 +169,7 @@ namespace RDMSharp.Metadata
                 throw new InvalidOperationException();
 
             if (command.GetIsEmpty())
-                return new byte[0];
+                return null;
 
             if (command.SingleField.HasValue)
                 return command.SingleField.Value.ParseDataToPayload(ref data);
