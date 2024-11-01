@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 
 namespace RDMSharp
@@ -82,6 +83,13 @@ namespace RDMSharp
                 .GetCustomAttributes(false)
                 .OfType<TAttribute>()
                 .SingleOrDefault();
+        }
+        public static List<Type> FindClassesWithAttribute<TAttribute>() where TAttribute : Attribute
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            return assembly.GetTypes()
+                           .Where(t => (t.IsClass || t.IsEnum) && t.GetCustomAttributes<TAttribute>() != null)
+                           .ToList();
         }
 
         public static byte[] ValueToData(params bool[] bits)

@@ -19,15 +19,15 @@ namespace RDMSharp
         public readonly UID UID;
         public readonly SubDevice SubDevice;
         public readonly ParameterBag ParameterBag;
-        public readonly object RequestPayloadObject;
-        public object ResponsePayloadObject {  get; private set; }
+        public readonly DataTreeBranch RequestPayloadObject;
+        public DataTreeBranch ResponsePayloadObject { get; private set; } = DataTreeBranch.Unset;
 
         public MetadataJSONObjectDefine Define { get; private set; }
         public EPeerToPeerProcessState State {  get; private set; } = EPeerToPeerProcessState.Waiting;
 
         private RDMMessage request = null;
         private RDMMessage response = null;
-        public PeerToPeerProcess(ERDM_Command command, UID uid, SubDevice subDevice, ParameterBag parameterBag, object payloadObject = null)
+        public PeerToPeerProcess(ERDM_Command command, UID uid, SubDevice subDevice, ParameterBag parameterBag, DataTreeBranch? payloadObject = null)
         {
             if (command != ERDM_Command.GET_COMMAND)
                 if (command != ERDM_Command.SET_COMMAND)
@@ -37,7 +37,7 @@ namespace RDMSharp
             UID = uid;
             SubDevice = subDevice;
             ParameterBag = parameterBag;
-            RequestPayloadObject = payloadObject;
+            RequestPayloadObject = payloadObject ?? DataTreeBranch.Unset;
 
             Define = MetadataFactory.GetDefine(ParameterBag);
         }

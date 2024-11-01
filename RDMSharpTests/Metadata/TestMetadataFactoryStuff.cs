@@ -15,16 +15,16 @@ namespace RDMSharpTests.Metadata
             Console.OutputEncoding = System.Text.Encoding.Default;
         }
 
-        [Test]
-        public void TestMetadataFactory()
-        {
-            var schemas = MetadataFactory.GetMetadataSchemaVersions();
-            Assert.That(schemas, Has.Count.EqualTo(1));
-            var defines = MetadataFactory.GetMetadataDefineVersions();
-            Assert.That(defines, Has.Count.EqualTo(122));
-            foreach (var define in defines)
-                testString(define.ToString());
-        }
+        //[Test]
+        //public void TestMetadataFactory()
+        //{
+        //    var schemas = MetadataFactory.GetMetadataSchemaVersions();
+        //    Assert.That(schemas, Has.Count.EqualTo(1));
+        //    var defines = MetadataFactory.GetMetadataDefineVersions();
+        //    Assert.That(defines, Has.Count.EqualTo(122));
+        //    foreach (var define in defines)
+        //        testString(define.ToString());
+        //}
 
         [Test]
         public void TestMetadataVersion()

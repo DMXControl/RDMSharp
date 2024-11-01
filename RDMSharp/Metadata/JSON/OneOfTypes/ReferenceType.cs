@@ -1,8 +1,6 @@
 ﻿using RDMSharp.RDM;
 using System;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using System.Xml.Linq;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
 {

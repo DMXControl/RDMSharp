@@ -1,5 +1,9 @@
-﻿namespace RDMSharp
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+
+namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.STATUS_MESSAGES, Command.ECommandDublicte.GetRequest)]
     public enum ERDM_Status : byte
     {
         NONE = 0x00,

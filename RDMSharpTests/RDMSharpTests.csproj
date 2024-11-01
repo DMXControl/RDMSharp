@@ -49,8 +49,5 @@
   <ItemGroup>
     <ProjectReference Include="..\RDMSharp\RDMSharp.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Metadata\Parser\" />
-  </ItemGroup>
 
 </Project>

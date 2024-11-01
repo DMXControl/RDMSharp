@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -20,6 +21,7 @@ namespace RDMSharp.Metadata
         private static List<MetadataVersion> metadataVersionList;
         private static Dictionary<MetadataVersion,List<MetadataJSONObjectDefine>> metadataVersionDefinesBagDictionary;
         private static ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine> parameterBagDefineCache;
+
         public static IReadOnlyCollection<MetadataVersion> MetadataVersionList
         {
             get
@@ -138,7 +140,7 @@ namespace RDMSharp.Metadata
             throw new DefineNotFoundException($"{parameter}");
         }
 
-        internal static byte[] ParsePayloadToData(MetadataJSONObjectDefine define, Command.ECommandDublicte commandType, object payload)
+        internal static byte[] ParsePayloadToData(MetadataJSONObjectDefine define, Command.ECommandDublicte commandType, DataTreeBranch payload)
         {
             define.GetCommand(commandType, out Command? _command);
             if (_command is not Command command)
@@ -147,10 +149,10 @@ namespace RDMSharp.Metadata
             if (command.GetIsEmpty())
                 return new byte[0];
 
-            if (payload is DataTree dataTree && command.SingleField.HasValue)
+            if (payload.Children.SingleOrDefault() is DataTree dataTree && command.SingleField.HasValue)
                 return command.SingleField.Value.ParsePayloadToData(dataTree);
 
-            if (payload is DataTree[] dataTreeArray && command.ListOfFields.Length != 0)
+            if (payload.Children is DataTree[] dataTreeArray && command.ListOfFields.Length != 0)
             {
                 if (dataTreeArray.Length != command.ListOfFields.Length)
                     throw new IndexOutOfRangeException();
@@ -162,43 +164,73 @@ namespace RDMSharp.Metadata
 
             throw new ArithmeticException();
         }
-        internal static object ParseDataToPayload(MetadataJSONObjectDefine define, Command.ECommandDublicte commandType, byte[] data)
+        internal static DataTreeBranch ParseDataToPayload(MetadataJSONObjectDefine define, Command.ECommandDublicte commandType, byte[] data)
         {
             define.GetCommand(commandType, out Command? _command);
             if (_command is not Command command)
                 throw new InvalidOperationException();
 
             if (command.GetIsEmpty())
-                return null;
+                return DataTreeBranch.Empty;
 
             if (command.SingleField.HasValue)
-                return command.SingleField.Value.ParseDataToPayload(ref data);
+                return new DataTreeBranch(define, commandType, command.SingleField.Value.ParseDataToPayload(ref data));
 
             if (command.ListOfFields.Length != 0)
             {
                 List<DataTree> tree = new List<DataTree>();
                 for (int i = 0; i < command.ListOfFields.Length; i++)
                     tree.Add(command.ListOfFields[i].ParseDataToPayload(ref data));
-                return tree.ToArray();
+                return new DataTreeBranch(define, commandType, tree.ToArray());
             }
 
             throw new ArithmeticException();
         }
-        internal static byte[] GetRequestMessageData(ParameterBag parameter, object payloadData)
+        internal static byte[] GetRequestMessageData(ParameterBag parameter, DataTreeBranch payloadData)
         {
             return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicte.GetRequest, payloadData);
         }
-        internal static byte[] GetResponseMessageData(ParameterBag parameter, object payloadData)
+        internal static byte[] GetResponseMessageData(ParameterBag parameter, DataTreeBranch payloadData)
         {
             return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicte.GetResponse, payloadData);
         }
-        internal static byte[] SetRequestMessageData(ParameterBag parameter, object payloadData)
+        internal static byte[] SetRequestMessageData(ParameterBag parameter, DataTreeBranch payloadData)
         {
             return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicte.SetRequest, payloadData);
         }
-        internal static byte[] SetResponseMessageData(ParameterBag parameter, object payloadData)
+        internal static byte[] SetResponseMessageData(ParameterBag parameter, DataTreeBranch payloadData)
         {
             return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicte.SetResponse, payloadData);
+        }
+
+        private static List<Type> definedDataTreeObjects;
+        public static IReadOnlyCollection<Type> DefinedDataTreeObjects
+        {
+            get
+            {
+                fillDefinedDataTreeObjects();
+                return definedDataTreeObjects;
+            }
+        }
+
+        private static void fillDefinedDataTreeObjects()
+        {
+            if (definedDataTreeObjects != null)
+                return;
+
+            definedDataTreeObjects = new List<Type>();
+
+            definedDataTreeObjects.AddRange(Tools.FindClassesWithAttribute<DataTreeObjectAttribute>());
+        }
+
+        public static Type GetDefinedDataTreeObjectType(MetadataJSONObjectDefine define, Command.ECommandDublicte commandType)
+        {
+            return DefinedDataTreeObjects.Where(t =>
+            {
+                if (t.GetCustomAttributes<DataTreeObjectAttribute>().Any(attribute => (ushort)attribute.Parameter == define.PID && attribute.Command == commandType))
+                    return true;
+                return false;
+            }).FirstOrDefault();
         }
     }
 }

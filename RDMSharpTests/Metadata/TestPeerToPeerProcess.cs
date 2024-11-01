@@ -17,8 +17,8 @@ namespace RDMSharpTests.Metadata
 
             Assert.That(peerToPeerProcess.Define, Is.Not.Null);
             Assert.That(peerToPeerProcess.State, Is.EqualTo(PeerToPeerProcess.EPeerToPeerProcessState.Waiting));
-            Assert.That(peerToPeerProcess.RequestPayloadObject, Is.Null);
-            Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.Null);
+            Assert.That(peerToPeerProcess.RequestPayloadObject.IsUnset, Is.True);
+            Assert.That(peerToPeerProcess.ResponsePayloadObject.IsUnset, Is.True);
 
             AsyncRDMRequestHelper helper = null;
             helper = new AsyncRDMRequestHelper(sendMessage);
@@ -27,8 +27,9 @@ namespace RDMSharpTests.Metadata
             while (peerToPeerProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Running)
                 await Task.Delay(100);
 
-            Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTree[])));
-            Assert.That(((DataTree[])peerToPeerProcess.ResponsePayloadObject)[0].Value, Is.EqualTo(DMX_ADDRESS));
+            Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTreeBranch)));
+            Assert.That(peerToPeerProcess.ResponsePayloadObject.Children[0].Value, Is.EqualTo(DMX_ADDRESS));
+            Assert.That(peerToPeerProcess.ResponsePayloadObject.ParsedObject, Is.EqualTo(DMX_ADDRESS));
 
             async Task sendMessage(RDMMessage message)
             {
@@ -39,12 +40,12 @@ namespace RDMSharpTests.Metadata
 
                 RDMMessage response = new RDMMessage()
                 {
-                    Command= message.Command | ERDM_Command.RESPONSE,
+                    Command = message.Command | ERDM_Command.RESPONSE,
                     DestUID = message.SourceUID,
                     SourceUID = message.DestUID,
-                    Parameter= message.Parameter,
-                    SubDevice= message.SubDevice,
-                    ParameterData= MetadataFactory.GetResponseMessageData(parameterBag, new DataTree[] { new DataTree("dmx_address", 0, DMX_ADDRESS) })
+                    Parameter = message.Parameter,
+                    SubDevice = message.SubDevice,
+                    ParameterData = MetadataFactory.GetResponseMessageData(parameterBag, new DataTreeBranch(new DataTree[] { new DataTree("dmx_address", 0, DMX_ADDRESS) }))
                 };
 
                 await Task.Delay(10);
@@ -69,19 +70,20 @@ namespace RDMSharpTests.Metadata
 
             Assert.That(peerToPeerProcess.Define, Is.Not.Null);
             Assert.That(peerToPeerProcess.State, Is.EqualTo(PeerToPeerProcess.EPeerToPeerProcessState.Waiting));
-            Assert.That(peerToPeerProcess.RequestPayloadObject, Is.Null);
-            Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.Null);
+            Assert.That(peerToPeerProcess.RequestPayloadObject.IsUnset, Is.True);
+            Assert.That(peerToPeerProcess.ResponsePayloadObject.IsUnset, Is.True);
 
             AsyncRDMRequestHelper helper = null;
-            byte[] parameterData = MetadataFactory.GetResponseMessageData(parameterBag, new DataTree[] { new DataTree("device_uids", 0, children: children) });
+            byte[] parameterData = MetadataFactory.GetResponseMessageData(parameterBag, new DataTreeBranch(new DataTree[] { new DataTree("device_uids", 0, children: children) }));
             helper = new AsyncRDMRequestHelper(sendMessage);
             peerToPeerProcess.Run(helper);
 
             while (peerToPeerProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Running)
                 await Task.Delay(100);
 
-            Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTree[])));
-            Assert.That(((DataTree[])peerToPeerProcess.ResponsePayloadObject)[0].Children, Is.EqualTo(children));
+            Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTreeBranch)));
+            Assert.That(peerToPeerProcess.ResponsePayloadObject.Children[0].Children, Is.EqualTo(children));
+            Assert.That(peerToPeerProcess.ResponsePayloadObject.ParsedObject, Is.EqualTo(children.Select(dt => dt.Value).ToList()));
 
 
             async Task sendMessage(RDMMessage message)
@@ -121,8 +123,8 @@ namespace RDMSharpTests.Metadata
 
             Assert.That(peerToPeerProcess.Define, Is.Not.Null);
             Assert.That(peerToPeerProcess.State, Is.EqualTo(PeerToPeerProcess.EPeerToPeerProcessState.Waiting));
-            Assert.That(peerToPeerProcess.RequestPayloadObject, Is.Null);
-            Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.Null);
+            Assert.That(peerToPeerProcess.RequestPayloadObject.IsUnset, Is.True);
+            Assert.That(peerToPeerProcess.ResponsePayloadObject.IsUnset, Is.True);
 
             AsyncRDMRequestHelper helper = null;
             byte count = 0;
@@ -132,8 +134,9 @@ namespace RDMSharpTests.Metadata
             while (peerToPeerProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Running)
                 await Task.Delay(100);
 
-            Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTree[])));
-            Assert.That(((DataTree[])peerToPeerProcess.ResponsePayloadObject)[0].Value, Is.EqualTo(LAMP_STRIKES));
+            Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTreeBranch)));
+            Assert.That(peerToPeerProcess.ResponsePayloadObject.Children[0].Value, Is.EqualTo(LAMP_STRIKES));
+            Assert.That(peerToPeerProcess.ResponsePayloadObject.ParsedObject, Is.EqualTo(LAMP_STRIKES));
 
             async Task sendMessage(RDMMessage message)
             {
@@ -153,7 +156,7 @@ namespace RDMSharpTests.Metadata
                     SourceUID = message.DestUID,
                     Parameter = parameterBag.PID,
                     SubDevice = message.SubDevice,
-                    ParameterData = count == 0 ? new AcknowledgeTimer(TimeSpan.FromSeconds(3)).ToPayloadData() : MetadataFactory.GetResponseMessageData(parameterBag, new DataTree[] { new DataTree("strikes", 0, LAMP_STRIKES) }),
+                    ParameterData = count == 0 ? new AcknowledgeTimer(TimeSpan.FromSeconds(3)).ToPayloadData() : MetadataFactory.GetResponseMessageData(parameterBag, new DataTreeBranch(new DataTree[] { new DataTree("strikes", 0, LAMP_STRIKES) })),
                     PortID_or_Responsetype = count == 0 ? (byte)ERDM_ResponseType.ACK_TIMER : (byte)ERDM_ResponseType.ACK
                 };
 

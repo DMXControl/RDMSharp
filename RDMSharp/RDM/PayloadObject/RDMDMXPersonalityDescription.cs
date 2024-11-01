@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION, Command.ECommandDublicte.GetResponse)]
     public class RDMDMXPersonalityDescription : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
+        [DataTreeObjectConstructor]
         public RDMDMXPersonalityDescription(
-            byte personalityId = 1,
-            ushort slots = 0,
-            string description = "")
+            [DataTreeObjectParameter("personality")] byte personalityId = 1,
+            [DataTreeObjectParameter("dmx_slots_required")] ushort slots = 0,
+            [DataTreeObjectParameter("description")] string description = "")
         {
             this.PersonalityId = personalityId;
             this.Slots = slots;
