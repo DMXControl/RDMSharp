@@ -1,5 +1,10 @@
-﻿namespace RDMSharp
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+
+namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.PRESET_MERGEMODE, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.PRESET_MERGEMODE, Command.ECommandDublicte.SetRequest)]
     public enum ERDM_MergeMode : byte
     {
         DEFAULT = 0x00,

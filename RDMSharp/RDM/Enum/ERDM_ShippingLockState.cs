@@ -1,6 +1,11 @@
-﻿namespace RDMSharp
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+
+namespace RDMSharp
 {
     //E1.37-5
+    [DataTreeObject(ERDM_Parameter.SHIPPING_LOCK, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.SHIPPING_LOCK, Command.ECommandDublicte.SetRequest)]
     public enum ERDM_ShippingLockState : byte
     {
         /// <summary>
