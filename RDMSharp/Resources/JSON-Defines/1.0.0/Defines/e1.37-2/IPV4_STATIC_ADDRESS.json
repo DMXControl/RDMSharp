@@ -1,0 +1,41 @@
+{
+  "name": "IPV4_STATIC_ADDRESS",
+  "notes": "E1.37-2",
+  "manufacturer_id": 0,
+  "pid": 1798,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
+    {
+      "name": "id",
+      "type": "uint32",
+      "ranges": [
+        { "minimum": 1, "maximum": 4294967040 }
+      ]
+    }
+  ],
+  "get_response": [
+    {
+      "name": "id",
+      "type": "uint32",
+      "ranges": [
+        { "minimum": 1, "maximum": 4294967040 }
+      ]
+    },
+    {
+      "name": "address",
+      "type": "bytes",
+      "format": "ipv4"
+    },
+    {
+      "name": "netmask",
+      "type": "uint8",
+      "ranges": [
+        { "minimum": 0, "maximum": 32 }
+      ]
+    }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": "get_response",
+  "set_response": []
+}

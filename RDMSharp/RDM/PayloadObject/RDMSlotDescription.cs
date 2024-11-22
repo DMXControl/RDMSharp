@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.SLOT_DESCRIPTION, Command.ECommandDublicte.GetResponse)]
     public class RDMSlotDescription : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public RDMSlotDescription(
-            ushort slotId = 0,
-            string description = "")
+            [DataTreeObjectParameter("slot")] ushort slotId = 0,
+            [DataTreeObjectParameter("description")] string description = "")
         {
             this.SlotId = slotId;
 

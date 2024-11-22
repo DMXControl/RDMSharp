@@ -1,0 +1,22 @@
+{
+  "name": "IDENTIFY_MODE",
+  "notes": "E1.37-1",
+  "manufacturer_id": 0,
+  "pid": 4160,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "mode",
+      "type": "uint8",
+      "labels": [
+        { "name": "Quiet Identify", "value": 0 },
+        { "name": "Loud Identify", "value": 255 }
+      ]
+    }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": "get_response",
+  "set_response": []
+}

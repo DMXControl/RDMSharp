@@ -1,7 +1,11 @@
-﻿using System.ComponentModel;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.ComponentModel;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.LAMP_STATE, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.LAMP_STATE, Command.ECommandDublicte.SetRequest)]
     public enum ERDM_LampState : byte
     {
         [Description("Off")]

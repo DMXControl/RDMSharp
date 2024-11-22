@@ -1,0 +1,22 @@
+{
+  "name": "POWER_ON_SELF_TEST",
+  "notes": "E1.37-1",
+  "manufacturer_id": 0,
+  "pid": 4164,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "parameter",
+      "type": "uint8",
+      "labels": [
+        { "name": "Disabled", "value": 0 },
+        { "name": "Enabled", "value": 1 }
+      ]
+    }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": "get_response",
+  "set_response": []
+}

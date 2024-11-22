@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.DEVICE_INFO, Command.ECommandDublicte.GetResponse)]
     public class RDMDeviceInfo : AbstractRDMPayloadObject
     {
         public RDMDeviceInfo(
@@ -31,6 +34,33 @@ namespace RDMSharp
             Dmx512StartAddress = dmx512StartAddress;
             SubDeviceCount = subDeviceCount;
             SensorCount = sensorCount;
+        }
+        [DataTreeObjectConstructor]
+        public RDMDeviceInfo(
+            [DataTreeObjectParameter("protocol_major")] byte rdmProtocolVersionMajor,
+            [DataTreeObjectParameter("protocol_minor")] byte rdmProtocolVersionMinor,
+            [DataTreeObjectParameter("device_model_id")] ushort deviceModelId,
+            [DataTreeObjectParameter("product_category")] ushort productCategory,
+            [DataTreeObjectParameter("software_version_id")] uint softwareVersionId,
+            [DataTreeObjectParameter("dmx_footprint")] ushort dmx512Footprint,
+            [DataTreeObjectParameter("current_personality")] byte dmx512CurrentPersonality,
+            [DataTreeObjectParameter("personality_count")] byte dmx512NumberOfPersonalities,
+            [DataTreeObjectParameter("dmx_start_address")] ushort dmx512StartAddress,
+            [DataTreeObjectParameter("sub_device_count")] ushort subDeviceCount,
+            [DataTreeObjectParameter("sensor_count")] byte sensorCount):
+            this(rdmProtocolVersionMajor,
+                rdmProtocolVersionMinor,
+                deviceModelId,
+                (ERDM_ProductCategoryCoarse)(byte)(productCategory >> 8),
+                (ERDM_ProductCategoryFine)productCategory,
+                softwareVersionId,
+                dmx512Footprint,
+                dmx512CurrentPersonality,
+                dmx512NumberOfPersonalities,
+                dmx512StartAddress,
+                subDeviceCount,
+                sensorCount)
+        {
         }
 
         public byte RdmProtocolVersionMajor { get; private set; }

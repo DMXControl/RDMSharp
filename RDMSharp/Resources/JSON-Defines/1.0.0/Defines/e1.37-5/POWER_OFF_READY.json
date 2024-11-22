@@ -1,0 +1,19 @@
+{
+  "name": "POWER_OFF_READY",
+  "notes": "E1.37-5",
+  "manufacturer_id": 0,
+  "pid": 4177,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "state",
+      "type": "boolean",
+      "labels": [
+        { "name": "Not Ready", "value": false },
+        { "name": "Ready", "value": true }
+      ]
+    }
+  ]
+}

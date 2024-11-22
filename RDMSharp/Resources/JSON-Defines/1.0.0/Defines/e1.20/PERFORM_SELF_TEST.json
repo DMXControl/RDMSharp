@@ -1,0 +1,23 @@
+{
+  "name": "PERFORM_SELF_TEST",
+  "manufacturer_id": 0,
+  "pid": 4128,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    { "name": "self_tests_active", "type": "boolean" }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": [
+    {
+      "name": "self_test_num",
+      "type": "uint8",
+      "labels": [
+        { "name": "SELF_TEST_OFF", "value": 0 },
+        { "name": "SELF_TEST_ALL", "value": 255 }
+      ]
+    }
+  ],
+  "set_response": []
+}

@@ -7,7 +7,7 @@ namespace RDMSharp
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2208")]
         public AcknowledgeTimer(
-            TimeSpan estimidatedResponseTime = default) : this((ushort)(estimidatedResponseTime.TotalSeconds / 10))
+            TimeSpan estimidatedResponseTime = default) : this((ushort)(estimidatedResponseTime.TotalSeconds * 10.0))
         {
             if (estimidatedResponseTime.TotalSeconds / 10 > ushort.MaxValue)
                 throw new ArgumentOutOfRangeException("The Timer is to long for the Resolution of 16-bit ushort");
@@ -16,7 +16,7 @@ namespace RDMSharp
             ushort _estimidatedResponseTimeRaw = default)
         {
             this.estimidatedResponseTimeRaw = _estimidatedResponseTimeRaw;
-            this.EstimidatedResponseTime = TimeSpan.FromSeconds(this.estimidatedResponseTimeRaw * 10);
+            this.EstimidatedResponseTime = TimeSpan.FromSeconds(this.estimidatedResponseTimeRaw / 10.0);
         }
 
         public TimeSpan EstimidatedResponseTime { get; private set; }

@@ -1,0 +1,28 @@
+{
+  "name": "DNS_DOMAIN_NAME",
+  "notes": "E1.37-2. This the domain of an internet host; it is appended to the hostname using a dot ('.') to create a fully qualified domain name (FQDN).",
+  "manufacturer_id": 0,
+  "pid": 1805,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "domain_name",
+      "type": "string",
+      "resources": [
+        "https://www.rfc-editor.org/rfc/rfc1123.html#section-2",
+        "https://www.rfc-editor.org/rfc/rfc1912.html#section-2.1",
+        "https://www.rfc-editor.org/rfc/rfc1035.html#section-2.3.1",
+        "https://www.rfc-editor.org/rfc/rfc3696.html#section-2",
+        "https://stackoverflow.com/a/14622263"
+      ],
+      "format": "hostname",
+      "maxLength": 231,
+      "restrictToASCII": true
+    }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": "get_response",
+  "set_response": []
+}

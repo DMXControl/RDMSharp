@@ -33,7 +33,7 @@ namespace RDMSharp
             this.IsDisposing= false;
         }
 
-        public bool ReceiveMethode(RDMMessage rdmMessage)
+        public bool ReceiveMessage(RDMMessage rdmMessage)
         {
             if (this.IsDisposing || this.IsDisposed)
                 return false;
@@ -67,7 +67,7 @@ namespace RDMSharp
         }
 
 
-        public async Task<RequestResult> RequestParameter(RDMMessage requerst)
+        public async Task<RequestResult> RequestMessage(RDMMessage requerst)
         {
             try
             {

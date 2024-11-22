@@ -1,0 +1,23 @@
+{
+  "name": "DMX_PERSONALITY",
+  "manufacturer_id": 0,
+  "pid": 224,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "personality",
+      "type": "uint8",
+      "ranges": [
+        { "minimum": 1, "maximum": 255 }
+      ]
+    },
+    { "name": "personality_count", "type": "uint8" }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": [
+    { "$ref": "#/get_response/0" }
+  ],
+  "set_response": []
+}

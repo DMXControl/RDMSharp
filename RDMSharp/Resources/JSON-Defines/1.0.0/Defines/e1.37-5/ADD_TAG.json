@@ -1,0 +1,16 @@
+{
+  "name": "ADD_TAG",
+  "notes": "E1.37-5",
+  "manufacturer_id": 0,
+  "pid": 1618,
+  "version": 1,
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": [
+    {
+      "name": "tag",
+      "type": "string",
+      "maxLength": 32
+    }
+  ],
+  "set_response": []
+}
