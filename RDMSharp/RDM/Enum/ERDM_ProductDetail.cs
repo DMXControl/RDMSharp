@@ -3,7 +3,7 @@ using RDMSharp.Metadata.JSON;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.PRODUCT_DETAIL_ID_LIST, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.PRODUCT_DETAIL_ID_LIST, Command.ECommandDublicte.GetResponse, true)]
     public enum ERDM_ProductDetail : ushort
     {
         NONE = 0x0000,

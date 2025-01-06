@@ -1,8 +1,15 @@
-﻿namespace RDMSharp
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+
+namespace RDMSharp
 {
     /// <summary>
     /// https://www.rdmprotocol.org/rdm/developers/developer-resources/
     /// </summary>
+    [DataTreeObject(ERDM_Parameter.SUPPORTED_PARAMETERS, Command.ECommandDublicte.GetResponse, true)]
+    [DataTreeObject(ERDM_Parameter.PARAMETER_DESCRIPTION, Command.ECommandDublicte.GetRequest)]
+    [DataTreeObject(ERDM_Parameter.METADATA_JSON, Command.ECommandDublicte.GetRequest)]
+    [DataTreeObject(ERDM_Parameter.METADATA_PARAMETER_VERSION, Command.ECommandDublicte.GetRequest)]
     public enum ERDM_Parameter : ushort
     {
         NONE = 0x0000,

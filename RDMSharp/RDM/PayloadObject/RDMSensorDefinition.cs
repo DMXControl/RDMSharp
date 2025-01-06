@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.SENSOR_DEFINITION, Command.ECommandDublicte.GetResponse)]
     public class RDMSensorDefinition : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
         public RDMSensorDefinition(
@@ -36,6 +39,32 @@ namespace RDMSharp
                 description = description.Substring(0, 32);
 
             this.Description = description;
+        }
+
+        [DataTreeObjectConstructor]
+        public RDMSensorDefinition(
+            [DataTreeObjectParameter("sensor")] byte sensorId,
+            [DataTreeObjectParameter("type")] byte type,
+            [DataTreeObjectParameter("unit")] byte unit,
+            [DataTreeObjectParameter("unit_prefix")] byte prefix,
+            [DataTreeObjectParameter("range_min_value")] short rangeMinimum,
+            [DataTreeObjectParameter("range_max_value")] short rangeMaximum,
+            [DataTreeObjectParameter("normal_min_value")] short normalMinimum,
+            [DataTreeObjectParameter("normal_max_value")] short normalMaximum,
+            [DataTreeObjectParameter("recorded_value_support")] bool[] recordedValueSupport,
+            [DataTreeObjectParameter("description")] string description)
+            : this(sensorId,
+                   (ERDM_SensorType)type,
+                   (ERDM_SensorUnit)unit,
+                   (ERDM_UnitPrefix)prefix,
+                   rangeMinimum,
+                   rangeMaximum,
+                   normalMinimum,
+                   normalMaximum,
+                   recordedValueSupport[1],
+                   recordedValueSupport[0],
+                   description)
+        {
         }
 
         public byte SensorId { get; private set; }

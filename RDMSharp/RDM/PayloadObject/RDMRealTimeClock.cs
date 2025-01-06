@@ -1,17 +1,22 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.REAL_TIME_CLOCK, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.REAL_TIME_CLOCK, Command.ECommandDublicte.SetRequest)]
     public class RDMRealTimeClock : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public RDMRealTimeClock(
-            ushort year = 2003,
-            byte month = 1,
-            byte day = 1,
-            byte hour = 0,
-            byte minute = 0,
-            byte second = 0)
+            [DataTreeObjectParameter("year")] ushort year = 2003,
+            [DataTreeObjectParameter("month")] byte month = 1,
+            [DataTreeObjectParameter("day")] byte day = 1,
+            [DataTreeObjectParameter("hour")] byte hour = 0,
+            [DataTreeObjectParameter("minute")] byte minute = 0,
+            [DataTreeObjectParameter("second")] byte second = 0)
         {
             if (year < 2003)
                 throw new ArgumentOutOfRangeException($"{nameof(year)} shold be a value between 2003 and 65535 but is {year}");

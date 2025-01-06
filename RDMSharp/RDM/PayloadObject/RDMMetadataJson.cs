@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.METADATA_JSON, Command.ECommandDublicte.GetResponse)]
     public class RDMMetadataJson : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public RDMMetadataJson(
-            ERDM_Parameter parameterId,
-            string json)
+            [DataTreeObjectParameter("pid")] ERDM_Parameter parameterId,
+            [DataTreeObjectParameter("json")] string json)
         {
             this.ParameterId = parameterId;
             this.JSON = json;

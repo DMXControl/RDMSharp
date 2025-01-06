@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.LOCK_STATE_DESCRIPTION, Command.ECommandDublicte.GetResponse)]
     public class RDMLockStateDescription : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
+        [DataTreeObjectConstructor]
         public RDMLockStateDescription(
-            byte lockStateId = 1,
-            string description = "")
+            [DataTreeObjectParameter("state")] byte lockStateId = 1,
+            [DataTreeObjectParameter("description")] string description = "")
         {
             this.LockStateId = lockStateId;
 

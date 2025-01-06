@@ -1,14 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.DEVICE_INFO_OFFSTAGE, Command.ECommandDublicte.GetRequest)]
     public class GetDeviceInfoOffstageRequest : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public GetDeviceInfoOffstageRequest(
-            byte rootPersonality = 1,
-            ushort subDeviceRequested = 0,
-            byte subDevicePersonalityRequested = 0)
+            [DataTreeObjectParameter("root_personality")] byte rootPersonality = 1,
+            [DataTreeObjectParameter("subdevice")] ushort subDeviceRequested = 0,
+            [DataTreeObjectParameter("subdevice_personality")] byte subDevicePersonalityRequested = 0)
         {
             RootPersonality = rootPersonality;
             SubDeviceRequested = subDeviceRequested;

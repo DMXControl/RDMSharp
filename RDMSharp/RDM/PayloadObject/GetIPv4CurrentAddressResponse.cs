@@ -1,9 +1,12 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 using System.Net;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.IPV4_CURRENT_ADDRESS, Command.ECommandDublicte.GetResponse)]
     public class GetIPv4CurrentAddressResponse : AbstractRDMPayloadObject
     {
         public GetIPv4CurrentAddressResponse(
@@ -19,6 +22,15 @@ namespace RDMSharp
 
             this.Netmask = netmask;
             this.DHCPStatus = dhcpStatus;
+        }
+        [DataTreeObjectConstructor]
+        public GetIPv4CurrentAddressResponse(
+            [DataTreeObjectParameter("id")] uint interfaceId,
+            [DataTreeObjectParameter("address")] IPv4Address ipAddress,
+            [DataTreeObjectParameter("netmask")] byte netmask,
+            [DataTreeObjectParameter("dhcp_status")] byte dhcpStatus)
+            :this(interfaceId, ipAddress, netmask, (ERDM_DHCPStatusMode)dhcpStatus)
+        {
         }
 
         public uint InterfaceId { get; private set; }

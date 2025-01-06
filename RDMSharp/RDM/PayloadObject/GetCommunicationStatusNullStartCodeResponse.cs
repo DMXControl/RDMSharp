@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.COMMS_STATUS_NSC, Command.ECommandDublicte.GetResponse)]
     public class GetCommunicationStatusNullStartCodeResponse : AbstractRDMPayloadObject
     {
         public GetCommunicationStatusNullStartCodeResponse(
@@ -19,6 +22,34 @@ namespace RDMSharp
             MinimumSlotCount = minimumSlotCount;
             MaximumSlotCount = maximumSlotCount;
             NumberOfPacketsWithAnError = numberOfPacketsWithAnError;
+        }
+        [DataTreeObjectConstructor]
+        public GetCommunicationStatusNullStartCodeResponse(
+            [DataTreeObjectParameter("supported")] bool[] supported,
+            [DataTreeObjectParameter("additive_checksum")] uint additiveChecksumOfMostRecentPacket,
+            [DataTreeObjectParameter("packet_count")] uint packetCount,
+            [DataTreeObjectParameter("most_recent_slot_count")] ushort mostRecentSlotCount,
+            [DataTreeObjectParameter("min_slot_count")] ushort minimumSlotCount,
+            [DataTreeObjectParameter("max_slot_count")] ushort maximumSlotCount,
+            [DataTreeObjectParameter("error_count")] uint numberOfPacketsWithAnError)
+        {
+            if (supported[0])
+                AdditiveChecksumOfMostRecentPacket = additiveChecksumOfMostRecentPacket;
+
+            if (supported[1])
+                PacketCount = packetCount;
+
+            if (supported[2])
+                MostRecentSlotCount = mostRecentSlotCount;
+
+            if (supported[3])
+                MinimumSlotCount = minimumSlotCount;
+
+            if (supported[4])
+                MaximumSlotCount = maximumSlotCount;
+
+            if (supported[5])
+                NumberOfPacketsWithAnError = numberOfPacketsWithAnError;
         }
 
         public uint? AdditiveChecksumOfMostRecentPacket { get; private set; }

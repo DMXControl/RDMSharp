@@ -1,8 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.PRESET_STATUS, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.PRESET_STATUS, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.CAPTURE_PRESET, Command.ECommandDublicte.SetRequest)]
     public class RDMPresetStatus : AbstractRDMPayloadObject
     {
         public RDMPresetStatus(
@@ -17,6 +22,17 @@ namespace RDMSharp
             this.DownFadeTime = downFadeTime;
             this.WaitTime = waitTime;
             this.Programmed = programmed;
+        }
+
+        [DataTreeObjectConstructor]
+        public RDMPresetStatus(
+            [DataTreeObjectParameter("scene_num")] ushort sceneId,
+            [DataTreeObjectParameter("up_fade_time")] ushort upFadeTime,
+            [DataTreeObjectParameter("down_fade_time")] ushort downFadeTime,
+            [DataTreeObjectParameter("wait_time")] ushort waitTime,
+            [DataTreeObjectParameter("programmed")] byte programmed)
+            : this(sceneId, upFadeTime, downFadeTime, waitTime, (ERDM_PresetProgrammed)programmed)
+        {
         }
 
         public ushort SceneId { get; private set; }

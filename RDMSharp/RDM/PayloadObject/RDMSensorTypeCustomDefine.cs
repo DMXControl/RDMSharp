@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.SENSOR_TYPE_CUSTOM, Command.ECommandDublicte.GetResponse)]
     public class RDMSensorTypeCustomDefine : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
+        [DataTreeObjectConstructor]
         public RDMSensorTypeCustomDefine(
-            byte id,
-            string label)
+            [DataTreeObjectParameter("sensor_type")] byte id,
+            [DataTreeObjectParameter("label")] string label)
         {
             this.Id = id;
             this.Label = label;

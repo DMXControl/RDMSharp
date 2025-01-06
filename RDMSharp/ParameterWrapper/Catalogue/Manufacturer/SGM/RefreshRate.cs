@@ -1,7 +1,12 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System;
 
 namespace RDMSharp.ParameterWrapper.SGM
 {
+    [DataTreeObject(EManufacturer.SGM_Technology_For_Lighting_SPA, (ERDM_Parameter)(ushort)EParameter.REFRESH_RATE, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(EManufacturer.SGM_Technology_For_Lighting_SPA, (ERDM_Parameter)(ushort)EParameter.REFRESH_RATE, Command.ECommandDublicte.SetRequest)]
+
     public readonly struct RefreshRate : IEquatable<RefreshRate>
     {
         public const uint FREQUENCY_MULTIPLYER = 197647;

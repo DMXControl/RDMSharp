@@ -1,30 +1,34 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.PRESET_INFO, Command.ECommandDublicte.GetResponse)]
     public class RDMPresetInfo : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public RDMPresetInfo(
-            bool levelFieldSupported = false,
-            bool presetSequenceSupported = false,
-            bool splitTimesSupported = false,
-            bool dmx512FailInfiniteDelayTimeSupported = false,
-            bool dmx512FailInfiniteHoldTimeSupported = false,
-            bool startupInfiniteHoldTimeSupported = false,
-            ushort maximumSceneNumber = 0,
-            ushort minimumPresetFadeTimeSupported = 0,
-            ushort maximumPresetFadeTimeSupported = 0,
-            ushort minimumPresetWaitTimeSupported = 0,
-            ushort maximumPresetWaitTimeSupported = 0,
-            ushort? minimumDMX512FailDelayTimeSupported = null,
-            ushort? maximumDMX512FailDelayTimeSupported = null,
-            ushort? minimumDMX512FailDelayHoldSupported = null,
-            ushort? maximumDMX512FailDelayHoldSupported = null,
-            ushort? minimumStartupDelayTimeSupported = null,
-            ushort? maximumStartupDelayTimeSupported = null,
-            ushort? minimumStartupDelayHoldSupported = null,
-            ushort? maximumStartupDelayHoldSupported = null)
+            [DataTreeObjectParameter("level_field_supported")] bool levelFieldSupported = false,
+            [DataTreeObjectParameter("preset_sequence_supported")] bool presetSequenceSupported = false,
+            [DataTreeObjectParameter("split_times_supported")] bool splitTimesSupported = false,
+            [DataTreeObjectParameter("dmx_fail_infinite_delay_time_supported")] bool dmx512FailInfiniteDelayTimeSupported = false,
+            [DataTreeObjectParameter("dmx_fail_infinite_hold_time_supported")] bool dmx512FailInfiniteHoldTimeSupported = false,
+            [DataTreeObjectParameter("startup_infinite_hold_time_supported")] bool startupInfiniteHoldTimeSupported = false,
+            [DataTreeObjectParameter("max_scene_number")] ushort maximumSceneNumber = 0,
+            [DataTreeObjectParameter("preset_min_fade_time")] ushort minimumPresetFadeTimeSupported = 0,
+            [DataTreeObjectParameter("preset_max_fade_time")] ushort maximumPresetFadeTimeSupported = 0,
+            [DataTreeObjectParameter("preset_min_wait_time")] ushort minimumPresetWaitTimeSupported = 0,
+            [DataTreeObjectParameter("preset_max_wait_time")] ushort maximumPresetWaitTimeSupported = 0,
+            [DataTreeObjectParameter("dmx_fail_min_delay_time")] ushort? minimumDMX512FailDelayTimeSupported = null,
+            [DataTreeObjectParameter("dmx_fail_max_delay_time")] ushort? maximumDMX512FailDelayTimeSupported = null,
+            [DataTreeObjectParameter("dmx_fail_min_hold_time")] ushort? minimumDMX512FailDelayHoldSupported = null,
+            [DataTreeObjectParameter("dmx_fail_max_hold_time")] ushort? maximumDMX512FailDelayHoldSupported = null,
+            [DataTreeObjectParameter("startup_min_delay_time")] ushort? minimumStartupDelayTimeSupported = null,
+            [DataTreeObjectParameter("startup_max_delay_time")] ushort? maximumStartupDelayTimeSupported = null,
+            [DataTreeObjectParameter("startup_min_hold_time")] ushort? minimumStartupDelayHoldSupported = null,
+            [DataTreeObjectParameter("startup_max_hold_time")] ushort? maximumStartupDelayHoldSupported = null)
         {
             this.LevelFieldSupported = levelFieldSupported;
             this.PresetSequenceSupported = presetSequenceSupported;

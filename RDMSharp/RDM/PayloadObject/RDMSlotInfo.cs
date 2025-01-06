@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.SLOT_INFO, Command.ECommandDublicte.GetResponse, true, "slots")]
     public class RDMSlotInfo : AbstractRDMPayloadObject
     {
         public RDMSlotInfo(
@@ -13,6 +16,15 @@ namespace RDMSharp
             this.SlotOffset = slotOffset;
             this.SlotType = slotType;
             this.SlotLabelId = slotLabelId;
+        }
+
+        [DataTreeObjectConstructor]
+        public RDMSlotInfo(
+            [DataTreeObjectParameter("id")] ushort slotOffset,
+            [DataTreeObjectParameter("type")] byte slotType,
+            [DataTreeObjectParameter("label_id")] byte slotLabelId)
+            : this(slotOffset, (ERDM_SlotType)slotType, (ERDM_SlotCategory)slotLabelId)
+        {
         }
 
         public ushort SlotOffset { get; private set; }

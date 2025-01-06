@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.ENDPOINT_RESPONDER_LIST_CHANGE, Command.ECommandDublicte.GetResponse)]
     public class GetEndpointResponderListChangeResponse : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public GetEndpointResponderListChangeResponse(
-            ushort endpointId = default,
-            uint listChangeNumber = default)
+            [DataTreeObjectParameter("endpoint_id")] ushort endpointId = default,
+            [DataTreeObjectParameter("list_change_number")] uint listChangeNumber = default)
         {
             this.EndpointId = endpointId;
             this.ListChangeNumber = listChangeNumber;

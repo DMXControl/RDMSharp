@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.BINDING_CONTROL_FIELDS, Command.ECommandDublicte.GetRequest)]
     public class GetBindingAndControlFieldsRequest : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public GetBindingAndControlFieldsRequest(
-            ushort endpointId = default,
-            UID uid = default)
+            [DataTreeObjectParameter("endpoint_id")] ushort endpointId = default,
+            [DataTreeObjectParameter("uid")] UID uid = default)
         {
             this.EndpointId = endpointId;
             this.UID = uid;

@@ -1,15 +1,18 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
 using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.DMX_PERSONALITY_ID, Command.ECommandDublicte.GetResponse)]
     public class RDMPersonalityId : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
+        [DataTreeObjectConstructor]
         public RDMPersonalityId(
-            byte personalityId = 0,
-            ushort majorPersonalityId = 0,
-            ushort minorPersonalityId = 0)
+            [DataTreeObjectParameter("personality")] byte personalityId = 0,
+            [DataTreeObjectParameter("major_id")] ushort majorPersonalityId = 0,
+            [DataTreeObjectParameter("minor_id")] ushort minorPersonalityId = 0)
         {
             this.PersonalityId = personalityId;
             this.MinorPersonalityId = majorPersonalityId;

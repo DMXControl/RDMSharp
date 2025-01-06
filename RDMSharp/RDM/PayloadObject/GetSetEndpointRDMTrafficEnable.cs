@@ -1,12 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.RDM_TRAFFIC_ENABLE, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.RDM_TRAFFIC_ENABLE, Command.ECommandDublicte.SetRequest)]
     public class GetSetEndpointRDMTrafficEnable : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public GetSetEndpointRDMTrafficEnable(
-            ushort endpointId = default,
-            bool rdmTrafficEnabled = default)
+            [DataTreeObjectParameter("endpoint_id")] ushort endpointId = default,
+            [DataTreeObjectParameter("rdm_enabled")] bool rdmTrafficEnabled = default)
         {
             this.EndpointId = endpointId;
             this.RDMTrafficEnabled = rdmTrafficEnabled;

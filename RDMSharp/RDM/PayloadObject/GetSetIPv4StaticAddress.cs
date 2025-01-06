@@ -1,14 +1,19 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.IPV4_STATIC_ADDRESS, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.IPV4_STATIC_ADDRESS, Command.ECommandDublicte.SetRequest)]
     public class GetSetIPv4StaticAddress : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public GetSetIPv4StaticAddress(
-            uint interfaceId = 0,
-            IPv4Address ipAddress = default,
-            byte netmask = 24)
+            [DataTreeObjectParameter("id")] uint interfaceId = 0,
+            [DataTreeObjectParameter("address")] IPv4Address ipAddress = default,
+            [DataTreeObjectParameter("netmask")] byte netmask = 24)
         {
             this.InterfaceId = interfaceId;
             this.IPAddress = ipAddress;

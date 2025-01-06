@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.METADATA_PARAMETER_VERSION, Command.ECommandDublicte.GetResponse)]
     public class RDMMetadataParameterVersion : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public RDMMetadataParameterVersion(
-            ERDM_Parameter parameterId,
-            ushort version)
+            [DataTreeObjectParameter("pid")] ERDM_Parameter parameterId,
+            [DataTreeObjectParameter("version")] ushort version)
         {
             this.ParameterId = parameterId;
             this.Version = version;

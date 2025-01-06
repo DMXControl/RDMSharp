@@ -1,13 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.PRESET_PLAYBACK, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.PRESET_PLAYBACK, Command.ECommandDublicte.SetRequest)]
     public class RDMPresetPlayback : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public RDMPresetPlayback(
-            ushort mode = 0,
-            byte level = 0)
+            [DataTreeObjectParameter("mode")] ushort mode = 0,
+            [DataTreeObjectParameter("level")] byte level = 0)
         {
             this.Mode = mode;
             this.Level = level;

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Linq;
 
 namespace RDMSharp.Metadata
 {
@@ -43,52 +44,90 @@ namespace RDMSharp.Metadata
         {
             if (IsEmpty || IsUnset)
                 return null;
-
-            var definedDataTreeObjectType = MetadataFactory.GetDefinedDataTreeObjectType(define, commandType);
-            if (definedDataTreeObjectType != null)
+            try
             {
-                if (definedDataTreeObjectType.IsEnum)
-                    return Enum.ToObject(definedDataTreeObjectType, Children.Single().Value);
-
-                ConstructorInfo[] constructors = definedDataTreeObjectType.GetConstructors();
-
-                foreach (var constructor in constructors)
+                var definedDataTreeObjectType = MetadataFactory.GetDefinedDataTreeObjectType(define, commandType);
+                if (definedDataTreeObjectType != null)
                 {
-                    if (constructor.GetCustomAttribute<DataTreeObjectConstructorAttribute>() is DataTreeObjectConstructorAttribute cAttribute)
-                    {
-                        var parameters = new List<object>();
-                        foreach (var param in constructor.GetParameters())
-                            if (param.GetCustomAttribute<DataTreeObjectParameterAttribute>() is DataTreeObjectParameterAttribute pAttribute)
-                            {
-                                if (Children.FirstOrDefault(c => string.Equals(c.Name, pAttribute.Name)) is DataTree child)
-                                    parameters.Add(child.Value);
-                                else
-                                    throw new ArgumentException($"No matching Value found for '{pAttribute.Name}'");
-                            }
+                    if (definedDataTreeObjectType.IsEnum)
+                        return Enum.ToObject(definedDataTreeObjectType, Children.Single().Value);
 
-                        var instance = constructor.Invoke(parameters.ToArray());
-                        return instance;
+                    ConstructorInfo[] constructors = definedDataTreeObjectType.GetConstructors();
+                    var objectAttribute = definedDataTreeObjectType.GetCustomAttributes<DataTreeObjectAttribute>().FirstOrDefault(a => (ushort)a.Parameter == define.PID && a.Command == commandType);
+
+
+                    var children = Children;
+
+                    if (!string.IsNullOrWhiteSpace(objectAttribute.Path))
+                    {
+                        string[] path = objectAttribute.Path.Split('/');
+                        while (path.Length >= 1)
+                        {
+                            children = children.FirstOrDefault(c => string.Equals(c.Name, path[0])).Children;
+                            path = path.Skip(1).ToArray();
+                        }
+                    }
+
+
+                    foreach (var constructor in constructors)
+                    {
+                        if (constructor.GetCustomAttribute<DataTreeObjectConstructorAttribute>() is DataTreeObjectConstructorAttribute cAttribute)
+                        {
+                            var parameters = new List<object>();
+                            foreach (var param in constructor.GetParameters())
+                                if (param.GetCustomAttribute<DataTreeObjectParameterAttribute>() is DataTreeObjectParameterAttribute pAttribute)
+                                {
+                                    string name = pAttribute.Name;
+                                    string[] path = name.Split('/');
+                                    while (path.Length > 1)
+                                    {
+                                        children = children.FirstOrDefault(c => string.Equals(c.Name, path[0])).Children;
+                                        path = path.Skip(1).ToArray();
+                                        if (path.Length == 1)
+                                            name = path[0];
+                                    }
+                                    if (!pAttribute.IsArray && children.FirstOrDefault(c => string.Equals(c.Name, pAttribute.Name)) is DataTree child)
+                                        parameters.Add(child.Value);
+                                    else if (pAttribute.IsArray && children.Where(c => string.Equals(c.Name, pAttribute.Name)).OfType<DataTree>() is IEnumerable<DataTree> childenum)
+                                    {
+                                        Type targetType = children.First().Value.GetType();
+                                        var array = Array.CreateInstance(targetType, children.Length);
+                                        Array.Copy(children.Select(c => c.Value).ToArray(), array, children.Length);
+                                        parameters.Add(array);
+                                    }
+                                    else
+                                        throw new ArgumentException($"No matching Value found for '{pAttribute.Name}'");
+                                }
+
+                            var instance = constructor.Invoke(parameters.ToArray());
+                            return instance;
+                        }
+                    }
+                }
+
+                if (Children.Length == 1)
+                {
+                    DataTree dataTree = Children[0];
+
+                    if (dataTree.Value != null)
+                        return dataTree.Value;
+
+                    if (dataTree.Children.GroupBy(c => c.Name).Count() == 1)
+                    {
+                        var list = dataTree.Children.Select(c => c.Value).ToList();
+                        Type targetType = list.First().GetType();
+                        var array = Array.CreateInstance(targetType, list.Count);
+                        Array.Copy(list.ToArray(), array, list.Count);
+                        //for (int i = 0; i < list.Count; i++)
+                        //    array.SetValue(Convert.ChangeType(list[i], targetType), i);
+
+                        return array;
                     }
                 }
             }
-
-            if (Children.Length == 1)
+            catch (Exception e)
             {
-                DataTree dataTree = Children[0];
-
-                if (dataTree.Value != null)
-                    return dataTree.Value;
-
-                if (dataTree.Children.GroupBy(c => c.Name).Count() == 1)
-                {
-                    var list = dataTree.Children.Select(c => c.Value).ToList();
-                    Type targetType = list.First().GetType();
-                    var array = Array.CreateInstance(targetType, list.Count);
-                    for (int i = 0; i < list.Count; i++)
-                        array.SetValue(Convert.ChangeType(list[i], targetType), i);
-
-                    return array;
-                }
+                throw e;
             }
 
             throw new NotImplementedException();

@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.DEVICE_INFO_OFFSTAGE, Command.ECommandDublicte.GetResponse)]
     public class GetDeviceInfoOffstageResponse : AbstractRDMPayloadObject
     {
         public GetDeviceInfoOffstageResponse(
@@ -15,6 +18,40 @@ namespace RDMSharp
             SubDeviceRequested = subDeviceRequested;
             SubDevicePersonalityRequested = subDevicePersonalityRequested;
             DeviceInfo = deviceInfo;
+        }
+
+        [DataTreeObjectConstructor]
+        public GetDeviceInfoOffstageResponse(
+            [DataTreeObjectParameter("root_personality")] byte rootPersonality,
+            [DataTreeObjectParameter("subdevice")] ushort subDeviceRequested,
+            [DataTreeObjectParameter("subdevice_personality")] byte subDevicePersonalityRequested,
+            [DataTreeObjectParameter("protocol_major")] byte rdmProtocolVersionMajor,
+            [DataTreeObjectParameter("protocol_minor")] byte rdmProtocolVersionMinor,
+            [DataTreeObjectParameter("device_model_id")] ushort deviceModelId,
+            [DataTreeObjectParameter("product_category")] ushort productCategory,
+            [DataTreeObjectParameter("software_version_id")] uint softwareVersionId,
+            [DataTreeObjectParameter("dmx_footprint")] ushort dmx512Footprint,
+            [DataTreeObjectParameter("current_personality")] byte dmx512CurrentPersonality,
+            [DataTreeObjectParameter("personality_count")] byte dmx512NumberOfPersonalities,
+            [DataTreeObjectParameter("dmx_start_address")] ushort dmx512StartAddress,
+            [DataTreeObjectParameter("sub_device_count")] ushort subDeviceCount,
+            [DataTreeObjectParameter("sensor_count")] byte sensorCount)
+            : this(rootPersonality,
+                  subDeviceRequested,
+                  subDevicePersonalityRequested,
+                  new RDMDeviceInfo(
+                      rdmProtocolVersionMajor,
+                        rdmProtocolVersionMinor,
+                        deviceModelId,
+                        productCategory,
+                        softwareVersionId,
+                        dmx512Footprint,
+                        dmx512CurrentPersonality,
+                        dmx512NumberOfPersonalities,
+                        dmx512StartAddress,
+                        subDeviceCount,
+                        sensorCount))
+        {
         }
 
         public byte RootPersonality { get; private set; }

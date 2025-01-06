@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.BROKER_STATUS, Command.ECommandDublicte.GetRequest)]
     public class GetBrokerStatusResponse : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public GetBrokerStatusResponse(
-            bool setAllowed = default,
-            ERDM_BrokerStatus brokerStatus = default)
+            [DataTreeObjectParameter("setAllowed")] bool setAllowed = default,
+            [DataTreeObjectParameter("brokerStatus")] ERDM_BrokerStatus brokerStatus = default)
         {
             this.SetAllowed = setAllowed;
             this.BrokerStatus = brokerStatus;

@@ -1,12 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.IDENTIFY_ENDPOINT, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.IDENTIFY_ENDPOINT, Command.ECommandDublicte.SetRequest)]
     public class GetSetIdentifyEndpoint : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public GetSetIdentifyEndpoint(
-            ushort endpointId = default,
-            bool identifyState = default)
+            [DataTreeObjectParameter("endpoint_id")] ushort endpointId = default,
+            [DataTreeObjectParameter("identify_state")] bool identifyState = default)
         {
             this.EndpointId = endpointId;
             this.IdentifyState = identifyState;

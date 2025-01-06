@@ -88,7 +88,7 @@ namespace RDMSharp
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             return assembly.GetTypes()
-                           .Where(t => (t.IsClass || t.IsEnum) && t.GetCustomAttributes<TAttribute>() != null)
+                           .Where(t => (t.IsClass || t.IsEnum) && t.GetCustomAttributes<TAttribute>().Any(a => a is TAttribute))
                            .ToList();
         }
 

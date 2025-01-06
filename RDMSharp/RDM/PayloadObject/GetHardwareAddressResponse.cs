@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.INTERFACE_HARDWARE_ADDRESS_TYPE, Command.ECommandDublicte.GetResponse)]
     public class GetHardwareAddressResponse : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public GetHardwareAddressResponse(
-            uint interfaceId = 0,
-            MACAddress hardwareAddress = default)
+            [DataTreeObjectParameter("id")] uint interfaceId = 0,
+            [DataTreeObjectParameter("address")] MACAddress hardwareAddress = default)
         {
             this.InterfaceId = interfaceId;
             this.HardwareAddress = hardwareAddress;

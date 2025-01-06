@@ -1,12 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.BACKGROUND_DISCOVERY, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.BACKGROUND_DISCOVERY, Command.ECommandDublicte.SetRequest)]
     public class GetSetEndpointBackgroundDiscovery : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public GetSetEndpointBackgroundDiscovery(
-            ushort endpointId = default,
-            bool backgroundDiscovery = default)
+            [DataTreeObjectParameter("endpoint_id")] ushort endpointId = default,
+            [DataTreeObjectParameter("enabled")] bool backgroundDiscovery = default)
         {
             this.EndpointId = endpointId;
             this.BackgroundDiscovery = backgroundDiscovery;

@@ -1,12 +1,16 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    //[DataTreeObject(ERDM_Parameter.PROXIED_DEVICES, Command.ECommandDublicte.GetResponse, path: "device_uids")] Dont use this because its an Arrya and this is handled faster
     public class RDMProxiedDevices : AbstractRDMPayloadObject
     {
-        public RDMProxiedDevices(params UID[] devices)
+        [DataTreeObjectConstructor]
+        public RDMProxiedDevices([DataTreeObjectParameter("device_uid", true)] params UID[] devices)
         {
             this.Devices = devices;
         }

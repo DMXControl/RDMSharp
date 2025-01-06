@@ -1,15 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.DISCOVERY_STATE, Command.ECommandDublicte.SetResponse)]
     public class SetDiscoveryStateRequest : AbstractRDMPayloadObject
     {
         public SetDiscoveryStateRequest(
-            ushort endpointId = default,
-            ERDM_DiscoveryState discoveryState = default)
+            [DataTreeObjectParameter("endpoint_id")] ushort endpointId = default,
+            [DataTreeObjectParameter("state")] ERDM_DiscoveryState discoveryState = default)
         {
             this.EndpointId = endpointId;
             this.DiscoveryState = discoveryState;
+        }
+        [DataTreeObjectConstructor]
+        public SetDiscoveryStateRequest(
+            [DataTreeObjectParameter("endpoint_id")] ushort endpointId,
+            [DataTreeObjectParameter("state")] byte discoveryState)
+            : this(endpointId, (ERDM_DiscoveryState)discoveryState)
+        {
         }
 
         public ushort EndpointId { get; private set; }

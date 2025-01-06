@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -6,13 +8,15 @@ using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.TCP_COMMS_STATUS, Command.ECommandDublicte.GetResponse)]
     public class TCPCommsEntry : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public TCPCommsEntry(
-            string scopeString = default,
-            IPAddress brokerAddress = default,
-            ushort brokerPort = default,
-            ushort unhealthyTCPEvents = default)
+            [DataTreeObjectParameter("scopeString")] string scopeString = default,
+            [DataTreeObjectParameter("brokerAddress")] IPAddress brokerAddress = default,
+            [DataTreeObjectParameter("brokerPort")] ushort brokerPort = default,
+            [DataTreeObjectParameter("unhealthyTCPEvents")] ushort unhealthyTCPEvents = default)
         {
 
             if (string.IsNullOrWhiteSpace(scopeString))

@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.DMX_BLOCK_ADDRESS, Command.ECommandDublicte.GetResponse)]
     public class RDMDMXBlockAddress : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public RDMDMXBlockAddress(
-            ushort totalSubDeviceFootprint = 0,
-            ushort baseDMX512Address = 0)
+            [DataTreeObjectParameter("total_subdevice_footprint")] ushort totalSubDeviceFootprint = 0,
+            [DataTreeObjectParameter("base_dmx_address")] ushort baseDMX512Address = 0)
         {
             this.TotalSubDeviceFootprint = totalSubDeviceFootprint;
             this.BaseDMX512Address = baseDMX512Address;

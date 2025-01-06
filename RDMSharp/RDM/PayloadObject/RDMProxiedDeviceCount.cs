@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.PROXIED_DEVICES_COUNT, Command.ECommandDublicte.GetResponse)]
     public class RDMProxiedDeviceCount : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public RDMProxiedDeviceCount(
-            ushort deviceCount = 0,
-            bool listChange = false)
+            [DataTreeObjectParameter("device_count")] ushort deviceCount = 0,
+            [DataTreeObjectParameter("list_change")] bool listChange = false)
         {
             this.DeviceCount = deviceCount;
             this.ListChange = listChange;

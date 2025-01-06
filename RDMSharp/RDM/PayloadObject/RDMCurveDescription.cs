@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.CURVE_DESCRIPTION, Command.ECommandDublicte.GetResponse)]
     public class RDMCurveDescription : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
+        [DataTreeObjectConstructor]
         public RDMCurveDescription(
-            byte curveId = 1,
-            string description = "")
+            [DataTreeObjectParameter("curve")] byte curveId = 1,
+            [DataTreeObjectParameter("description")] string description = "")
         {
             this.CurveId = curveId;
 

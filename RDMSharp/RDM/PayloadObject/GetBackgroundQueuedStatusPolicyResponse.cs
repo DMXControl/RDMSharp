@@ -1,13 +1,17 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY, Command.ECommandDublicte.GetResponse)]
     public class GetBackgroundQueuedStatusPolicyResponse : AbstractRDMPayloadObjectOneOf
     {
+        [DataTreeObjectConstructor]
         public GetBackgroundQueuedStatusPolicyResponse(
-            byte policyId = 1,
-            byte policies = default)
+            [DataTreeObjectParameter("policy_setting")] byte policyId = 1,
+            [DataTreeObjectParameter("policy_setting_count")] byte policies = default)
         {
             this.PolicyId = policyId;
             this.Policies = policies;

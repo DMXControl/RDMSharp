@@ -1,14 +1,18 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.ENDPOINT_TIMING, Command.ECommandDublicte.GetResponse)]
     public class GetEndpointTimingResponse : AbstractRDMPayloadObjectOneOf
     {
+        [DataTreeObjectConstructor]
         public GetEndpointTimingResponse(
-            ushort endpointId = default,
-            byte timingId = 1,
-            byte timings = default)
+            [DataTreeObjectParameter("endpoint_id")] ushort endpointId = default,
+            [DataTreeObjectParameter("setting")] byte timingId = 1,
+            [DataTreeObjectParameter("setting_count")] byte timings = default)
         {
             this.EndpointId = endpointId;
             this.TimingId = timingId;

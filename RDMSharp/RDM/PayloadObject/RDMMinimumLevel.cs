@@ -1,14 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.MINIMUM_LEVEL, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.MINIMUM_LEVEL, Command.ECommandDublicte.SetRequest)]
     public class RDMMinimumLevel : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public RDMMinimumLevel(
-            ushort minimumLevelIncrease = 0,
-            ushort minimumLevelDecrease = 0,
-            bool onBelowMinimum = false)
+            [DataTreeObjectParameter("min_level_increasing")] ushort minimumLevelIncrease = 0,
+            [DataTreeObjectParameter("min_level_decreasing")] ushort minimumLevelDecrease = 0,
+            [DataTreeObjectParameter("on_below_min")] bool onBelowMinimum = false)
         {
             this.MinimumLevelIncrease = minimumLevelIncrease;
             this.MinimumLevelDecrease = minimumLevelDecrease;
