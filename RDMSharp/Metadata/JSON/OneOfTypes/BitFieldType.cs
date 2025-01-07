@@ -115,14 +115,14 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             List<DataTree> bitDataTrees = new List<DataTree>();
             List<DataTreeIssue> issueList = new List<DataTreeIssue>();
             int byteCount = (Size / 8);
-            if (byteCount != data.Length)
+            if (byteCount > data.Length)
             {
                 issueList.Add(new DataTreeIssue($"Data length not match given Size/8 ({byteCount})"));
                 byte[] cloneData = new byte[byteCount];
                 Array.Copy(data, cloneData, data.Length);
                 data = cloneData;
             }
-            bool[] bools = Tools.DataToBoolArray(ref data, this.Size);
+            bool[] bools = Tools.DataToBoolArray(ref data, Size);
             for (uint i = 0; i < Bits.Length; i++)
             {
                 BitType bitType = Bits[i];
@@ -138,7 +138,9 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 if (bit != valueForUnspecified)
                     issueList.Add(new DataTreeIssue($"The Bit at Index {i} is Unspecified, but the Value is not {valueForUnspecified} as defined for Unspecified Bits"));
             }
-            return new DataTree(this.Name, 0, children: bitDataTrees.OrderBy(b=>b.Index).ToArray(), issueList.Count != 0 ? issueList.ToArray() : null);
+            var children = bitDataTrees.OrderBy(b => b.Index).ToArray();
+            var dataTree = new DataTree(this.Name, 0, children: children, issueList.Count != 0 ? issueList.ToArray() : null);
+            return dataTree;
         }
     }
 }

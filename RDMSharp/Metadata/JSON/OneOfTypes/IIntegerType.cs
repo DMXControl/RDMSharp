@@ -11,5 +11,11 @@
         int? PrefixPower { get; } 
         int? PrefixBase { get; }
         double PrefixMultiplyer { get; }
+
+        bool IsInRange(object number);
+        object GetMaximum();
+        object GetMinimum();
+        object Increment(object number);
+        object IncrementJumpRange(object number);
     }
 }

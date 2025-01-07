@@ -1,10 +1,13 @@
-﻿using RDMSharp.ParameterWrapper;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON.OneOfTypes;
+using RDMSharp.ParameterWrapper;
 using RDMSharp.ParameterWrapper.Generic;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace RDMSharp
@@ -13,13 +16,13 @@ namespace RDMSharp
     {
         private static ConcurrentDictionary<int, RDMDeviceModel> knownDeviceModels;
         public static IReadOnlyCollection<RDMDeviceModel> KnownDeviceModels => knownDeviceModels.Values.ToList();
-        internal static RDMDeviceModel getDeviceModel(UID uid, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
+        internal static RDMDeviceModel getDeviceModel(UID uid, SubDevice subDevice, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
         {
             knownDeviceModels ??= new ConcurrentDictionary<int, RDMDeviceModel>();
             var kdm = knownDeviceModels.Values.FirstOrDefault(dm => dm.IsModelOf(uid, deviceInfo));
             if (kdm == null)
             {
-                kdm = new RDMDeviceModel(uid, deviceInfo, sendRdmFunktion);
+                kdm = new RDMDeviceModel(uid, subDevice, deviceInfo, sendRdmFunktion);
                 knownDeviceModels.TryAdd(kdm.GetHashCode(), kdm);
             }
 
@@ -27,24 +30,21 @@ namespace RDMSharp
 
         }
 
-        private static readonly Random random = new Random();
-        private static RDMParameterWrapperCatalogueManager pmManager => RDMParameterWrapperCatalogueManager.GetInstance();
-        private static DeviceInfoParameterWrapper deviceInfoParameterWrapper => (DeviceInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.DEVICE_INFO);
-        private static SupportedParametersParameterWrapper supportedParametersParameterWrapper => (SupportedParametersParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SUPPORTED_PARAMETERS);
-        private static SensorDefinitionParameterWrapper sensorDefinitionParameterWrapper => (SensorDefinitionParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SENSOR_DEFINITION);
-
         public ushort ManufacturerID { get; private set; }
         public EManufacturer Manufacturer { get; private set; }
         public UID CurrentUsedUID { get; private set; }
+        public SubDevice CurrentUsedSubDevice { get; private set; }
 
         public event EventHandler Initialized;
         public bool IsInitialized { get; private set; } = false;
 
-        private readonly AsyncRDMRequestHelper asyncRDMRequestHelper;
+        private AsyncRDMRequestHelper asyncRDMRequestHelper;
 
         private readonly ConcurrentDictionary<ushort, IRDMParameterWrapper> manufacturerParameter = new ConcurrentDictionary<ushort, IRDMParameterWrapper>();
 
 
+        private ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch> parameterValuesDataTreeBranch = new ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch>();
+        private ConcurrentDictionary<DataTreeObjectDependeciePropertyBag, object> parameterValuesDependeciePropertyBag = new ConcurrentDictionary<DataTreeObjectDependeciePropertyBag, object>();
 
         private ConcurrentDictionary<ERDM_Parameter, object> parameterValues = new ConcurrentDictionary<ERDM_Parameter, object>();
         public IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues
@@ -61,6 +61,9 @@ namespace RDMSharp
                     return;
 
                 this.parameterValues[ERDM_Parameter.DEVICE_INFO] = value;
+                var dataTreeBranch = DataTreeBranch.FromObject(value, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DEVICE_INFO);
+                updateParameterValuesDependeciePropertyBag(ERDM_Parameter.DEVICE_INFO, dataTreeBranch);
+                parameterValuesDataTreeBranch[new ParameterDataCacheBag(ERDM_Parameter.DEVICE_INFO)] = dataTreeBranch;
                 PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(DeviceInfo)));
             }
         }
@@ -68,20 +71,20 @@ namespace RDMSharp
         private ConcurrentDictionary<ERDM_Parameter, bool> supportedParameters = new ConcurrentDictionary<ERDM_Parameter, bool>();
         public IReadOnlyCollection<ERDM_Parameter> SupportedParameters
         {
-            get { return this.supportedParameters.Where(sp => sp.Value).Select(sp => sp.Key).Where(p => ((ushort)p > 0x000F)).ToArray().AsReadOnly(); }
+            get { return this.supportedParameters.Where(sp => sp.Value).Select(sp => sp.Key).Where(p => ((ushort)p > 0x000F)).OrderBy(p => p).ToArray().AsReadOnly(); }
         }
         public IReadOnlyCollection<ERDM_Parameter> SupportedBlueprintParameters
         {
-            get { return this.SupportedParameters.Where(p => pmManager.GetRDMParameterWrapperByID(p) is IRDMBlueprintParameterWrapper).ToArray().AsReadOnly(); }
+            get { return this.SupportedParameters.Intersect(Constants.BLUEPRINT_MODEL_PARAMETERS).OrderBy(p => p).ToList().AsReadOnly(); }
         }
         public IReadOnlyCollection<ERDM_Parameter> SupportedNonBlueprintParameters
         {
-            get { return this.SupportedParameters.Where(p => pmManager.GetRDMParameterWrapperByID(p) is not IRDMBlueprintParameterWrapper).ToArray().AsReadOnly(); }
+            get { return this.SupportedParameters.Except(SupportedBlueprintParameters).OrderBy(p => p).ToList().AsReadOnly(); }
         }
 
         public IReadOnlyCollection<ERDM_Parameter> KnownNotSupportedParameters
         {
-            get { return this.supportedParameters.Where(sp => !sp.Value).Select(sp => sp.Key).ToArray().AsReadOnly(); }
+            get { return this.supportedParameters.Where(sp => !sp.Value).Select(sp => sp.Key).OrderBy(p => p).ToArray().AsReadOnly(); }
         }
 
 
@@ -92,123 +95,140 @@ namespace RDMSharp
         public event PropertyChangedEventHandler PropertyChanged;
         private readonly Func<RDMMessage, Task> sendRdmFunktion;
 
-        internal RDMDeviceModel(UID uid, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
+        internal RDMDeviceModel(UID uid, SubDevice sudevice, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
         {
             this.sendRdmFunktion = sendRdmFunktion;
             DeviceInfo = deviceInfo;
-            this.CurrentUsedUID = uid;
+            CurrentUsedUID = uid;
+            CurrentUsedSubDevice = sudevice;
             ManufacturerID = uid.ManufacturerID;
             Manufacturer = (EManufacturer)uid.ManufacturerID;
-
-            asyncRDMRequestHelper = new AsyncRDMRequestHelper(sendRDMMessage);
         }
         internal async Task Initialize()
         {
             if (IsInitialized)
                 return;
 
-            await processMessage(await requestParameter(supportedParametersParameterWrapper.BuildGetRequestMessage()));
+            asyncRDMRequestHelper = new AsyncRDMRequestHelper(sendRDMMessage);
 
-            var sp = this.SupportedParameters.ToArray();
-            foreach (ERDM_Parameter parameter in sp)
-            {
-                var pw = pmManager.GetRDMParameterWrapperByID(parameter);
+            await requestSupportedParameters();
+            await requestBlueprintParameters();
 
-                switch (pw)
-                {
-                    case ParameterDescriptionParameterWrapper parameterDescription:
-                        foreach (ERDM_Parameter p in this.SupportedParameters.Where(p => !ERDM_Parameter.IsDefined(typeof(ERDM_Parameter), p)))
-                            await processMessage(await requestParameter((pw as ParameterDescriptionParameterWrapper).BuildGetRequestMessage(p)));
-                        break;
-                    case SupportedParametersParameterWrapper supportedParameters:
-                        break;
-                }
+            asyncRDMRequestHelper.Dispose();
+            asyncRDMRequestHelper = null;
 
-                //if (parameter == ERDM_Parameter.SENSOR_DEFINITION)
-                //{
-                //    await this.RequestSensorDefinitions(uid);
-                //    continue;
-                //}
-
-                if (pw is not IRDMBlueprintParameterWrapper)
-                    continue;
-
-                RDMMessage request = null;
-                if (pw is IRDMBlueprintDescriptionListParameterWrapper blueprintDL)
-                {
-                    foreach (IRDMParameterWrapper _pm in blueprintDL.DescriptiveParameters.Select(pid => pmManager.GetRDMParameterWrapperByID(pid)))
-                        await doCurrentWrapper(_pm);
-                    //if (blueprintDL.DescriptiveParameters?.Contains(blueprintDL.ValueParameterID) == false)
-                    //    await doCurrentWrapper(pmManager.GetRDMParameterWrapperByID(blueprintDL.ValueParameterID));
-
-                    await doCurrentWrapper(pw);
-                }
-                else
-                    await doCurrentWrapper(pw);
-
-                async Task doCurrentWrapper(IRDMParameterWrapper wrapper)
-                {
-                    if (this.parameterValues.ContainsKey(wrapper.Parameter))
-                        return;
-                    
-                    switch (wrapper)
-                    {
-                        case IRDMGetParameterWrapperWithEmptyGetRequest emptyGet:
-                            request = emptyGet.BuildGetRequestMessage();
-                            if (request != null)
-                                await processMessage(await requestParameter(request));
-                            return;
-                        case IRDMGetParameterWrapperRequestRanged getParameter:
-                            await doRange(getParameter);
-                            return;
-
-                        //case IRDMGetParameterWrapperRequestContravariance<byte> getContravarianceByte:
-                        //    doRange(getContravarianceByte);
-                        //    return;
-
-                        //case IRDMGetParameterWrapperRequestContravariance<object> getContravarianceObject:
-                        //    break;
-                        //case IRDMGetParameterWrapperRequestContravariance<RDMDeviceInfo> getContravarianceObject:
-                        //    break;
-
-                        default:
-                            break;
-                    }
-
-
-                    if (request == null)
-                        return;
-
-
-                    await processMessage(await requestParameter(request));
-                    async Task doRange(IRDMGetParameterWrapperRequestRanged getParameterWrapperRequest)
-                    {
-                        ERDM_Parameter descriptive;
-                        object dVal = null;
-                        IRequestRange range = null;
-                        if (getParameterWrapperRequest is IRDMBlueprintDescriptionListParameterWrapper blueprintDL)
-                        {
-                            descriptive = blueprintDL.DescriptiveParameters.FirstOrDefault();
-                            if (descriptive != default)
-                                this.parameterValues.TryGetValue(descriptive, out dVal);
-                        }
-                        if (dVal == null)
-                            return;
-                        range = getParameterWrapperRequest.GetRequestRange(dVal);
-                        if (range == null)
-                            return;
-                        foreach (var r in range.ToEnumerator())
-                        {
-                            request = getParameterWrapperRequest.BuildGetRequestMessage(r);
-                            if (request != null)
-                                await processMessage(await requestParameter(request));
-                        }
-                    }
-                }
-            }
             IsInitialized = true;
             Initialized?.Invoke(this, EventArgs.Empty);
         }
+
+
+        private async Task runPeerToPeerProcess(PeerToPeerProcess ptpProcess)
+        {
+            await ptpProcess?.Run(asyncRDMRequestHelper);
+        }
+
+        private void updateParameterValuesDependeciePropertyBag(ERDM_Parameter parameter, DataTreeBranch dataTreeBranch)
+        {
+            object obj = dataTreeBranch.ParsedObject;
+            if (obj == null)
+                return;
+
+            foreach (var p in obj.GetType().GetProperties().Where(p => p.GetCustomAttributes<DataTreeObjectDependeciePropertyAttribute>().Any()).ToList())
+            {
+                object value = p.GetValue(obj);
+                foreach (var item in p.GetCustomAttributes<DataTreeObjectDependeciePropertyAttribute>())
+                    parameterValuesDependeciePropertyBag.AddOrUpdate(item.Bag, value, (o1, o2) => value);
+            }
+        }
+
+        #region Requests
+        private async Task requestSupportedParameters()
+        {
+            ParameterBag parameterBag = new ParameterBag(ERDM_Parameter.SUPPORTED_PARAMETERS);
+            PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, CurrentUsedUID, CurrentUsedSubDevice, parameterBag);
+            await runPeerToPeerProcess(ptpProcess);
+
+            if (!ptpProcess.ResponsePayloadObject.IsUnset)
+                parameterValuesDataTreeBranch.AddOrUpdate(new ParameterDataCacheBag(parameterBag.PID), ptpProcess.ResponsePayloadObject, (o1, o2) => ptpProcess.ResponsePayloadObject);
+
+            if (ptpProcess.ResponsePayloadObject.ParsedObject is ERDM_Parameter[] parameters)
+            {
+                foreach (var para in parameters)
+                {
+                    if (!this.supportedParameters.TryGetValue(para, out _))
+                        supportedParameters.TryAdd(para, true);
+                }
+            }
+        }
+
+        private async Task requestBlueprintParameters()
+        {
+            foreach (ERDM_Parameter parameter in this.SupportedBlueprintParameters)
+            {
+                ParameterBag parameterBag = new ParameterBag(parameter, ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
+                var define = MetadataFactory.GetDefine(parameterBag);
+                if (define.GetRequest.HasValue)
+                {
+                    if (define.GetRequest.Value.GetIsEmpty())
+                        await requestParameterWithEmptyPayload(parameterBag, define);
+                    else
+                        await requestParameterWithPayload(parameterBag, define);
+                }
+            }
+        }
+        private async Task requestParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define)
+        {
+            PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, CurrentUsedUID, CurrentUsedSubDevice, parameterBag);
+            await runPeerToPeerProcess(ptpProcess);
+            if (!ptpProcess.ResponsePayloadObject.IsUnset)
+            {
+                updateParameterValuesDependeciePropertyBag(parameterBag.PID, ptpProcess.ResponsePayloadObject);
+                parameterValuesDataTreeBranch.AddOrUpdate(new ParameterDataCacheBag(parameterBag.PID), ptpProcess.ResponsePayloadObject, (o1, o2) => ptpProcess.ResponsePayloadObject);
+                object valueToStore = ptpProcess.ResponsePayloadObject.ParsedObject ?? ptpProcess.ResponsePayloadObject;
+                this.parameterValues.AddOrUpdate(parameterBag.PID, valueToStore, (o1, o2) => valueToStore);
+            }
+        }
+        private async Task requestParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define)
+        {
+            var req = define.GetRequest.Value.GetRequiredProperties();
+            if (req.Length == 1 && req[0] is IIntegerType intType)
+            {
+                try
+                {
+                    string name = intType.Name;
+
+                    IComparable dependecyValue = (IComparable)parameterValuesDependeciePropertyBag.FirstOrDefault(bag => bag.Key.Parameter == parameterBag.PID && bag.Key.Command == Metadata.JSON.Command.ECommandDublicte.GetRequest && string.Equals(bag.Key.Name, name)).Value;
+
+                    object i = intType.GetMinimum();
+                    object max = intType.GetMaximum();
+                    object count = Convert.ChangeType(0, i.GetType());
+                    while (dependecyValue.CompareTo(count) > 0)
+                    {
+                        if (!intType.IsInRange(i))
+                            continue;
+
+                        if (((IComparable)max).CompareTo(i) == -1)
+                            return;
+
+                        DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
+                        PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, CurrentUsedUID, CurrentUsedSubDevice, parameterBag, dataTreeBranch);
+                        await runPeerToPeerProcess(ptpProcess);
+                        if (!ptpProcess.ResponsePayloadObject.IsUnset)
+                        {
+                            parameterValuesDataTreeBranch.AddOrUpdate(new ParameterDataCacheBag(parameterBag.PID, i), ptpProcess.ResponsePayloadObject, (o1, o2) => ptpProcess.ResponsePayloadObject);
+                        }
+                        i = intType.IncrementJumpRange(i);
+                        count = intType.Increment(count);
+                    }
+                }
+                catch(Exception e)
+                {
+
+                }
+            }
+        }
+
+        #endregion
 
 
         private async Task sendRDMMessage(RDMMessage rdmMessage)
@@ -225,125 +245,7 @@ namespace RDMSharp
             if (!rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
                 return;
 
-            if (asyncRDMRequestHelper.ReceiveMessage(rdmMessage))
-                return;
-
-            await processMessage(rdmMessage);
-        }
-
-        private async Task<RequestResult> requestParameter(RDMMessage rdmMessage)
-        {
-            return await asyncRDMRequestHelper.RequestMessage(rdmMessage);
-        }
-
-        private async Task processMessage(RequestResult result)
-        {
-            if (IsInitialized)
-                return;
-
-            if (result.Success)
-                await processMessage(result.Response);
-            else if (result.Cancel)
-                return;
-            else
-            {
-                await Task.Delay(TimeSpan.FromTicks(random.Next(4500, 5500)));
-                await processMessage(await requestParameter(result.Request));
-            }
-        }
-        private async Task processMessage(RDMMessage rdmMessage)
-        {
-            if (IsInitialized)
-                return;
-
-            var pw = pmManager.GetRDMParameterWrapperByID(rdmMessage.Parameter);
-            switch (pw)
-            {
-                case SupportedParametersParameterWrapper _supportedParameters:
-                    if (rdmMessage.Value is not ERDM_Parameter[] parameters)
-                        break;
-
-                    foreach (var para in parameters)
-                    {
-                        if (!this.supportedParameters.TryGetValue(para, out _))
-                            supportedParameters.TryAdd(para, true);
-                    }
-                    break;
-
-                case ParameterDescriptionParameterWrapper _parameterDescription when rdmMessage.Value is RDMParameterDescription pd:
-                    if (manufacturerParameter.ContainsKey(pd.ParameterId))
-                        break;
-                    switch (pd.DataType)
-                    {
-                        case ERDM_DataType.ASCII:
-                            manufacturerParameter.TryAdd(pd.ParameterId, new ASCIIParameterWrapper(pd));
-                            break;
-                        case ERDM_DataType.SIGNED_BYTE:
-                            manufacturerParameter.TryAdd(pd.ParameterId, new SignedByteParameterWrapper(pd));
-                            break;
-                        case ERDM_DataType.UNSIGNED_BYTE:
-                            manufacturerParameter.TryAdd(pd.ParameterId, new UnsignedByteParameterWrapper(pd));
-                            break;
-                        case ERDM_DataType.SIGNED_WORD:
-                            manufacturerParameter.TryAdd(pd.ParameterId, new SignedWordParameterWrapper(pd));
-                            break;
-                        case ERDM_DataType.UNSIGNED_WORD:
-                            manufacturerParameter.TryAdd(pd.ParameterId, new UnsignedWordParameterWrapper(pd));
-                            break;
-                        case ERDM_DataType.SIGNED_DWORD:
-                            manufacturerParameter.TryAdd(pd.ParameterId, new SignedDWordParameterWrapper(pd));
-                            break;
-                        case ERDM_DataType.UNSIGNED_DWORD:
-                            manufacturerParameter.TryAdd(pd.ParameterId, new UnsignedDWordParameterWrapper(pd));
-                            break;
-
-                        case ERDM_DataType.BIT_FIELD:
-                        default:
-                            manufacturerParameter.TryAdd(pd.ParameterId, new NotDefinedParameterWrapper(pd));
-                            break;
-
-                    }
-                    break;
-
-                case IRDMBlueprintDescriptionListParameterWrapper blueprintDL:
-                    ConcurrentDictionary<object, object> list = null;
-                    if (parameterValues.TryGetValue(rdmMessage.Parameter, out object value))
-                        list = value as ConcurrentDictionary<object, object>;
-
-                    if (list == null)
-                        parameterValues[rdmMessage.Parameter] = list = new ConcurrentDictionary<object, object>();
-
-                    if (list == null)
-                        return;
-
-                    if (rdmMessage.Value == null)
-                        return;
-
-                    if (rdmMessage.Value is IRDMPayloadObjectIndex indexObject)
-                        list.AddOrUpdate(indexObject.Index, rdmMessage.Value, (o, p) => rdmMessage.Value);
-
-                    break;
-                case IRDMBlueprintParameterWrapper blueprint:
-                    parameterValues[rdmMessage.Parameter] = rdmMessage.Value;
-                    break;
-                default:
-                    if (rdmMessage.Value is IRDMPayloadObjectOneOf oneOf)
-                    {
-                        var bdl = pmManager.ParameterWrappers.OfType<IRDMBlueprintDescriptionListParameterWrapper>().FirstOrDefault(p => p.ValueParameterID == rdmMessage.Parameter);
-                        switch (bdl)
-                        {
-                            case IRDMGetParameterWrapperRequest<byte> @byte:
-                                for (byte b = (byte)oneOf.MinIndex; b < (byte)oneOf.Count + (byte)oneOf.MinIndex; b++)
-                                    await processMessage(await requestParameter(@byte.BuildGetRequestMessage(b)));
-                                break;
-                            case IRDMGetParameterWrapperRequest<ushort> @ushort:
-                                for (ushort u = (ushort)oneOf.MinIndex; u < (ushort)oneOf.Count + (ushort)oneOf.MinIndex; u++)
-                                    await processMessage(await requestParameter(@ushort.BuildGetRequestMessage(u)));
-                                break;
-                        }
-                    }
-                    break;
-            }
+            asyncRDMRequestHelper?.ReceiveMessage(rdmMessage);
         }
 
         public bool IsModelOf(UID uid, RDMDeviceInfo other)

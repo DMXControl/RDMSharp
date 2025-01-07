@@ -13,6 +13,49 @@ using static RDMSharp.Metadata.JSON.Command;
 
 namespace RDMSharp
 {
+    public static class Constants
+    {
+        public static readonly ERDM_Parameter[] BLUEPRINT_MODEL_PARAMETERS = new ERDM_Parameter[]
+        {
+            ERDM_Parameter.PARAMETER_DESCRIPTION,
+            ERDM_Parameter.MANUFACTURER_LABEL,
+            ERDM_Parameter.MANUFACTURER_URL,
+            ERDM_Parameter.DEVICE_MODEL_DESCRIPTION,
+            ERDM_Parameter.PRODUCT_DETAIL_ID_LIST,
+            ERDM_Parameter.PRODUCT_URL,
+            ERDM_Parameter.FIRMWARE_URL,
+
+            ERDM_Parameter.METADATA_JSON_URL,
+            ERDM_Parameter.METADATA_JSON,
+            ERDM_Parameter.METADATA_PARAMETER_VERSION,
+
+            ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION,
+            ERDM_Parameter.DMX_PERSONALITY_ID,
+
+            ERDM_Parameter.SENSOR_DEFINITION,
+            ERDM_Parameter.SENSOR_VALUE,
+            ERDM_Parameter.SENSOR_TYPE_CUSTOM,
+            ERDM_Parameter.SENSOR_UNIT_CUSTOM,
+
+            ERDM_Parameter.CURVE_DESCRIPTION,
+            ERDM_Parameter.DIMMER_INFO,
+            ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION,
+            ERDM_Parameter.OUTPUT_RESPONSE_TIME_DESCRIPTION,
+            ERDM_Parameter.LOCK_STATE_DESCRIPTION,
+
+            ERDM_Parameter.SELF_TEST_DESCRIPTION,
+            ERDM_Parameter.STATUS_ID_DESCRIPTION,
+            ERDM_Parameter.LANGUAGE_CAPABILITIES,
+            ERDM_Parameter.SOFTWARE_VERSION_LABEL,
+        };
+
+        public static readonly ERDM_Parameter[] BLUEPRINT_MODEL_PERSONALITY_PARAMETERS = new ERDM_Parameter[]
+        {
+            ERDM_Parameter.SLOT_DESCRIPTION,
+            ERDM_Parameter.SLOT_INFO,
+            ERDM_Parameter.DEFAULT_SLOT_VALUE
+        };
+    }
     public static class Tools
     {
         public static int GenerateHashCode<T>(this IEnumerable<T> enumerable)

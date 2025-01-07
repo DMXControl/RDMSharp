@@ -86,6 +86,8 @@ namespace RDMSharp
         [DataTreeObjectProperty("current_personality", 6)]
         public byte? Dmx512CurrentPersonality { get; private set; }
 
+        [DataTreeObjectDependecieProperty("personality", ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION, Command.ECommandDublicte.GetRequest)]
+        [DataTreeObjectDependecieProperty("personality", ERDM_Parameter.DMX_PERSONALITY_ID, Command.ECommandDublicte.GetRequest)]
         [DataTreeObjectProperty("personality_count", 7)]
         public byte Dmx512NumberOfPersonalities { get; private set; }
 
@@ -95,6 +97,8 @@ namespace RDMSharp
         [DataTreeObjectProperty("sub_device_count", 9)]
         public ushort SubDeviceCount { get; private set; }
 
+        [DataTreeObjectDependecieProperty("sensor", ERDM_Parameter.SENSOR_DEFINITION, Command.ECommandDublicte.GetRequest)]
+        [DataTreeObjectDependecieProperty("sensor", ERDM_Parameter.SENSOR_VALUE, Command.ECommandDublicte.GetRequest)]
         [DataTreeObjectProperty("sensor_count", 10)]
         public byte SensorCount { get; private set; }
 

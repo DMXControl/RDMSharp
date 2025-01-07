@@ -25,6 +25,8 @@ namespace RDMSharp
         public MetadataJSONObjectDefine Define { get; private set; }
         public EPeerToPeerProcessState State {  get; private set; } = EPeerToPeerProcessState.Waiting;
 
+        public Exception Exception { get; private set; }
+
         private RDMMessage request = null;
         private RDMMessage response = null;
         public PeerToPeerProcess(ERDM_Command command, UID uid, SubDevice subDevice, ParameterBag parameterBag, DataTreeBranch? payloadObject = null)
@@ -110,7 +112,8 @@ namespace RDMSharp
             }
             catch (Exception e)
             {
-                State = EPeerToPeerProcessState.Failed;
+                this.Exception = e;
+                State = EPeerToPeerProcessState.Failed;                
             }
         }
     }

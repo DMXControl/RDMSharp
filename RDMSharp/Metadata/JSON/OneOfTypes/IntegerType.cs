@@ -333,5 +333,121 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
             return new DataTree(this.Name, 0, convertRawValueToFormated((T)value), issueList.Count != 0 ? issueList.ToArray() : null, unit, labels);
         }
+
+        public bool IsInRange(object number)
+        {
+            if (Ranges != null)
+                return Ranges.Any(r => r.IsInRange((T)number));
+
+            return new Range<T>((T)GetMinimum(), (T)GetMaximum()).IsInRange((T)number);
+        }
+
+        public object GetMaximum()
+        {
+            if (Ranges != null)
+                return Ranges.Max(r => r.Maximum);
+
+            switch (this.Type)
+            {
+                case EIntegerType.Int8:
+                    return sbyte.MaxValue;
+                case EIntegerType.UInt8:
+                    return byte.MaxValue;
+                case EIntegerType.Int16:
+                    return short.MaxValue;
+                case EIntegerType.UInt16:
+                    return ushort.MaxValue;
+                case EIntegerType.Int32:
+                    return int.MaxValue;
+                case EIntegerType.UInt32:
+                    return uint.MaxValue;
+                case EIntegerType.Int64:
+                    return long.MaxValue;
+                case EIntegerType.UInt64:
+                    return ulong.MaxValue;
+#if NET7_0_OR_GREATER
+                case EIntegerType.Int128:
+                    return Int128.MaxValue;
+                case EIntegerType.UInt128:
+                    return UInt128.MaxValue;
+#endif
+            }
+            throw new NotImplementedException();
+        }
+
+        public object GetMinimum()
+        {
+            if (Ranges != null)
+                return Ranges.Min(r => r.Minimum);
+
+            switch (this.Type)
+            {
+                case EIntegerType.Int8:
+                    return sbyte.MinValue;
+                case EIntegerType.UInt8:
+                    return byte.MinValue;
+                case EIntegerType.Int16:
+                    return short.MinValue;
+                case EIntegerType.UInt16:
+                    return ushort.MinValue;
+                case EIntegerType.Int32:
+                    return int.MinValue;
+                case EIntegerType.UInt32:
+                    return uint.MinValue;
+                case EIntegerType.Int64:
+                    return long.MinValue;
+                case EIntegerType.UInt64:
+                    return ulong.MinValue;
+#if NET7_0_OR_GREATER
+                case EIntegerType.Int128:
+                    return Int128.MinValue;
+                case EIntegerType.UInt128:
+                    return UInt128.MinValue;
+#endif
+            }
+            throw new NotImplementedException();
+        }
+
+        public object Increment(object number)
+        {
+            switch (this.Type)
+            {
+                case EIntegerType.Int8:
+                    return (sbyte)((sbyte)number + 1);
+                case EIntegerType.UInt8:
+                    return (byte)((byte)number + 1);
+                case EIntegerType.Int16:
+                    return (short)((short)number + 1);
+                case EIntegerType.UInt16:
+                    return (ushort)((ushort)number + 1);
+                case EIntegerType.Int32:
+                    return (int)((int)number + 1);
+                case EIntegerType.UInt32:
+                    return (uint)((uint)number + 1);
+                case EIntegerType.Int64:
+                    return (long)((long)number + 1);
+                case EIntegerType.UInt64:
+                    return (ulong)((ulong)number + 1);
+#if NET7_0_OR_GREATER
+                case EIntegerType.Int128:
+                    return (Int128)((Int128)number + 1);
+                case EIntegerType.UInt128:
+                    return (UInt128)((UInt128)number + 1);
+#endif
+            }
+            return number;
+        }
+
+        public object IncrementJumpRange(object number)
+        {
+            object incremented = Increment(number);
+            if (IsInRange(incremented))
+                return incremented;
+
+            if (Ranges != null)
+                return Ranges.Where(r => r.IsBelow((T)incremented)).Min(r => r.Minimum);
+
+            return false;
+        }
     }
 }

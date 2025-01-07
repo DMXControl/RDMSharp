@@ -51,7 +51,8 @@ namespace RDMSharp
             [DataTreeObjectParameter("range_max_value")] short rangeMaximum,
             [DataTreeObjectParameter("normal_min_value")] short normalMinimum,
             [DataTreeObjectParameter("normal_max_value")] short normalMaximum,
-            [DataTreeObjectParameter("recorded_value_support")] bool[] recordedValueSupport,
+            [DataTreeObjectParameter("recorded_value_support/recorded_value_supported")] bool recordedValueSupported,
+            [DataTreeObjectParameter("recorded_value_support/low_high_detected_values_supported")] bool lowestHighestValueSupported,
             [DataTreeObjectParameter("description")] string description)
             : this(sensorId,
                    (ERDM_SensorType)type,
@@ -61,8 +62,8 @@ namespace RDMSharp
                    rangeMaximum,
                    normalMinimum,
                    normalMaximum,
-                   recordedValueSupport[1],
-                   recordedValueSupport[0],
+                   lowestHighestValueSupported,
+                   recordedValueSupported,
                    description)
         {
         }

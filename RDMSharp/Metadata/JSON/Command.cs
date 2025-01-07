@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text.Json.Serialization;
@@ -64,7 +65,21 @@ namespace RDMSharp.Metadata.JSON
             if (ListOfFields != null)
                 return new PDL(ListOfFields.Select(f => f.GetDataLength()).ToArray());
 
-            throw new System.NotSupportedException();
+            throw new NotSupportedException();
+        }
+
+        public CommonPropertiesForNamed[] GetRequiredProperties()
+        {
+            if (SingleField.HasValue)
+                return new CommonPropertiesForNamed[] { SingleField.Value.ObjectType };
+            if (ListOfFields != null)
+            {
+                List<CommonPropertiesForNamed> names = new();
+                foreach (var field in ListOfFields)
+                    names.Add(field.ObjectType);
+                return names.ToArray();
+            }
+            throw new NotImplementedException();
         }
         public override string ToString()
         {

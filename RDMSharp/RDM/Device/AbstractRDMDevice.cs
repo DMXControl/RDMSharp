@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
+using RDMSharp.Metadata;
 using RDMSharp.ParameterWrapper;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace RDMSharp
@@ -14,7 +16,6 @@ namespace RDMSharp
         private static readonly Random random = new Random();
         private protected static readonly ILogger Logger = null;
         private protected static RDMParameterWrapperCatalogueManager pmManager => RDMParameterWrapperCatalogueManager.GetInstance();
-        private protected static DeviceInfoParameterWrapper deviceInfoParameterWrapper => (DeviceInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.DEVICE_INFO);
         private protected static SensorValueParameterWrapper sensorValueParameterWrapper => (SensorValueParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SENSOR_VALUE);
         private protected static SlotInfoParameterWrapper slotInfoParameterWrapper => (SlotInfoParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SLOT_INFO);
         private protected static DefaultSlotValueParameterWrapper defaultSlotValueParameterWrapper => (DefaultSlotValueParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.DEFAULT_SLOT_VALUE);
@@ -26,9 +27,13 @@ namespace RDMSharp
         public event PropertyChangedEventHandler PropertyChanged;
 
         public UID UID { get; private set; }
+        public SubDevice Subdevice { get; private set; }
         public DateTime LastSeen { get; private set; }
         public bool Present { get; internal set; }
         public bool DiscoveryMuted { get; private set; }
+
+        private List<IRDMDevice> subDevices;
+        public IReadOnlyCollection<IRDMDevice> SubDevices { get { return subDevices.AsReadOnly(); } }
 
         public virtual RDMDeviceInfo DeviceInfo { get; private protected set; }
 
@@ -53,17 +58,73 @@ namespace RDMSharp
         public virtual bool IsGenerated { get; private protected set; }
         public bool AllDataPulled { get; private set; }
 
-        public AbstractRDMDevice(UID uid)
+        public AbstractRDMDevice(UID uid): this(uid, SubDevice.Root)
         {
-            asyncRDMRequestHelper = new AsyncRDMRequestHelper(sendRDMRequestMessage);
+        }
+
+        public AbstractRDMDevice(UID uid, SubDevice subDevice)
+        {
             UID = uid;
+            Subdevice = subDevice;
+            subDevices = new List<IRDMDevice>();
+
+            asyncRDMRequestHelper = new AsyncRDMRequestHelper(sendRDMRequestMessage);
+
             initialize();
         }
+
         private async void initialize()
         {
             if (!IsGenerated)
-                await sendRDMRequestMessage(deviceInfoParameterWrapper.BuildGetRequestMessage());
+                await requestDeviceInfo();
         }
+
+        private async Task runPeerToPeerProcess(PeerToPeerProcess ptpProcess)
+        {
+            await ptpProcess.Run(asyncRDMRequestHelper);
+        }
+
+        #region Requests
+
+        private async Task requestDeviceInfo()
+        {
+            PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, UID, Subdevice, new ParameterBag(ERDM_Parameter.DEVICE_INFO));
+            await runPeerToPeerProcess(ptpProcess);
+            if (ptpProcess.ResponsePayloadObject.ParsedObject is RDMDeviceInfo deviceInfo)
+            {
+                DeviceInfo = deviceInfo;
+                parameterValues.AddOrUpdate(ERDM_Parameter.DEVICE_INFO, deviceInfo, (o, p) => deviceInfo);
+                await getDeviceModelAndCollectAllParameters();
+            }
+        }
+        private async Task requestSensorValue(byte sensorId)
+        {
+            DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree("sensor",0, sensorId));
+            PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, UID, Subdevice, new ParameterBag(ERDM_Parameter.SENSOR_VALUE), dataTreeBranch);
+            await runPeerToPeerProcess(ptpProcess);
+            if (ptpProcess.ResponsePayloadObject.ParsedObject is RDMDeviceInfo deviceInfo)
+            {
+                DeviceInfo = deviceInfo;
+                parameterValues.AddOrUpdate(ERDM_Parameter.DEVICE_INFO, deviceInfo, (o, p) => deviceInfo);
+                await getDeviceModelAndCollectAllParameters();
+            }
+        }
+
+        #endregion
+        private async Task getDeviceModelAndCollectAllParameters()
+        {
+            if (deviceModel != null)
+                return;
+            deviceModel = RDMDeviceModel.getDeviceModel(UID, Subdevice, DeviceInfo, new Func<RDMMessage, Task>(SendRDMMessage));
+            if (!deviceModel.IsInitialized)
+            {
+                deviceModel.Initialized += DeviceModel_Initialized;
+                await deviceModel.Initialize();
+            }
+            else
+                await collectAllParameters();
+        }
+
 
         private protected void SetGeneratedParameterValue(ERDM_Parameter parameter, object value)
         {
@@ -551,17 +612,7 @@ namespace RDMSharp
 
                     DeviceInfo = deviceInfo;
 
-                    if (deviceModel != null)
-                        break;
-
-                    deviceModel = RDMDeviceModel.getDeviceModel(UID, deviceInfo, new Func<RDMMessage, Task>(SendRDMMessage));
-                    if (!deviceModel.IsInitialized)
-                    {
-                        deviceModel.Initialized += DeviceModel_Initialized;
-                        await deviceModel.Initialize();
-                    }
-                    else
-                        await collectAllParameters();
+                    await getDeviceModelAndCollectAllParameters();
 
                     break;
 
