@@ -42,9 +42,9 @@ namespace RDMSharp
             Define = MetadataFactory.GetDefine(ParameterBag);
         }
 
-        public void Run(AsyncRDMRequestHelper asyncRDMRequestHelper)
+        public async Task Run(AsyncRDMRequestHelper asyncRDMRequestHelper)
         {
-            _ = run(asyncRDMRequestHelper);
+            await run(asyncRDMRequestHelper);
         }
 
         private async Task run(AsyncRDMRequestHelper asyncRDMRequestHelper)

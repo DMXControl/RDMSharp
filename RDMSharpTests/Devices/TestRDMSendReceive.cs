@@ -1,6 +1,4 @@
 using RDMSharpTests.Devices.Mock;
-using System.Diagnostics;
-using System.Reflection.Metadata;
 
 namespace RDMSharpTests.RDM.Devices
 {

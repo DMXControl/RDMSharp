@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text.Json.Serialization;
 using RDMSharp.Metadata.JSON.Converter;
 using RDMSharp.RDM;

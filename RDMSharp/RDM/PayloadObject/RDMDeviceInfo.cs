@@ -63,18 +63,41 @@ namespace RDMSharp
         {
         }
 
+        [DataTreeObjectProperty("protocol_major", 0)]
         public byte RdmProtocolVersionMajor { get; private set; }
+
+        [DataTreeObjectProperty("protocol_minor", 1)]
         public byte RdmProtocolVersionMinor { get; private set; }
+
+        [DataTreeObjectProperty("device_model_id", 2)]
         public ushort DeviceModelId { get; private set; }
         public ERDM_ProductCategoryCoarse ProductCategoryCoarse { get; private set; }
         public ERDM_ProductCategoryFine ProductCategoryFine { get; private set; }
+
+        [DataTreeObjectProperty("product_category", 3)]
+        public ushort ProductCategory => (ushort)ProductCategoryFine;
+
+        [DataTreeObjectProperty("software_version_id", 4)]
         public uint SoftwareVersionId { get; private set; }
+
+        [DataTreeObjectProperty("dmx_footprint", 5)]
         public ushort? Dmx512Footprint { get; private set; }
+
+        [DataTreeObjectProperty("current_personality", 6)]
         public byte? Dmx512CurrentPersonality { get; private set; }
+
+        [DataTreeObjectProperty("personality_count", 7)]
         public byte Dmx512NumberOfPersonalities { get; private set; }
+
+        [DataTreeObjectProperty("dmx_start_address", 8)]
         public ushort? Dmx512StartAddress { get; private set; }
+
+        [DataTreeObjectProperty("sub_device_count", 9)]
         public ushort SubDeviceCount { get; private set; }
+
+        [DataTreeObjectProperty("sensor_count", 10)]
         public byte SensorCount { get; private set; }
+
         public const int PDL = 19;
 
         public override string ToString()

@@ -222,12 +222,26 @@ namespace RDMSharp.Metadata
 
             definedDataTreeObjects.AddRange(Tools.FindClassesWithAttribute<DataTreeObjectAttribute>());
         }
-
+        
         public static Type GetDefinedDataTreeObjectType(MetadataJSONObjectDefine define, Command.ECommandDublicte commandType)
+        {
+            return GetDefinedDataTreeObjectType((ERDM_Parameter)define.PID, commandType);
+        }
+        public static Type GetDefinedDataTreeObjectType(MetadataJSONObjectDefine define, ERDM_Command command)
+        {
+            Command.ECommandDublicte commandType = Tools.ConvertCommandDublicteToCommand(command);
+            return GetDefinedDataTreeObjectType((ERDM_Parameter)define.PID, commandType);        
+        }
+        public static Type GetDefinedDataTreeObjectType(ERDM_Parameter parameter, ERDM_Command command)
+        {
+            Command.ECommandDublicte commandType = Tools.ConvertCommandDublicteToCommand(command);
+            return GetDefinedDataTreeObjectType(parameter, commandType);
+        }
+        public static Type GetDefinedDataTreeObjectType(ERDM_Parameter parameter, Command.ECommandDublicte commandType)
         {
             return DefinedDataTreeObjects.Where(t =>
             {
-                if (t.GetCustomAttributes<DataTreeObjectAttribute>().Any(attribute => (ushort)attribute.Parameter == define.PID && attribute.Command == commandType))
+                if (t.GetCustomAttributes<DataTreeObjectAttribute>().Any(attribute => attribute.Parameter == parameter && attribute.Command == commandType))
                     return true;
                 return false;
             }).FirstOrDefault();

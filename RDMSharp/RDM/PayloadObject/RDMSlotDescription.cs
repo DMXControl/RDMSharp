@@ -23,8 +23,12 @@ namespace RDMSharp
             this.Description = description;
         }
 
+        [DataTreeObjectProperty("slot", 0)]
         public ushort SlotId { get; private set; }
+
+        [DataTreeObjectProperty("description", 1)]
         public string Description { get; private set; }
+
         public const int PDL_MIN = 2;
         public const int PDL_MAX = PDL_MIN + 32;
 

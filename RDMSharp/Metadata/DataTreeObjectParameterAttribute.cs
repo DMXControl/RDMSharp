@@ -11,12 +11,11 @@ public class DataTreeObjectParameterAttribute : Attribute
 
     public readonly bool IsArray;
 
-    public DataTreeObjectParameterAttribute(string name, bool isArray = false)
+    public DataTreeObjectParameterAttribute(string name)
     {
         Name = name;
-        IsArray = isArray;
     }
-    public DataTreeObjectParameterAttribute(ERDM_Parameter parameter, string name, bool isArray = false) : this(name, isArray)
+    public DataTreeObjectParameterAttribute(ERDM_Parameter parameter, string name) : this(name)
     {
         Parameter = parameter;
     }

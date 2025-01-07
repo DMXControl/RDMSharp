@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
+using static RDMSharp.Metadata.JSON.Command;
 
 namespace RDMSharp
 {
@@ -528,6 +529,21 @@ namespace RDMSharp
 #endif
 
             return new ReadOnlyDictionary<K, V>(source);
+        }
+        public static ECommandDublicte ConvertCommandDublicteToCommand(ERDM_Command v)
+        {
+            switch (v)
+            {
+                case ERDM_Command.GET_COMMAND:
+                    return ECommandDublicte.GetRequest;
+                case ERDM_Command.GET_COMMAND_RESPONSE:
+                    return ECommandDublicte.GetResponse;
+                case ERDM_Command.SET_COMMAND:
+                    return ECommandDublicte.SetRequest;
+                case ERDM_Command.SET_COMMAND_RESPONSE:
+                    return ECommandDublicte.SetResponse;
+            }
+            throw new NotSupportedException();
         }
     }
 }

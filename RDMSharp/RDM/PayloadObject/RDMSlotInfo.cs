@@ -27,8 +27,13 @@ namespace RDMSharp
         {
         }
 
+        [DataTreeObjectProperty("id", 0)]
         public ushort SlotOffset { get; private set; }
+
+        [DataTreeObjectProperty("type", 1)]
         public ERDM_SlotType SlotType { get; private set; }
+
+        [DataTreeObjectProperty("label_id", 3)]
         public ERDM_SlotCategory SlotLabelId { get; private set; }
         public const int PDL = 5;
 

@@ -1,6 +1,7 @@
 ﻿using RDMSharp.Metadata.JSON;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
@@ -31,6 +32,9 @@ namespace RDMSharp.Metadata
                 IsEmpty = true;
 
             Children = children;
+            if (Children.Count(c => c.Index == 0) > 1)
+                for (uint i = 0; i < Children.Length; i++)
+                    Children[i] = new DataTree(Children[i], i);
         }
         public DataTreeBranch(MetadataJSONObjectDefine define, Command.ECommandDublicte commandType, params DataTree[] children): this(children)
         {
@@ -133,6 +137,87 @@ namespace RDMSharp.Metadata
             throw new NotImplementedException();
         }
 
+        public static DataTreeBranch FromObject(object obj, ERDM_Command command, ERDM_Parameter parameter)
+        {
+
+            Type type = obj.GetType();
+            bool isArray = type.IsArray;
+
+            if (isArray)
+                type = type.GetElementType();
+
+            if (type.GetCustomAttributes<DataTreeObjectAttribute>().FirstOrDefault(a => a.Parameter == parameter && a.Command == Tools.ConvertCommandDublicteToCommand(command) && a.IsArray == isArray) is not DataTreeObjectAttribute dataTreeObjectAttribute)
+                return DataTreeBranch.Unset;
+
+            List<DataTree> children = new List<DataTree>();
+            if (!type.IsEnum)
+            {
+                var properties = type.GetProperties().Where(p => p.GetCustomAttributes<DataTreeObjectPropertyAttribute>().Count() != 0).ToArray();
+
+                if (isArray)
+                {
+                    Array array = (Array)obj;
+                    for (uint i = 0; i < array.Length; i++)
+                        children.Add(new DataTree(string.Empty, i, convertToDataTree(array.GetValue(i), properties, parameter)));
+                }
+                else
+                    children.AddRange(convertToDataTree(obj, properties, parameter));
+            }
+            else
+            {
+                DataTreeEnumAttribute enumAttribute= dataTreeObjectAttribute as DataTreeEnumAttribute;
+                if (isArray)
+                {
+                    Array array = (Array)obj;
+                    for (uint i = 0; i < array.Length; i++)
+                        children.Add(new DataTree(enumAttribute.Name, i, getUnderlyingValue(array.GetValue(i))));
+                }
+                else
+                    children.Add(new DataTree(enumAttribute.Name, 0,getUnderlyingValue(obj)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(dataTreeObjectAttribute.Path))
+            {
+                string[] path = dataTreeObjectAttribute.Path.Split('/');
+                DataTree? route = null;
+                for (int i = path.Length; i != 0; i--)
+                {
+                    if (route.HasValue)
+                        route = new DataTree(path[i - 1], 0, route);
+                    else
+                        route = new DataTree(path[i - 1], 0, children.ToArray());
+                }
+
+                return new DataTreeBranch(route.Value);
+            }
+
+            return new DataTreeBranch(children.ToArray());
+
+            static DataTree[] convertToDataTree(object value, PropertyInfo[] properties, ERDM_Parameter parameter)
+            {
+                List<DataTree> innetChildren = new List<DataTree>();
+                foreach (var property in properties)
+                {
+                    var attributes = property.GetCustomAttributes<DataTreeObjectPropertyAttribute>();
+                    DataTreeObjectPropertyAttribute attribute = attributes.FirstOrDefault();
+                    if (attributes.Count() != 1)
+                        attribute = attributes.FirstOrDefault(a => a.Parameter == parameter);
+
+                    if (attribute != null)
+                        innetChildren.Add(new DataTree(attribute.Name, attribute.Index, property.GetValue(value)));
+                }
+                return innetChildren.ToArray();
+            }
+            static object getUnderlyingValue(object enumValue)
+        {
+            // Ermitteln des zugrunde liegenden Typs
+            Type underlyingType = Enum.GetUnderlyingType(enumValue.GetType());
+
+            // Konvertierung des Enum-Werts in den zugrunde liegenden Typ
+            return Convert.ChangeType(enumValue, underlyingType);
+        }
+        }
+
         public override bool Equals(object obj)
         {
             return obj is DataTreeBranch branch && Equals(branch);
@@ -140,7 +225,17 @@ namespace RDMSharp.Metadata
 
         public bool Equals(DataTreeBranch other)
         {
-            return EqualityComparer<DataTree[]>.Default.Equals(Children, other.Children);
+            for (int i = 0; i < Children.Length; i++)
+            {
+                DataTree me = Children[i];
+                if ((other.Children?.Length ?? 0) <= i)
+                    return false;
+                DataTree ot = other.Children[i];
+                if (!me.Equals(ot))
+                    return false;
+            }
+            return true;
+           // return EqualityComparer<DataTree[]>.Default.Equals(Children, other.Children); // is not dooing its job
         }
 
         public override int GetHashCode()

@@ -17,7 +17,10 @@ namespace RDMSharp
             this.OfPersonalities = ofPersonalities;
         }
 
+        [DataTreeObjectProperty("personality", 0)]
         public byte CurrentPersonality { get; private set; }
+
+        [DataTreeObjectProperty("personality_count", 1)]
         public byte OfPersonalities { get; private set; }
 
         public override Type IndexType => CurrentPersonality.GetType();

@@ -4,8 +4,8 @@ using System.ComponentModel;
 
 namespace RDMSharp;
 
-[DataTreeObject(ERDM_Parameter.LAMP_ON_MODE, Command.ECommandDublicte.GetResponse)]
-[DataTreeObject(ERDM_Parameter.LAMP_ON_MODE, Command.ECommandDublicte.SetRequest)]
+[DataTreeEnum(ERDM_Parameter.LAMP_ON_MODE, Command.ECommandDublicte.GetResponse, "mode")]
+[DataTreeEnum(ERDM_Parameter.LAMP_ON_MODE, Command.ECommandDublicte.SetRequest, "mode")]
 public enum ERDM_LampMode : byte
 {
     [Description("Lamp Stays off until directly instructed to Strike.")]

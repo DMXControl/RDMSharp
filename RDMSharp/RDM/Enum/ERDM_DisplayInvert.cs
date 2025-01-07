@@ -3,8 +3,8 @@ using RDMSharp.Metadata.JSON;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.DISPLAY_INVERT, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.DISPLAY_INVERT, Command.ECommandDublicte.SetRequest)]
+    [DataTreeEnum(ERDM_Parameter.DISPLAY_INVERT, Command.ECommandDublicte.GetResponse, "setting")]
+    [DataTreeEnum(ERDM_Parameter.DISPLAY_INVERT, Command.ECommandDublicte.SetRequest, "setting")]
     public enum ERDM_DisplayInvert : byte
     {
         OFF = 0x00,

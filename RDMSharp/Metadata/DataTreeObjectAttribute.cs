@@ -4,7 +4,7 @@ using System;
 
 namespace RDMSharp.Metadata;
 
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Enum, AllowMultiple = true)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true)]
 public class DataTreeObjectAttribute : Attribute
 {
     public readonly ERDM_Parameter Parameter;
@@ -25,5 +25,20 @@ public class DataTreeObjectAttribute : Attribute
         : this(parameter, command, isArray, path)
     {
         Manufacturer = manufacturer;
+    }
+}
+[AttributeUsage(AttributeTargets.Enum, AllowMultiple = true)]
+public class DataTreeEnumAttribute : DataTreeObjectAttribute
+{
+    public readonly string Name;
+    public DataTreeEnumAttribute(ERDM_Parameter parameter, Command.ECommandDublicte command, string name, bool isArray = false, string path = null)
+        : base(parameter, command, isArray, path)
+    {
+        Name = name;
+    }
+    public DataTreeEnumAttribute(EManufacturer manufacturer, ERDM_Parameter parameter, Command.ECommandDublicte command, string name, bool isArray = false, string path = null)
+        : base(manufacturer, parameter, command, isArray, path)
+    {
+        Name = name;
     }
 }

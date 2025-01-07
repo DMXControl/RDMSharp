@@ -10,7 +10,7 @@ namespace RDMSharp
     public class RDMProxiedDevices : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]
-        public RDMProxiedDevices([DataTreeObjectParameter("device_uid", true)] params UID[] devices)
+        public RDMProxiedDevices(/*[DataTreeObjectParameter("device_uid", true)]*/ params UID[] devices)
         {
             this.Devices = devices;
         }
