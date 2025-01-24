@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp
 {
-    public sealed class RDMDeviceModel : IRDMDeviceModel
+    public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
     {
         private static ConcurrentDictionary<int, RDMDeviceModel> knownDeviceModels;
         public static IReadOnlyCollection<RDMDeviceModel> KnownDeviceModels => knownDeviceModels.Values.ToList();
@@ -30,27 +30,45 @@ namespace RDMSharp
 
         }
 
-        public ushort ManufacturerID { get; private set; }
-        public EManufacturer Manufacturer { get; private set; }
-        public UID CurrentUsedUID { get; private set; }
-        public SubDevice CurrentUsedSubDevice { get; private set; }
+        public new bool IsDisposing { get; private set; }
+        public new bool IsDisposed { get; private set; }
 
-        public event EventHandler Initialized;
         public bool IsInitialized { get; private set; } = false;
 
-        private AsyncRDMRequestHelper asyncRDMRequestHelper;
+        public event EventHandler Initialized;
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        private readonly ConcurrentDictionary<ushort, IRDMParameterWrapper> manufacturerParameter = new ConcurrentDictionary<ushort, IRDMParameterWrapper>();
+        public readonly ushort ManufacturerID;
+        public readonly EManufacturer Manufacturer;
 
-
-        private ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch> parameterValuesDataTreeBranch = new ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch>();
-        private ConcurrentDictionary<DataTreeObjectDependeciePropertyBag, object> parameterValuesDependeciePropertyBag = new ConcurrentDictionary<DataTreeObjectDependeciePropertyBag, object>();
-
-        private ConcurrentDictionary<ERDM_Parameter, object> parameterValues = new ConcurrentDictionary<ERDM_Parameter, object>();
-        public IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues
+        private UID currentUsedUID;
+        public UID CurrentUsedUID
         {
-            get { return this.parameterValues?.AsReadOnly(); }
+            get { return currentUsedUID; }
+            private set
+            {
+                if (currentUsedUID == value)
+                    return;
+                currentUsedUID = value;
+                PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(CurrentUsedUID)));
+            }
         }
+        private SubDevice currentUsedSubDevice;
+        public SubDevice CurrentUsedSubDevice
+        {
+            get
+            {
+                return currentUsedSubDevice;
+            }
+            private set
+            {
+                if (currentUsedSubDevice == value)
+                    return;
+                currentUsedSubDevice = value;
+                PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(CurrentUsedSubDevice)));
+            }
+        }
+
 
         public RDMDeviceInfo DeviceInfo
         {
@@ -60,10 +78,9 @@ namespace RDMSharp
                 if (this.DeviceInfo == value)
                     return;
 
-                this.parameterValues[ERDM_Parameter.DEVICE_INFO] = value;
                 var dataTreeBranch = DataTreeBranch.FromObject(value, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DEVICE_INFO);
                 updateParameterValuesDependeciePropertyBag(ERDM_Parameter.DEVICE_INFO, dataTreeBranch);
-                parameterValuesDataTreeBranch[new ParameterDataCacheBag(ERDM_Parameter.DEVICE_INFO)] = dataTreeBranch;
+                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ERDM_Parameter.DEVICE_INFO), dataTreeBranch);
                 PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(DeviceInfo)));
             }
         }
@@ -88,11 +105,7 @@ namespace RDMSharp
         }
 
 
-        public bool IsDisposing { get; private set; }
-        public bool IsDisposed { get; private set; }
 
-
-        public event PropertyChangedEventHandler PropertyChanged;
         private readonly Func<RDMMessage, Task> sendRdmFunktion;
 
         internal RDMDeviceModel(UID uid, SubDevice sudevice, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
@@ -122,24 +135,6 @@ namespace RDMSharp
         }
 
 
-        private async Task runPeerToPeerProcess(PeerToPeerProcess ptpProcess)
-        {
-            await ptpProcess?.Run(asyncRDMRequestHelper);
-        }
-
-        private void updateParameterValuesDependeciePropertyBag(ERDM_Parameter parameter, DataTreeBranch dataTreeBranch)
-        {
-            object obj = dataTreeBranch.ParsedObject;
-            if (obj == null)
-                return;
-
-            foreach (var p in obj.GetType().GetProperties().Where(p => p.GetCustomAttributes<DataTreeObjectDependeciePropertyAttribute>().Any()).ToList())
-            {
-                object value = p.GetValue(obj);
-                foreach (var item in p.GetCustomAttributes<DataTreeObjectDependeciePropertyAttribute>())
-                    parameterValuesDependeciePropertyBag.AddOrUpdate(item.Bag, value, (o1, o2) => value);
-            }
-        }
 
         #region Requests
         private async Task requestSupportedParameters()
@@ -149,7 +144,7 @@ namespace RDMSharp
             await runPeerToPeerProcess(ptpProcess);
 
             if (!ptpProcess.ResponsePayloadObject.IsUnset)
-                parameterValuesDataTreeBranch.AddOrUpdate(new ParameterDataCacheBag(parameterBag.PID), ptpProcess.ResponsePayloadObject, (o1, o2) => ptpProcess.ResponsePayloadObject);
+                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(parameterBag.PID), ptpProcess.ResponsePayloadObject);
 
             if (ptpProcess.ResponsePayloadObject.ParsedObject is ERDM_Parameter[] parameters)
             {
@@ -170,60 +165,9 @@ namespace RDMSharp
                 if (define.GetRequest.HasValue)
                 {
                     if (define.GetRequest.Value.GetIsEmpty())
-                        await requestParameterWithEmptyPayload(parameterBag, define);
+                        await requestParameterWithEmptyPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
                     else
-                        await requestParameterWithPayload(parameterBag, define);
-                }
-            }
-        }
-        private async Task requestParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define)
-        {
-            PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, CurrentUsedUID, CurrentUsedSubDevice, parameterBag);
-            await runPeerToPeerProcess(ptpProcess);
-            if (!ptpProcess.ResponsePayloadObject.IsUnset)
-            {
-                updateParameterValuesDependeciePropertyBag(parameterBag.PID, ptpProcess.ResponsePayloadObject);
-                parameterValuesDataTreeBranch.AddOrUpdate(new ParameterDataCacheBag(parameterBag.PID), ptpProcess.ResponsePayloadObject, (o1, o2) => ptpProcess.ResponsePayloadObject);
-                object valueToStore = ptpProcess.ResponsePayloadObject.ParsedObject ?? ptpProcess.ResponsePayloadObject;
-                this.parameterValues.AddOrUpdate(parameterBag.PID, valueToStore, (o1, o2) => valueToStore);
-            }
-        }
-        private async Task requestParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define)
-        {
-            var req = define.GetRequest.Value.GetRequiredProperties();
-            if (req.Length == 1 && req[0] is IIntegerType intType)
-            {
-                try
-                {
-                    string name = intType.Name;
-
-                    IComparable dependecyValue = (IComparable)parameterValuesDependeciePropertyBag.FirstOrDefault(bag => bag.Key.Parameter == parameterBag.PID && bag.Key.Command == Metadata.JSON.Command.ECommandDublicte.GetRequest && string.Equals(bag.Key.Name, name)).Value;
-
-                    object i = intType.GetMinimum();
-                    object max = intType.GetMaximum();
-                    object count = Convert.ChangeType(0, i.GetType());
-                    while (dependecyValue.CompareTo(count) > 0)
-                    {
-                        if (!intType.IsInRange(i))
-                            continue;
-
-                        if (((IComparable)max).CompareTo(i) == -1)
-                            return;
-
-                        DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
-                        PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, CurrentUsedUID, CurrentUsedSubDevice, parameterBag, dataTreeBranch);
-                        await runPeerToPeerProcess(ptpProcess);
-                        if (!ptpProcess.ResponsePayloadObject.IsUnset)
-                        {
-                            parameterValuesDataTreeBranch.AddOrUpdate(new ParameterDataCacheBag(parameterBag.PID, i), ptpProcess.ResponsePayloadObject, (o1, o2) => ptpProcess.ResponsePayloadObject);
-                        }
-                        i = intType.IncrementJumpRange(i);
-                        count = intType.Increment(count);
-                    }
-                }
-                catch(Exception e)
-                {
-
+                        await requestParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
                 }
             }
         }
@@ -288,28 +232,30 @@ namespace RDMSharp
             this.supportedParameters.AddOrUpdate(parameter, false, (x, y) => false);
         }
 
-        public void Dispose()
+        public new void Dispose()
         {
-            this.IsDisposing = true;
+            if (this.IsDisposed || this.IsDisposing)
+                return;
 
-            this.parameterValues.Clear();
-            this.parameterValues = null;
+            this.IsDisposing = true;
+            this.PropertyChanged = null;
+            this.Initialized = null;
+
             this.supportedParameters = null;
+            base.Dispose();
 
             this.IsDisposed = true;
+            this.IsDisposing = false;
         }
 
-        public RDMSensorDefinition[] GetSensorDefinitions()
+        public IReadOnlyCollection<RDMSensorDefinition> GetSensorDefinitions()
         {
             try
             {
                 if (!parameterValues.TryGetValue(ERDM_Parameter.SENSOR_DEFINITION, out object value))
                     return Array.Empty<RDMSensorDefinition>();
                 else
-                {
-                    var definitions = value as ConcurrentDictionary<object, object>;
-                    return definitions.Values.Cast<RDMSensorDefinition>().ToArray();
-                }
+                    return value as RDMSensorDefinition[];
             }
             catch
             {
@@ -318,12 +264,6 @@ namespace RDMSharp
             return Array.Empty<RDMSensorDefinition>();
         }
 
-        public IRDMParameterWrapper GetRDMParameterWrapperByID(ushort parameter)
-        {
-            if (this.manufacturerParameter.TryGetValue(parameter, out var result))
-                return result;
-            return null;
-        }
         public override string ToString()
         {
             return $"{Enum.GetName(typeof(EManufacturer), Manufacturer)}";

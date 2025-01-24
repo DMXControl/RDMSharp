@@ -33,7 +33,6 @@ namespace RDMSharp
             ERDM_Parameter.DMX_PERSONALITY_ID,
 
             ERDM_Parameter.SENSOR_DEFINITION,
-            ERDM_Parameter.SENSOR_VALUE,
             ERDM_Parameter.SENSOR_TYPE_CUSTOM,
             ERDM_Parameter.SENSOR_UNIT_CUSTOM,
 

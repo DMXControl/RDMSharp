@@ -2,6 +2,7 @@
 using RDMSharp.ParameterWrapper;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RDMSharp
@@ -123,6 +124,7 @@ namespace RDMSharp
             #region Parameters
             var _params = parameters.ToList();
             _params.Add(ERDM_Parameter.DEVICE_INFO);
+            _params.Add(ERDM_Parameter.SUPPORTED_PARAMETERS);
             _params.Add(ERDM_Parameter.DEVICE_LABEL);
             _params.Add(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION);
             _params.Add(ERDM_Parameter.MANUFACTURER_LABEL);
@@ -145,6 +147,7 @@ namespace RDMSharp
             }
 
             Parameters = _params.Distinct().ToArray();
+            trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters);
             #endregion
 
             #region ManufacturerLabel
@@ -204,10 +207,14 @@ namespace RDMSharp
                 if (Sensors.Length != 0)
                 {
                     var sensorDef = new ConcurrentDictionary<object, object>();
+                    var sensorValue = new ConcurrentDictionary<object, object>();
                     foreach (var sensor in Sensors)
                     {
                         if (!sensorDef.TryAdd(sensor.SensorId, (RDMSensorDefinition)sensor))
-                            throw new Exception($"{sensor.SensorId} already used as {nameof(sensor.SensorId)}");
+                            throw new Exception($"{sensor.SensorId} already used as {nameof(RDMSensorDefinition)}");
+
+                        if (!sensorValue.TryAdd(sensor.SensorId, (RDMSensorValue)sensor))
+                            throw new Exception($"{sensor.SensorId} already used as {nameof(RDMSensorValue)}");
 
                         SetGeneratedSensorDescription((RDMSensorDefinition)sensor);
                         SetGeneratedSensorValue((RDMSensorValue)sensor);
@@ -231,12 +238,15 @@ namespace RDMSharp
                                 case nameof(Sensor.HighestValue):
                                 case nameof(Sensor.RecordedValue):
                                     SetGeneratedSensorValue((RDMSensorValue)sensor);
+                                    sensorValue.AddOrUpdate(sensor.SensorId, (RDMSensorValue)sensor, (o1, o2) => (RDMSensorValue)sensor);
+                                    SetGeneratedParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue);
                                     break;
                             }
                         };
                     }
 
-                    trySetParameter(ERDM_Parameter.SENSOR_DEFINITION, sensorDef);
+                    SetGeneratedParameterValue(ERDM_Parameter.SENSOR_DEFINITION, sensorDef);
+                    SetGeneratedParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue);
                 }
             }
             #endregion
@@ -256,6 +266,7 @@ namespace RDMSharp
                                            ProductCategoryCoarse,
                                            ProductCategoryFine,
                                            SoftwareVersionID,
+                                           dmx512Footprint: Personalities.FirstOrDefault(p => p.ID == currentPersonality)?.SlotCount ?? 0,
                                            dmx512CurrentPersonality: currentPersonality,
                                            dmx512NumberOfPersonalities: (byte)(Personalities?.Length ?? 0),
                                            dmx512StartAddress: dmxAddress,
@@ -326,15 +337,16 @@ namespace RDMSharp
                 case nameof(CurrentPersonality):
                     trySetParameter(ERDM_Parameter.DMX_PERSONALITY, new RDMDMXPersonality(this.currentPersonality, (byte)(Personalities?.Length ?? 0)));
 
-                    var slotInfos = new ConcurrentDictionary<object, object>();
+                    var slots = Personalities.First(p => p.ID == this.currentPersonality).Slots.Count;
+                    var slotInfos = new RDMSlotInfo[slots];
                     var slotDesc = new ConcurrentDictionary<object, object>();
-                    var slotDefault = new ConcurrentDictionary<object, object>();
+                    var slotDefault = new RDMDefaultSlotValue[slots];
                     foreach (var s in Personalities.First(p => p.ID == this.currentPersonality).Slots)
                     {
                         Slot slot = s.Value;
-                        slotInfos.TryAdd(slot.SlotId, new RDMSlotInfo(slot.SlotId, slot.Type, slot.Category));
+                        slotInfos[slot.SlotId] = new RDMSlotInfo(slot.SlotId, slot.Type, slot.Category);
                         slotDesc.TryAdd(slot.SlotId, new RDMSlotDescription(slot.SlotId, slot.Description));
-                        slotDefault.TryAdd(slot.SlotId, new RDMDefaultSlotValue(slot.SlotId, slot.DefaultValue));
+                        slotDefault[slot.SlotId] = new RDMDefaultSlotValue(slot.SlotId, slot.DefaultValue);
                     }
                     trySetParameter(ERDM_Parameter.SLOT_INFO, slotInfos);
                     trySetParameter(ERDM_Parameter.SLOT_DESCRIPTION, slotDesc);

@@ -6,9 +6,9 @@ using static RDMSharp.Metadata.JSON.Command;
 
 namespace RDMSharp
 {
-    internal class PeerToPeerProcess
+    public class PeerToPeerProcess
     {
-        internal enum EPeerToPeerProcessState
+        public enum EPeerToPeerProcessState
         {
             Waiting,
             Running,

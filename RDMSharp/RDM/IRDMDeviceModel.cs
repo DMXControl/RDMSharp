@@ -10,10 +10,8 @@ namespace RDMSharp
         IReadOnlyCollection<ERDM_Parameter> SupportedBlueprintParameters { get; }
         IReadOnlyCollection<ERDM_Parameter> SupportedNonBlueprintParameters { get; }
         IReadOnlyCollection<ERDM_Parameter> KnownNotSupportedParameters { get; }
-        RDMSensorDefinition[] GetSensorDefinitions();
+        IReadOnlyCollection<RDMSensorDefinition> GetSensorDefinitions();
         IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues { get; }
-
-        IRDMParameterWrapper GetRDMParameterWrapperByID(ushort parameter);
 
         bool IsDisposing { get; }
         bool IsDisposed { get; }

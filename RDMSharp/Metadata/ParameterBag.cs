@@ -2,7 +2,7 @@
 
 namespace RDMSharp.Metadata
 {
-    internal readonly struct ParameterBag : IEquatable<ParameterBag>
+    public readonly struct ParameterBag : IEquatable<ParameterBag>
     {
         public readonly ERDM_Parameter PID { get; }
         public readonly ushort ManufacturerID { get; }

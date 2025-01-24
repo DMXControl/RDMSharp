@@ -80,6 +80,7 @@ namespace RDMSharp
         [DataTreeObjectProperty("software_version_id", 4)]
         public uint SoftwareVersionId { get; private set; }
 
+        [DataTreeObjectDependecieProperty("slot", ERDM_Parameter.SLOT_DESCRIPTION, Command.ECommandDublicte.GetRequest)]
         [DataTreeObjectProperty("dmx_footprint", 5)]
         public ushort? Dmx512Footprint { get; private set; }
 

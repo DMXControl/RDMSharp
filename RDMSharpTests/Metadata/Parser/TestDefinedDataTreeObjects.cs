@@ -166,6 +166,54 @@ public class TestDefinedDataTreeObjects
         var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.SLOT_DESCRIPTION);
         Assert.That(reversed, Is.EqualTo(dataTreeBranch));
     }
+    [Test]
+    public async Task Test_Slot_Info()
+    {
+        byte[] data = {
+            0,0,0,0,1,
+            0,1,0,4,4,
+            0,2,0,2,5,
+            0,3,0,2,6,
+            0,4,0,2,7
+        };
+
+        var parameterBag = new ParameterBag(ERDM_Parameter.SLOT_INFO);
+        var define = MetadataFactory.GetDefine(parameterBag);
+
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicte.GetResponse, data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dataTreeBranch.IsUnset, Is.False);
+            Assert.That(dataTreeBranch.IsEmpty, Is.False);
+            Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+            Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMSlotInfo[])));
+
+            var obj = dataTreeBranch.ParsedObject as RDMSlotInfo[];
+            Assert.That(obj[0].SlotOffset, Is.EqualTo(0));
+            Assert.That(obj[0].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
+            Assert.That(obj[0].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.INTENSITY));
+
+            Assert.That(obj[1].SlotOffset, Is.EqualTo(1));
+            Assert.That(obj[1].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
+            Assert.That(obj[1].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.STROBE));
+
+            Assert.That(obj[2].SlotOffset, Is.EqualTo(2));
+            Assert.That(obj[2].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
+            Assert.That(obj[2].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.COLOR_ADD_RED));
+
+            Assert.That(obj[3].SlotOffset, Is.EqualTo(3));
+            Assert.That(obj[3].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
+            Assert.That(obj[3].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.COLOR_ADD_GREEN));
+
+            Assert.That(obj[4].SlotOffset, Is.EqualTo(4));
+            Assert.That(obj[4].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
+            Assert.That(obj[4].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.COLOR_ADD_BLUE));
+        });
+
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.SLOT_INFO);
+        Assert.That(reversed, Is.EqualTo(dataTreeBranch));
+    }
 
     [Test]
     public async Task Test_Display_Invert()

@@ -29,6 +29,7 @@ namespace RDMSharp
         [DataTreeObjectProperty("personality", 0)]
         public byte PersonalityId { get; private set; }
 
+        [DataTreeObjectDependecieProperty("slot", ERDM_Parameter.SLOT_DESCRIPTION, Command.ECommandDublicte.GetRequest)]
         [DataTreeObjectProperty("dmx_slots_required", 1)]
         public ushort Slots { get; private set; }
 

@@ -106,7 +106,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 issueList.Add(new DataTreeIssue(e.Message));
             }
 
-            return new DataTree(this.Name, 0, children:subTypeDataTree.OrderBy(b => b.Index).ToArray(), issueList.Count != 0 ? issueList.ToArray() : null);
+            return new DataTree(this.Name, 0, children:subTypeDataTree.OrderBy(b => b.Index).ToArray(), issueList.Count != 0 ? issueList.ToArray() : null, true);
         }
 
         internal bool validateDataLength(int dataLength)

@@ -100,37 +100,53 @@ namespace RDMSharp.Metadata
 
                     foreach (var constructor in constructors)
                     {
+
                         if (constructor.GetCustomAttribute<DataTreeObjectConstructorAttribute>() is DataTreeObjectConstructorAttribute cAttribute)
                         {
-                            var parameters = new List<object>();
-                            foreach (var param in constructor.GetParameters())
-                                if (param.GetCustomAttribute<DataTreeObjectParameterAttribute>() is DataTreeObjectParameterAttribute pAttribute)
-                                {
-                                    var children2 = children;
-                                    string name = pAttribute.Name;
-                                    string[] path = name.Split('/');
-                                    while (path.Length > 1)
-                                    {
-                                        children2 = children2.FirstOrDefault(c => string.Equals(c.Name, path[0])).Children;
-                                        path = path.Skip(1).ToArray();
-                                        if (path.Length == 1)
-                                            name = path[0];
-                                    }
-                                    if (!pAttribute.IsArray && children2.FirstOrDefault(c => string.Equals(c.Name, name)) is DataTree child)
-                                        parameters.Add(child.Value);
-                                    else if (pAttribute.IsArray && children2.Where(c => string.Equals(c.Name, pAttribute.Name)).OfType<DataTree>() is IEnumerable<DataTree> childenum)
-                                    {
-                                        Type targetType = children2.First().Value.GetType();
-                                        var array = Array.CreateInstance(targetType, children2.Length);
-                                        Array.Copy(children2.Select(c => c.Value).ToArray(), array, children2.Length);
-                                        parameters.Add(array);
-                                    }
-                                    else
-                                        throw new ArgumentException($"No matching Value found for '{pAttribute.Name}'");
-                                }
+                            if (!children.All(c => c.IsCompound))
+                                return createObjectFromDataTree(children);
+                            else
+                            {
+                                var array = Array.CreateInstance(definedDataTreeObjectType, children.Length);
+                                foreach (var comp in children)
+                                    array.SetValue(createObjectFromDataTree(comp.Children), comp.Index);
+                                return array;
+                            }
 
-                            var instance = constructor.Invoke(parameters.ToArray());
-                            return instance;
+
+                            object createObjectFromDataTree(DataTree[] children)
+                            {
+                                var parameters = new List<object>();
+                                foreach (var param in constructor.GetParameters())
+                                    if (param.GetCustomAttribute<DataTreeObjectParameterAttribute>() is DataTreeObjectParameterAttribute pAttribute)
+                                    {
+                                        var children2 = children;
+
+                                        string name = pAttribute.Name;
+                                        string[] path = name.Split('/');
+                                        while (path.Length > 1)
+                                        {
+                                            children2 = children2.FirstOrDefault(c => string.Equals(c.Name, path[0])).Children;
+                                            path = path.Skip(1).ToArray();
+                                            if (path.Length == 1)
+                                                name = path[0];
+                                        }
+                                        if (!pAttribute.IsArray && children2.FirstOrDefault(c => string.Equals(c.Name, name)) is DataTree child)
+                                            parameters.Add(child.Value);
+                                        else if (pAttribute.IsArray && children2.Where(c => string.Equals(c.Name, pAttribute.Name)).OfType<DataTree>() is IEnumerable<DataTree> childenum)
+                                        {
+                                            Type targetType = children2.First().Value.GetType();
+                                            var array = Array.CreateInstance(targetType, children2.Length);
+                                            Array.Copy(children2.Select(c => c.Value).ToArray(), array, children2.Length);
+                                            parameters.Add(array);
+                                        }
+                                        else
+                                            throw new ArgumentException($"No matching Value found for '{pAttribute.Name}'");
+                                    }
+
+                                var instance = constructor.Invoke(parameters.ToArray());
+                                return instance;
+                            }
                         }
                     }
                 }
@@ -176,15 +192,17 @@ namespace RDMSharp.Metadata
                 return DataTreeBranch.Unset;
 
             List<DataTree> children = new List<DataTree>();
+            bool isCompound = false;
             if (!type.IsEnum)
             {
                 var properties = type.GetProperties().Where(p => p.GetCustomAttributes<DataTreeObjectPropertyAttribute>().Count() != 0).ToArray();
+                isCompound = properties.Length > 1;
 
                 if (isArray)
                 {
                     Array array = (Array)obj;
                     for (uint i = 0; i < array.Length; i++)
-                        children.Add(new DataTree(string.Empty, i, convertToDataTree(array.GetValue(i), properties, parameter)));
+                        children.Add(new DataTree(null, i, convertToDataTree(array.GetValue(i), properties, parameter), isCompound: isCompound));
                 }
                 else
                     children.AddRange(convertToDataTree(obj, properties, parameter));
@@ -230,7 +248,12 @@ namespace RDMSharp.Metadata
                         attribute = attributes.FirstOrDefault(a => a.Parameter == parameter);
 
                     if (attribute != null)
-                        innetChildren.Add(new DataTree(attribute.Name, attribute.Index, property.GetValue(value)));
+                    {
+                        var val = property.GetValue(value);
+                        if (val is Enum)
+                            val = getUnderlyingValue(val);
+                        innetChildren.Add(new DataTree(attribute.Name, attribute.Index, val));
+                    }
                 }
                 return innetChildren.ToArray();
             }

@@ -6,12 +6,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace RDMSharp
 {
-    public abstract class AbstractRDMDevice : IRDMDevice
+    public abstract class AbstractRDMDevice : AbstractRDMCache, IRDMDevice
     {
         private static readonly Random random = new Random();
         private protected static readonly ILogger Logger = null;
@@ -22,15 +21,59 @@ namespace RDMSharp
         private protected static SlotDescriptionParameterWrapper slotDescriptionParameterWrapper => (SlotDescriptionParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.SLOT_DESCRIPTION);
         private protected static StatusMessageParameterWrapper statusMessageParameterWrapper => (StatusMessageParameterWrapper)pmManager.GetRDMParameterWrapperByID(ERDM_Parameter.STATUS_MESSAGES);
 
-        private readonly AsyncRDMRequestHelper asyncRDMRequestHelper;
-
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public UID UID { get; private set; }
-        public SubDevice Subdevice { get; private set; }
-        public DateTime LastSeen { get; private set; }
-        public bool Present { get; internal set; }
-        public bool DiscoveryMuted { get; private set; }
+        public readonly UID uid;
+        public readonly SubDevice subdevice;
+        public UID UID => uid;
+        public SubDevice Subdevice => subdevice;
+        private DateTime lastSeen;
+        public DateTime LastSeen
+        {
+            get
+            {
+                return lastSeen;
+            }
+            private set
+            {
+                if (lastSeen == value)
+                    return;
+                lastSeen = value;
+                OnPropertyChanged(nameof(LastSeen));
+            }
+        }
+
+        private bool present;
+        public bool Present
+        {
+            get
+            {
+                return present;
+            }
+            internal set
+            {
+                if (present == value)
+                    return;
+                present = value;
+                OnPropertyChanged(nameof(Present));
+            }
+        }
+
+        private bool discoveryMuted;
+        public bool DiscoveryMuted
+        {
+            get
+            {
+                return discoveryMuted;
+            }
+            private set
+            {
+                if (discoveryMuted == value)
+                    return;
+                discoveryMuted = value;
+                OnPropertyChanged(nameof(DiscoveryMuted));
+            }
+        }
 
         private List<IRDMDevice> subDevices;
         public IReadOnlyCollection<IRDMDevice> SubDevices { get { return subDevices.AsReadOnly(); } }
@@ -38,10 +81,28 @@ namespace RDMSharp
         public virtual RDMDeviceInfo DeviceInfo { get; private protected set; }
 
         private RDMDeviceModel deviceModel;
-        public RDMDeviceModel DeviceModel => deviceModel;
+        public RDMDeviceModel DeviceModel
+        {
+            get { return deviceModel; }
+            private set
+            {
+                if (deviceModel == value)
+                    return;
+                deviceModel = value;
+                OnPropertyChanged(nameof(DeviceModel));
+            }
+        }
 
-        private readonly ConcurrentDictionary<ERDM_Parameter, object> parameterValues = new ConcurrentDictionary<ERDM_Parameter, object>();
-        public IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues => parameterValues.AsReadOnly();
+        public sealed override IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues
+        {
+            get
+            {
+                if (DeviceModel == null)
+                    return parameterValues.AsReadOnly();
+
+                return DeviceModel.ParameterValues.Where(x => !parameterValues.ContainsKey(x.Key)).Concat(parameterValues).ToDictionary(k => k.Key, v => v.Value).AsReadOnly();
+            }
+        }
         private readonly HashSet<ERDM_Parameter> pendingParametersUpdateRequest = new HashSet<ERDM_Parameter>();
 
         private readonly ConcurrentDictionary<byte, Sensor> sensors = new ConcurrentDictionary<byte, Sensor>();
@@ -52,11 +113,24 @@ namespace RDMSharp
         public IReadOnlyDictionary<ushort, Slot> Slots => slots.AsReadOnly();
         private readonly HashSet<ushort> pendingSlotDescriptionsUpdateRequest = new HashSet<ushort>();
 
-        public bool IsDisposing { get; private set; }
-
-        public bool IsDisposed { get; private set; }
+        public new bool IsDisposing { get; private set; }
+        public new bool IsDisposed { get; private set; }
         public virtual bool IsGenerated { get; private protected set; }
-        public bool AllDataPulled { get; private set; }
+        private bool allDataPulled;
+        public bool AllDataPulled
+        {
+            get
+            {
+                return allDataPulled;
+            }
+            private set
+            {
+                if (allDataPulled == value)
+                    return;
+                allDataPulled = value;
+                OnPropertyChanged(nameof(AllDataPulled));
+            }
+        }
 
         public AbstractRDMDevice(UID uid): this(uid, SubDevice.Root)
         {
@@ -64,8 +138,8 @@ namespace RDMSharp
 
         public AbstractRDMDevice(UID uid, SubDevice subDevice)
         {
-            UID = uid;
-            Subdevice = subDevice;
+            this.uid = uid;
+            this.subdevice = subDevice;
             subDevices = new List<IRDMDevice>();
 
             asyncRDMRequestHelper = new AsyncRDMRequestHelper(sendRDMRequestMessage);
@@ -79,11 +153,6 @@ namespace RDMSharp
                 await requestDeviceInfo();
         }
 
-        private async Task runPeerToPeerProcess(PeerToPeerProcess ptpProcess)
-        {
-            await ptpProcess.Run(asyncRDMRequestHelper);
-        }
-
         #region Requests
 
         private async Task requestDeviceInfo()
@@ -93,7 +162,8 @@ namespace RDMSharp
             if (ptpProcess.ResponsePayloadObject.ParsedObject is RDMDeviceInfo deviceInfo)
             {
                 DeviceInfo = deviceInfo;
-                parameterValues.AddOrUpdate(ERDM_Parameter.DEVICE_INFO, deviceInfo, (o, p) => deviceInfo);
+                updateParameterValuesDependeciePropertyBag(ERDM_Parameter.DEVICE_INFO, ptpProcess.ResponsePayloadObject);
+                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ERDM_Parameter.DEVICE_INFO), ptpProcess.ResponsePayloadObject);
                 await getDeviceModelAndCollectAllParameters();
             }
         }
@@ -102,11 +172,35 @@ namespace RDMSharp
             DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree("sensor",0, sensorId));
             PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, UID, Subdevice, new ParameterBag(ERDM_Parameter.SENSOR_VALUE), dataTreeBranch);
             await runPeerToPeerProcess(ptpProcess);
-            if (ptpProcess.ResponsePayloadObject.ParsedObject is RDMDeviceInfo deviceInfo)
+            if (ptpProcess.ResponsePayloadObject.ParsedObject is RDMSensorValue sensorValue)
             {
-                DeviceInfo = deviceInfo;
-                parameterValues.AddOrUpdate(ERDM_Parameter.DEVICE_INFO, deviceInfo, (o, p) => deviceInfo);
-                await getDeviceModelAndCollectAllParameters();
+                //DeviceInfo = deviceInfo;
+                //parameterValues.AddOrUpdate(ERDM_Parameter.DEVICE_INFO, deviceInfo, (o, p) => deviceInfo);
+                //await getDeviceModelAndCollectAllParameters();
+            }
+        }
+        private async Task requestParameters()
+        {
+            var parameters = this.DeviceModel?.SupportedNonBlueprintParameters;
+            if (parameters == null)
+                return;
+
+            foreach (ERDM_Parameter parameter in parameters)
+            {
+                switch(parameter)
+                {
+                    case ERDM_Parameter.DEVICE_INFO:
+                        continue;
+                }
+                ParameterBag parameterBag = new ParameterBag(parameter, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
+                var define = MetadataFactory.GetDefine(parameterBag);
+                if (define.GetRequest.HasValue)
+                {
+                    if (define.GetRequest.Value.GetIsEmpty())
+                        await requestParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
+                    else
+                        await requestParameterWithPayload(parameterBag, define, UID, Subdevice);
+                }
             }
         }
 
@@ -253,11 +347,12 @@ namespace RDMSharp
         }
         private async Task collectAllParameters()
         {
-            await UpdateParameterValues();
-            await UpdateSensorValues();
-            await UpdateSlotInfo();
-            await UpdateDefaultSlotValue();
-            await UpdateSlotDescriptions();
+            await requestParameters();
+            //await UpdateParameterValues();
+            //await UpdateSensorValues();
+            //await UpdateSlotInfo();
+            //await UpdateDefaultSlotValue();
+            //await UpdateSlotDescriptions();
             AllDataPulled = true;
         }
         protected RDMMessage processRequestMessage(RDMMessage rdmMessage)
@@ -338,25 +433,13 @@ namespace RDMSharp
                             break;
                         case SlotInfoParameterWrapper slotInfoParameterWrapper:
                             list = null;
-                            if (parameterValues.TryGetValue(rdmMessage.Parameter, out value))
-                                list = value as ConcurrentDictionary<object, object>;
-
-                            if (list == null)
-                                break;
-
-                            var slotInfos = list.Select(s => s.Value).OfType<RDMSlotInfo>().ToArray();
-                            response = slotInfoParameterWrapper.BuildGetResponseMessage(slotInfos);
+                            if (parameterValues.TryGetValue(rdmMessage.Parameter, out value) && value is RDMSlotInfo[] slotInfos)
+                                response = slotInfoParameterWrapper.BuildGetResponseMessage(slotInfos);
                             break;
                         case DefaultSlotValueParameterWrapper defaultSlotValueParameterWrapper:
                             list = null;
-                            if (parameterValues.TryGetValue(rdmMessage.Parameter, out value))
-                                list = value as ConcurrentDictionary<object, object>;
-
-                            if (list == null)
-                                break;
-
-                            var defaultValues = list.Select(s => s.Value).OfType<RDMDefaultSlotValue>().ToArray();
-                            response = defaultSlotValueParameterWrapper.BuildGetResponseMessage(defaultValues);
+                            if (parameterValues.TryGetValue(rdmMessage.Parameter, out value) && value is RDMDefaultSlotValue[] defaultValues)
+                                response = defaultSlotValueParameterWrapper.BuildGetResponseMessage(defaultValues);
                             break;
 
                         case IRDMDescriptionParameterWrapper _descriptionParameterWrapper:
@@ -564,21 +647,21 @@ namespace RDMSharp
             return response;
         }
 
-        private async Task processResponseMessage(RequestResult result)
-        {
-            if (IsGenerated)
-                return;
+        //private async Task processResponseMessage(RequestResult result)
+        //{
+        //    if (IsGenerated)
+        //        return;
 
-            if (result.Success)
-                await processResponseMessage(result.Response);
-            else if (result.Cancel)
-                return;
-            else
-            {
-                await Task.Delay(TimeSpan.FromTicks(random.Next(4500, 5500)));
-                await processResponseMessage(await requestParameter(result.Request));
-            }
-        }
+        //    if (result.Success)
+        //        await processResponseMessage(result.Response);
+        //    else if (result.Cancel)
+        //        return;
+        //    else
+        //    {
+        //        await Task.Delay(TimeSpan.FromTicks(random.Next(4500, 5500)));
+        //        await processResponseMessage(await requestParameter(result.Request));
+        //    }
+        //}
         private async Task processResponseMessage(RDMMessage rdmMessage)
         {
             if (IsGenerated)
@@ -652,22 +735,11 @@ namespace RDMSharp
                         return;
                     }
 
-                    if (parameterValues.TryGetValue(rdmMessage.Parameter, out value))
-                        list = value as ConcurrentDictionary<object, object>;
-                    if (list == null)
-                        parameterValues[rdmMessage.Parameter] = list = new ConcurrentDictionary<object, object>();
+                    parameterValues[rdmMessage.Parameter] = value;
 
                     foreach (RDMSlotInfo info in slotInfos)
-                    {
-                        list.AddOrUpdate(info.SlotOffset, info, (e, f) => info);
+                        Slots[info.SlotOffset].UpdateSlotInfo(info);
 
-                        if (!slots.TryGetValue(info.SlotOffset, out Slot slot1))
-                        {
-                            slot1 = new Slot(info.SlotOffset);
-                            slots.TryAdd(info.SlotOffset, slot1);
-                        }
-                        slot1.UpdateSlotInfo(info);
-                    }
                     this.OnPropertyChanged(nameof(this.Slots));
                     break;
 
@@ -678,22 +750,11 @@ namespace RDMSharp
                         return;
                     }
 
-
-                    if (parameterValues.TryGetValue(rdmMessage.Parameter, out value))
-                        list = value as ConcurrentDictionary<object, object>;
-                    if (list == null)
-                        parameterValues[rdmMessage.Parameter] = list = new ConcurrentDictionary<object, object>();
+                    parameterValues[rdmMessage.Parameter] = defaultSlotValues;
 
                     foreach (RDMDefaultSlotValue info in defaultSlotValues)
-                    {
-                        list.AddOrUpdate(info.SlotOffset, info, (e, f) => info);
-                        if (!slots.TryGetValue(info.SlotOffset, out Slot slot1))
-                        {
-                            slot1 = new Slot(info.SlotOffset);
-                            slots.TryAdd(info.SlotOffset, slot1);
-                        }
-                        slot1.UpdateSlotDefaultValue(info);
-                    }
+                        Slots[info.SlotOffset].UpdateSlotDefaultValue(info);
+
                     this.OnPropertyChanged(nameof(this.Slots));
                     break;
                 case SensorValueParameterWrapper _sensorValueParameterWrapper:
@@ -735,302 +796,300 @@ namespace RDMSharp
             this.PropertyChanged.InvokeFailSafe(this, new PropertyChangedEventArgs(property));
         }
 
-        public async Task UpdateParameterValues()
-        {
-            if (IsGenerated)
-                return;
+        //public async Task UpdateParameterValues()
+        //{
+        //    if (IsGenerated)
+        //        return;
 
-            if (this.DeviceModel == null)
-                return;
+        //    if (this.DeviceModel == null)
+        //        return;
 
-            try
-            {
-                foreach (ERDM_Parameter parameter in this.DeviceModel.SupportedNonBlueprintParameters)
-                    await this.UpdateParameterValue(parameter);
-            }
-            catch (Exception e)
-            {
-                Logger?.LogError($"Not able to get UpdateParameterValues for UID: {this.UID}", e);
-            }
-        }
-        public async Task UpdateParameterValue(ERDM_Parameter parameterId)
-        {
-            if (IsGenerated)
-                return;
+        //    try
+        //    {
+        //        foreach (ERDM_Parameter parameter in this.DeviceModel.SupportedNonBlueprintParameters)
+        //            await this.UpdateParameterValue(parameter);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Logger?.LogError($"Not able to get UpdateParameterValues for UID: {this.UID}", e);
+        //    }
+        //}
+        //public async Task UpdateParameterValue(ERDM_Parameter parameterId)
+        //{
+        //    if (IsGenerated)
+        //        return;
 
-            if (this.DeviceModel == null)
-                return;
-            if (this.pendingParametersUpdateRequest.Contains(parameterId))
-                return;
+        //    if (this.DeviceModel == null)
+        //        return;
+        //    if (this.pendingParametersUpdateRequest.Contains(parameterId))
+        //        return;
 
-            switch (parameterId)
-            {
-                case ERDM_Parameter.SENSOR_DEFINITION:
-                case ERDM_Parameter.SENSOR_VALUE:
-                case ERDM_Parameter.SLOT_INFO:
-                case ERDM_Parameter.SLOT_DESCRIPTION:
-                case ERDM_Parameter.DEFAULT_SLOT_VALUE:
-                case ERDM_Parameter.QUEUED_MESSAGE:
-                    return;
-            }
+        //    switch (parameterId)
+        //    {
+        //        case ERDM_Parameter.SENSOR_DEFINITION:
+        //        case ERDM_Parameter.SENSOR_VALUE:
+        //        case ERDM_Parameter.SLOT_INFO:
+        //        case ERDM_Parameter.SLOT_DESCRIPTION:
+        //        case ERDM_Parameter.DEFAULT_SLOT_VALUE:
+        //        case ERDM_Parameter.QUEUED_MESSAGE:
+        //            return;
+        //    }
 
-            var pm = pmManager.GetRDMParameterWrapperByID(parameterId);
-            if (pm == null && Enum.IsDefined(typeof(ERDM_Parameter), parameterId))
-                return;
+        //    var pm = pmManager.GetRDMParameterWrapperByID(parameterId);
+        //    if (pm == null && Enum.IsDefined(typeof(ERDM_Parameter), parameterId))
+        //        return;
 
-            pm ??= deviceModel.GetRDMParameterWrapperByID((ushort)parameterId);
-            if (pm == null)
-            {
-                Logger?.LogDebug("Not Implemented Parameter");
-                return;
-            }
 
-            if (!pm.CommandClass.HasFlag(ERDM_CommandClass.GET))
-                return;
+        //    if (!pm.CommandClass.HasFlag(ERDM_CommandClass.GET))
+        //        return;
 
-            if (pm is IRDMBlueprintParameterWrapper)
-                return;
+        //    if (pm is IRDMBlueprintParameterWrapper)
+        //        return;
 
-            this.pendingParametersUpdateRequest.Add(parameterId);
-            try
-            {
-                List<Task> tasks = new List<Task>();
-                object val = null;
-                switch (pm)
-                {
-                    case IRDMGetParameterWrapperWithEmptyGetRequest @emptyGetRequest:
-                        tasks.Add(processResponseMessage(await requestParameter(@emptyGetRequest.BuildGetRequestMessage())));
-                        break;
-                    case IRDMGetParameterWrapperRequestRanged<byte> @byteGetRequest:
-                        foreach (ERDM_Parameter para in @byteGetRequest.DescriptiveParameters)
-                        {
-                            this.DeviceModel.ParameterValues.TryGetValue(para, out val);
-                            if (val != null)
-                                break;
-                        }
-                        foreach (var r in @byteGetRequest.GetRequestRange(val).ToEnumerator())
-                            tasks.Add(processResponseMessage(await requestParameter(@byteGetRequest.BuildGetRequestMessage(r))));
+        //    this.pendingParametersUpdateRequest.Add(parameterId);
+        //    try
+        //    {
+        //        List<Task> tasks = new List<Task>();
+        //        object val = null;
+        //        switch (pm)
+        //        {
+        //            case IRDMGetParameterWrapperWithEmptyGetRequest @emptyGetRequest:
+        //                tasks.Add(processResponseMessage(await requestParameter(@emptyGetRequest.BuildGetRequestMessage())));
+        //                break;
+        //            case IRDMGetParameterWrapperRequestRanged<byte> @byteGetRequest:
+        //                foreach (ERDM_Parameter para in @byteGetRequest.DescriptiveParameters)
+        //                {
+        //                    this.DeviceModel.ParameterValues.TryGetValue(para, out val);
+        //                    if (val != null)
+        //                        break;
+        //                }
+        //                foreach (var r in @byteGetRequest.GetRequestRange(val).ToEnumerator())
+        //                    tasks.Add(processResponseMessage(await requestParameter(@byteGetRequest.BuildGetRequestMessage(r))));
 
-                        break;
-                    case IRDMGetParameterWrapperRequestRanged<ushort> @ushortGetRequest:
-                        foreach (ERDM_Parameter para in @ushortGetRequest.DescriptiveParameters)
-                        {
-                            this.DeviceModel.ParameterValues.TryGetValue(para, out val);
-                            if (val != null)
-                                break;
-                        }
-                        foreach (var r in @ushortGetRequest.GetRequestRange(val).ToEnumerator())
-                            tasks.Add(processResponseMessage(await requestParameter(@ushortGetRequest.BuildGetRequestMessage(r))));
+        //                break;
+        //            case IRDMGetParameterWrapperRequestRanged<ushort> @ushortGetRequest:
+        //                foreach (ERDM_Parameter para in @ushortGetRequest.DescriptiveParameters)
+        //                {
+        //                    this.DeviceModel.ParameterValues.TryGetValue(para, out val);
+        //                    if (val != null)
+        //                        break;
+        //                }
+        //                foreach (var r in @ushortGetRequest.GetRequestRange(val).ToEnumerator())
+        //                    tasks.Add(processResponseMessage(await requestParameter(@ushortGetRequest.BuildGetRequestMessage(r))));
 
-                        break;
-                    case IRDMGetParameterWrapperRequestRanged<uint> @uintGetRequest:
-                        foreach (ERDM_Parameter para in @uintGetRequest.DescriptiveParameters)
-                        {
-                            this.DeviceModel.ParameterValues.TryGetValue(para, out val);
-                            if (val != null)
-                                break;
-                        }
-                        foreach (var r in @uintGetRequest.GetRequestRange(val).ToEnumerator())
-                            tasks.Add(processResponseMessage(await requestParameter(@uintGetRequest.BuildGetRequestMessage(r))));
+        //                break;
+        //            case IRDMGetParameterWrapperRequestRanged<uint> @uintGetRequest:
+        //                foreach (ERDM_Parameter para in @uintGetRequest.DescriptiveParameters)
+        //                {
+        //                    this.DeviceModel.ParameterValues.TryGetValue(para, out val);
+        //                    if (val != null)
+        //                        break;
+        //                }
+        //                foreach (var r in @uintGetRequest.GetRequestRange(val).ToEnumerator())
+        //                    tasks.Add(processResponseMessage(await requestParameter(@uintGetRequest.BuildGetRequestMessage(r))));
 
-                        break;
+        //                break;
 
-                    case StatusMessageParameterWrapper statusMessageParameter:
-                        tasks.Add(processResponseMessage(await requestParameter(statusMessageParameter.BuildGetRequestMessage(ERDM_Status.ADVISORY))));
-                        break;
-                    default:
-                        Logger?.LogDebug($"No Wrapper for Parameter: {parameterId} for UID: {this.UID}");
-                        break;
-                }
-                await Task.WhenAny(Task.WhenAll(tasks), Task.Delay(TimeSpan.FromSeconds(10)));
-            }
-            catch (Exception e)
-            {
-                Logger?.LogError($"Not able to update ParameterValue of Parameter: {parameterId} for UID: {this.UID}", e);
-            }
-            this.pendingParametersUpdateRequest.Remove(parameterId);
-        }
-        public async Task UpdateSensorValues()
-        {
-            if (IsGenerated)
-                return;
+        //            case StatusMessageParameterWrapper statusMessageParameter:
+        //                tasks.Add(processResponseMessage(await requestParameter(statusMessageParameter.BuildGetRequestMessage(ERDM_Status.ADVISORY))));
+        //                break;
+        //            default:
+        //                Logger?.LogDebug($"No Wrapper for Parameter: {parameterId} for UID: {this.UID}");
+        //                break;
+        //        }
+        //        await Task.WhenAny(Task.WhenAll(tasks), Task.Delay(TimeSpan.FromSeconds(10)));
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Logger?.LogError($"Not able to update ParameterValue of Parameter: {parameterId} for UID: {this.UID}", e);
+        //    }
+        //    this.pendingParametersUpdateRequest.Remove(parameterId);
+        //}
+        //public async Task UpdateSensorValues()
+        //{
+        //    if (IsGenerated)
+        //        return;
 
-            if (this.DeviceInfo == null)
-                return;
+        //    if (this.DeviceInfo == null)
+        //        return;
 
-            if (this.DeviceModel?.SupportedParameters?.Contains(ERDM_Parameter.SENSOR_DEFINITION) != true)
-                return;
+        //    if (this.DeviceModel?.SupportedParameters?.Contains(ERDM_Parameter.SENSOR_DEFINITION) != true)
+        //        return;
 
-            if (this.DeviceModel == null)
-                return;
+        //    if (this.DeviceModel == null)
+        //        return;
 
-            if (this.DeviceInfo.SensorCount == 0)
-                return;
+        //    if (this.DeviceInfo.SensorCount == 0)
+        //        return;
 
-            try
-            {
-                List<Task> tasks = new List<Task>();
-                foreach (var sd in this.DeviceModel.GetSensorDefinitions())
-                {
-                    sensors.GetOrAdd(sd.SensorId, (a) =>
-                    {
-                        var s = new Sensor(a);
-                        s.UpdateDescription(sd);
-                        return s;
-                    });
+        //    try
+        //    {
+        //        var sensorDefenitions = this.DeviceModel.GetSensorDefinitions();
+        //        if (sensorDefenitions == null)
+        //            return;
 
-                    tasks.Add(this.UpdateSensorValue(sd.SensorId));
-                }
+        //        List<Task> tasks = new List<Task>();
+        //        foreach (var sd in sensorDefenitions)
+        //        {
+        //            sensors.GetOrAdd(sd.SensorId, (a) =>
+        //            {
+        //                var s = new Sensor(a);
+        //                s.UpdateDescription(sd);
+        //                return s;
+        //            });
 
-                await Task.WhenAny(Task.WhenAll(tasks), Task.Delay(TimeSpan.FromSeconds(10)));
-            }
-            catch (Exception e)
-            {
-                Logger?.LogError($"Not able to update SensorValues for UID: {this.UID}", e);
-            }
-        }
-        public async Task UpdateSensorValue(byte sensorId)
-        {
-            if (IsGenerated)
-                return;
+        //            tasks.Add(this.UpdateSensorValue(sd.SensorId));
+        //        }
 
-            if (this.DeviceInfo == null)
-                return;
-            if (this.DeviceModel?.SupportedParameters?.Contains(ERDM_Parameter.SENSOR_VALUE) != true)
-                return;
-            if (this.pendingSensorValuesUpdateRequest.Contains(sensorId))
-                return;
+        //        await Task.WhenAny(Task.WhenAll(tasks), Task.Delay(TimeSpan.FromSeconds(10)));
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Logger?.LogError($"Not able to update SensorValues for UID: {this.UID}", e);
+        //    }
+        //}
+        //public async Task UpdateSensorValue(byte sensorId)
+        //{
+        //    if (IsGenerated)
+        //        return;
 
-            if (this.DeviceInfo.SensorCount == 0)
-                return;
+        //    if (this.DeviceInfo == null)
+        //        return;
+        //    if (this.DeviceModel?.SupportedParameters?.Contains(ERDM_Parameter.SENSOR_VALUE) != true)
+        //        return;
+        //    if (this.pendingSensorValuesUpdateRequest.Contains(sensorId))
+        //        return;
 
-            try
-            {
-                this.pendingSensorValuesUpdateRequest.Add(sensorId);
-                await processResponseMessage(await requestParameter(sensorValueParameterWrapper.BuildGetRequestMessage(sensorId)));
-            }
-            catch (Exception e)
-            {
-                Logger?.LogError($"Not able to update SensorValue of Sensor: {sensorId} for UID: {this.UID}", e);
-            }
-            this.pendingSensorValuesUpdateRequest.Remove(sensorId);
-        }
-        public async Task UpdateSlotInfo()
-        {
-            if (IsGenerated)
-                return;
+        //    if (this.DeviceInfo.SensorCount == 0)
+        //        return;
 
-            if (this.DeviceInfo == null || this.slots == null)
-                return;
+        //    try
+        //    {
+        //        this.pendingSensorValuesUpdateRequest.Add(sensorId);
+        //        await processResponseMessage(await requestParameter(sensorValueParameterWrapper.BuildGetRequestMessage(sensorId)));
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Logger?.LogError($"Not able to update SensorValue of Sensor: {sensorId} for UID: {this.UID}", e);
+        //    }
+        //    this.pendingSensorValuesUpdateRequest.Remove(sensorId);
+        //}
+        //public async Task UpdateSlotInfo()
+        //{
+        //    if (IsGenerated)
+        //        return;
 
-            if (this.DeviceModel?.SupportedParameters?.Contains(ERDM_Parameter.SLOT_INFO) != true)
-                return;
+        //    if (this.DeviceInfo == null || this.slots == null)
+        //        return;
 
-            try
-            {
-                RequestResult? result = null;
-                do
-                {
-                    result = await requestParameter(slotInfoParameterWrapper.BuildGetRequestMessage());
-                    if (result.Value.Success)
-                        await processResponseMessage(result.Value.Response);
-                    else if (result.Value.Cancel)
-                        return;
-                    else
-                        await Task.Delay(TimeSpan.FromTicks(random.Next(2500, 3500)));
-                }
-                while (result?.Response?.ResponseType == ERDM_ResponseType.ACK_OVERFLOW || result?.Response == null);
-            }
-            catch (Exception e)
-            {
-                Logger?.LogError($"Not able to update SlotInfo for UID: {this.UID}", e);
-            }
-        }
-        public async Task UpdateDefaultSlotValue()
-        {
-            if (IsGenerated)
-                return;
+        //    if (this.DeviceModel?.SupportedParameters?.Contains(ERDM_Parameter.SLOT_INFO) != true)
+        //        return;
 
-            if (this.DeviceInfo == null || this.slots == null)
-                return;
+        //    try
+        //    {
+        //        RequestResult? result = null;
+        //        do
+        //        {
+        //            result = await requestParameter(slotInfoParameterWrapper.BuildGetRequestMessage());
+        //            if (result.Value.Success)
+        //                await processResponseMessage(result.Value.Response);
+        //            else if (result.Value.Cancel)
+        //                return;
+        //            else
+        //                await Task.Delay(TimeSpan.FromTicks(random.Next(2500, 3500)));
+        //        }
+        //        while (result?.Response?.ResponseType == ERDM_ResponseType.ACK_OVERFLOW || result?.Response == null);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Logger?.LogError($"Not able to update SlotInfo for UID: {this.UID}", e);
+        //    }
+        //}
+        //public async Task UpdateDefaultSlotValue()
+        //{
+        //    if (IsGenerated)
+        //        return;
 
-            if (this.DeviceModel?.SupportedParameters?.Contains(ERDM_Parameter.DEFAULT_SLOT_VALUE) != true)
-                return;
+        //    if (this.DeviceInfo == null || this.slots == null)
+        //        return;
 
-            try
-            {
-                RequestResult? result = null;
-                do
-                {
-                    result = await requestParameter(defaultSlotValueParameterWrapper.BuildGetRequestMessage());
-                    if (result.Value.Success)
-                        await processResponseMessage(result.Value.Response);
-                    else if (result.Value.Cancel)
-                        return;
-                    else
-                        await Task.Delay(TimeSpan.FromTicks(random.Next(2500, 3500)));
-                }
-                while (result?.Response?.ResponseType == ERDM_ResponseType.ACK_OVERFLOW || result?.Response == null);
-            }
-            catch (Exception e)
-            {
-                Logger?.LogError($"Not able to update DefaultSlotValue for UID: {this.UID}", e);
-            }
-        }
-        public async Task UpdateSlotDescriptions()
-        {
-            if (IsGenerated)
-                return;
+        //    if (this.DeviceModel?.SupportedParameters?.Contains(ERDM_Parameter.DEFAULT_SLOT_VALUE) != true)
+        //        return;
 
-            if (this.DeviceInfo == null)
-                return;
+        //    try
+        //    {
+        //        RequestResult? result = null;
+        //        do
+        //        {
+        //            result = await requestParameter(defaultSlotValueParameterWrapper.BuildGetRequestMessage());
+        //            if (result.Value.Success)
+        //                await processResponseMessage(result.Value.Response);
+        //            else if (result.Value.Cancel)
+        //                return;
+        //            else
+        //                await Task.Delay(TimeSpan.FromTicks(random.Next(2500, 3500)));
+        //        }
+        //        while (result?.Response?.ResponseType == ERDM_ResponseType.ACK_OVERFLOW || result?.Response == null);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Logger?.LogError($"Not able to update DefaultSlotValue for UID: {this.UID}", e);
+        //    }
+        //}
+        //public async Task UpdateSlotDescriptions()
+        //{
+        //    if (IsGenerated)
+        //        return;
 
-            if (this.DeviceModel?.SupportedParameters?.Contains(ERDM_Parameter.SLOT_DESCRIPTION) != true)
-                return;
+        //    if (this.DeviceInfo == null)
+        //        return;
 
-            if (this.Slots.Count == 0)
-                return;
+        //    if (this.DeviceModel?.SupportedParameters?.Contains(ERDM_Parameter.SLOT_DESCRIPTION) != true)
+        //        return;
 
-            try
-            {
-                List<Task> tasks = new List<Task>();
-                foreach (var slot in this.slots)
-                    tasks.Add(this.UpdateSlotDescription(slot.Key));
+        //    if (this.Slots.Count == 0)
+        //        return;
 
-                await Task.WhenAny(Task.WhenAll(tasks), Task.Delay(TimeSpan.FromSeconds(10)));
-            }
-            catch (Exception e)
-            {
-                Logger?.LogError($"Not able to update SlotDescriptions for UID: {this.UID}", e);
-            }
-        }
-        public async Task UpdateSlotDescription(ushort slotId)
-        {
-            if (IsGenerated)
-                return;
+        //    try
+        //    {
+        //        List<Task> tasks = new List<Task>();
+        //        foreach (var slot in this.slots)
+        //            tasks.Add(this.UpdateSlotDescription(slot.Key));
 
-            if (this.DeviceInfo == null)
-                return;
-            if (this.DeviceModel?.SupportedParameters?.Contains(ERDM_Parameter.SLOT_DESCRIPTION) != true)
-                return;
+        //        await Task.WhenAny(Task.WhenAll(tasks), Task.Delay(TimeSpan.FromSeconds(10)));
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Logger?.LogError($"Not able to update SlotDescriptions for UID: {this.UID}", e);
+        //    }
+        //}
+        //public async Task UpdateSlotDescription(ushort slotId)
+        //{
+        //    if (IsGenerated)
+        //        return;
 
-            if (this.pendingSlotDescriptionsUpdateRequest.Contains(slotId))
-                return;
+        //    if (this.DeviceInfo == null)
+        //        return;
+        //    if (this.DeviceModel?.SupportedParameters?.Contains(ERDM_Parameter.SLOT_DESCRIPTION) != true)
+        //        return;
 
-            if (this.Slots.Count == 0)
-                return;
+        //    if (this.pendingSlotDescriptionsUpdateRequest.Contains(slotId))
+        //        return;
 
-            try
-            {
-                this.pendingSlotDescriptionsUpdateRequest.Add(slotId);
-                await processResponseMessage(await requestParameter(slotDescriptionParameterWrapper.BuildGetRequestMessage(slotId)));
-            }
-            catch (Exception e)
-            {
-                Logger?.LogError($"Not able to update SlotDescription of Slot: {slotId} for UID: {this.UID}", e);
-            }
-            this.pendingSlotDescriptionsUpdateRequest.Remove(slotId);
-        }
+        //    if (this.Slots.Count == 0)
+        //        return;
+
+        //    try
+        //    {
+        //        this.pendingSlotDescriptionsUpdateRequest.Add(slotId);
+        //        await processResponseMessage(await requestParameter(slotDescriptionParameterWrapper.BuildGetRequestMessage(slotId)));
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Logger?.LogError($"Not able to update SlotDescription of Slot: {slotId} for UID: {this.UID}", e);
+        //    }
+        //    this.pendingSlotDescriptionsUpdateRequest.Remove(slotId);
+        //}
 
         private bool updateParametrerValueCache(ERDM_Parameter parameter, object value)
         {
@@ -1053,7 +1112,7 @@ namespace RDMSharp
                 return this.ParameterValues;
         }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1816:Dispose-Methoden müssen SuppressFinalize aufrufen", Justification = "<Ausstehend>")]
-        public void Dispose()
+        public new void Dispose()
         {
             if (IsDisposing || IsDisposed)
                 return;

@@ -22,7 +22,7 @@ namespace RDMSharp
         public RDMSlotInfo(
             [DataTreeObjectParameter("id")] ushort slotOffset,
             [DataTreeObjectParameter("type")] byte slotType,
-            [DataTreeObjectParameter("label_id")] byte slotLabelId)
+            [DataTreeObjectParameter("label_id")] ushort slotLabelId)
             : this(slotOffset, (ERDM_SlotType)slotType, (ERDM_SlotCategory)slotLabelId)
         {
         }
@@ -33,7 +33,7 @@ namespace RDMSharp
         [DataTreeObjectProperty("type", 1)]
         public ERDM_SlotType SlotType { get; private set; }
 
-        [DataTreeObjectProperty("label_id", 3)]
+        [DataTreeObjectProperty("label_id", 2)]
         public ERDM_SlotCategory SlotLabelId { get; private set; }
         public const int PDL = 5;
 

@@ -10,24 +10,26 @@ namespace RDMSharp.Metadata
         public readonly uint Index;
         public readonly object? Value;
         public readonly string? Unit;
+        public readonly bool IsCompound;
         public readonly DataTreeValueLabel[]? Labels;
         public readonly DataTree[]? Children;
         public readonly DataTreeIssue[]? Issues;
 
-        private DataTree(string name, uint index, DataTreeIssue[]? issues = null)
+        private DataTree(string name, uint index, DataTreeIssue[]? issues = null, bool isCompound = false)
         {
             Name = name;
             Index = index;
             Issues = issues;
+            IsCompound = isCompound;
         }
-        public DataTree(DataTree dataTree, uint index) : this(dataTree.Name, index, dataTree.Issues)
+        public DataTree(DataTree dataTree, uint index) : this(dataTree.Name, index, dataTree.Issues, dataTree.IsCompound)
         {
             Value = dataTree.Value;
             Unit = dataTree.Unit;
             Labels = dataTree.Labels;
             Children = dataTree.Children;
         }
-        public DataTree(string name, uint index, object value, DataTreeIssue[]? issues = null, string unit = null, DataTreeValueLabel[] labels = null) : this(name, index, issues)
+        public DataTree(string name, uint index, object value, DataTreeIssue[]? issues = null, string unit = null, DataTreeValueLabel[] labels = null, bool isCompound = false) : this(name, index, issues, isCompound)
         {
             if (value is IEnumerable<DataTree> || value is DataTree[] children)
                 throw new ArgumentException($"Use other Constructor if you use {nameof(Children)}");
@@ -37,7 +39,7 @@ namespace RDMSharp.Metadata
             Labels = labels;
         }
 
-        public DataTree(string name, uint index, DataTree[] children, DataTreeIssue[]? issues = null) : this(name, index, issues)
+        public DataTree(string name, uint index, DataTree[] children, DataTreeIssue[]? issues = null, bool isCompound = false) : this(name, index, issues, isCompound)
         {
             Children = children;
         }
