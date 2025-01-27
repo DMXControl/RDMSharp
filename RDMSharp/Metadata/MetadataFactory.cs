@@ -149,10 +149,10 @@ namespace RDMSharp.Metadata
             if (command.GetIsEmpty())
                 return new byte[0];
 
-            if (payload.Children.SingleOrDefault() is DataTree dataTree && command.SingleField.HasValue)
+            if (command.SingleField.HasValue && payload.Children.SingleOrDefault() is DataTree dataTree)
                 return command.SingleField.Value.ParsePayloadToData(dataTree);
 
-            if (payload.Children is DataTree[] dataTreeArray && command.ListOfFields.Length != 0)
+            if (command.ListOfFields.Length != 0 && payload.Children is DataTree[] dataTreeArray)
             {
                 if (dataTreeArray.Length != command.ListOfFields.Length)
                     throw new IndexOutOfRangeException();

@@ -403,78 +403,109 @@ namespace RDMSharp
                 }
                 if (rdmMessage.Command == ERDM_Command.GET_COMMAND)
                 {
-                    ConcurrentDictionary<object, object> list = null;
-                    object value = null;
-                    object index = null;
+
                     parameterValues.TryGetValue(rdmMessage.Parameter, out object responseValue);
-                    switch (pm)
+
+                    try
                     {
-                        case DeviceInfoParameterWrapper _deviceInfoParameterWrapper:
-                            response = _deviceInfoParameterWrapper.BuildGetResponseMessage(DeviceInfo);
-                            break;
+                        var parameterBag = new ParameterBag(rdmMessage.Parameter, UID.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
+                        var dataTreeBranch = DataTreeBranch.FromObject(responseValue, rdmMessage.Value, parameterBag, ERDM_Command.GET_COMMAND_RESPONSE);
+                        if (!dataTreeBranch.IsUnset)
+                        {
+                            var data = MetadataFactory.GetResponseMessageData(parameterBag, dataTreeBranch);
+                            if (data != null)
+                                response = new RDMMessage
+                                {
+                                    Parameter = rdmMessage.Parameter,
+                                    Command = ERDM_Command.GET_COMMAND_RESPONSE,
+                                    SourceUID = UID,
+                                    DestUID = rdmMessage.SourceUID,
+                                    ParameterData = data
+                                };
+                        }
+                        else
+                        {
 
-                        case SupportedParametersParameterWrapper _supportedParametersParameterWrapper:
-                            List<ERDM_Parameter> sp = new List<ERDM_Parameter>();
-                            sp.Add(ERDM_Parameter.DEVICE_INFO);
-                            sp.AddRange(parameterValues.Keys);
-                            if (deviceModel != null)
-                                sp.AddRange(deviceModel.SupportedParameters);
-                            if (!sensors.IsEmpty)
-                            {
-                                sp.Add(ERDM_Parameter.SENSOR_DEFINITION);
-                                sp.Add(ERDM_Parameter.SENSOR_VALUE);
-                                if(sensors.Any(s=>s.Value.RecordedValueSupported))
-                                    sp.Add(ERDM_Parameter.RECORD_SENSORS);
-                            }
-                            response = _supportedParametersParameterWrapper.BuildGetResponseMessage(sp.Distinct().ToArray());
-                            break;
-                        case QueuedMessageParameterWrapper _queuedMessageParameterWrapper:
-                            response = statusMessageParameterWrapper.BuildGetResponseMessage([]);
-                            break;
-                        case SlotInfoParameterWrapper slotInfoParameterWrapper:
-                            list = null;
-                            if (parameterValues.TryGetValue(rdmMessage.Parameter, out value) && value is RDMSlotInfo[] slotInfos)
-                                response = slotInfoParameterWrapper.BuildGetResponseMessage(slotInfos);
-                            break;
-                        case DefaultSlotValueParameterWrapper defaultSlotValueParameterWrapper:
-                            list = null;
-                            if (parameterValues.TryGetValue(rdmMessage.Parameter, out value) && value is RDMDefaultSlotValue[] defaultValues)
-                                response = defaultSlotValueParameterWrapper.BuildGetResponseMessage(defaultValues);
-                            break;
+                        }
+                    }
+                    catch (Exception e)
+                    {
 
-                        case IRDMDescriptionParameterWrapper _descriptionParameterWrapper:
-                            index = _descriptionParameterWrapper.GetRequestParameterDataToObject(rdmMessage.ParameterData);
-                            if (index == null)
+                    }
+                    if (response == null)
+                    {
+                        ConcurrentDictionary<object, object> list = null;
+                        object value = null;
+                        object index = null;
+                        switch (pm)
+                        {
+                            case DeviceInfoParameterWrapper _deviceInfoParameterWrapper:
+                                response = _deviceInfoParameterWrapper.BuildGetResponseMessage(DeviceInfo);
                                 break;
 
-                            list = null;
-                            if (parameterValues.TryGetValue(rdmMessage.Parameter, out value))
-                                list = value as ConcurrentDictionary<object, object>;
-
-                            if (list == null && !IsGenerated)
-                                parameterValues[rdmMessage.Parameter] = DeviceModel.ParameterValues[rdmMessage.Parameter];
-
-                            if (list == null)
+                            case SupportedParametersParameterWrapper _supportedParametersParameterWrapper:
+                                List<ERDM_Parameter> sp = new List<ERDM_Parameter>();
+                                sp.Add(ERDM_Parameter.DEVICE_INFO);
+                                sp.AddRange(parameterValues.Keys);
+                                if (deviceModel != null)
+                                    sp.AddRange(deviceModel.SupportedParameters);
+                                if (!sensors.IsEmpty)
+                                {
+                                    sp.Add(ERDM_Parameter.SENSOR_DEFINITION);
+                                    sp.Add(ERDM_Parameter.SENSOR_VALUE);
+                                    if (sensors.Any(s => s.Value.RecordedValueSupported))
+                                        sp.Add(ERDM_Parameter.RECORD_SENSORS);
+                                }
+                                response = _supportedParametersParameterWrapper.BuildGetResponseMessage(sp.Distinct().ToArray());
+                                break;
+                            case QueuedMessageParameterWrapper _queuedMessageParameterWrapper:
+                                response = statusMessageParameterWrapper.BuildGetResponseMessage([]);
+                                break;
+                            case SlotInfoParameterWrapper slotInfoParameterWrapper:
+                                list = null;
+                                if (parameterValues.TryGetValue(rdmMessage.Parameter, out value) && value is RDMSlotInfo[] slotInfos)
+                                    response = slotInfoParameterWrapper.BuildGetResponseMessage(slotInfos);
+                                break;
+                            case DefaultSlotValueParameterWrapper defaultSlotValueParameterWrapper:
+                                list = null;
+                                if (parameterValues.TryGetValue(rdmMessage.Parameter, out value) && value is RDMDefaultSlotValue[] defaultValues)
+                                    response = defaultSlotValueParameterWrapper.BuildGetResponseMessage(defaultValues);
                                 break;
 
-                            list.TryGetValue(index, out responseValue);
-                            if (responseValue == null)
-                                break;
-                            response = _descriptionParameterWrapper.BuildGetResponseMessage(responseValue);
-                            break;
+                            case IRDMDescriptionParameterWrapper _descriptionParameterWrapper:
+                                index = _descriptionParameterWrapper.GetRequestParameterDataToObject(rdmMessage.ParameterData);
+                                if (index == null)
+                                    break;
 
-                        case DMX512StartingAddressParameterWrapper dmx512StartingAddressParameterWrapper
+                                list = null;
+                                if (parameterValues.TryGetValue(rdmMessage.Parameter, out value))
+                                    list = value as ConcurrentDictionary<object, object>;
+
+                                if (list == null && !IsGenerated)
+                                    parameterValues[rdmMessage.Parameter] = DeviceModel.ParameterValues[rdmMessage.Parameter];
+
+                                if (list == null)
+                                    break;
+
+                                list.TryGetValue(index, out responseValue);
+                                if (responseValue == null)
+                                    break;
+                                response = _descriptionParameterWrapper.BuildGetResponseMessage(responseValue);
+                                break;
+
+                            case DMX512StartingAddressParameterWrapper dmx512StartingAddressParameterWrapper
                             when responseValue is ushort _ushort:
-                            response = dmx512StartingAddressParameterWrapper.BuildGetResponseMessage(_ushort);
-                            break;
-                        case SensorValueParameterWrapper sensorValueParameterWrapper:
-                            if (sensors.TryGetValue((byte)rdmMessage.Value, out Sensor sensor))
-                                response = sensorValueParameterWrapper.BuildGetResponseMessage((RDMSensorValue)sensor);
-                            break;
+                                response = dmx512StartingAddressParameterWrapper.BuildGetResponseMessage(_ushort);
+                                break;
+                            case SensorValueParameterWrapper sensorValueParameterWrapper:
+                                if (sensors.TryGetValue((byte)rdmMessage.Value, out Sensor sensor))
+                                    response = sensorValueParameterWrapper.BuildGetResponseMessage((RDMSensorValue)sensor);
+                                break;
 
-                        case IRDMGetParameterWrapperResponse getParameterWrapperResponse:
-                            response = getParameterWrapperResponse.BuildGetResponseMessage(responseValue);
-                            break;
+                            case IRDMGetParameterWrapperResponse getParameterWrapperResponse:
+                                response = getParameterWrapperResponse.BuildGetResponseMessage(responseValue);
+                                break;
+                        }
                     }
                 }
                 else if (rdmMessage.Command == ERDM_Command.SET_COMMAND)

@@ -2,7 +2,6 @@
 using RDMSharp.Metadata.JSON;
 using System.Collections.Generic;
 using System.Text;
-using static System.Reflection.Metadata.BlobBuilder;
 
 namespace RDMSharp
 {
@@ -18,7 +17,9 @@ namespace RDMSharp
             this.DefaultSlotValue = defaultSlotValue;
         }
 
+        [DataTreeObjectProperty("id", 0)]
         public ushort SlotOffset { get; private set; }
+        [DataTreeObjectProperty("default_value", 1)]
         public byte DefaultSlotValue { get; private set; }
         public const int PDL = 3;
 

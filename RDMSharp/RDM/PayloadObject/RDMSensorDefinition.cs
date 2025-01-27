@@ -68,16 +68,27 @@ namespace RDMSharp
         {
         }
 
+        [DataTreeObjectProperty("sensor", 0)]
         public byte SensorId { get; private set; }
+        [DataTreeObjectProperty("type", 1)]
         public ERDM_SensorType Type { get; private set; }
+        [DataTreeObjectProperty("unit", 2)]
         public ERDM_SensorUnit Unit { get; private set; }
+        [DataTreeObjectProperty("unit_prefix", 3)]
         public ERDM_UnitPrefix Prefix { get; private set; }
+        [DataTreeObjectProperty("range_min_value", 4)]
         public short RangeMinimum { get; private set; }
+        [DataTreeObjectProperty("range_max_value", 5)]
         public short RangeMaximum { get; private set; }
+        [DataTreeObjectProperty("normal_min_value", 6)]
         public short NormalMinimum { get; private set; }
+        [DataTreeObjectProperty("normal_max_value", 7)]
         public short NormalMaximum { get; private set; }
+        [DataTreeObjectProperty("recorded_value_support/recorded_value_supported", 0)]
         public bool LowestHighestValueSupported { get; private set; }
+        [DataTreeObjectProperty("recorded_value_support/low_high_detected_values_supported", 1)]
         public bool RecordedValueSupported { get; private set; }
+        [DataTreeObjectProperty("description", 9)]
         public string Description { get; private set; }
 
         public object MinIndex => (byte)0;

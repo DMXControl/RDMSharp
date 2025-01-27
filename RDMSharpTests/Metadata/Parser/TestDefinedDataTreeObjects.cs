@@ -77,7 +77,7 @@ public class TestDefinedDataTreeObjects
             Assert.That(obj.SensorCount, Is.EqualTo(0));
         });
 
-        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DEVICE_INFO);
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DEVICE_INFO);
         Assert.That(reversed, Is.EqualTo(dataTreeBranch));        
     }
 
@@ -105,7 +105,7 @@ public class TestDefinedDataTreeObjects
             Assert.That(obj.OfPersonalities, Is.EqualTo(3));
         });
 
-        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DMX_PERSONALITY);
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DMX_PERSONALITY);
         Assert.That(reversed, Is.EqualTo(dataTreeBranch));
     }
 
@@ -135,7 +135,7 @@ public class TestDefinedDataTreeObjects
             Assert.That(obj.Description, Is.EqualTo("SEQUENCE"));
         });
 
-        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION);
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION);
         Assert.That(reversed, Is.EqualTo(dataTreeBranch));
     }
 
@@ -163,7 +163,7 @@ public class TestDefinedDataTreeObjects
             Assert.That(obj.Description, Is.EqualTo("SAFETY"));
         });
 
-        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.SLOT_DESCRIPTION);
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.SLOT_DESCRIPTION);
         Assert.That(reversed, Is.EqualTo(dataTreeBranch));
     }
     [Test]
@@ -211,7 +211,7 @@ public class TestDefinedDataTreeObjects
             Assert.That(obj[4].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.COLOR_ADD_BLUE));
         });
 
-        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.SLOT_INFO);
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.SLOT_INFO);
         Assert.That(reversed, Is.EqualTo(dataTreeBranch));
     }
 
@@ -238,7 +238,7 @@ public class TestDefinedDataTreeObjects
             Assert.That(obj, Is.EqualTo(ERDM_DisplayInvert.ON));
         });
 
-        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, ERDM_Command.SET_COMMAND, ERDM_Parameter.DISPLAY_INVERT);
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.SET_COMMAND, ERDM_Parameter.DISPLAY_INVERT);
         Assert.That(reversed, Is.EqualTo(dataTreeBranch));
     }
 
@@ -265,7 +265,7 @@ public class TestDefinedDataTreeObjects
             Assert.That(obj, Is.EqualTo(ERDM_Status.ADVISORY));
         });
 
-        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, ERDM_Command.GET_COMMAND, ERDM_Parameter.STATUS_MESSAGES);
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND, ERDM_Parameter.STATUS_MESSAGES);
         Assert.That(reversed, Is.EqualTo(dataTreeBranch));
     }
 }
