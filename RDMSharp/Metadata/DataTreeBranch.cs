@@ -217,6 +217,21 @@ namespace RDMSharp.Metadata
                     return result;
                 List<DataTree> children = new List<DataTree>();
 
+                switch (cmd.Value.EnumValue)
+                {
+                    case Command.ECommandDublicte.GetRequest:
+                        cmd = define.GetRequest;
+                        break;
+                    case Command.ECommandDublicte.GetResponse:
+                        cmd = define.GetResponse;
+                        break;
+                    case Command.ECommandDublicte.SetRequest:
+                        cmd = define.SetRequest;
+                        break;
+                    case Command.ECommandDublicte.SetResponse:
+                        cmd = define.SetResponse;
+                        break;
+                }
                 if (cmd.Value.SingleField.HasValue)
                     children.Add(getChildren(cmd.Value.SingleField.Value, obj));
                 if (cmd.Value.ListOfFields.Length > 0)
@@ -230,8 +245,12 @@ namespace RDMSharp.Metadata
                 }
                 DataTree getChildren(OneOfTypes oneOf, object o)
                 {
-                    if (oneOf.ObjectType != null)
-                        return new DataTree(oneOf.ObjectType.Name, 0, o);
+                    var oneofOt = oneOf.ObjectType;
+                    if (oneofOt == null && oneOf.ReferenceType.HasValue)
+                        oneofOt = oneOf.ReferenceType.Value.ReferencedObject;
+
+                    if (oneofOt != null)
+                        return new DataTree(oneofOt.Name, 0, o);
 
                     throw new NotImplementedException();
                 }
@@ -243,6 +262,9 @@ namespace RDMSharp.Metadata
 
         public static DataTreeBranch FromObject(object obj, object key, ERDM_Command command, ERDM_Parameter parameter)
         {
+            if (obj == null)
+                return DataTreeBranch.Empty;
+
             Type type = obj.GetType();
 
             if (type.IsGenericType && typeof(IDictionary).IsAssignableFrom(type.GetGenericTypeDefinition()))

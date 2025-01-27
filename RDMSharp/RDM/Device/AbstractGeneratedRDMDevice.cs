@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using RDMSharp.Metadata;
 using RDMSharp.ParameterWrapper;
 using System;
 using System.Collections.Concurrent;
@@ -272,23 +273,18 @@ namespace RDMSharp
                                            dmx512StartAddress: dmxAddress,
                                            sensorCount: (byte)(Sensors?.Length ?? 0));
         }
-        private bool trySetParameter(ERDM_Parameter parameter, object value)
+        protected bool trySetParameter(ERDM_Parameter parameter, object value)
         {
             if (!this.Parameters.Contains(parameter))
                 throw new NotSupportedException($"The Parameter: {parameter}, is not Supported");
 
-            switch (pmManager.GetRDMParameterWrapperByID(parameter))
-            {
-                case IRDMSetParameterWrapperResponse setParameterWrapperResponse:
-                    if (setParameterWrapperResponse.SetResponseType != value.GetType())
-                        throw new NotSupportedException($"The Type of {value.GetType()} is not supported as Response for Parameter: {parameter}, the only supported Type is {setParameterWrapperResponse.SetResponseType}");
-                    break;
-            }
+           
             base.SetGeneratedParameterValue(parameter, value);
             return true;
         }
         public bool TrySetParameter(ERDM_Parameter parameter, object value, bool throwException = true)
         {
+
             switch (parameter)
             {
                 case ERDM_Parameter.DMX_START_ADDRESS:
@@ -311,12 +307,28 @@ namespace RDMSharp
                         throw new NotSupportedException($"The Protocoll not allow to set the Parameter: {parameter}");
                     return false;
             }
-            switch (pmManager.GetRDMParameterWrapperByID(parameter))
+
+            var parameterBag = new ParameterBag(parameter, UID.ManufacturerID, DeviceInfo?.DeviceModelId, DeviceInfo?.SoftwareVersionId);
+            var define = MetadataFactory.GetDefine(parameterBag);
+            if (define != null)
             {
-                case IRDMDescriptionParameterWrapper descriptionParameterWrapper:
-                    if (throwException)
-                        throw new NotSupportedException($"You have no permission to set the Parameter: {parameter}, use the public Propertys to set them");
+                try
+                {
+                    if (!define.SetRequest.HasValue)
+                        throw new NotSupportedException($"The Protocoll not allow to set the Parameter: {parameter}");
+                    else
+                    {
+                        byte[] data = MetadataFactory.ParsePayloadToData(define, Metadata.JSON.Command.ECommandDublicte.SetRequest, DataTreeBranch.FromObject(value, null, parameterBag, ERDM_Command.SET_COMMAND));
+                        var obj = MetadataFactory.ParseDataToPayload(define, Metadata.JSON.Command.ECommandDublicte.SetRequest, data);
+                        if (!object.Equals(value, obj))
+                            return false;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger?.LogError(e, string.Empty);
                     return false;
+                }
             }
 
             return this.trySetParameter(parameter, value);
@@ -327,6 +339,7 @@ namespace RDMSharp
             {
                 case nameof(DeviceInfo):
                     trySetParameter(ERDM_Parameter.DEVICE_INFO, this.DeviceInfo);
+                    trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, this.DeviceInfo.SoftwareVersionId);
                     break;
                 case nameof(DeviceModelDescription):
                     trySetParameter(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION, this.DeviceModelDescription);

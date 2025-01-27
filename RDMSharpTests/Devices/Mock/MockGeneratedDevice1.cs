@@ -50,8 +50,8 @@ namespace RDMSharpTests.Devices.Mock
         public MockGeneratedDevice1(UID uid) : base(uid, [ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL], "Dummy Manufacturer 9FFF")
         {
             this.DeviceLabel = "Dummy Device 1";
-            this.TrySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, false);
-            this.TrySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, $"Dummy Software");
+            this.trySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, false);
+            this.trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, $"Dummy Software");
         }
 
         private class MockSensorTemp : Sensor

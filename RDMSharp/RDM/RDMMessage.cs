@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using RDMSharp.Metadata;
 using RDMSharp.ParameterWrapper;
 using System;
 using System.Collections.Generic;
@@ -123,7 +124,22 @@ namespace RDMSharp
 
         public byte TransactionCounter { get; set; }
 
-        public byte PortID_or_Responsetype { get; set; }
+        private byte portID_or_Responsetype;
+        public byte PortID_or_Responsetype {
+            get
+            {
+                return portID_or_Responsetype;
+            }
+            set
+            {
+                if (value == portID_or_Responsetype)
+                    return;
+
+                valueCache = null;
+
+                portID_or_Responsetype = value;
+            }
+        }
 
         public byte MessageCounter { get; set; }
         public byte? PreambleCount
@@ -155,9 +171,37 @@ namespace RDMSharp
 
         public SubDevice SubDevice { get; set; }
 
-        public ERDM_Command Command { get; set; }
+        private ERDM_Command command;
+        public ERDM_Command Command
+        {
+            get
+            {
+                return command;
+            }
+            set
+            {
+                if (value == command)
+                    return;
+                valueCache = null;
+                command = value;
+            }
+        }
 
-        public ERDM_Parameter Parameter { get; set; }
+        private ERDM_Parameter parameter;
+        public ERDM_Parameter Parameter
+        {
+            get
+            {
+                return parameter;
+            }
+            set
+            {
+                if (value == parameter)
+                    return;
+                valueCache = null;
+                parameter = value;
+            }
+        }
 
         private ERDM_NackReason[] nackReason = null;
 
@@ -193,6 +237,11 @@ namespace RDMSharp
             get { return _parameterData; }
             set
             {
+                if (_parameterData == value)
+                    return;
+
+                valueCache = null;
+
                 if (value == null)
                     _parameterData = Array.Empty<byte>();
                 else
@@ -330,6 +379,7 @@ namespace RDMSharp
             }
         }
 
+        private object valueCache = null;
         public object Value
         {
             get
@@ -337,20 +387,43 @@ namespace RDMSharp
                 try
                 {
                     if (this.ResponseType == ERDM_ResponseType.ACK_TIMER)
-                        return AcknowledgeTimer.FromPayloadData(this.ParameterData);
+                        return valueCache = AcknowledgeTimer.FromPayloadData(this.ParameterData);
                     if (this.Parameter == ERDM_Parameter.DISC_UNIQUE_BRANCH && this.Command == ERDM_Command.DISCOVERY_COMMAND)
-                        return DiscUniqueBranchRequest.FromPayloadData(this.ParameterData);
+                        return valueCache = DiscUniqueBranchRequest.FromPayloadData(this.ParameterData);
                     if (this.Parameter == ERDM_Parameter.DISC_MUTE && this.Command == ERDM_Command.DISCOVERY_COMMAND_RESPONSE)
-                        return DiscMuteUnmuteResponse.FromPayloadData(this.ParameterData);
+                        return valueCache = DiscMuteUnmuteResponse.FromPayloadData(this.ParameterData);
                     if (this.Parameter == ERDM_Parameter.DISC_UN_MUTE && this.Command == ERDM_Command.DISCOVERY_COMMAND_RESPONSE)
-                        return DiscMuteUnmuteResponse.FromPayloadData(this.ParameterData);
+                        return valueCache = DiscMuteUnmuteResponse.FromPayloadData(this.ParameterData);
 
-                    return RDMParameterWrapperCatalogueManager.GetInstance().ParameterDataObjectFromMessage(this);
+                    if (this.ParameterData?.Length == 0)
+                        return valueCache = null;
+
+                    try
+                    {
+                        ushort manufacturer = 0;
+                        if (this.Command.HasFlag(ERDM_Command.RESPONSE))
+                        {
+                            manufacturer = SourceUID.ManufacturerID;
+                        }
+                        else
+                        {
+                            manufacturer = DestUID.ManufacturerID;
+                        }
+
+                        return valueCache = MetadataFactory.ParseDataToPayload(MetadataFactory.GetDefine(new ParameterBag(this.Parameter, manufacturer)), Tools.ConvertCommandDublicteToCommand(Command), this.ParameterData).ParsedObject;
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger?.LogError(ex);
+                        throw ex;
+                    }
                 }
                 catch (Exception ex)
                 {
                     Logger?.LogError(ex);
-                    return null;
+                    throw ex;
                 }
             }
         }
@@ -375,37 +448,21 @@ namespace RDMSharp
                 Command == ERDM_Command.SET_COMMAND_RESPONSE ||
                 Command.HasFlag(ERDM_Command.DISCOVERY_COMMAND))
             {
-                var pm = RDMParameterWrapperCatalogueManager.GetInstance().GetRDMParameterWrapperByID(Parameter);
-                switch (Command)
-                {
-                    case ERDM_Command.SET_COMMAND_RESPONSE
-                        when pm is not IRDMSetParameterWrapperWithEmptySetResponse:
-                        b.AppendLine("Value: " + valueString());
-                        break;
-                    case ERDM_Command.GET_COMMAND_RESPONSE
-                        when pm is not IRDMGetParameterWrapperWithEmptyGetResponse:
-                        b.AppendLine("Value: " + valueString());
-                        break;
-                    case ERDM_Command.SET_COMMAND
-                        when pm is not IRDMSetParameterWrapperWithEmptySetRequest:
-                        b.AppendLine("Value: " + valueString());
-                        break;
-                    default:
-                        if (Value != null)
-                            b.AppendLine("Value: " + valueString());
-                        break;
-                }
+                var val = this.Value;
+                if (val != null)
+                    b.AppendLine("Value: " + valueString());
+
                 string valueString()
                 {
                     string value;
-                    if (Value is Array array)
+                    if (val is Array array)
                     {
                         List<string> list = new List<string>();
                         foreach (var a in array)
                             list.Add(a.ToString());
                         value = string.Join("," + Environment.NewLine, list);
                     }
-                    else if (Value is string str)
+                    else if (val is string str)
                         value = $"\"{str}\"";
                     else
                         value = Value?.ToString() ?? "[NULL]";

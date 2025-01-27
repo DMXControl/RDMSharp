@@ -169,9 +169,15 @@ namespace RDMSharp.Metadata
             define.GetCommand(commandType, out Command? _command);
             if (_command is not Command command)
                 throw new InvalidOperationException();
+            try
+            {
+                if (command.GetIsEmpty())
+                    return DataTreeBranch.Empty;
+            }
+            catch(Exception e)
+            {
 
-            if (command.GetIsEmpty())
-                return DataTreeBranch.Empty;
+            }
 
             if (command.SingleField.HasValue)
                 return new DataTreeBranch(define, commandType, command.SingleField.Value.ParseDataToPayload(ref data));
