@@ -32,6 +32,6 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <PackageReference Include="DMXControlProjects.WellKnownDataTypes" Version="0.0.4" />
-	  <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.1" />
+	  <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.3" />
 	</ItemGroup>
 </Project>
