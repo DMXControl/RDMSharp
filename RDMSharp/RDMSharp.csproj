@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -32,6 +32,6 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <PackageReference Include="DMXControlProjects.WellKnownDataTypes" Version="0.0.4" />
-	  <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.1" />
+	  <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.4" />
 	</ItemGroup>
 </Project>
