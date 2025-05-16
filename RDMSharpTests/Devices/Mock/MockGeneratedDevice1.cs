@@ -1,6 +1,4 @@
-﻿using RDMSharp.ParameterWrapper;
-
-namespace RDMSharpTests.Devices.Mock
+﻿namespace RDMSharpTests.Devices.Mock
 {
     internal sealed class MockGeneratedDevice1 : AbstractMockGeneratedDevice
     {
