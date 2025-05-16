@@ -46,8 +46,7 @@ namespace RDMSharpTests.Devices.Mock
             new MockSensorVolt3_3(3, 331),
             new MockSensorVolt5(4, 498)];
         public override GeneratedPersonality[] Personalities => PERSONALITYS;
-        public override Sensor[] Sensors => SENSORS;
-        public MockGeneratedDevice1(UID uid) : base(uid, [ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL], "Dummy Manufacturer 9FFF")
+        public MockGeneratedDevice1(UID uid) : base(uid, [ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL], "Dummy Manufacturer 9FFF", SENSORS)
         {
             this.DeviceLabel = "Dummy Device 1";
             this.trySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, false);
@@ -74,6 +73,10 @@ namespace RDMSharpTests.Devices.Mock
             {
                 UpdateValue(initValue);
             }
+        }
+
+        protected sealed override void OnDispose()
+        {
         }
     }
 }

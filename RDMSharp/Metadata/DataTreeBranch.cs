@@ -234,7 +234,7 @@ namespace RDMSharp.Metadata
                 }
                 if (cmd.Value.SingleField.HasValue)
                     children.Add(getChildren(cmd.Value.SingleField.Value, obj));
-                if (cmd.Value.ListOfFields.Length > 0)
+                if ((cmd.Value.ListOfFields?.Length ?? 0) > 0)
                 {
                     if (cmd.Value.ListOfFields.Length > 1)
                         throw new NotImplementedException();
@@ -255,7 +255,9 @@ namespace RDMSharp.Metadata
                     throw new NotImplementedException();
                 }
                 if (children.Count != 0)
-                    return new DataTreeBranch(children: children.ToArray());
+                    return new DataTreeBranch(obj, children: children.ToArray());
+                if (cmd.Value.GetIsEmpty())
+                    return DataTreeBranch.Empty;
             }
             return result;
         }

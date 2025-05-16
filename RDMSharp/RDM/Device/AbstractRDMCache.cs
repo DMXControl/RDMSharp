@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -12,13 +13,44 @@ namespace RDMSharp
     {
         protected bool IsDisposed { get; private set; }
         protected bool IsDisposing { get; private set; }
-        protected ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch> parameterValuesDataTreeBranch { get; private set; } = new ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch>();
+        internal ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch> parameterValuesDataTreeBranch { get; private set; } = new ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch>();
         protected ConcurrentDictionary<DataTreeObjectDependeciePropertyBag, object> parameterValuesDependeciePropertyBag { get; private set; } = new ConcurrentDictionary<DataTreeObjectDependeciePropertyBag, object>();
 
         protected ConcurrentDictionary<ERDM_Parameter, object> parameterValues { get; private set; } = new ConcurrentDictionary<ERDM_Parameter, object>();
         public virtual IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues
         {
             get { return this.parameterValues?.AsReadOnly(); }
+        }
+        protected event EventHandler<ParameterValueAddedEventArgs> ParameterValueAdded;
+        protected event EventHandler<ParameterValueChangedEventArgs> ParameterValueChanged;
+
+        public class ParameterValueAddedEventArgs: EventArgs
+        {
+            public readonly ERDM_Parameter Parameter;
+            public readonly object Index;
+            public readonly object Value;
+
+            public ParameterValueAddedEventArgs(ERDM_Parameter parameter, object value, object index = null)
+            {
+                Parameter = parameter;
+                Index = index;
+                Value = value;
+            }
+        }
+        public class ParameterValueChangedEventArgs : EventArgs
+        {
+            public readonly ERDM_Parameter Parameter;
+            public readonly object Index;
+            public readonly object NewValue;
+            public readonly object OldValue;
+
+            public ParameterValueChangedEventArgs(ERDM_Parameter parameter, object newValue, object oldValue, object index = null)
+            {
+                Parameter = parameter;
+                Index = index;
+                NewValue = newValue;
+                OldValue = oldValue;
+            }
         }
 
         protected AsyncRDMRequestHelper asyncRDMRequestHelper;
@@ -49,23 +81,72 @@ namespace RDMSharp
 
             object valueToStore = dataTreeBranch.ParsedObject ?? dataTreeBranch;
             if (bag.Index == null)
-                this.parameterValues.AddOrUpdate(bag.Parameter, valueToStore, (o1, o2) => valueToStore);
+                this.parameterValues.AddOrUpdate(bag.Parameter, (o1) =>
+                {
+                    try
+                    {
+                        return valueToStore;
+                    }
+                    finally
+                    {
+                        ParameterValueAdded?.InvokeFailSafe(this, new ParameterValueAddedEventArgs(o1, valueToStore));
+                    }
+                }, (o1, o2) =>
+                {
+                    try
+                    {
+                        return valueToStore;
+                    }
+                    finally
+                    {
+                        if (o2 != valueToStore)
+                            ParameterValueChanged?.InvokeFailSafe(this, new ParameterValueChangedEventArgs(o1, valueToStore, o2));
+                    }
+                });
+
             else
             {
                 this.parameterValues.AddOrUpdate(bag.Parameter,
-                    (o1) =>
+                    (pid) =>
                     //Add
                     {
-                        ConcurrentDictionary<object, object> dict = new ConcurrentDictionary<object, object>();
-                        dict.AddOrUpdate(bag.Index, valueToStore, (o1, o2) => valueToStore);
-                        return dict;
+                        try
+                        {
+                            ConcurrentDictionary<object, object> dict = new ConcurrentDictionary<object, object>();
+                            dict.AddOrUpdate(bag.Index, valueToStore, (o1, o2) => valueToStore);
+                            return dict;
+                        }
+                        finally
+                        {
+                            ParameterValueAdded?.InvokeFailSafe(this, new ParameterValueAddedEventArgs(pid, valueToStore, bag.Index));
+                        }
                     },
-                    (o1, o2) =>
+                    (pid, cd) =>
                     // Update
                     {
-                        ConcurrentDictionary<object, object> dict = (ConcurrentDictionary<object, object>)o2;
-                        dict.AddOrUpdate(bag.Index, valueToStore, (o1, o2) => valueToStore);
-                        return dict;
+                        object old = null;
+                        bool changed= false;
+                        try
+                        {
+                            ConcurrentDictionary<object, object> dict = (ConcurrentDictionary<object, object>)cd;
+                            dict.AddOrUpdate(bag.Index, valueToStore, (_, o2) =>
+                            {
+                                if(o2 == valueToStore)
+                                    return valueToStore;
+
+                                old = o2;
+                                changed = true;
+                                return valueToStore;
+                            });
+                            return dict;
+                        }
+                        finally
+                        {
+                            if(changed)
+                                ParameterValueChanged?.InvokeFailSafe(this, new ParameterValueChangedEventArgs(pid, valueToStore, old, bag.Index));
+                            else
+                                ParameterValueAdded?.InvokeFailSafe(this, new ParameterValueAddedEventArgs(pid, valueToStore, bag.Index));
+                        }
                     });
 
 
@@ -76,8 +157,38 @@ namespace RDMSharp
         {
             await ptpProcess?.Run(asyncRDMRequestHelper);
         }
+        protected async Task requestSetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
+        {
+            PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.SET_COMMAND, uid, subDevice, parameterBag);
+            await runPeerToPeerProcess(ptpProcess);
+            if (!ptpProcess.ResponsePayloadObject.IsUnset)
+            {
+                updateParameterValuesDependeciePropertyBag(parameterBag.PID, ptpProcess.ResponsePayloadObject);
+                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(parameterBag.PID), ptpProcess.ResponsePayloadObject);
+            }
+        }
+        protected async Task requestSetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice, object value)
+        {
+            define.GetCommand(Metadata.JSON.Command.ECommandDublicte.SetRequest, out var cmd);
+            var req = cmd.Value.GetRequiredProperties();
+            if (req.Length == 1)
+            {
+                DataTreeBranch dataTreeBranch = DataTreeBranch.FromObject(value, null, parameterBag, ERDM_Command.SET_COMMAND);
+                PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.SET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
+                await runPeerToPeerProcess(ptpProcess);
+                if (ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Failed)
+                    throw new Exception($"Failed to set parameter {parameterBag.PID} with value {value}");
+                if (ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Finished)
+                {
+                    if (ptpProcess.ResponsePayloadObject.IsEmpty)
+                        updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), dataTreeBranch);
+                    else if (!ptpProcess.ResponsePayloadObject.IsUnset)
+                        updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), ptpProcess.ResponsePayloadObject);
+                }
+            }
+        }
 
-        protected async Task requestParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
+        protected async Task requestGetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
         {
             PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag);
             await runPeerToPeerProcess(ptpProcess);
@@ -87,9 +198,10 @@ namespace RDMSharp
                 updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(parameterBag.PID), ptpProcess.ResponsePayloadObject);
             }
         }
-        protected async Task requestParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
+        protected async Task requestGetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
         {
-            var req = define.GetRequest.Value.GetRequiredProperties();
+            define.GetCommand(Metadata.JSON.Command.ECommandDublicte.GetRequest, out var cmd);
+            var req = cmd.Value.GetRequiredProperties();
             if (req.Length == 1 && req[0] is Metadata.JSON.OneOfTypes.IIntegerType intType)
             {
                 try

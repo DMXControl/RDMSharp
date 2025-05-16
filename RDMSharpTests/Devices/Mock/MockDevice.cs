@@ -5,5 +5,9 @@
         public MockDevice(UID uid, bool imitateRealConditions) : base(uid, imitateRealConditions)
         {
         }
+
+        protected override void OnDispose()
+        {
+        }
     }
 }

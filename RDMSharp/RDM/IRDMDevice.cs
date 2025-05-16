@@ -7,8 +7,7 @@ namespace RDMSharp
     public interface IRDMDevice : IDisposable, INotifyPropertyChanged
     {
         UID UID { get; }
-        DateTime LastSeen { get; }
-        bool Present { get; }
+        SubDevice Subdevice { get; }
 
         RDMDeviceInfo DeviceInfo { get; }
 
@@ -18,5 +17,9 @@ namespace RDMSharp
 
         bool IsDisposing { get; }
         bool IsDisposed { get; }
+
+        bool IsInitializing { get; }
+        bool IsInitialized { get; }
+        bool IsGenerated { get; }
     }
 }

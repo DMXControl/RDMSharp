@@ -112,8 +112,8 @@ namespace RDMSharpTests.RDM.Devices
             var slotGreen = remote.Slots[3];
             var slotBlue = remote.Slots[4];
 
-            Assert.Multiple(() =>
-            {
+            //Assert.Multiple(() =>
+            //{
                 Assert.That(slotIntensity, Is.EqualTo(generated.Personalities[0].Slots[0]));
                 Assert.That(slotStrobe, Is.EqualTo(generated.Personalities[0].Slots[1]));
                 Assert.That(slotRed, Is.EqualTo(generated.Personalities[0].Slots[2]));
@@ -179,7 +179,7 @@ namespace RDMSharpTests.RDM.Devices
                 Assert.That(slots.Add(slotBlue), Is.True);
                 Assert.That(slots.Add(slotBlue), Is.False);
                 Assert.That(slots, Does.Contain(slotBlue));
-            });
+            //});
         }
 
         [Test]
@@ -187,7 +187,7 @@ namespace RDMSharpTests.RDM.Devices
         public void TestDevice1Sensor()
         {
             var sensorsRemote = remote.Sensors.Values.ToList();
-            var sensorsGenerated = generated.Sensors.ToList();
+            var sensorsGenerated = generated.Sensors.Values.ToList();
 
             Assert.Multiple(() =>
             {

@@ -30,6 +30,49 @@ namespace RDMSharp
 
         }
 
+
+        private ConcurrentDictionary<byte, RDMPersonalityModel> knownPersonalityModels = new ConcurrentDictionary<byte, RDMPersonalityModel>();
+        public IReadOnlyCollection<RDMPersonalityModel> KnownPersonalityModels => knownPersonalityModels.Values.ToList();
+        internal async Task<RDMPersonalityModel> getPersonalityModel(AbstractRemoteRDMDevice remoteRDMDevice)
+        {
+            try
+            {
+                if (!DeviceInfo.Dmx512CurrentPersonality.HasValue)
+                    return null;
+                var kpm = knownPersonalityModels.Values.FirstOrDefault(dm => dm.IsModelOf(
+                    remoteRDMDevice.UID,
+                    remoteRDMDevice.DeviceInfo.DeviceModelId,
+                    remoteRDMDevice.DeviceInfo.SoftwareVersionId,
+                    remoteRDMDevice.DeviceInfo.Dmx512CurrentPersonality.Value));
+                if (kpm == null)
+                {
+                    kpm = new RDMPersonalityModel(
+                        remoteRDMDevice.UID,
+                        remoteRDMDevice.Subdevice,
+                        remoteRDMDevice.DeviceInfo.DeviceModelId,
+                        remoteRDMDevice.DeviceInfo.SoftwareVersionId,
+                        remoteRDMDevice.DeviceInfo.Dmx512CurrentPersonality.Value,
+                        sendRdmFunktion
+                        );
+                    if (knownPersonalityModels.TryAdd(kpm.PersonalityID, kpm))
+                    {
+                        currentUsedUID = remoteRDMDevice.UID;
+                        currentUsedSubDevice = remoteRDMDevice.Subdevice;
+                        DeviceInfo = remoteRDMDevice.DeviceInfo;
+                        var di= remoteRDMDevice.parameterValuesDataTreeBranch.FirstOrDefault(d => d.Key.Parameter == ERDM_Parameter.DEVICE_INFO);
+                        updateParameterValuesDependeciePropertyBag(ERDM_Parameter.DEVICE_INFO, di.Value);
+                        await requestPersonalityBlueprintParameters(kpm);
+                    }
+                }
+                return kpm;
+            }
+            catch (Exception ex)
+            {
+                
+            }
+            return null;
+        }
+
         public new bool IsDisposing { get; private set; }
         public new bool IsDisposed { get; private set; }
 
@@ -94,6 +137,10 @@ namespace RDMSharp
         {
             get { return this.SupportedParameters.Intersect(Constants.BLUEPRINT_MODEL_PARAMETERS).OrderBy(p => p).ToList().AsReadOnly(); }
         }
+        public IReadOnlyCollection<ERDM_Parameter> SupportedPersonalityBlueprintParameters
+        {
+            get { return this.SupportedParameters.Intersect(Constants.BLUEPRINT_MODEL_PERSONALITY_PARAMETERS).OrderBy(p => p).ToList().AsReadOnly(); }
+        }
         public IReadOnlyCollection<ERDM_Parameter> SupportedNonBlueprintParameters
         {
             get { return this.SupportedParameters.Except(SupportedBlueprintParameters).OrderBy(p => p).ToList().AsReadOnly(); }
@@ -126,6 +173,7 @@ namespace RDMSharp
 
             await requestSupportedParameters();
             await requestBlueprintParameters();
+            await requestPersonalityBlueprintParameters();
 
             asyncRDMRequestHelper.Dispose();
             asyncRDMRequestHelper = null;
@@ -165,10 +213,49 @@ namespace RDMSharp
                 if (define.GetRequest.HasValue)
                 {
                     if (define.GetRequest.Value.GetIsEmpty())
-                        await requestParameterWithEmptyPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
+                        await requestGetParameterWithEmptyPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
                     else
-                        await requestParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
+                        await requestGetParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
                 }
+            }
+        }
+        private async Task requestPersonalityBlueprintParameters(RDMPersonalityModel personalityModel = null)
+        {
+            if (personalityModel == null)
+            {
+                personalityModel = new RDMPersonalityModel(
+                        currentUsedUID,
+                        currentUsedSubDevice,
+                        DeviceInfo.DeviceModelId,
+                        DeviceInfo.SoftwareVersionId,
+                        DeviceInfo.Dmx512CurrentPersonality.Value,
+                        sendRdmFunktion
+                        );
+                knownPersonalityModels.TryAdd(personalityModel.PersonalityID, personalityModel);
+            }
+            var backup = asyncRDMRequestHelper;
+            try
+            {
+                asyncRDMRequestHelper = personalityModel.GetAsyncRDMRequestHelper();
+                this.ParameterValueAdded += personalityModel.RDMDeviceModel_ParameterValueAdded;
+                foreach (ERDM_Parameter parameter in this.SupportedPersonalityBlueprintParameters)
+                {
+                    ParameterBag parameterBag = new ParameterBag(parameter, personalityModel.ManufacturerID, personalityModel.DeviceModelID, personalityModel.SoftwareVersionID);
+                    var define = MetadataFactory.GetDefine(parameterBag);
+                    if (define.GetRequest.HasValue)
+                    {
+                        if (define.GetRequest.Value.GetIsEmpty())
+                            await requestGetParameterWithEmptyPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
+                        else
+                            await requestGetParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
+                    }
+                }
+            }
+            finally
+            {
+                this.ParameterValueAdded -= personalityModel.RDMDeviceModel_ParameterValueAdded;
+                asyncRDMRequestHelper = backup;
+                personalityModel.DisposeAsyncRDMRequestHelper();
             }
         }
 
@@ -255,7 +342,11 @@ namespace RDMSharp
                 if (!parameterValues.TryGetValue(ERDM_Parameter.SENSOR_DEFINITION, out object value))
                     return Array.Empty<RDMSensorDefinition>();
                 else
+                {
+                    if (value is ConcurrentDictionary<object, object> cd)
+                        return cd.Values.Cast<RDMSensorDefinition>().ToArray();
                     return value as RDMSensorDefinition[];
+                }
             }
             catch
             {
