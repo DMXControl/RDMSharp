@@ -124,7 +124,8 @@ namespace RDMSharp
         public byte TransactionCounter { get; set; }
 
         private byte portID_or_Responsetype;
-        public byte PortID_or_Responsetype {
+        public byte PortID_or_Responsetype
+        {
             get
             {
                 return portID_or_Responsetype;

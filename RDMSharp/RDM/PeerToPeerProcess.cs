@@ -23,7 +23,7 @@ namespace RDMSharp
         public DataTreeBranch ResponsePayloadObject { get; private set; } = DataTreeBranch.Unset;
 
         public MetadataJSONObjectDefine Define { get; private set; }
-        public EPeerToPeerProcessState State {  get; private set; } = EPeerToPeerProcessState.Waiting;
+        public EPeerToPeerProcessState State { get; private set; } = EPeerToPeerProcessState.Waiting;
 
         public Exception Exception { get; private set; }
 
@@ -113,7 +113,7 @@ namespace RDMSharp
             catch (Exception e)
             {
                 this.Exception = e;
-                State = EPeerToPeerProcessState.Failed;                
+                State = EPeerToPeerProcessState.Failed;
             }
         }
     }

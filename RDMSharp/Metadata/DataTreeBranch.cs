@@ -2,14 +2,11 @@
 using RDMSharp.Metadata.JSON.OneOfTypes;
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
-using System.Xml.Linq;
 
 [assembly: InternalsVisibleTo("RDMSharpTests")]
 namespace RDMSharp.Metadata
@@ -42,11 +39,11 @@ namespace RDMSharp.Metadata
                 for (uint i = 0; i < Children.Length; i++)
                     Children[i] = new DataTree(Children[i], i);
         }
-        private DataTreeBranch(object parsedObject, params DataTree[] children): this(children)
+        private DataTreeBranch(object parsedObject, params DataTree[] children) : this(children)
         {
             ParsedObject = parsedObject;
         }
-        public DataTreeBranch(MetadataJSONObjectDefine define, Command.ECommandDublicte commandType, params DataTree[] children): this(children)
+        public DataTreeBranch(MetadataJSONObjectDefine define, Command.ECommandDublicte commandType, params DataTree[] children) : this(children)
         {
             if (define == null)
                 throw new ArgumentNullException();
@@ -213,7 +210,7 @@ namespace RDMSharp.Metadata
                             cmd = define.SetResponse;
                         break;
                 }
-                if(!cmd.HasValue)
+                if (!cmd.HasValue)
                     return result;
                 List<DataTree> children = new List<DataTree>();
 
@@ -424,7 +421,7 @@ namespace RDMSharp.Metadata
                     return false;
             }
             return true;
-           // return EqualityComparer<DataTree[]>.Default.Equals(Children, other.Children); // is not dooing its job
+            // return EqualityComparer<DataTree[]>.Default.Equals(Children, other.Children); // is not dooing its job
         }
 
         public override int GetHashCode()

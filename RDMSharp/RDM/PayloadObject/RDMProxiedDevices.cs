@@ -1,5 +1,4 @@
 ﻿using RDMSharp.Metadata;
-using RDMSharp.Metadata.JSON;
 using System;
 using System.Collections.Generic;
 using System.Text;

@@ -172,7 +172,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 issueList.Add(new DataTreeIssue($"Data length exceeds {nameof(MaxBytes)}, the Data has {data.Length}, but {nameof(MaxBytes)} is {MaxBytes}"));
             if (MinBytes.HasValue && data.Length < MinBytes.Value)
                 issueList.Add(new DataTreeIssue($"Data length falls shorts of {nameof(MinBytes)}, the Data has {data.Length}, but {nameof(MinBytes)} is {MinBytes}"));
-            
+
             string str = null;
             byte[] dataBytes = data;
             int charLength = 0;

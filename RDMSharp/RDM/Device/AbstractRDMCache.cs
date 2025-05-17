@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -24,7 +23,7 @@ namespace RDMSharp
         protected event EventHandler<ParameterValueAddedEventArgs> ParameterValueAdded;
         protected event EventHandler<ParameterValueChangedEventArgs> ParameterValueChanged;
 
-        public class ParameterValueAddedEventArgs: EventArgs
+        public class ParameterValueAddedEventArgs : EventArgs
         {
             public readonly ERDM_Parameter Parameter;
             public readonly object Index;
@@ -125,13 +124,13 @@ namespace RDMSharp
                     // Update
                     {
                         object old = null;
-                        bool changed= false;
+                        bool changed = false;
                         try
                         {
                             ConcurrentDictionary<object, object> dict = (ConcurrentDictionary<object, object>)cd;
                             dict.AddOrUpdate(bag.Index, valueToStore, (_, o2) =>
                             {
-                                if(o2 == valueToStore)
+                                if (o2 == valueToStore)
                                     return valueToStore;
 
                                 old = o2;
@@ -142,7 +141,7 @@ namespace RDMSharp
                         }
                         finally
                         {
-                            if(changed)
+                            if (changed)
                                 ParameterValueChanged?.InvokeFailSafe(this, new ParameterValueChangedEventArgs(pid, valueToStore, old, bag.Index));
                             else
                                 ParameterValueAdded?.InvokeFailSafe(this, new ParameterValueAddedEventArgs(pid, valueToStore, bag.Index));

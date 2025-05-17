@@ -67,7 +67,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             if (!string.Equals(dataTree.Name, this.Name))
                 throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
 
-            if(dataTree.Children.Length!= Subtypes.Length)
+            if (dataTree.Children.Length != Subtypes.Length)
                 throw new ArithmeticException($"The given {nameof(dataTree)} and {nameof(Subtypes)} has different length ");
 
             List<byte> data = new List<byte>();
@@ -106,7 +106,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 issueList.Add(new DataTreeIssue(e.Message));
             }
 
-            return new DataTree(this.Name, 0, children:subTypeDataTree.OrderBy(b => b.Index).ToArray(), issueList.Count != 0 ? issueList.ToArray() : null, true);
+            return new DataTree(this.Name, 0, children: subTypeDataTree.OrderBy(b => b.Index).ToArray(), issueList.Count != 0 ? issueList.ToArray() : null, true);
         }
 
         internal bool validateDataLength(int dataLength)

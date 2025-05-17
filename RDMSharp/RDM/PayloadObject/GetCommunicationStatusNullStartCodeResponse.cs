@@ -86,7 +86,7 @@ namespace RDMSharp
         public static GetCommunicationStatusNullStartCodeResponse FromPayloadData(byte[] data)
         {
             RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-            var flags=Tools.DataToBoolArray(ref data, 8);
+            var flags = Tools.DataToBoolArray(ref data, 8);
             var additiveChecksumOfMostRecentPacket = Tools.DataToUInt(ref data);
             var packetCount = Tools.DataToUInt(ref data);
             var mostRecentSlotCount = Tools.DataToUShort(ref data);

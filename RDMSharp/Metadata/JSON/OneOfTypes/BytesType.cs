@@ -218,7 +218,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                         string format = Format.Replace("[]", "");
                         list.Add(parseData(format, ref data));
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         issueList.Add(new DataTreeIssue(e.Message));
                         break;
@@ -231,8 +231,8 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                     value = null;
                 else
                 {
-                    Type targetType=list.First().GetType();
-                    var array = Array.CreateInstance(targetType,list.Count);
+                    Type targetType = list.First().GetType();
+                    var array = Array.CreateInstance(targetType, list.Count);
                     for (int i = 0; i < list.Count; i++)
                         array.SetValue(Convert.ChangeType(list[i], targetType), i);
 
@@ -320,7 +320,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                         value = getNullDelimitetData(Encoding.BigEndianUnicode, ref data);
                         break;
                     case "latin1":
-                        value = getNullDelimitetData(Encoding.Latin1,ref data);
+                        value = getNullDelimitetData(Encoding.Latin1, ref data);
                         break;
 
                     //Fallback
@@ -335,7 +335,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 string getNullDelimitetData(Encoding encoding, ref byte[] data)
                 {
                     string res = encoding.GetString(data);
-                    if (res.Contains('\0')) 
+                    if (res.Contains('\0'))
                     {
                         res = res.Split('\0')[0];
                         int count = encoding.GetByteCount(res + "\0");

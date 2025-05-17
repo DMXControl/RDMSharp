@@ -129,7 +129,7 @@ namespace RDMSharp.Metadata
             {
                 if (command.SingleField.HasValue)
                 {
-                    var result= setReferenceObjects(command.SingleField.Value);
+                    var result = setReferenceObjects(command.SingleField.Value);
                     if (!result.Equals(command.SingleField.Value))
                         return new Command(result);
                 }
@@ -189,7 +189,7 @@ namespace RDMSharp.Metadata
             }
         }
 
-        public void GetCommand(Command.ECommandDublicte eCommand,out Command? command)
+        public void GetCommand(Command.ECommandDublicte eCommand, out Command? command)
         {
             command = null;
             switch (eCommand)

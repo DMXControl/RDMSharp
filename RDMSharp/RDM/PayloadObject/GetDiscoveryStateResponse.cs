@@ -21,7 +21,7 @@ namespace RDMSharp
         public GetDiscoveryStateResponse(
             [DataTreeObjectParameter("endpoint_id")] ushort endpointId,
             [DataTreeObjectParameter("device_count")] ushort deviceCount,
-            [DataTreeObjectParameter("state")] byte discoveryState):
+            [DataTreeObjectParameter("state")] byte discoveryState) :
             this(endpointId, deviceCount, (ERDM_DiscoveryState)discoveryState)
         {
         }

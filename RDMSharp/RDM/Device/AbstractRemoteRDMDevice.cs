@@ -89,7 +89,7 @@ namespace RDMSharp
                 OnPropertyChanged(nameof(LastSeen));
             }
         }
-        
+
         private bool present;
         public bool Present
         {

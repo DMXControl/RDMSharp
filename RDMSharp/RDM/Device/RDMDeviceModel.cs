@@ -55,7 +55,7 @@ namespace RDMSharp
                         currentUsedUID = remoteRDMDevice.UID;
                         currentUsedSubDevice = remoteRDMDevice.Subdevice;
                         DeviceInfo = remoteRDMDevice.DeviceInfo;
-                        var di= remoteRDMDevice.parameterValuesDataTreeBranch.FirstOrDefault(d => d.Key.Parameter == ERDM_Parameter.DEVICE_INFO);
+                        var di = remoteRDMDevice.parameterValuesDataTreeBranch.FirstOrDefault(d => d.Key.Parameter == ERDM_Parameter.DEVICE_INFO);
                         updateParameterValuesDependeciePropertyBag(ERDM_Parameter.DEVICE_INFO, di.Value);
                         await requestPersonalityBlueprintParameters(kpm);
                     }
@@ -64,7 +64,7 @@ namespace RDMSharp
             }
             catch (Exception ex)
             {
-                
+
             }
             return null;
         }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Json.Schema;
+using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,9 +8,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Json.Schema;
-using RDMSharp.Metadata.JSON;
-using RDMSharp.Metadata.JSON.OneOfTypes;
 
 [assembly: InternalsVisibleTo("RDMSharpTests")]
 
@@ -19,7 +18,7 @@ namespace RDMSharp.Metadata
         private const string SCHEMA_FILE_NAME = "schema.json";
         private const string JSON_ENDING = ".json";
         private static List<MetadataVersion> metadataVersionList;
-        private static Dictionary<MetadataVersion,List<MetadataJSONObjectDefine>> metadataVersionDefinesBagDictionary;
+        private static Dictionary<MetadataVersion, List<MetadataJSONObjectDefine>> metadataVersionDefinesBagDictionary;
         private static ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine> parameterBagDefineCache;
 
         public static IReadOnlyCollection<MetadataVersion> MetadataVersionList
@@ -45,16 +44,16 @@ namespace RDMSharp.Metadata
 
             if (metadataVersionDefinesBagDictionary == null)
                 metadataVersionDefinesBagDictionary = new Dictionary<MetadataVersion, List<MetadataJSONObjectDefine>>();
-            
+
             var schemaList = GetMetadataSchemaVersions();
-            ConcurrentDictionary<string, JsonSchema> versionSchemas= new ConcurrentDictionary<string, JsonSchema>();
+            ConcurrentDictionary<string, JsonSchema> versionSchemas = new ConcurrentDictionary<string, JsonSchema>();
 
             foreach (var mv in metadataVersionList.Where(_mv => !_mv.IsSchema))
             {
                 var schema = schemaList.First(s => s.Version.Equals(mv.Version));
-                if(!versionSchemas.TryGetValue(schema.Version, out JsonSchema jsonSchema))
+                if (!versionSchemas.TryGetValue(schema.Version, out JsonSchema jsonSchema))
                 {
-                    jsonSchema= JsonSchema.FromText(new MetadataBag(schema).Content);
+                    jsonSchema = JsonSchema.FromText(new MetadataBag(schema).Content);
                     versionSchemas.TryAdd(schema.Version, jsonSchema);
                 }
                 MetadataBag metadataBag = new MetadataBag(mv);
@@ -69,7 +68,7 @@ namespace RDMSharp.Metadata
                 }
             }
         }
-        
+
         public static IReadOnlyCollection<MetadataVersion> GetMetadataSchemaVersions()
         {
             return MetadataVersionList.Where(r => r.IsSchema).ToList().AsReadOnly();
@@ -174,7 +173,7 @@ namespace RDMSharp.Metadata
                 if (command.GetIsEmpty())
                     return DataTreeBranch.Empty;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
 
             }
@@ -228,7 +227,7 @@ namespace RDMSharp.Metadata
 
             definedDataTreeObjects.AddRange(Tools.FindClassesWithAttribute<DataTreeObjectAttribute>());
         }
-        
+
         public static Type GetDefinedDataTreeObjectType(MetadataJSONObjectDefine define, Command.ECommandDublicte commandType)
         {
             return GetDefinedDataTreeObjectType((ERDM_Parameter)define.PID, commandType);
@@ -236,7 +235,7 @@ namespace RDMSharp.Metadata
         public static Type GetDefinedDataTreeObjectType(MetadataJSONObjectDefine define, ERDM_Command command)
         {
             Command.ECommandDublicte commandType = Tools.ConvertCommandDublicteToCommand(command);
-            return GetDefinedDataTreeObjectType((ERDM_Parameter)define.PID, commandType);        
+            return GetDefinedDataTreeObjectType((ERDM_Parameter)define.PID, commandType);
         }
         public static Type GetDefinedDataTreeObjectType(ERDM_Parameter parameter, ERDM_Command command)
         {

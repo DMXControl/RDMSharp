@@ -38,7 +38,7 @@ namespace RDMSharp
         UNDERTEMP = 0x0022,
         [StatusMessageAttribute("Sensor {0} out of range.", StatusMessageAttribute.EDataValueFormat.DecimalNumber)]
         SENS_OUT_RANGE = 0x0023,
-        
+
         [StatusMessageAttribute("Phase {0} over voltage at {1} V.", StatusMessageAttribute.EDataValueFormat.DecimalNumber, StatusMessageAttribute.EDataValueFormat.DecimalNumber)]
         OVERVOLTAGE_PHASE = 0x0031,
         [StatusMessageAttribute("Phase {0} under voltage at {1} V.", StatusMessageAttribute.EDataValueFormat.DecimalNumber, StatusMessageAttribute.EDataValueFormat.DecimalNumber)]

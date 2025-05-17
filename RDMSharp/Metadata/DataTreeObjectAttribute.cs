@@ -13,7 +13,7 @@ public class DataTreeObjectAttribute : Attribute
     public readonly bool IsArray;
     public readonly string Path;
 
-    public DataTreeObjectAttribute(ERDM_Parameter parameter, Command.ECommandDublicte command, bool isArray = false, string path=null)
+    public DataTreeObjectAttribute(ERDM_Parameter parameter, Command.ECommandDublicte command, bool isArray = false, string path = null)
     {
         Parameter = parameter;
         Command = command;

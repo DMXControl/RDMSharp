@@ -97,7 +97,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
             foreach (DataTree bitDataTree in dataTree.Children)
             {
-                BitType bit = Bits.FirstOrDefault(b=>b.Name== bitDataTree.Name);
+                BitType bit = Bits.FirstOrDefault(b => b.Name == bitDataTree.Name);
                 if (bit == null)
                     throw new ArithmeticException($"Can't find matching BitType {bitDataTree.Name}");
                 if (Bits.Length <= bitDataTree.Index || Bits[bitDataTree.Index] != bit)
@@ -129,12 +129,12 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 bitDataTrees.Add(new DataTree(bitType.Name, i, bools[bitType.Index]));
             }
             bool valueForUnspecified = ValueForUnspecified == true;
-            for(int i = 0; i < bools.Length; i++)
+            for (int i = 0; i < bools.Length; i++)
             {
                 if (Bits.Any(b => b.Index == i))
                     continue;
 
-                bool bit= bools[i];
+                bool bit = bools[i];
                 if (bit != valueForUnspecified)
                     issueList.Add(new DataTreeIssue($"The Bit at Index {i} is Unspecified, but the Value is not {valueForUnspecified} as defined for Unspecified Bits"));
             }

@@ -25,7 +25,7 @@ namespace RDMSharp.Metadata.JSON
 
         public override string ToString()
         {
-            if(!string.IsNullOrWhiteSpace(DisplayName))
+            if (!string.IsNullOrWhiteSpace(DisplayName))
                 return DisplayName;
 
             return Name;

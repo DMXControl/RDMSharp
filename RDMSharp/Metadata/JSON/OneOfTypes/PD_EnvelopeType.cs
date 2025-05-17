@@ -62,7 +62,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
         public override PDL GetDataLength()
         {
-            if(Length.HasValue)
+            if (Length.HasValue)
                 return new PDL(Length.Value);
 
             return new PDL();

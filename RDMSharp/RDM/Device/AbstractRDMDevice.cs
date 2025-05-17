@@ -1,10 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using RDMSharp.Metadata;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace RDMSharp
@@ -32,7 +29,7 @@ namespace RDMSharp
         public bool IsInitialized { get; private set; }
         public abstract bool IsGenerated { get; }
 
-        protected AbstractRDMDevice(UID uid): this(uid, SubDevice.Root)
+        protected AbstractRDMDevice(UID uid) : this(uid, SubDevice.Root)
         {
         }
 

@@ -47,7 +47,7 @@ namespace RDMSharp
             [DataTreeObjectParameter("personality_count")] byte dmx512NumberOfPersonalities,
             [DataTreeObjectParameter("dmx_start_address")] ushort dmx512StartAddress,
             [DataTreeObjectParameter("sub_device_count")] ushort subDeviceCount,
-            [DataTreeObjectParameter("sensor_count")] byte sensorCount):
+            [DataTreeObjectParameter("sensor_count")] byte sensorCount) :
             this(rdmProtocolVersionMajor,
                 rdmProtocolVersionMinor,
                 deviceModelId,

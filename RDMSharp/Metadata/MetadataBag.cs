@@ -13,13 +13,13 @@ namespace RDMSharp.Metadata
         public readonly string Name;
         public readonly string Content;
         public readonly bool IsSchema;
-        public MetadataBag(MetadataVersion metadataVersion) : this(metadataVersion.Version,metadataVersion.Name,metadataVersion.IsSchema, getContent(metadataVersion.Path), metadataVersion.Path)
+        public MetadataBag(MetadataVersion metadataVersion) : this(metadataVersion.Version, metadataVersion.Name, metadataVersion.IsSchema, getContent(metadataVersion.Path), metadataVersion.Path)
         {
         }
         public MetadataBag(string version, string name, bool isSchema, string content, string path)
         {
             Version = version;
-            Name= name;
+            Name = name;
             IsSchema = isSchema;
             Path = path;
             Content = content;

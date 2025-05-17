@@ -30,7 +30,7 @@ namespace RDMSharp
             buffer.Clear();
             _cts.Dispose();
             this.IsDisposed = true;
-            this.IsDisposing= false;
+            this.IsDisposing = false;
         }
 
         public bool ReceiveMessage(RDMMessage rdmMessage)

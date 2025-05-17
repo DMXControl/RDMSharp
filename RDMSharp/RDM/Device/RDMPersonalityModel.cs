@@ -52,7 +52,7 @@ namespace RDMSharp
             Manufacturer = (EManufacturer)uid.ManufacturerID;
         }
         internal RDMPersonalityModel(UID uid, SubDevice sudevice, ushort deviceModelID, uint softwareVersionID, byte personalityID, Func<RDMMessage, Task> sendRdmFunktion)
-            :this(uid, sudevice, sendRdmFunktion)
+            : this(uid, sudevice, sendRdmFunktion)
         {
             DeviceModelID = deviceModelID;
             SoftwareVersionID = softwareVersionID;

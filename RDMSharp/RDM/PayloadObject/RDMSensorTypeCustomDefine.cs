@@ -47,7 +47,7 @@ namespace RDMSharp
             RDMMessageInvalidPDLException.ThrowIfInvalidPDLRange(data, PDL_MIN, PDL_MAX);
 
             var id = Tools.DataToByte(ref data);
-            var label = Tools.DataToString(ref data,32);
+            var label = Tools.DataToString(ref data, 32);
 
             var i = new RDMSensorTypeCustomDefine(
                 id: id,

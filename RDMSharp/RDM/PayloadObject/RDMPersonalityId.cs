@@ -47,7 +47,7 @@ namespace RDMSharp
         }
         public static RDMPersonalityId FromPayloadData(byte[] data)
         {
-            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data,PDL);
+            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
 
             var personalityId = Tools.DataToByte(ref data);
             var majorPersonalityId = Tools.DataToUShort(ref data);

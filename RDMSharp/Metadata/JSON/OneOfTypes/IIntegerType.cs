@@ -8,7 +8,7 @@
         string Notes { get; }
         EIntegerType Type { get; }
         ERDM_SensorUnit? Units { get; }
-        int? PrefixPower { get; } 
+        int? PrefixPower { get; }
         int? PrefixBase { get; }
         double PrefixMultiplyer { get; }
 

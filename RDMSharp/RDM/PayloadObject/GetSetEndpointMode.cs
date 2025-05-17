@@ -19,7 +19,7 @@ namespace RDMSharp
         [DataTreeObjectConstructor]
         public GetSetEndpointMode(
             [DataTreeObjectParameter("endpoint_id")] ushort endpointId = default,
-            [DataTreeObjectParameter("mode")] byte endpointMode = default):
+            [DataTreeObjectParameter("mode")] byte endpointMode = default) :
             this(endpointId, (ERDM_EndpointMode)endpointMode)
         {
         }

@@ -78,7 +78,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         {
             if (!string.Equals(dataTree.Name, this.Name))
                 throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
-            if(dataTree.Value is bool value)
+            if (dataTree.Value is bool value)
             {
                 switch (value)
                 {
@@ -94,7 +94,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         public override DataTree ParseDataToPayload(ref byte[] data)
         {
             List<DataTreeIssue> issueList = new List<DataTreeIssue>();
-            
+
             uint pdl = GetDataLength().Value.Value;
             if (data.Length < pdl)
             {

@@ -21,7 +21,7 @@ namespace RDMSharp.Metadata.JSON.Converter
                 throw new JsonException("Unexpected JSON format for FieldContainer.");
             }
 
-            string type= typeProperty.GetString();
+            string type = typeProperty.GetString();
             switch (type)
             {
                 case "bitField":

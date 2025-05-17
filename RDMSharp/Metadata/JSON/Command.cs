@@ -1,10 +1,9 @@
-﻿using System;
+﻿using RDMSharp.Metadata.JSON.Converter;
+using RDMSharp.RDM;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Text.Json.Serialization;
-using RDMSharp.Metadata.JSON.Converter;
-using RDMSharp.RDM;
 using OneOf = RDMSharp.Metadata.JSON.OneOfTypes.OneOfTypes;
 
 namespace RDMSharp.Metadata.JSON
@@ -58,7 +57,7 @@ namespace RDMSharp.Metadata.JSON
         }
         public PDL GetDataLength()
         {
-            if(GetIsEmpty())
+            if (GetIsEmpty())
                 return new PDL();
             if (SingleField.HasValue)
                 return SingleField.Value.GetDataLength();

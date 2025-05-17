@@ -1,5 +1,5 @@
-﻿using System.Text.Json;
-using System;
+﻿using System;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using OneOf = RDMSharp.Metadata.JSON.OneOfTypes.OneOfTypes;
 

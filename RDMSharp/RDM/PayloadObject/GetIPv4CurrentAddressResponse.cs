@@ -29,7 +29,7 @@ namespace RDMSharp
             [DataTreeObjectParameter("address")] IPv4Address ipAddress,
             [DataTreeObjectParameter("netmask")] byte netmask,
             [DataTreeObjectParameter("dhcp_status")] byte dhcpStatus)
-            :this(interfaceId, ipAddress, netmask, (ERDM_DHCPStatusMode)dhcpStatus)
+            : this(interfaceId, ipAddress, netmask, (ERDM_DHCPStatusMode)dhcpStatus)
         {
         }
 

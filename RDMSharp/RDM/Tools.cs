@@ -1,6 +1,4 @@
-﻿using org.dmxc.wkdt.Light.RDM;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -94,7 +92,7 @@ namespace RDMSharp
             return $"{number}{prefix}{suffix}";
         }
 
-        public static string GetFormatedSensorValue(in int value,in ERDM_UnitPrefix prefix, in ERDM_SensorUnit unit)
+        public static string GetFormatedSensorValue(in int value, in ERDM_UnitPrefix prefix, in ERDM_SensorUnit unit)
         {
             return $"{FormatNumber(prefix.GetNormalizedValue(value))}{unit.GetUnitSymbol()}";
         }
@@ -276,7 +274,7 @@ namespace RDMSharp
 #endif
         }
 
-            public static byte DataToByte(ref byte[] data)
+        public static byte DataToByte(ref byte[] data)
         {
             const int length = 1;
             if (data.Length < length)
@@ -356,7 +354,7 @@ namespace RDMSharp
 
             long result = (long)data[0] << 56 |
                           (long)data[1] << 48 |
-                          (long)data[2] << 40 | 
+                          (long)data[2] << 40 |
                           (long)data[3] << 32 |
                           (long)data[4] << 24 |
                           (long)data[5] << 16 |
@@ -462,7 +460,7 @@ namespace RDMSharp
             }
             return res;
         }
-        
+
         public static bool DataToBool(ref byte[] data)
         {
             const int length = 1;

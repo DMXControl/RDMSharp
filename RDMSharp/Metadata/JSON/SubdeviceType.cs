@@ -1,5 +1,5 @@
-﻿using System.Text.Json.Serialization;
-using RDMSharp.Metadata.JSON.Converter;
+﻿using RDMSharp.Metadata.JSON.Converter;
+using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON
 {

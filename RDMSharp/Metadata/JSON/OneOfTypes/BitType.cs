@@ -1,6 +1,6 @@
-﻿using System;
+﻿using RDMSharp.RDM;
+using System;
 using System.Text.Json.Serialization;
-using RDMSharp.RDM;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
 {
@@ -29,7 +29,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         {
         }
 
-            [JsonPropertyName("name")]
+        [JsonPropertyName("name")]
         [JsonPropertyOrder(1)]
         [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public override string Name { get; }

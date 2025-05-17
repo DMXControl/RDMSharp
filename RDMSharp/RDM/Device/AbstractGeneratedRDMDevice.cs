@@ -355,7 +355,7 @@ namespace RDMSharp
                 return false;
             }
 
-                switch (parameter)
+            switch (parameter)
             {
                 case ERDM_Parameter.DMX_START_ADDRESS:
                 case ERDM_Parameter.DEVICE_LABEL:
@@ -558,7 +558,7 @@ namespace RDMSharp
                     if (parameterValues.TryGetValue(rdmMessage.Parameter, out object comparisonValue) && parameterValues.TryUpdate(rdmMessage.Parameter, rdmMessage.Value, comparisonValue))
                     {
                         success = true;
-                        var responseValue= rdmMessage.Value;
+                        var responseValue = rdmMessage.Value;
 
                         try
                         {
