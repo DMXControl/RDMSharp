@@ -15,7 +15,7 @@ namespace RDMSharp
         internal static RDMDeviceModel getDeviceModel(UID uid, SubDevice subDevice, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
         {
             knownDeviceModels ??= new ConcurrentDictionary<int, RDMDeviceModel>();
-            var kdm = knownDeviceModels.Values.FirstOrDefault(dm => dm.IsModelOf(uid, deviceInfo));
+            var kdm = knownDeviceModels.Values.FirstOrDefault(dm => dm.IsModelOf(uid, subDevice, deviceInfo));
             if (kdm == null)
             {
                 kdm = new RDMDeviceModel(uid, subDevice, deviceInfo, sendRdmFunktion);
@@ -29,7 +29,7 @@ namespace RDMSharp
 
         private ConcurrentDictionary<byte, RDMPersonalityModel> knownPersonalityModels = new ConcurrentDictionary<byte, RDMPersonalityModel>();
         public IReadOnlyCollection<RDMPersonalityModel> KnownPersonalityModels => knownPersonalityModels.Values.ToList();
-        internal async Task<RDMPersonalityModel> getPersonalityModel(AbstractRemoteRDMDevice remoteRDMDevice)
+        internal async Task<RDMPersonalityModel> getPersonalityModel(IRDMRemoteDevice remoteRDMDevice)
         {
             try
             {
@@ -52,10 +52,11 @@ namespace RDMSharp
                         );
                     if (knownPersonalityModels.TryAdd(kpm.PersonalityID, kpm))
                     {
+                        AbstractRDMCache abstractRDMCache = remoteRDMDevice as AbstractRDMCache;
                         currentUsedUID = remoteRDMDevice.UID;
                         currentUsedSubDevice = remoteRDMDevice.Subdevice;
                         DeviceInfo = remoteRDMDevice.DeviceInfo;
-                        var di = remoteRDMDevice.parameterValuesDataTreeBranch.FirstOrDefault(d => d.Key.Parameter == ERDM_Parameter.DEVICE_INFO);
+                        var di = abstractRDMCache.parameterValuesDataTreeBranch.FirstOrDefault(d => d.Key.Parameter == ERDM_Parameter.DEVICE_INFO);
                         updateParameterValuesDependeciePropertyBag(ERDM_Parameter.DEVICE_INFO, di.Value);
                         await requestPersonalityBlueprintParameters(kpm);
                     }
@@ -275,10 +276,12 @@ namespace RDMSharp
             asyncRDMRequestHelper?.ReceiveMessage(rdmMessage);
         }
 
-        public bool IsModelOf(UID uid, RDMDeviceInfo other)
+        public bool IsModelOf(UID uid, SubDevice subDevice, RDMDeviceInfo other)
         {
             var deviceInfo = this.DeviceInfo;
             if (this.ManufacturerID != uid.ManufacturerID)
+                return false;
+            if (this.CurrentUsedSubDevice != subDevice)
                 return false;
             if (deviceInfo.DeviceModelId != other.DeviceModelId)
                 return false;

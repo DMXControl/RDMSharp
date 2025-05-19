@@ -48,7 +48,7 @@ namespace RDMSharp
                 return true;
             }
             //None Queued Parameters
-            var obj = buffer.Where(b => b.Value.Item1.Parameter != ERDM_Parameter.QUEUED_MESSAGE).FirstOrDefault(b => b.Value.Item2 == null && rdmMessage.Parameter == b.Value.Item1.Parameter && rdmMessage.TransactionCounter == b.Value.Item1.TransactionCounter && b.Value.Item1.DestUID == rdmMessage.SourceUID && b.Value.Item1.SourceUID == rdmMessage.DestUID);
+            var obj = buffer.Where(b => b.Value.Item1.Parameter != ERDM_Parameter.QUEUED_MESSAGE).FirstOrDefault(b => b.Value.Item2 == null && checkNonQueued(b.Value.Item1, rdmMessage));
             if (obj.Value != null)
             {
                 var tuple = new Tuple<RDMMessage, RDMMessage>(obj.Value.Item1, rdmMessage);
@@ -64,6 +64,22 @@ namespace RDMSharp
                 return true;
             }
             return false;
+
+            bool checkNonQueued(RDMMessage request, RDMMessage response)
+            {
+                if (request.Parameter != response.Parameter)
+                    return false;
+                if (request.TransactionCounter != response.TransactionCounter)
+                    return false;
+                if (request.SubDevice != response.SubDevice)
+                    return false;
+                if (request.SourceUID != response.DestUID)
+                    return false;
+                if (request.DestUID != response.SourceUID)
+                    return false;
+
+                return true;
+            }
         }
 
 
@@ -72,6 +88,11 @@ namespace RDMSharp
             try
             {
                 int key = random.Next();
+                if (requerst.SubDevice.IsBroadcast)
+                {
+                    await _sendMethode.Invoke(requerst);
+                    return new RequestResult(requerst, null); // Broadcasts are not expected to return a response.
+                }
                 buffer.TryAdd(key, new Tuple<RDMMessage, RDMMessage>(requerst, null));
                 RDMMessage response = null;
                 await _sendMethode.Invoke(requerst);

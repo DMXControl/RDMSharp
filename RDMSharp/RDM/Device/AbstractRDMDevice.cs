@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace RDMSharp
@@ -29,15 +30,12 @@ namespace RDMSharp
 
         public new bool IsDisposing { get; private set; }
         public new bool IsDisposed { get; private set; }
-        public bool IsInitializing { get; private set; }
         public bool IsInitialized { get; private set; }
         public abstract bool IsGenerated { get; }
 
 
         protected AbstractRDMDevice(UID uid, SubDevice? subDevice = null, IRDMDevice[] subDevices = null)
         {
-            this.IsInitializing = true;
-
             this.uid = uid;
             this.subdevice = subDevice ?? SubDevice.Root;
             if (subDevices != null && !this.Subdevice.IsRoot)
@@ -46,10 +44,6 @@ namespace RDMSharp
             if (this.Subdevice.IsBroadcast)
                 throw new NotSupportedException($"A SubDevice cannot be Broadcast.");
 
-            asyncRDMRequestHelper = new AsyncRDMRequestHelper(sendRDMRequestMessage);
-            initialize();
-            this.IsInitialized = true;
-            this.IsInitializing = false;
 
             if (this.Subdevice == SubDevice.Root)
             {
@@ -61,11 +55,32 @@ namespace RDMSharp
 
                 if (this.subDevices.Distinct().Count() != this.subDevices.Count)
                     throw new InvalidOperationException($"The SubDevices of {this.UID} are not unique.");
+
+                performInitialize();
             }
         }
-
-        protected virtual void initialize()
+        protected void performInitialize(RDMDeviceInfo deviceInfo=null)
         {
+            if (this.IsInitialized)
+                return;
+
+            if (this.Subdevice.IsRoot)
+                asyncRDMRequestHelper = new AsyncRDMRequestHelper(sendRDMRequestMessage);
+
+            initialize(deviceInfo);
+            this.IsInitialized = true;
+        }
+
+        protected virtual void initialize(RDMDeviceInfo deviceInfo = null)
+        {
+            if (this.Subdevice.IsRoot)
+                foreach (AbstractRDMDevice sd in this.subDevices)
+                {
+                    if (sd.Subdevice.IsRoot)
+                        continue;
+                    sd.asyncRDMRequestHelper = this.asyncRDMRequestHelper;
+                    sd.performInitialize();
+                }
         }
 
 
@@ -79,11 +94,32 @@ namespace RDMSharp
 
         protected async Task ReceiveRDMMessage(RDMMessage rdmMessage)
         {
+            if (!this.Subdevice.IsRoot && !rdmMessage.SubDevice.IsBroadcast)
+                return;
+
             if (this.IsDisposed || IsDisposing)
                 return;
             try
             {
-                await OnReceiveRDMMessage(rdmMessage);
+                if (rdmMessage.SubDevice.IsBroadcast)
+                {
+                    List<Task> tasks = new List<Task>();
+                    foreach (var sd in this.subDevices)
+                        tasks.Add(OnReceiveRDMMessage(rdmMessage));
+                    await Task.WhenAll(tasks);
+                    return;
+                }
+                AbstractRDMDevice sds = null;
+                if (rdmMessage.SubDevice.IsRoot)
+                    sds = this;
+                else
+                    sds = this.subDevices?.OfType<AbstractRDMDevice>().FirstOrDefault(sd => sd.Subdevice == rdmMessage.SubDevice);
+
+                if (sds != null)
+                    await sds.OnReceiveRDMMessage(rdmMessage);
+                else
+                    this.asyncRDMRequestHelper.ReceiveMessage(rdmMessage);
+
             }
             catch (Exception e)
             {

@@ -60,18 +60,13 @@ namespace RDMSharpTests.Devices.Mock
             if (rdmMessage == null)
                 return;
             registerEvent();
-            rdmMessage.TransactionCounter = getTransactionCounter();
+            
             var i = SendReceivePipeline.GetNewIdentifyer();
             identifyer.TryAdd(i, rdmMessage);
             if (ImitateRealConditions)
                 await SendReceivePipelineImitateRealConditions.RDMMessageSend(rdmMessage);
             else
                 SendReceivePipeline.RDMMessageSend(i, rdmMessage);
-        }
-        private byte getTransactionCounter()
-        {
-            transactionCounter++;
-            return transactionCounter;
         }
         protected sealed override void onDispose()
         {

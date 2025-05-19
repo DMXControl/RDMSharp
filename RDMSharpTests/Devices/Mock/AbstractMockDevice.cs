@@ -18,7 +18,7 @@ namespace RDMSharpTests.Devices.Mock
                 registerEvent();
             }
         }
-        public AbstractMockDevice(UID uid, bool _imitateRealConditions = false) : base(uid)
+        public AbstractMockDevice(UID uid, SubDevice? subDevice = null, bool _imitateRealConditions = false) : base(uid, subDevice)
         {
             ImitateRealConditions = _imitateRealConditions;
             registerEvent();
@@ -89,5 +89,16 @@ namespace RDMSharpTests.Devices.Mock
             ImitateRealConditions = false;
         }
         protected abstract void OnDispose();
+    }
+
+    internal abstract class AbstractMockSubDevice : AbstractMockDevice, IRDMRemoteSubDevice
+    {
+        protected AbstractMockSubDevice(UID uid, SubDevice subDevice, bool _imitateRealConditions = false) : base(uid, subDevice, _imitateRealConditions)
+        {
+        }
+        protected sealed override AbstractMockSubDevice createSubDevice(UID uid, SubDevice subDevice)
+        {
+            throw new NotSupportedException();
+        }
     }
 }

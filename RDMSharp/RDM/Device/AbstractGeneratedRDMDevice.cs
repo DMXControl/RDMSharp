@@ -530,7 +530,7 @@ namespace RDMSharp
                     }
                 }
 
-                if (rdmMessage.SubDevice != SubDevice.Broadcast && !this.SubDevices.Any(sd => sd.Subdevice == rdmMessage.SubDevice))
+                if (rdmMessage.SubDevice != SubDevice.Broadcast && !(this.SubDevices?.Any(sd => sd.Subdevice == rdmMessage.SubDevice) ?? true))
                 {
                     response = new RDMMessage(ERDM_NackReason.SUB_DEVICE_OUT_OF_RANGE) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
                     goto FAIL;
@@ -538,7 +538,10 @@ namespace RDMSharp
                 if (rdmMessage.Command == ERDM_Command.GET_COMMAND)
                 {
                     if (rdmMessage.SubDevice == SubDevice.Broadcast) // no Response on Broadcast Subdevice, because this cant work on a if there are more then one Device responding on a singel line.
-                        return null;
+                    {
+                        response = new RDMMessage(ERDM_NackReason.SUB_DEVICE_OUT_OF_RANGE) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
+                        goto FAIL;
+                    }
                     
                     parameterValues.TryGetValue(rdmMessage.Parameter, out object responseValue);
                     try
@@ -621,6 +624,7 @@ namespace RDMSharp
             response.TransactionCounter = rdmMessage.TransactionCounter;
             response.SourceUID = rdmMessage.DestUID;
             response.DestUID = rdmMessage.SourceUID;
+            response.SubDevice = rdmMessage.SubDevice;
             return response;
         }
         public sealed override IReadOnlyDictionary<ERDM_Parameter, object> GetAllParameterValues()
