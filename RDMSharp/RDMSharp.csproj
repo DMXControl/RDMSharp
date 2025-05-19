@@ -1,6 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+		<TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<Version>0.0.13</Version>
 		<RepositoryUrl>https://github.com/DMXControl/RDMSharp</RepositoryUrl>
@@ -33,7 +33,7 @@
 	<ItemGroup>
 	  <PackageReference Include="DMXControlProjects.WellKnownDataTypes" Version="0.0.4" />
 	  <PackageReference Include="JsonSchema.Net" Version="7.2.3" />
-	  <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.4" />
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Resources\JSON-Defines\**\*.*" />
