@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RDMSharp
@@ -21,7 +22,10 @@ namespace RDMSharp
         public abstract RDMDeviceInfo DeviceInfo { get; }
         public abstract IReadOnlyDictionary<byte, Sensor> Sensors { get; }
         public abstract IReadOnlyDictionary<ushort, Slot> Slots { get; }
-        public abstract IReadOnlyCollection<IRDMDevice> SubDevices { get; }
+
+        private List<IRDMDevice> subDevices;
+        protected IList<IRDMDevice> SubDevices_Internal { get => subDevices; }
+        public IReadOnlyCollection<IRDMDevice> SubDevices => SubDevices_Internal?.AsReadOnly();
 
         public new bool IsDisposing { get; private set; }
         public new bool IsDisposed { get; private set; }
@@ -29,21 +33,35 @@ namespace RDMSharp
         public bool IsInitialized { get; private set; }
         public abstract bool IsGenerated { get; }
 
-        protected AbstractRDMDevice(UID uid) : this(uid, SubDevice.Root)
-        {
-        }
 
-        protected AbstractRDMDevice(UID uid, SubDevice subDevice)
+        protected AbstractRDMDevice(UID uid, SubDevice? subDevice = null, IRDMDevice[] subDevices = null)
         {
             this.IsInitializing = true;
 
             this.uid = uid;
-            this.subdevice = subDevice;
+            this.subdevice = subDevice ?? SubDevice.Root;
+            if (subDevices != null && !this.Subdevice.IsRoot)
+                throw new NotSupportedException($"A SubDevice {this.Subdevice} cannot have SubDevices.");
+
+            if (this.Subdevice.IsBroadcast)
+                throw new NotSupportedException($"A SubDevice cannot be Broadcast.");
 
             asyncRDMRequestHelper = new AsyncRDMRequestHelper(sendRDMRequestMessage);
             initialize();
             this.IsInitialized = true;
             this.IsInitializing = false;
+
+            if (this.Subdevice == SubDevice.Root)
+            {
+                this.subDevices = new List<IRDMDevice>();
+                this.subDevices.Add(this);
+
+                if (subDevices != null)
+                    this.subDevices.AddRange(subDevices);
+
+                if (this.subDevices.Distinct().Count() != this.subDevices.Count)
+                    throw new InvalidOperationException($"The SubDevices of {this.UID} are not unique.");
+            }
         }
 
         protected virtual void initialize()
@@ -69,7 +87,7 @@ namespace RDMSharp
             }
             catch (Exception e)
             {
-                Logger.LogError(e, string.Empty);
+                Logger?.LogError(e, string.Empty);
             }
         }
         protected abstract Task OnReceiveRDMMessage(RDMMessage rdmMessage);
@@ -109,6 +127,8 @@ namespace RDMSharp
 
         public override string ToString()
         {
+            if (!this.Subdevice.IsRoot)
+                return $"[{UID}] ({this.Subdevice})";
             return $"[{UID}]";
         }
     }

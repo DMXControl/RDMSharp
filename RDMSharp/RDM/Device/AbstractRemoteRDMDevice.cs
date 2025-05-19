@@ -19,10 +19,6 @@ namespace RDMSharp
         private RDMDeviceInfo deviceInfo;
         public override RDMDeviceInfo DeviceInfo { get { return deviceInfo; } }
 
-        private List<IRDMDevice> subDevices = new List<IRDMDevice>();
-        public sealed override IReadOnlyCollection<IRDMDevice> SubDevices { get { return subDevices.AsReadOnly(); } }
-
-
         private RDMDeviceModel deviceModel;
         public RDMDeviceModel DeviceModel
         {

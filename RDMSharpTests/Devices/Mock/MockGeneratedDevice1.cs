@@ -44,7 +44,7 @@
             new MockSensorVolt3_3(3, 331),
             new MockSensorVolt5(4, 498) };
         public override GeneratedPersonality[] Personalities => PERSONALITYS;
-        public MockGeneratedDevice1(UID uid) : base(uid, new ERDM_Parameter[] { ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL }, "Dummy Manufacturer 9FFF", SENSORS)
+        public MockGeneratedDevice1(UID uid) : base(uid, SubDevice.Root, new ERDM_Parameter[] { ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL }, "Dummy Manufacturer 9FFF", SENSORS)
         {
             this.DeviceLabel = "Dummy Device 1";
             this.trySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, false);
