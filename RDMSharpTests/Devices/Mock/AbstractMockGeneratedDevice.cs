@@ -18,7 +18,11 @@ namespace RDMSharpTests.Devices.Mock
                 registerEvent();
             }
         }
-        public AbstractMockGeneratedDevice(UID uid, ERDM_Parameter[] parameters, string manufacturer, Sensor[] sensors = null) : base(uid, parameters, manufacturer, sensors: sensors)
+        public AbstractMockGeneratedDevice(UID uid, ERDM_Parameter[] parameters, string manufacturer, Sensor[] sensors = null, IRDMDevice[] subDevices = null) : base(uid, parameters, manufacturer, sensors: sensors, subDevices: subDevices)
+        {
+            registerEvent();
+        }
+        public AbstractMockGeneratedDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, string manufacturer, Sensor[] sensors = null) : base(uid, subDevice, parameters, manufacturer, sensors: sensors)
         {
             registerEvent();
         }
@@ -56,18 +60,13 @@ namespace RDMSharpTests.Devices.Mock
             if (rdmMessage == null)
                 return;
             registerEvent();
-            rdmMessage.TransactionCounter = getTransactionCounter();
+            
             var i = SendReceivePipeline.GetNewIdentifyer();
             identifyer.TryAdd(i, rdmMessage);
             if (ImitateRealConditions)
                 await SendReceivePipelineImitateRealConditions.RDMMessageSend(rdmMessage);
             else
                 SendReceivePipeline.RDMMessageSend(i, rdmMessage);
-        }
-        private byte getTransactionCounter()
-        {
-            transactionCounter++;
-            return transactionCounter;
         }
         protected sealed override void onDispose()
         {

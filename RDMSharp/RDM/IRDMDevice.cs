@@ -18,7 +18,6 @@ namespace RDMSharp
         bool IsDisposing { get; }
         bool IsDisposed { get; }
 
-        bool IsInitializing { get; }
         bool IsInitialized { get; }
         bool IsGenerated { get; }
     }

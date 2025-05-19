@@ -14,6 +14,6 @@ namespace RDMSharp
 
         bool IsDisposing { get; }
         bool IsDisposed { get; }
-        bool IsModelOf(UID uid, RDMDeviceInfo other);
+        bool IsModelOf(UID uid, SubDevice subDevice, RDMDeviceInfo other);
     }
 }

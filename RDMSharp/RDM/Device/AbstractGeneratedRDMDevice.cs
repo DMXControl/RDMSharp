@@ -28,10 +28,6 @@ namespace RDMSharp
         public sealed override IReadOnlyDictionary<ushort, Slot> Slots { get { return CurrentPersonality.HasValue ? Personalities[CurrentPersonality.Value].Slots : null; } }
 
 
-        private List<IRDMDevice> subDevices = new List<IRDMDevice>();
-        public sealed override IReadOnlyCollection<IRDMDevice> SubDevices { get { return subDevices.AsReadOnly(); } }
-
-
         public abstract bool SupportDMXAddress { get; }
 
         private RDMDeviceInfo deviceInfo;
@@ -131,7 +127,14 @@ namespace RDMSharp
             }
         }
 
-        protected AbstractGeneratedRDMDevice(UID uid, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null) : base(uid)
+
+        protected AbstractGeneratedRDMDevice(UID uid, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null, IRDMDevice[] subDevices = null) : this(uid, SubDevice.Root, parameters, manufacturer, sensors, subDevices)
+        {
+        }
+        protected AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null) : this(uid, subDevice, parameters, manufacturer, sensors, null)
+        {
+        }
+        private AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null, IRDMDevice[] subDevices = null) : base(uid, subDevice, subDevices)
         {
             if (!((ushort)ManufacturerID).Equals(uid.ManufacturerID))
                 throw new Exception($"{uid.ManufacturerID} not match the {ManufacturerID}");
@@ -156,7 +159,7 @@ namespace RDMSharp
                 _params.Add(ERDM_Parameter.SLOT_DESCRIPTION);
                 _params.Add(ERDM_Parameter.DEFAULT_SLOT_VALUE);
             }
-            if ((Sensors?.Keys.Max() ?? 0) != 0)
+            if ((Sensors?.Count ?? 0) != 0)
             {
                 _params.Add(ERDM_Parameter.SENSOR_DEFINITION);
                 _params.Add(ERDM_Parameter.SENSOR_VALUE);
@@ -288,6 +291,7 @@ namespace RDMSharp
                                            dmx512CurrentPersonality: currentPersonality,
                                            dmx512NumberOfPersonalities: (byte)(Personalities?.Length ?? 0),
                                            dmx512StartAddress: dmxAddress,
+                                           subDeviceCount: (ushort)(SubDevices?.Where(sd=>!sd.Subdevice.IsRoot).Count() ?? 0),
                                            sensorCount: (byte)(Sensors?.Count ?? 0));
             updateDeviceInfo(info);
         }
@@ -475,8 +479,8 @@ namespace RDMSharp
         {
             if ((rdmMessage.DestUID.IsBroadcast || rdmMessage.DestUID == UID) && !rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
             {
-                await SendRDMMessage(processRequestMessage(rdmMessage));
-                return;
+                if (rdmMessage.SubDevice.IsBroadcast || rdmMessage.SubDevice == this.Subdevice)
+                    await SendRDMMessage(processRequestMessage(rdmMessage));
             }
         }
 
@@ -525,8 +529,20 @@ namespace RDMSharp
                             return null;
                     }
                 }
+
+                if (rdmMessage.SubDevice != SubDevice.Broadcast && !(this.SubDevices?.Any(sd => sd.Subdevice == rdmMessage.SubDevice) ?? true))
+                {
+                    response = new RDMMessage(ERDM_NackReason.SUB_DEVICE_OUT_OF_RANGE) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
+                    goto FAIL;
+                }
                 if (rdmMessage.Command == ERDM_Command.GET_COMMAND)
                 {
+                    if (rdmMessage.SubDevice == SubDevice.Broadcast) // no Response on Broadcast Subdevice, because this cant work on a if there are more then one Device responding on a singel line.
+                    {
+                        response = new RDMMessage(ERDM_NackReason.SUB_DEVICE_OUT_OF_RANGE) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
+                        goto FAIL;
+                    }
+                    
                     parameterValues.TryGetValue(rdmMessage.Parameter, out object responseValue);
                     try
                     {
@@ -598,7 +614,8 @@ namespace RDMSharp
                 Logger?.LogError(e, string.Empty);
             }
         FAIL:
-
+            if (rdmMessage.SubDevice == SubDevice.Broadcast) // no Response on Broadcast Subdevice, because this cant work on a if there are more then one Device responding on a singel line.
+                return null;
             if (rdmMessage.DestUID.IsBroadcast) // no Response on Broadcast
                 return null;
 
@@ -607,6 +624,7 @@ namespace RDMSharp
             response.TransactionCounter = rdmMessage.TransactionCounter;
             response.SourceUID = rdmMessage.DestUID;
             response.DestUID = rdmMessage.SourceUID;
+            response.SubDevice = rdmMessage.SubDevice;
             return response;
         }
         public sealed override IReadOnlyDictionary<ERDM_Parameter, object> GetAllParameterValues()

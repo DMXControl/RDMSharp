@@ -8,7 +8,17 @@ using System.Threading.Tasks;
 
 namespace RDMSharp
 {
-    public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice
+    public interface IRDMRemoteDevice: IRDMDevice
+    {
+        bool AllDataPulled { get; }
+        bool Present { get; }
+        DateTime LastSeen { get; }
+        Task<bool> SetParameter(ERDM_Parameter parameter, object value = null);
+    }
+    public interface IRDMRemoteSubDevice : IRDMRemoteDevice
+    {
+    }
+    public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice , IRDMRemoteDevice
     {
         public sealed override bool IsGenerated => false;
 
@@ -18,10 +28,6 @@ namespace RDMSharp
 
         private RDMDeviceInfo deviceInfo;
         public override RDMDeviceInfo DeviceInfo { get { return deviceInfo; } }
-
-        private List<IRDMDevice> subDevices = new List<IRDMDevice>();
-        public sealed override IReadOnlyCollection<IRDMDevice> SubDevices { get { return subDevices.AsReadOnly(); } }
-
 
         private RDMDeviceModel deviceModel;
         public RDMDeviceModel DeviceModel
@@ -109,30 +115,85 @@ namespace RDMSharp
         public AbstractRemoteRDMDevice(UID uid) : base(uid)
         {
         }
-        protected override async void initialize()
+        public AbstractRemoteRDMDevice(UID uid, SubDevice? subDevice = null) : base(uid, subDevice)
         {
+            if (subDevice.HasValue && subDevice.Value.IsBroadcast)
+                throw new NotSupportedException("A SubDevice cannot be Broadcast.");
+        }
+        protected override async void initialize(RDMDeviceInfo deviceInfo = null)
+        {
+            base.initialize(deviceInfo);
             ParameterValueAdded += AbstractRDMDevice_ParameterValueAdded;
             ParameterValueChanged += AbstractRDMDevice_ParameterValueChanged;
-            await requestDeviceInfo();
+            await requestDeviceInfo(deviceInfo);
         }
 
         private async void DeviceModel_Initialized(object sender, EventArgs e)
         {
             deviceModel.Initialized -= DeviceModel_Initialized;
-            await collectAllParameters();
+            await collectAllParametersOnRoot();
+            await scanSubDevices();
         }
+
+        private async Task scanSubDevices()
+        {
+            if (DeviceInfo.SubDeviceCount == 0)
+                return;
+
+            ushort foundSubDevices = 0;
+            ushort currentID = 0;
+            var dict = new Dictionary<SubDevice, RDMDeviceInfo>();
+            while (foundSubDevices < DeviceInfo.SubDeviceCount)
+            {
+                currentID++;
+                if (currentID > 512)
+                    break;
+
+                PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, UID, new SubDevice(currentID), new ParameterBag(ERDM_Parameter.DEVICE_INFO));
+                await runPeerToPeerProcess(ptpProcess);
+                if (ptpProcess.ResponsePayloadObject.ParsedObject is RDMDeviceInfo _deviceInfo)
+                {
+                    foundSubDevices++;
+                    var subDevice = createSubDevice(UID, ptpProcess.SubDevice);
+                    this.SubDevices_Internal.Add(subDevice);
+                    dict.Add(ptpProcess.SubDevice, _deviceInfo);
+                }
+            }
+            foreach (AbstractRemoteRDMDevice sd in this.SubDevices_Internal)
+            {
+                if (sd.Subdevice.IsRoot)
+                    continue;
+                sd.asyncRDMRequestHelper = this.asyncRDMRequestHelper;
+                sd.performInitialize(dict[sd.Subdevice]);
+            }
+        }
+
+        protected abstract IRDMRemoteSubDevice createSubDevice(UID uid, SubDevice subDevice);
 
         #region Requests
 
-        private async Task requestDeviceInfo()
+        private async Task requestDeviceInfo(RDMDeviceInfo deviceInfo = null)
         {
-            PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, UID, Subdevice, new ParameterBag(ERDM_Parameter.DEVICE_INFO));
-            await runPeerToPeerProcess(ptpProcess);
-            if (ptpProcess.ResponsePayloadObject.ParsedObject is RDMDeviceInfo _deviceInfo)
+            DataTreeBranch? rpl = null;
+            if (deviceInfo == null)
             {
-                deviceInfo = _deviceInfo;
-                updateParameterValuesDependeciePropertyBag(ERDM_Parameter.DEVICE_INFO, ptpProcess.ResponsePayloadObject);
-                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ERDM_Parameter.DEVICE_INFO), ptpProcess.ResponsePayloadObject);
+                PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, UID, Subdevice, new ParameterBag(ERDM_Parameter.DEVICE_INFO));
+                await runPeerToPeerProcess(ptpProcess);
+                rpl= ptpProcess.ResponsePayloadObject;
+                if (rpl.Value.ParsedObject is RDMDeviceInfo _deviceInfo)
+                {
+                    this.deviceInfo = _deviceInfo;
+                    updateParameterValuesDependeciePropertyBag(ERDM_Parameter.DEVICE_INFO, ptpProcess.ResponsePayloadObject);
+                    updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ERDM_Parameter.DEVICE_INFO), ptpProcess.ResponsePayloadObject);
+                    await getDeviceModelAndCollectAllParameters();
+                }
+            }
+            else
+            {
+                rpl = DataTreeBranch.FromObject(deviceInfo, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DEVICE_INFO);
+                this.deviceInfo = deviceInfo;
+                updateParameterValuesDependeciePropertyBag(ERDM_Parameter.DEVICE_INFO, rpl.Value);
+                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ERDM_Parameter.DEVICE_INFO), rpl.Value);
                 await getDeviceModelAndCollectAllParameters();
             }
         }
@@ -174,9 +235,15 @@ namespace RDMSharp
                 await deviceModel.Initialize();
             }
             else
-                await collectAllParameters();
+                await collectAllParametersOnRoot();
         }
-        private async Task collectAllParameters()
+        private async Task collectAllParametersOnRoot()
+        {
+            await requestParameters();
+            AllDataPulled = true;
+        }
+
+        private async Task collectAllParametersOnSubDevices()
         {
             await requestParameters();
             AllDataPulled = true;
@@ -255,13 +322,13 @@ namespace RDMSharp
             {
                 Logger?.LogError(e, string.Empty);
             }
-
+            
             if (rdmMessage.SourceUID != UID || !rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
                 return;
 
             LastSeen = DateTime.UtcNow;
 
-            if (asyncRDMRequestHelper.ReceiveMessage(rdmMessage))
+            if (asyncRDMRequestHelper?.ReceiveMessage(rdmMessage) ?? false)
                 return;
 
             if ((rdmMessage.NackReason?.Length ?? 0) != 0)
@@ -284,7 +351,7 @@ namespace RDMSharp
 
         public override string ToString()
         {
-            return $"[{UID}] {this.DeviceModel}";
+            return $"{base.ToString()} {this.DeviceModel}";
         }
         protected sealed override void OnDispose()
         {

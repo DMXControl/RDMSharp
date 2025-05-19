@@ -189,12 +189,19 @@ namespace RDMSharp
 
         protected async Task requestGetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
         {
-            PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag);
-            await runPeerToPeerProcess(ptpProcess);
-            if (!ptpProcess.ResponsePayloadObject.IsUnset)
+            try
             {
-                updateParameterValuesDependeciePropertyBag(parameterBag.PID, ptpProcess.ResponsePayloadObject);
-                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(parameterBag.PID), ptpProcess.ResponsePayloadObject);
+                PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag);
+                await runPeerToPeerProcess(ptpProcess);
+                if (!ptpProcess.ResponsePayloadObject.IsUnset)
+                {
+                    updateParameterValuesDependeciePropertyBag(parameterBag.PID, ptpProcess.ResponsePayloadObject);
+                    updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(parameterBag.PID), ptpProcess.ResponsePayloadObject);
+                }
+            }
+            catch(Exception e)
+            {
+
             }
         }
         protected async Task requestGetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
