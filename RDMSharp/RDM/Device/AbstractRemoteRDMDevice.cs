@@ -322,9 +322,7 @@ namespace RDMSharp
             {
                 Logger?.LogError(e, string.Empty);
             }
-            if (!this.Subdevice.IsRoot)
-                return;
-
+            
             if (rdmMessage.SourceUID != UID || !rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
                 return;
 

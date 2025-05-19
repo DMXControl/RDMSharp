@@ -159,7 +159,7 @@ namespace RDMSharp
                 _params.Add(ERDM_Parameter.SLOT_DESCRIPTION);
                 _params.Add(ERDM_Parameter.DEFAULT_SLOT_VALUE);
             }
-            if ((Sensors?.Keys.Max() ?? 0) != 0)
+            if ((Sensors?.Count ?? 0) != 0)
             {
                 _params.Add(ERDM_Parameter.SENSOR_DEFINITION);
                 _params.Add(ERDM_Parameter.SENSOR_VALUE);
