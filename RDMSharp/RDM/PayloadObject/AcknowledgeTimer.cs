@@ -30,7 +30,7 @@ namespace RDMSharp
 
         public static AcknowledgeTimer FromMessage(RDMMessage msg)
         {
-            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, [], PDL);
+            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, new ERDM_Parameter[0], PDL);
             if (msg.ResponseType != ERDM_ResponseType.ACK_TIMER) throw new Exception($"ResponseType is not {ERDM_ResponseType.ACK_TIMER}");
 
             return FromPayloadData(msg.ParameterData);
