@@ -1,19 +1,23 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.DIMMER_INFO, Command.ECommandDublicte.GetResponse)]
     public class RDMDimmerInfo : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public RDMDimmerInfo(
-            ushort minimumLevelLowerLimit = 0xFFFF,
-            ushort minimumLevelUpperLimit = 0xFFFF,
-            ushort maximumLevelLowerLimit = 0xFFFF,
-            ushort maximumLevelUpperLimit = 0xFFFF,
-            byte numberOfSupportedCurves = 0,
-            byte levelsResolution = 1,
-            bool minimumLevelSplitLevelsSupported = false)
+            [DataTreeObjectParameter("min_level_lower_limit")] ushort minimumLevelLowerLimit = 0xFFFF,
+            [DataTreeObjectParameter("min_level_upper_limit")] ushort minimumLevelUpperLimit = 0xFFFF,
+            [DataTreeObjectParameter("max_level_lower_limit")] ushort maximumLevelLowerLimit = 0xFFFF,
+            [DataTreeObjectParameter("max_level_upper_limit")] ushort maximumLevelUpperLimit = 0xFFFF,
+            [DataTreeObjectParameter("curve_count")] byte numberOfSupportedCurves = 0,
+            [DataTreeObjectParameter("levels_resolution_bits")] byte levelsResolution = 1,
+            [DataTreeObjectParameter("min_level_split_levels_supported")] bool minimumLevelSplitLevelsSupported = false)
         {
             if (levelsResolution < 0x01 || levelsResolution > 0x10)
                 throw new ArgumentOutOfRangeException($"{nameof(levelsResolution)} shold be a value between 1 and 31 but is {levelsResolution}");

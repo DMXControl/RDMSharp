@@ -1,0 +1,23 @@
+{
+  "name": "IDENTIFY_TIMEOUT",
+  "notes": "E1.37-5",
+  "manufacturer_id": 0,
+  "pid": 4176,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "timeout",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": 0,
+      "labels": [
+        { "name": "Disabled", "value": 0 }
+      ]
+    }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": "get_response",
+  "set_response": []
+}

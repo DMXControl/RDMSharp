@@ -1,12 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.ENDPOINT_TO_UNIVERSE, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.ENDPOINT_TO_UNIVERSE, Command.ECommandDublicte.SetRequest)]
     public class GetSetEndpointToUniverse : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public GetSetEndpointToUniverse(
-            ushort endpointId = default,
-            ushort universe = default)
+            [DataTreeObjectParameter("endpoint_id")] ushort endpointId = default,
+            [DataTreeObjectParameter("universe")] ushort universe = default)
         {
             this.EndpointId = endpointId;
             this.Universe = universe;

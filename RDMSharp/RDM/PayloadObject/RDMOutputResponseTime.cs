@@ -1,13 +1,17 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.OUTPUT_RESPONSE_TIME, Command.ECommandDublicte.GetResponse)]
     public class RDMOutputResponseTime : AbstractRDMPayloadObjectOneOf
     {
+        [DataTreeObjectConstructor]
         public RDMOutputResponseTime(
-            byte currentResponseTimeId = 1,
-            byte responseTimes = 0)
+            [DataTreeObjectParameter("setting")] byte currentResponseTimeId = 1,
+            [DataTreeObjectParameter("setting_count")] byte responseTimes = 0)
         {
             this.CurrentResponseTimeId = currentResponseTimeId;
             this.ResponseTimes = responseTimes;

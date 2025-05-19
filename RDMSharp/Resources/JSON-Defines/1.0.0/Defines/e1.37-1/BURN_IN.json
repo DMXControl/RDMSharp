@@ -1,0 +1,23 @@
+{
+  "name": "BURN_IN",
+  "notes": "E1.37-1",
+  "manufacturer_id": 0,
+  "pid": 1088,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    { "name": "hours_remaining", "type": "uint8" }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": [
+    {
+      "name": "hours",
+      "type": "uint8",
+      "labels": [
+        { "name": "Abort", "value": 0 }
+      ]
+    }
+  ],
+  "set_response": []
+}

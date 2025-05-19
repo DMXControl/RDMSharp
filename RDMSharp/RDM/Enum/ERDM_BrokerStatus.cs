@@ -1,5 +1,9 @@
-﻿namespace RDMSharp
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+
+namespace RDMSharp
 {
+    [DataTreeEnum(ERDM_Parameter.BROKER_STATUS, Command.ECommandDublicte.SetRequest, "")]
     public enum ERDM_BrokerStatus : byte
     {
         DISABLED = 0x00,

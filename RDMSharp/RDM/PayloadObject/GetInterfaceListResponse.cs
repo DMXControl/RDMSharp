@@ -1,13 +1,17 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.LIST_INTERFACES, Command.ECommandDublicte.GetResponse, true, "interfaces")]
     public class GetInterfaceListResponse : AbstractRDMPayloadObject
     {
-        public GetInterfaceListResponse(params InterfaceDescriptor[] interfaces)
+        [DataTreeObjectConstructor]
+        public GetInterfaceListResponse([DataTreeObjectParameter("interfaces")] params InterfaceDescriptor[] interfaces)
         {
             this.Interfaces = interfaces;
         }

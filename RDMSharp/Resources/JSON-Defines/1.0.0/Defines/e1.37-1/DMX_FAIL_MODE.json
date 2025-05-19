@@ -1,0 +1,47 @@
+{
+  "name": "DMX_FAIL_MODE",
+  "notes": "E1.37-1",
+  "manufacturer_id": 0,
+  "pid": 321,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "scene_num",
+      "type": "uint16",
+      "labels": [
+        { "name": "PRESET_PLAYBACK_OFF", "value": 0 },
+        { "name": "PRESET_PLAYBACK_ALL", "value": 65535 }
+      ]
+    },
+    {
+      "name": "loss_of_signal_delay_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1,
+      "labels": [
+        { "name": "Infinite", "value": 65535 }
+      ]
+    },
+    {
+      "name": "hold_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -1,
+      "labels": [
+        { "name": "Infinite", "value": 65535 }
+      ]
+    },
+    {
+      "name": "level",
+      "type": "uint8",
+      "labels": [
+        { "name": "Full", "value": 255 }
+      ]
+    }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": "get_response",
+  "set_response": []
+}

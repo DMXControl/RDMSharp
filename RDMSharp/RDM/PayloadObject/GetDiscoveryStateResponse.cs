@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.DISCOVERY_STATE, Command.ECommandDublicte.GetResponse)]
     public class GetDiscoveryStateResponse : AbstractRDMPayloadObject
     {
         public GetDiscoveryStateResponse(
@@ -12,6 +15,15 @@ namespace RDMSharp
             this.EndpointId = endpointId;
             this.DeviceCount = deviceCount;
             this.DiscoveryState = discoveryState;
+        }
+
+        [DataTreeObjectConstructor]
+        public GetDiscoveryStateResponse(
+            [DataTreeObjectParameter("endpoint_id")] ushort endpointId,
+            [DataTreeObjectParameter("device_count")] ushort deviceCount,
+            [DataTreeObjectParameter("state")] byte discoveryState) :
+            this(endpointId, deviceCount, (ERDM_DiscoveryState)discoveryState)
+        {
         }
 
         public ushort EndpointId { get; private set; }

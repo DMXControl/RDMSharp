@@ -1,19 +1,26 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.DMX_PERSONALITY, Command.ECommandDublicte.GetResponse)]
     public class RDMDMXPersonality : AbstractRDMPayloadObjectOneOf
     {
+        [DataTreeObjectConstructor]
         public RDMDMXPersonality(
-            byte currentPersonality = 1,
-            byte ofPersonalities = 0)
+            [DataTreeObjectParameter("personality")] byte currentPersonality = 1,
+            [DataTreeObjectParameter("personality_count")] byte ofPersonalities = 0)
         {
             this.CurrentPersonality = currentPersonality;
             this.OfPersonalities = ofPersonalities;
         }
 
+        [DataTreeObjectProperty("personality", 0)]
         public byte CurrentPersonality { get; private set; }
+
+        [DataTreeObjectProperty("personality_count", 1)]
         public byte OfPersonalities { get; private set; }
 
         public override Type IndexType => CurrentPersonality.GetType();

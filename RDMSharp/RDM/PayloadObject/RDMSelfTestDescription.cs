@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.SELF_TEST_DESCRIPTION, Command.ECommandDublicte.GetResponse)]
     public class RDMSelfTestDescription : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public RDMSelfTestDescription(
-            byte selfTestRequester = 0,
-            string description = "")
+            [DataTreeObjectParameter("self_test_num")] byte selfTestRequester = 0,
+            [DataTreeObjectParameter("label")] string description = "")
         {
             this.SelfTestRequester = selfTestRequester;
 

@@ -1,12 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.IPV4_DEFAULT_ROUTE, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.IPV4_DEFAULT_ROUTE, Command.ECommandDublicte.SetRequest)]
     public class GetSetIPv4DefaultRoute : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public GetSetIPv4DefaultRoute(
-            uint interfaceId = 0,
-            IPv4Address ipAddress = default)
+            [DataTreeObjectParameter("id")] uint interfaceId = 0,
+            [DataTreeObjectParameter("default_route")] IPv4Address ipAddress = default)
         {
             this.InterfaceId = interfaceId;
             this.IPAddress = ipAddress;

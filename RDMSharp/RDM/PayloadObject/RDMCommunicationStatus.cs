@@ -1,14 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.COMMS_STATUS, Command.ECommandDublicte.GetResponse)]
     public class RDMCommunicationStatus : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public RDMCommunicationStatus(
-            ushort shortMessage = 0,
-            ushort lengthMismatch = 0,
-            ushort checksumFail = 0)
+            [DataTreeObjectParameter("short_message")] ushort shortMessage = 0,
+            [DataTreeObjectParameter("length_mismatch")] ushort lengthMismatch = 0,
+            [DataTreeObjectParameter("checksum_fail")] ushort checksumFail = 0)
         {
             this.ShortMessage = shortMessage;
             this.LengthMismatch = lengthMismatch;

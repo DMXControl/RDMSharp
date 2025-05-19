@@ -7,7 +7,7 @@ namespace RDMSharp
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2208")]
         public AcknowledgeTimer(
-            TimeSpan estimidatedResponseTime = default) : this((ushort)(estimidatedResponseTime.TotalSeconds / 10))
+            TimeSpan estimidatedResponseTime = default) : this((ushort)(estimidatedResponseTime.TotalSeconds * 10.0))
         {
             if (estimidatedResponseTime.TotalSeconds / 10 > ushort.MaxValue)
                 throw new ArgumentOutOfRangeException("The Timer is to long for the Resolution of 16-bit ushort");
@@ -16,7 +16,7 @@ namespace RDMSharp
             ushort _estimidatedResponseTimeRaw = default)
         {
             this.estimidatedResponseTimeRaw = _estimidatedResponseTimeRaw;
-            this.EstimidatedResponseTime = TimeSpan.FromSeconds(this.estimidatedResponseTimeRaw * 10);
+            this.EstimidatedResponseTime = TimeSpan.FromSeconds(this.estimidatedResponseTimeRaw / 10.0);
         }
 
         public TimeSpan EstimidatedResponseTime { get; private set; }
@@ -30,7 +30,7 @@ namespace RDMSharp
 
         public static AcknowledgeTimer FromMessage(RDMMessage msg)
         {
-            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, [], PDL);
+            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, new ERDM_Parameter[0], PDL);
             if (msg.ResponseType != ERDM_ResponseType.ACK_TIMER) throw new Exception($"ResponseType is not {ERDM_ResponseType.ACK_TIMER}");
 
             return FromPayloadData(msg.ParameterData);

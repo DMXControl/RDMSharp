@@ -1,6 +1,4 @@
-﻿using RDMSharp.ParameterWrapper;
-
-namespace RDMSharpTests.Devices.Mock
+﻿namespace RDMSharpTests.Devices.Mock
 {
     internal sealed class MockGeneratedDevice1 : AbstractMockGeneratedDevice
     {
@@ -12,7 +10,7 @@ namespace RDMSharpTests.Devices.Mock
         public override string DeviceModelDescription => "Test Model Description";
         public override bool SupportDMXAddress => true;
 
-        private static readonly GeneratedPersonality[] PERSONALITYS = [
+        private static readonly GeneratedPersonality[] PERSONALITYS = new GeneratedPersonality[] {
             new GeneratedPersonality(1, "5CH RGB",
                 new Slot(0, ERDM_SlotCategory.INTENSITY, "Dimmer" ),
                 new Slot(1, ERDM_SlotCategory.STROBE, "Strobe" , 33),
@@ -37,21 +35,20 @@ namespace RDMSharpTests.Devices.Mock
                 new Slot(5, ERDM_SlotCategory.COLOR_ADD_GREEN, "Green" ),
                 new Slot(6, ERDM_SlotCategory.COLOR_ADD_GREEN, ERDM_SlotType.SEC_FINE,"Green Fine"),
                 new Slot(7, ERDM_SlotCategory.COLOR_ADD_BLUE, "Blue" ),
-                new Slot(8, ERDM_SlotCategory.COLOR_ADD_BLUE,ERDM_SlotType.SEC_FINE, "Blue Fine" ))];
+                new Slot(8, ERDM_SlotCategory.COLOR_ADD_BLUE,ERDM_SlotType.SEC_FINE, "Blue Fine" )) };
 
-        private static readonly Sensor[] SENSORS = [
+        private static readonly Sensor[] SENSORS = new Sensor[] {
             new MockSensorTemp(0, 1, 3000),
             new MockSensorTemp(1, 2, 8000),
             new MockSensorTemp(2, 3, 12000),
             new MockSensorVolt3_3(3, 331),
-            new MockSensorVolt5(4, 498)];
+            new MockSensorVolt5(4, 498) };
         public override GeneratedPersonality[] Personalities => PERSONALITYS;
-        public override Sensor[] Sensors => SENSORS;
-        public MockGeneratedDevice1(UID uid) : base(uid, [ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL], "Dummy Manufacturer 9FFF")
+        public MockGeneratedDevice1(UID uid) : base(uid, new ERDM_Parameter[] { ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL }, "Dummy Manufacturer 9FFF", SENSORS)
         {
             this.DeviceLabel = "Dummy Device 1";
-            this.TrySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, false);
-            this.TrySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, $"Dummy Software");
+            this.trySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, false);
+            this.trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, $"Dummy Software");
         }
 
         private class MockSensorTemp : Sensor
@@ -74,6 +71,10 @@ namespace RDMSharpTests.Devices.Mock
             {
                 UpdateValue(initValue);
             }
+        }
+
+        protected sealed override void OnDispose()
+        {
         }
     }
 }

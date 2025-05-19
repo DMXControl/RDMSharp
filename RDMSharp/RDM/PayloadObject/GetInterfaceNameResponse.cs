@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.INTERFACE_LABEL, Command.ECommandDublicte.GetResponse)]
     public class GetInterfaceNameResponse : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public GetInterfaceNameResponse(
-            uint interfaceId = 0,
-            string label = "")
+            [DataTreeObjectParameter("id")] uint interfaceId = 0,
+            [DataTreeObjectParameter("label")] string label = "")
         {
             this.InterfaceId = interfaceId;
 

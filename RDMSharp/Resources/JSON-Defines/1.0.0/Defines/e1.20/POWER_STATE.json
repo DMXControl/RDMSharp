@@ -1,0 +1,24 @@
+{
+  "name": "POWER_STATE",
+  "manufacturer_id": 0,
+  "pid": 4112,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "state",
+      "type": "uint8",
+      "labels": [
+        { "name": "FULL_OFF", "value": 0 },
+        { "name": "SHUTDOWN", "value": 1 },
+        { "name": "STANDBY", "value": 2 },
+        { "name": "NORMAL", "value": 255 }
+      ],
+      "restrictToLabeled": true
+    }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": "get_response",
+  "set_response": []
+}

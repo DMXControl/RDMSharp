@@ -1,0 +1,20 @@
+{
+  "name": "MOCK_SINGLE_FIELD",
+  "manufacturer_id": 4365,
+  "pid": 4874,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": {
+    "name": "timeout",
+    "type": "uint16",
+    "units": 21,
+    "prefixPower": 0,
+    "labels": [
+      {
+        "name": "Disabled",
+        "value": 0
+      }
+    ]
+  },
+  "get_response": "get_request"
+}

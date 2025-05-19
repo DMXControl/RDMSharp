@@ -1,0 +1,19 @@
+{
+  "name": "RESET_DEVICE",
+  "manufacturer_id": 0,
+  "pid": 4097,
+  "version": 1,
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": [
+    {
+      "name": "state",
+      "type": "uint8",
+      "labels": [
+        { "name": "Warm Reset", "value": 1 },
+        { "name": "Cold Reset", "value": 255 }
+      ],
+      "restrictToLabeled": true
+    }
+  ],
+  "set_response": []
+}

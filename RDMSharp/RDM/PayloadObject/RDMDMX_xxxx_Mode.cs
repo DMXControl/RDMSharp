@@ -1,15 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.DMX_FAIL_MODE, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.DMX_FAIL_MODE, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.DMX_STARTUP_MODE, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.DMX_STARTUP_MODE, Command.ECommandDublicte.SetRequest)]
     public class RDMDMX_xxxx_Mode : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public RDMDMX_xxxx_Mode(
-            ushort scene = 0,
-            ushort delay = 0,
-            ushort holdTime = 0,
-            byte level = 0)
+            [DataTreeObjectParameter("scene_num")] ushort scene = 0,
+            [DataTreeObjectParameter(ERDM_Parameter.DMX_FAIL_MODE, "loss_of_signal_delay_time"), DataTreeObjectParameter(ERDM_Parameter.DMX_STARTUP_MODE, "startup_delay_time")] ushort delay = 0,
+            [DataTreeObjectParameter("hold_time")] ushort holdTime = 0,
+            [DataTreeObjectParameter("level")] byte level = 0)
         {
             this.Scene = scene;
             this.Delay = delay;

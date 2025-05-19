@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.PARAMETER_DESCRIPTION, Command.ECommandDublicte.GetResponse)]
     public class RDMParameterDescription : AbstractRDMPayloadObject
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060")]
@@ -36,6 +39,22 @@ namespace RDMSharp
                 description = description.Substring(0, 32);
 
             this.Description = description;
+        }
+        [DataTreeObjectConstructor]
+        public RDMParameterDescription(
+            [DataTreeObjectParameter("pid")] ushort parameterId,
+            [DataTreeObjectParameter("pdl")] byte pdlSize,
+            [DataTreeObjectParameter("data_type")] byte dataType,
+            [DataTreeObjectParameter("command_class")] byte commandClass,
+            [DataTreeObjectParameter("type")] byte type, //Obsolete
+            [DataTreeObjectParameter("unit")] byte unit,
+            [DataTreeObjectParameter("unit_prefix")] byte prefix,
+            [DataTreeObjectParameter("min_valid_value")] int minValidValue,
+            [DataTreeObjectParameter("max_valid_value")] int maxValidValue,
+            [DataTreeObjectParameter("default_value")] int defaultValue,
+            [DataTreeObjectParameter("description")] string description)
+            : this(parameterId, pdlSize, (ERDM_DataType)dataType, (ERDM_CommandClass)commandClass, type, (ERDM_SensorUnit)unit, (ERDM_UnitPrefix)prefix, minValidValue, maxValidValue, defaultValue, description)
+        {
         }
 
         public ushort ParameterId { get; private set; }

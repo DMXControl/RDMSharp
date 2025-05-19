@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.STATUS_MESSAGES, Command.ECommandDublicte.GetResponse, true, "slots")]
     public class RDMStatusMessage : AbstractRDMPayloadObject
     {
         public RDMStatusMessage(
@@ -17,6 +20,17 @@ namespace RDMSharp
             this.StatusMessage = statusMessage;
             this.DataValue1 = dataValue1;
             this.DataValue2 = dataValue2;
+        }
+
+        [DataTreeObjectConstructor]
+        public RDMStatusMessage(
+            [DataTreeObjectParameter("slots/subdevice_id")] ushort subDeviceId,
+            [DataTreeObjectParameter("slots/status_type")] byte statusType,
+            [DataTreeObjectParameter("slots/status_message_id")] byte statusMessage,
+            [DataTreeObjectParameter("slots/data_value_1")] short dataValue1,
+            [DataTreeObjectParameter("slots/data_value_2")] short dataValue2)
+            : this(subDeviceId, (ERDM_Status)statusType, (ERDM_StatusMessage)statusMessage, dataValue1, dataValue2)
+        {
         }
 
         public ushort SubDeviceId { get; private set; }

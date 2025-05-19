@@ -1,0 +1,63 @@
+{
+  "name": "COMMS_STATUS_NSC",
+  "notes": "E1.37-5",
+  "manufacturer_id": 0,
+  "pid": 23,
+  "version": 1,
+  "get_request_subdevice_range": [ "root" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "supported",
+      "type": "bitField",
+      "size": 8,
+      "bits": [
+        { "name": "additive_checksum", "index": 0 },
+        { "name": "packet_count", "index": 1 },
+        { "name": "most_recent_slot_count", "index": 2 },
+        { "name": "min_slot_count", "index": 3 },
+        { "name": "max_slot_count", "index": 4 },
+        { "name": "error_count", "index": 5 }
+      ]
+    },
+    { "name": "additive_checksum", "type": "uint32" },
+    {
+      "name": "packet_count",
+      "type": "uint32",
+      "labels": [
+        { "name": "Not Supported", "value": 4294967295 }
+      ]
+    },
+    {
+      "name": "most_recent_slot_count",
+      "type": "uint16",
+      "labels": [
+        { "name": "Not Supported", "value": 65535 }
+      ]
+    },
+    {
+      "name": "min_slot_count",
+      "type": "uint16",
+      "labels": [
+        { "name": "Not Supported", "value": 65535 }
+      ]
+    },
+    {
+      "name": "max_slot_count",
+      "type": "uint16",
+      "labels": [
+        { "name": "Not Supported", "value": 65535 }
+      ]
+    },
+    {
+      "name": "error_count",
+      "type": "uint32",
+      "labels": [
+        { "name": "Not Supported", "value": 4294967295 }
+      ]
+    }
+  ],
+  "set_request_subdevice_range": [ "root" ],
+  "set_request": [],
+  "set_response": []
+}

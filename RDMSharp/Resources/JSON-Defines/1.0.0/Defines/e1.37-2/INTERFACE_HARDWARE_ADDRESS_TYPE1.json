@@ -1,0 +1,32 @@
+{
+  "name": "INTERFACE_HARDWARE_ADDRESS_TYPE1",
+  "notes": "E1.37-2",
+  "manufacturer_id": 0,
+  "pid": 1794,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
+    {
+      "name": "id",
+      "type": "uint32",
+      "ranges": [
+        { "minimum": 1, "maximum": 4294967040 }
+      ]
+    }
+  ],
+  "get_response": [
+    {
+      "name": "id",
+      "type": "uint32",
+      "ranges": [
+        { "minimum": 1, "maximum": 4294967040 }
+      ]
+    },
+    {
+      "name": "address",
+      "type": "bytes",
+      "resources": [ "https://www.rfc-editor.org/rfc/rfc7042.html#section-2.1" ],
+      "format": "mac-address"
+    }
+  ]
+}

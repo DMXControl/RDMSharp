@@ -1,0 +1,22 @@
+{
+  "name": "PRESET_PLAYBACK",
+  "manufacturer_id": 0,
+  "pid": 4145,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "mode",
+      "type": "uint16",
+      "labels": [
+        { "name": "OFF", "value": 0 },
+        { "name": "ALL", "value": 65535 }
+      ]
+    },
+    { "name": "level", "type": "uint8" }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": "get_response",
+  "set_response": []
+}

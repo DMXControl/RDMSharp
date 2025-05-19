@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION, Command.ECommandDublicte.GetResponse)]
     public class RDMModulationFrequencyDescription : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
+        [DataTreeObjectConstructor]
         public RDMModulationFrequencyDescription(
-            byte modulationFrequencyId = 1,
-            uint? frequency = null,
-            string description = "")
+            [DataTreeObjectParameter("setting")] byte modulationFrequencyId = 1,
+            [DataTreeObjectParameter("frequency")] uint? frequency = null,
+            [DataTreeObjectParameter("description")] string description = "")
         {
             this.ModulationFrequencyId = modulationFrequencyId;
 

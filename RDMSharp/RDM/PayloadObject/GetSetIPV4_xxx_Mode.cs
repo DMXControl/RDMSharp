@@ -1,12 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.IPV4_DHCP_MODE, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.IPV4_DHCP_MODE, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.IPV4_ZEROCONF_MODE, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.IPV4_ZEROCONF_MODE, Command.ECommandDublicte.SetRequest)]
     public class GetSetIPV4_xxx_Mode : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public GetSetIPV4_xxx_Mode(
-            uint interfaceId = 0,
-            bool enabled = false)
+            [DataTreeObjectParameter("id")] uint interfaceId = 0,
+            [DataTreeObjectParameter("mode")] bool enabled = false)
         {
             this.InterfaceId = interfaceId;
             this.Enabled = enabled;

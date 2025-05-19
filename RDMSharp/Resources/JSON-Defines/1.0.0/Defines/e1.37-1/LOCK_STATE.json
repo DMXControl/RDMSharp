@@ -1,0 +1,37 @@
+{
+  "name": "LOCK_STATE",
+  "notes": "E1.37-1",
+  "manufacturer_id": 0,
+  "pid": 1601,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "state",
+      "type": "uint8",
+      "labels": [
+        { "name": "Unlocked", "value": 0 }
+      ]
+    },
+    { "name": "state_count", "type": "uint8" }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": [
+    {
+      "name": "pin_code",
+      "type": "uint16",
+      "ranges": [
+        { "minimum": 0, "maximum": 9999 }
+      ]
+    },
+    {
+      "name": "state",
+      "type": "uint8",
+      "labels": [
+        { "name": "Unlocked", "value": 0 }
+      ]
+    }
+  ],
+  "set_response": []
+}

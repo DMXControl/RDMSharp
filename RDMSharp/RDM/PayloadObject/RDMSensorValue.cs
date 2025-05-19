@@ -1,16 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.SENSOR_VALUE, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.SENSOR_VALUE, Command.ECommandDublicte.SetResponse)]
     public class RDMSensorValue : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
+        [DataTreeObjectConstructor]
         public RDMSensorValue(
-            byte sensorId = 0,
-            short presentvalue = 0,
-            short lowestValue = 0,
-            short highestValue = 0,
-            short recordedValue = 0)
+            [DataTreeObjectParameter("sensor")] byte sensorId = 0,
+            [DataTreeObjectParameter("value")] short presentvalue = 0,
+            [DataTreeObjectParameter("lowest_detected")] short lowestValue = 0,
+            [DataTreeObjectParameter("highest_detected")] short highestValue = 0,
+            [DataTreeObjectParameter("recorded_value")] short recordedValue = 0)
         {
             this.SensorId = sensorId;
             this.PresentValue = presentvalue;
@@ -19,10 +24,19 @@ namespace RDMSharp
             this.RecordedValue = recordedValue;
         }
 
+        [DataTreeObjectProperty("sensor", 0)]
         public byte SensorId { get; private set; }
+
+        [DataTreeObjectProperty("value", 1)]
         public short PresentValue { get; private set; }
+
+        [DataTreeObjectProperty("lowest_detected", 2)]
         public short LowestValue { get; private set; }
+
+        [DataTreeObjectProperty("highest_detected", 3)]
         public short HighestValue { get; private set; }
+
+        [DataTreeObjectProperty("recorded_value", 4)]
         public short RecordedValue { get; private set; }
 
         public object MinIndex => (byte)0;

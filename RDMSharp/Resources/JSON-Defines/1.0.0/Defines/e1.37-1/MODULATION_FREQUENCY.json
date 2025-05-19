@@ -1,0 +1,30 @@
+{
+  "name": "MODULATION_FREQUENCY",
+  "notes": "E1.37-1",
+  "manufacturer_id": 0,
+  "pid": 839,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "setting",
+      "type": "uint8",
+      "ranges": [
+        { "minimum": 1, "maximum": 255 }
+      ]
+    },
+    { "name": "setting_count", "type": "uint8" }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": [
+    {
+      "name": "setting",
+      "type": "uint8",
+      "ranges": [
+        { "minimum": 1, "maximum": 255 }
+      ]
+    }
+  ],
+  "set_response": []
+}

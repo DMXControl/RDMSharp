@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.DEVICE_INFO, Command.ECommandDublicte.GetResponse)]
     public class RDMDeviceInfo : AbstractRDMPayloadObject
     {
         public RDMDeviceInfo(
@@ -32,19 +35,74 @@ namespace RDMSharp
             SubDeviceCount = subDeviceCount;
             SensorCount = sensorCount;
         }
+        [DataTreeObjectConstructor]
+        public RDMDeviceInfo(
+            [DataTreeObjectParameter("protocol_major")] byte rdmProtocolVersionMajor,
+            [DataTreeObjectParameter("protocol_minor")] byte rdmProtocolVersionMinor,
+            [DataTreeObjectParameter("device_model_id")] ushort deviceModelId,
+            [DataTreeObjectParameter("product_category")] ushort productCategory,
+            [DataTreeObjectParameter("software_version_id")] uint softwareVersionId,
+            [DataTreeObjectParameter("dmx_footprint")] ushort dmx512Footprint,
+            [DataTreeObjectParameter("current_personality")] byte dmx512CurrentPersonality,
+            [DataTreeObjectParameter("personality_count")] byte dmx512NumberOfPersonalities,
+            [DataTreeObjectParameter("dmx_start_address")] ushort dmx512StartAddress,
+            [DataTreeObjectParameter("sub_device_count")] ushort subDeviceCount,
+            [DataTreeObjectParameter("sensor_count")] byte sensorCount) :
+            this(rdmProtocolVersionMajor,
+                rdmProtocolVersionMinor,
+                deviceModelId,
+                (ERDM_ProductCategoryCoarse)(byte)(productCategory >> 8),
+                (ERDM_ProductCategoryFine)productCategory,
+                softwareVersionId,
+                dmx512Footprint,
+                dmx512CurrentPersonality,
+                dmx512NumberOfPersonalities,
+                dmx512StartAddress,
+                subDeviceCount,
+                sensorCount)
+        {
+        }
 
+        [DataTreeObjectProperty("protocol_major", 0)]
         public byte RdmProtocolVersionMajor { get; private set; }
+
+        [DataTreeObjectProperty("protocol_minor", 1)]
         public byte RdmProtocolVersionMinor { get; private set; }
+
+        [DataTreeObjectProperty("device_model_id", 2)]
         public ushort DeviceModelId { get; private set; }
         public ERDM_ProductCategoryCoarse ProductCategoryCoarse { get; private set; }
         public ERDM_ProductCategoryFine ProductCategoryFine { get; private set; }
+
+        [DataTreeObjectProperty("product_category", 3)]
+        public ushort ProductCategory => (ushort)ProductCategoryFine;
+
+        [DataTreeObjectProperty("software_version_id", 4)]
         public uint SoftwareVersionId { get; private set; }
+
+        [DataTreeObjectDependecieProperty("slot", ERDM_Parameter.SLOT_DESCRIPTION, Command.ECommandDublicte.GetRequest)]
+        [DataTreeObjectProperty("dmx_footprint", 5)]
         public ushort? Dmx512Footprint { get; private set; }
+
+        [DataTreeObjectProperty("current_personality", 6)]
         public byte? Dmx512CurrentPersonality { get; private set; }
+
+        [DataTreeObjectDependecieProperty("personality", ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION, Command.ECommandDublicte.GetRequest)]
+        [DataTreeObjectDependecieProperty("personality", ERDM_Parameter.DMX_PERSONALITY_ID, Command.ECommandDublicte.GetRequest)]
+        [DataTreeObjectProperty("personality_count", 7)]
         public byte Dmx512NumberOfPersonalities { get; private set; }
+
+        [DataTreeObjectProperty("dmx_start_address", 8)]
         public ushort? Dmx512StartAddress { get; private set; }
+
+        [DataTreeObjectProperty("sub_device_count", 9)]
         public ushort SubDeviceCount { get; private set; }
+
+        [DataTreeObjectDependecieProperty("sensor", ERDM_Parameter.SENSOR_DEFINITION, Command.ECommandDublicte.GetRequest)]
+        [DataTreeObjectDependecieProperty("sensor", ERDM_Parameter.SENSOR_VALUE, Command.ECommandDublicte.GetRequest)]
+        [DataTreeObjectProperty("sensor_count", 10)]
         public byte SensorCount { get; private set; }
+
         public const int PDL = 19;
 
         public override string ToString()

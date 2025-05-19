@@ -1,19 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.DEFAULT_SLOT_VALUE, Command.ECommandDublicte.GetResponse, true, "slots")]
     public class RDMDefaultSlotValue : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public RDMDefaultSlotValue(
-            ushort slotOffset = 0,
-            byte defaultSlotValue = 0)
+            [DataTreeObjectParameter("id")] ushort slotOffset = 0,
+            [DataTreeObjectParameter("default_value")] byte defaultSlotValue = 0)
         {
             this.SlotOffset = slotOffset;
             this.DefaultSlotValue = defaultSlotValue;
         }
 
+        [DataTreeObjectProperty("id", 0)]
         public ushort SlotOffset { get; private set; }
+        [DataTreeObjectProperty("default_value", 1)]
         public byte DefaultSlotValue { get; private set; }
         public const int PDL = 3;
 

@@ -1,0 +1,59 @@
+{
+  "name": "ENDPOINT_TO_UNIVERSE",
+  "notes": "E1.37-7",
+  "manufacturer_id": 0,
+  "pid": 2307,
+  "version": 1,
+  "get_request_subdevice_range": [ "root" ],
+  "get_request": [
+    {
+      "name": "endpoint_id",
+      "type": "uint16",
+      "ranges": [
+        { "minimum": 1, "maximum": 63999 }
+      ]
+    }
+  ],
+  "get_response": [
+    { "$ref": "#/get_request/0" },
+    {
+      "name": "universe",
+      "type": "uint16",
+      "ranges": [
+        { "minimum": 1, "maximum": 63999 },
+        { "minimum": 65535, "maximum": 65535 }
+      ],
+      "labels": [
+        { "name": "Unpatched", "value": 0 },
+        { "name": "Composite", "value": 65535 }
+      ]
+    }
+  ],
+  "set_request_subdevice_range": [ "root" ],
+  "set_request": [
+    {
+      "name": "endpoint_id",
+      "type": "uint16",
+      "ranges": [
+        { "minimum": 1, "maximum": 63999 },
+        { "minimum": 65535, "maximum": 65535 }
+      ],
+      "labels": [
+        { "name": "BROADCAST", "value": 65535 }
+      ]
+    },
+    {
+      "name": "universe",
+      "type": "uint16",
+      "ranges": [
+        { "minimum": 0, "maximum": 63999 }
+      ],
+      "labels": [
+        { "name": "Unpatched", "value": 0 }
+      ]
+    }
+  ],
+  "set_response": [
+    { "$ref": "#/set_request/0" }
+  ]
+}

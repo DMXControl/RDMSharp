@@ -1,0 +1,34 @@
+{
+  "name": "OUTPUT_RESPONSE_TIME_DESCRIPTION",
+  "notes": "E1.37-1",
+  "manufacturer_id": 0,
+  "pid": 838,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
+    {
+      "name": "setting",
+      "type": "uint8",
+      "notes": "The value isn't restricted in the spec, but OUTPUT_RESPONSE_TIME restricts this.",
+      "ranges": [
+        { "minimum": 1, "maximum": 255 }
+      ]
+    }
+  ],
+  "get_response": [
+    {
+      "name": "setting",
+      "type": "uint8",
+      "notes": "The value isn't restricted in the spec, but OUTPUT_RESPONSE_TIME restricts this.",
+      "ranges": [
+        { "minimum": 1, "maximum": 255 }
+      ]
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "maxLength": 32,
+      "restrictToASCII": true
+    }
+  ]
+}

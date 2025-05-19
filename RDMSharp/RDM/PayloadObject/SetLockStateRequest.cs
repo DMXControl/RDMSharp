@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.LOCK_STATE, Command.ECommandDublicte.SetRequest)]
     public class SetLockStateRequest : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public SetLockStateRequest(
-            ushort pinCode = 0,
-            byte lockStateId = 0)
+            [DataTreeObjectParameter("pin_code")] ushort pinCode = 0,
+            [DataTreeObjectParameter("state")] byte lockStateId = 0)
         {
             this.PinCode = pinCode;
             this.LockStateId = lockStateId;

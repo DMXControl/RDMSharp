@@ -1,0 +1,27 @@
+{
+  "name": "IPV4_DEFAULT_ROUTE",
+  "notes": "E1.37-2",
+  "manufacturer_id": 0,
+  "pid": 1802,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "id",
+      "type": "uint32",
+      "ranges": [
+        { "minimum": 1, "maximum": 4294967040 }
+      ]
+    },
+    {
+      "name": "default_route",
+      "type": "bytes",
+      "notes": "All zeros means NO_DEFAULT_ROUTE.",
+      "format": "ipv4"
+    }
+  ],
+  "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
+  "set_request": "get_response",
+  "set_response": []
+}

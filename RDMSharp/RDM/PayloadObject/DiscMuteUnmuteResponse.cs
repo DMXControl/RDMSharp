@@ -49,7 +49,7 @@ namespace RDMSharp
         }
         public static DiscMuteUnmuteResponse FromMessage(RDMMessage msg)
         {
-            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.DISCOVERY_COMMAND_RESPONSE, [ERDM_Parameter.DISC_MUTE, ERDM_Parameter.DISC_UN_MUTE], PDL, PDLWithBindUID);
+            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.DISCOVERY_COMMAND_RESPONSE, new ERDM_Parameter[] { ERDM_Parameter.DISC_MUTE, ERDM_Parameter.DISC_UN_MUTE }, PDL, PDLWithBindUID);
 
             return FromPayloadData(msg.ParameterData);
         }

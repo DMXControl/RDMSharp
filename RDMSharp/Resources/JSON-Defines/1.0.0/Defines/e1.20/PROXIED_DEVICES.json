@@ -1,0 +1,19 @@
+{
+  "name": "PROXIED_DEVICES",
+  "manufacturer_id": 0,
+  "pid": 16,
+  "version": 1,
+  "get_request_subdevice_range": [ "root" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "device_uids",
+      "type": "list",
+      "itemType": {
+        "name": "device_uid",
+        "type": "bytes",
+        "format": "uid"
+      }
+    }
+  ]
+}

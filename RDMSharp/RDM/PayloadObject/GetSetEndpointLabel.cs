@@ -1,12 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.ENDPOINT_LABEL, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.ENDPOINT_LABEL, Command.ECommandDublicte.SetRequest)]
     public class GetSetEndpointLabel : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public GetSetEndpointLabel(
-            ushort endpointId = default,
-            string endpointLabel = default)
+            [DataTreeObjectParameter("endpoint_id")] ushort endpointId = default,
+            [DataTreeObjectParameter("label")] string endpointLabel = default)
         {
             this.EndpointId = endpointId;
 

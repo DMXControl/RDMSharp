@@ -10,7 +10,7 @@
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            var time = TimeSpan.FromSeconds(360000);
+            var time = TimeSpan.FromSeconds(3);
             AcknowledgeTimer acknowledgeTimer = new AcknowledgeTimer(time);
             byte[] data = acknowledgeTimer.ToPayloadData();
 

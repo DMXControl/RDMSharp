@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    public class RequestRange<T>: IRequestRange, IRequestRange<T>
+    public class RequestRange<T> : IRequestRange, IRequestRange<T>
     {
 
         object IRequestRange.Start => _start;

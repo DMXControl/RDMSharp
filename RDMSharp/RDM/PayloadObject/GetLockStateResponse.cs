@@ -1,13 +1,17 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.LOCK_STATE, Command.ECommandDublicte.GetResponse)]
     public class GetLockStateResponse : AbstractRDMPayloadObjectOneOf
     {
+        [DataTreeObjectConstructor]
         public GetLockStateResponse(
-            byte currentLockStateId = 1,
-            byte lockStates = 0)
+            [DataTreeObjectParameter("state")] byte currentLockStateId = 1,
+            [DataTreeObjectParameter("state_count")] byte lockStates = 0)
         {
             this.CurrentLockStateId = currentLockStateId;
             this.LockStates = lockStates;

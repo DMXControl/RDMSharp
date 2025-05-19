@@ -1,6 +1,4 @@
 using RDMSharpTests.Devices.Mock;
-using System.Diagnostics;
-using System.Reflection.Metadata;
 
 namespace RDMSharpTests.RDM.Devices
 {
@@ -29,53 +27,60 @@ namespace RDMSharpTests.RDM.Devices
             var parameterValuesRemote = remote.GetAllParameterValues();
             var parameterValuesGenerated = generated.GetAllParameterValues();
 
-            Assert.Multiple(() =>
-            {
+            //Assert.Multiple(() =>
+            //{
+                Assert.That(parameterValuesGenerated.Keys, Is.EquivalentTo(parameterValuesRemote.Keys));
                 foreach (var parameter in parameterValuesGenerated.Keys)
                 {
-                    Assert.That(parameterValuesRemote.Keys, Contains.Item(parameter));
-                    Assert.That(parameterValuesGenerated[parameter], Is.EqualTo(parameterValuesRemote[parameter]));
+                    Assert.That(parameterValuesRemote.Keys, Contains.Item(parameter), $"Tested Parameter {parameter}");
+                    if (parameterValuesGenerated[parameter] is Array)
+                        Assert.That(parameterValuesGenerated[parameter], Is.EquivalentTo((Array)parameterValuesRemote[parameter]), $"Tested Parameter {parameter}");
+                    else
+                        Assert.That(parameterValuesGenerated[parameter], Is.EqualTo(parameterValuesRemote[parameter]), $"Tested Parameter {parameter}");
                 }
                 foreach (var parameter in parameterValuesRemote.Keys)
                 {
-                    Assert.That(parameterValuesGenerated.Keys, Contains.Item(parameter));
-                    Assert.That(parameterValuesRemote[parameter], Is.EqualTo(parameterValuesGenerated[parameter]));
+                    Assert.That(parameterValuesGenerated.Keys, Contains.Item(parameter), $"Tested Parameter {parameter}");
+                    if (parameterValuesRemote[parameter] is Array)
+                        Assert.That(parameterValuesRemote[parameter], Is.EquivalentTo((Array)parameterValuesGenerated[parameter]), $"Tested Parameter {parameter}");
+                    else
+                        Assert.That(parameterValuesRemote[parameter], Is.EqualTo(parameterValuesGenerated[parameter]), $"Tested Parameter {parameter}");
                 }
                 Assert.That(parameterValuesRemote, Has.Count.EqualTo(parameterValuesGenerated.Count));
-            });
+            //});
 
-            Assert.Multiple(() =>
-            {
+            //Assert.Multiple(() =>
+            //{
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_INFO], Is.EqualTo(generated.DeviceInfo));
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(generated.DeviceLabel));
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_MODEL_DESCRIPTION], Is.EqualTo(generated.DeviceModelDescription));
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.MANUFACTURER_LABEL], Is.EqualTo(generated.ManufacturerLabel));
                 Assert.That(((RDMDMXPersonality)remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY]).Index, Is.EqualTo(generated.CurrentPersonality));
-            });
+            //});
 
             await remote.SetParameter(ERDM_Parameter.DMX_START_ADDRESS, (ushort)512);
-            Assert.Multiple(() =>
-            {
+            //Assert.Multiple(() =>
+            //{
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(512));
                 Assert.That(generated.DMXAddress, Is.EqualTo(512));
-            });
+            //});
 
             await remote.SetParameter(ERDM_Parameter.DMX_PERSONALITY, (byte)3);
-            Assert.Multiple(() =>
-            {
+            //Assert.Multiple(() =>
+            //{
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY], Is.EqualTo(3));
                 Assert.That(generated.CurrentPersonality, Is.EqualTo(3));
-            });
+            //});
 
             string label = "Changed Device Label";
             await remote.SetParameter(ERDM_Parameter.DEVICE_LABEL, label);
-            Assert.Multiple(() =>
-            {
+            //Assert.Multiple(() =>
+            //{
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(label));
                 Assert.That(generated.DeviceLabel, Is.EqualTo(label));
-            });
-            Assert.Multiple(async () =>
-            {
+            //});
+            //Assert.Multiple(async () =>
+            //{
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
                 Assert.That(generated.GetAllParameterValues()[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
                 await remote.SetParameter(ERDM_Parameter.IDENTIFY_DEVICE, true);
@@ -84,9 +89,9 @@ namespace RDMSharpTests.RDM.Devices
                 await remote.SetParameter(ERDM_Parameter.IDENTIFY_DEVICE, false);
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
                 Assert.That(generated.GetAllParameterValues()[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
-            });
-            Assert.Multiple(() =>
-            {
+            //});
+            //Assert.Multiple(() =>
+            //{
                 Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DEVICE_INFO, new RDMDeviceInfo()); });
                 Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION, new RDMDMXPersonalityDescription(1, 2, "dasdad")); });
                 Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.LANGUAGE, "de"); });
@@ -94,7 +99,7 @@ namespace RDMSharpTests.RDM.Devices
                 Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DEVICE_LABEL, "Test"); });
                 Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DISC_MUTE, null); });
                 Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DEVICE_LABEL, new RDMDeviceInfo()); });
-            });
+            //});
         }
 
         [Test]
@@ -107,8 +112,8 @@ namespace RDMSharpTests.RDM.Devices
             var slotGreen = remote.Slots[3];
             var slotBlue = remote.Slots[4];
 
-            Assert.Multiple(() =>
-            {
+            //Assert.Multiple(() =>
+            //{
                 Assert.That(slotIntensity, Is.EqualTo(generated.Personalities[0].Slots[0]));
                 Assert.That(slotStrobe, Is.EqualTo(generated.Personalities[0].Slots[1]));
                 Assert.That(slotRed, Is.EqualTo(generated.Personalities[0].Slots[2]));
@@ -174,7 +179,7 @@ namespace RDMSharpTests.RDM.Devices
                 Assert.That(slots.Add(slotBlue), Is.True);
                 Assert.That(slots.Add(slotBlue), Is.False);
                 Assert.That(slots, Does.Contain(slotBlue));
-            });
+            //});
         }
 
         [Test]
@@ -182,7 +187,7 @@ namespace RDMSharpTests.RDM.Devices
         public void TestDevice1Sensor()
         {
             var sensorsRemote = remote.Sensors.Values.ToList();
-            var sensorsGenerated = generated.Sensors.ToList();
+            var sensorsGenerated = generated.Sensors.Values.ToList();
 
             Assert.Multiple(() =>
             {

@@ -1,12 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.DNS_IPV4_NAME_SERVER, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.DNS_IPV4_NAME_SERVER, Command.ECommandDublicte.SetRequest)]
     public class GetSetIPv4NameServer : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public GetSetIPv4NameServer(
-            byte nameServerIndex = 0,
-            IPv4Address ipAddress = default)
+            [DataTreeObjectParameter("index")] byte nameServerIndex = 0,
+            [DataTreeObjectParameter("address")] IPv4Address ipAddress = default)
         {
             this.NameServerIndex = nameServerIndex;
             this.IPAddress = ipAddress;

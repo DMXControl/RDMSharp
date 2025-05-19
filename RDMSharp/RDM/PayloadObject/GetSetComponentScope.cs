@@ -1,4 +1,6 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -7,15 +9,18 @@ using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.COMPONENT_SCOPE, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.COMPONENT_SCOPE, Command.ECommandDublicte.SetRequest)]
     public class GetSetComponentScope : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public GetSetComponentScope(
-            ushort scopeSlot = default,
-            string scopeString = default,
-            ERDM_StaticConfig staticConfigType = default,
-            IPAddress staticBrokerIPv4 = default,
-            IPAddress staticBrokerIPv6 = default,
-            ushort staticBrokerPort = default)
+            [DataTreeObjectParameter("scopeSlot")] ushort scopeSlot = default,
+            [DataTreeObjectParameter("scopeSlot")] string scopeString = default,
+            [DataTreeObjectParameter("scopeSlot")] ERDM_StaticConfig staticConfigType = default,
+            [DataTreeObjectParameter("scopeSlot")] IPAddress staticBrokerIPv4 = default,
+            [DataTreeObjectParameter("scopeSlot")] IPAddress staticBrokerIPv6 = default,
+            [DataTreeObjectParameter("scopeSlot")] ushort staticBrokerPort = default)
         {
 
             if (string.IsNullOrWhiteSpace(scopeString))

@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.LOCK_PIN, Command.ECommandDublicte.SetRequest)]
     public class SetLockPinRequest : AbstractRDMPayloadObject
     {
+        [DataTreeObjectConstructor]
         public SetLockPinRequest(
-            ushort newPinCode = 0,
-            ushort currentPinCode = 0)
+            [DataTreeObjectParameter("new_pin_code")] ushort newPinCode = 0,
+            [DataTreeObjectParameter("current_pin_code")] ushort currentPinCode = 0)
         {
             this.NewPinCode = newPinCode;
             this.CurrentPinCode = currentPinCode;

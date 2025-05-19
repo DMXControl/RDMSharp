@@ -1,7 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.ENDPOINT_MODE, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.ENDPOINT_MODE, Command.ECommandDublicte.SetRequest)]
     public class GetSetEndpointMode : AbstractRDMPayloadObject
     {
         public GetSetEndpointMode(
@@ -10,6 +14,14 @@ namespace RDMSharp
         {
             this.EndpointId = endpointId;
             this.EndpointMode = endpointMode;
+        }
+
+        [DataTreeObjectConstructor]
+        public GetSetEndpointMode(
+            [DataTreeObjectParameter("endpoint_id")] ushort endpointId = default,
+            [DataTreeObjectParameter("mode")] byte endpointMode = default) :
+            this(endpointId, (ERDM_EndpointMode)endpointMode)
+        {
         }
 
         public ushort EndpointId { get; private set; }

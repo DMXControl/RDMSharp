@@ -1,13 +1,17 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.CURVE, Command.ECommandDublicte.GetResponse)]
     public class RDMCurve : AbstractRDMPayloadObjectOneOf
     {
+        [DataTreeObjectConstructor]
         public RDMCurve(
-            byte currentCurveId = 1,
-            byte curves = 0)
+            [DataTreeObjectParameter("curve")] byte currentCurveId = 1,
+            [DataTreeObjectParameter("curve_count")] byte curves = 0)
         {
             this.CurrentCurveId = currentCurveId;
             this.Curves = curves;

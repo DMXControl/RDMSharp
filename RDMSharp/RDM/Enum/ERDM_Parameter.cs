@@ -1,8 +1,15 @@
-﻿namespace RDMSharp
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+
+namespace RDMSharp
 {
     /// <summary>
     /// https://www.rdmprotocol.org/rdm/developers/developer-resources/
     /// </summary>
+    [DataTreeEnum(ERDM_Parameter.SUPPORTED_PARAMETERS, Command.ECommandDublicte.GetResponse, "pid", true, "pids")]
+    [DataTreeEnum(ERDM_Parameter.PARAMETER_DESCRIPTION, Command.ECommandDublicte.GetRequest, "pid")]
+    [DataTreeEnum(ERDM_Parameter.METADATA_JSON, Command.ECommandDublicte.GetRequest, "pid")]
+    [DataTreeEnum(ERDM_Parameter.METADATA_PARAMETER_VERSION, Command.ECommandDublicte.GetRequest, "pid")]
     public enum ERDM_Parameter : ushort
     {
         NONE = 0x0000,

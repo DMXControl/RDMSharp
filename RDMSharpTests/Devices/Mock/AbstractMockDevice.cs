@@ -2,7 +2,7 @@
 
 namespace RDMSharpTests.Devices.Mock
 {
-    internal abstract class AbstractMockDevice : AbstractRDMDevice
+    internal abstract class AbstractMockDevice : AbstractRemoteRDMDevice
     {
         private readonly ConcurrentDictionary<long, RDMMessage> identifyer = new ConcurrentDictionary<long, RDMMessage>();
         private bool eventRegistered = false;
@@ -71,15 +71,23 @@ namespace RDMSharpTests.Devices.Mock
             transactionCounter++;
             return transactionCounter;
         }
-        protected override void OnDispose()
+        protected sealed override void onDispose()
         {
+            try
+            {
+                OnDispose();
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e);
+            }
             SendReceivePipeline.RDMMessageRereived -= SendReceivePipeline_RDMMessageRereived;
             SendReceivePipelineImitateRealConditions.RDMMessageRereivedRequest -= SendReceivePipelineImitateRealConditions_RDMMessageRereivedRequest;
             eventRegistered = false;
             transactionCounter = 0;
             identifyer.Clear();
             ImitateRealConditions = false;
-            base.OnDispose();
         }
+        protected abstract void OnDispose();
     }
 }

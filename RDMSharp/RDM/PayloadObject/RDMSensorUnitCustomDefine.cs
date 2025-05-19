@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
+using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
+    [DataTreeObject(ERDM_Parameter.SENSOR_UNIT_CUSTOM, Command.ECommandDublicte.GetResponse)]
     public class RDMSensorUnitCustomDefine : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
+        [DataTreeObjectConstructor]
         public RDMSensorUnitCustomDefine(
-            byte id,
-            string label)
+            [DataTreeObjectParameter("sensor_unit")] byte id,
+            [DataTreeObjectParameter("label")] string label)
         {
             this.Id = id;
             this.Label = label;
@@ -43,7 +47,7 @@ namespace RDMSharp
             RDMMessageInvalidPDLException.ThrowIfInvalidPDLRange(data, PDL_MIN, PDL_MAX);
 
             var id = Tools.DataToByte(ref data);
-            var label = Tools.DataToString(ref data,32);
+            var label = Tools.DataToString(ref data, 32);
 
             var i = new RDMSensorUnitCustomDefine(
                 id: id,
