@@ -152,5 +152,31 @@ namespace RDMSharpTests.RDM.Devices
             expected = mockDevices.Select(m => m.UID).ToList();
             await AssertDiscovery();
         }
+        [Test, Retry(3)]
+        public async Task TestDiscovery5TotalyRandom()
+        {
+            HashSet<uint> ids = new HashSet<uint>();
+            HashSet<ushort> idsMan = new HashSet<ushort>();
+            for (int i = 0; i < 150; i++)
+            {
+                uint id = 0;
+                ushort idMan = 0;
+                do
+                {
+                    id = (uint)random.Next();
+                }
+                while (!ids.Add(id));
+                do
+                {
+                    idMan = (ushort)random.Next(ushort.MinValue + 100, ushort.MaxValue - 100);
+                }
+                while (!idsMan.Add(idMan));
+                var m = new MockGeneratedDevice1(new UID(idMan, id));
+                mockDevices.Add(m);
+            }
+
+            expected = mockDevices.Select(m => m.UID).ToList();
+            await AssertDiscovery();
+        }
     }
 }

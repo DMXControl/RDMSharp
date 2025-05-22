@@ -24,23 +24,23 @@ namespace RDMSharpTests.Devices.Mock
                     data = rdmMessage.BuildMessage();
                 else
                 {
-                    await semaphoreSlim2.WaitAsync();
-                    if (semaphoreSlim.CurrentCount == 0)
-                        queue.Enqueue(Task.Delay(1));
-
-                    var newData = rdmMessage.BuildMessage();
-                    var oldData = data;
-                    var combined = new byte[Math.Max(newData.Length, oldData?.Length ?? 0)];
-                    for (int i = 0; i < combined.Length; i++)
+                    queue.Enqueue(Task.Run(async () =>
                     {
-                        byte n = (byte)(newData.Length > i ? newData[i] : 0);
+                        await semaphoreSlim2.WaitAsync();
+                        var newData = rdmMessage.BuildMessage();
+                        var oldData = data;
+                        var combined = new byte[Math.Max(newData.Length, oldData?.Length ?? 0)];
+                        for (int i = 0; i < combined.Length; i++)
+                        {
+                            byte n = (byte)(newData.Length > i ? newData[i] : 0);
 #pragma warning disable CS8602 // Dereferenzierung eines möglichen Nullverweises.
-                        byte o = (byte)((oldData?.Length ?? 0) > i ? oldData[i] : 0);
+                            byte o = (byte)((oldData?.Length ?? 0) > i ? oldData[i] : 0);
 #pragma warning restore CS8602 // Dereferenzierung eines möglichen Nullverweises.
-                        combined[i] = (byte)(n | o);
-                    }
-                    data = combined;
-                    semaphoreSlim2.Release();
+                            combined[i] = (byte)(n | o);
+                        }
+                        data = combined;
+                        semaphoreSlim2.Release();
+                    }));
                 }
 
                 if (semaphoreSlim.CurrentCount == 1)
