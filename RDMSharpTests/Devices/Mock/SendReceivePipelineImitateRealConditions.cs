@@ -40,7 +40,7 @@
                 if (semaphoreSlim.CurrentCount == 1)
                 {
                     await semaphoreSlim.WaitAsync();
-                    await Task.Delay(10);
+                    await Task.Delay(3);
                     await semaphoreSlim2.WaitAsync();
 
                     RDMMessageRereivedResponse?.InvokeFailSafe(null, data);

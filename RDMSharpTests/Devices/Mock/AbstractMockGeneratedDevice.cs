@@ -64,7 +64,7 @@ namespace RDMSharpTests.Devices.Mock
             var i = SendReceivePipeline.GetNewIdentifyer();
             identifyer.TryAdd(i, rdmMessage);
             if (ImitateRealConditions)
-                SendReceivePipelineImitateRealConditions.RDMMessageSend(rdmMessage);
+                _ = SendReceivePipelineImitateRealConditions.RDMMessageSend(rdmMessage); // in this case as responder we dont wait for comlpletion of the send, we just send it and forget it
             else
                 SendReceivePipeline.RDMMessageSend(i, rdmMessage);
         }
