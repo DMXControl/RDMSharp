@@ -12,7 +12,7 @@ namespace RDMSharp
     {
         private protected static ILogger Logger = null;
         private readonly AsyncRDMRequestHelper asyncRDMRequestHelper;
-        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private readonly CancellationTokenSource cts = new CancellationTokenSource();
         public event PropertyChangedEventHandler PropertyChanged;
         public bool discoveryInProgress;
         public bool DiscoveryInProgress
@@ -56,7 +56,7 @@ namespace RDMSharp
                         Parameter = ERDM_Parameter.DISC_UN_MUTE,
                         DestUID = UID.Broadcast,
                     };
-                    unmuted = await SendRDMMessage(m).WaitAsync(cancellationTokenSource.Token);
+                    unmuted = await SendRDMMessage(m).WaitAsync(cts.Token);
                 }
                 if (!unmuted)
                 {
@@ -66,7 +66,7 @@ namespace RDMSharp
             }
             //Start Binary Search for each
             var erg = new RDMDiscoveryContext(progress);
-            await DiscoverDevicesBinarySearch(UID.Empty, UID.Broadcast - 1, erg).WaitAsync(cancellationTokenSource.Token);
+            await DiscoverDevicesBinarySearch(UID.Empty, UID.Broadcast - 1, erg).WaitAsync(cts.Token);
 
             DiscoveryInProgress = false;
             return erg.FoundUIDs.ToList();
@@ -180,7 +180,7 @@ namespace RDMSharp
                     context.AddFound(found);
 
                     //Find the Bad Devices
-                    Logger?.LogWarning($"You are lucky to use RDMSharp! Some Devices don't have a proper RDM implementation as they seam to have an off by one error, but we handled that for you: [{String.Join(",", found)}]");
+                    Logger?.LogWarning($"You are lucky to use RDMSharp! Some Devices don't have a proper RDM implementation as they sem to have an off by one error, but we handled that for you: [{String.Join(",", found)}]");
                 }
             }
         }
@@ -225,8 +225,8 @@ namespace RDMSharp
         public void Dispose()
         {
             asyncRDMRequestHelper?.Dispose();
-            cancellationTokenSource.Cancel();
-            cancellationTokenSource.Dispose();
+            cts.Cancel();
+            cts.Dispose();
         }
     }
 }

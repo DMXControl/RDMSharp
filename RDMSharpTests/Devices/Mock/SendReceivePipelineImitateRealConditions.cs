@@ -47,11 +47,12 @@ namespace RDMSharpTests.Devices.Mock
                 {
                     await semaphoreSlim.WaitAsync();
                     await Task.Delay(3);
-                    while (queue.TryDequeue(out Task waifOnMee))
-                        await waifOnMee;
+                    while (queue.TryDequeue(out Task? waitOnMee)) // wait for all other MockDevices to put their Data on the Line, in real World this would be the time is not nessecary to wait for the other devices because they all act simultan but in the Test-Environment it needs time to itterate throu all Devices
+                        if (waitOnMee != null)
+                            await waitOnMee;
                     await semaphoreSlim2.WaitAsync();
 
-                    RDMMessageRereivedResponse?.InvokeFailSafe(null, data);
+                    RDMMessageReceivedResponse?.InvokeFailSafe(null, data);
                     data = null;
                     queue.Clear();
                     semaphoreSlim2.Release();
@@ -60,10 +61,10 @@ namespace RDMSharpTests.Devices.Mock
             }
             else
             {
-                RDMMessageRereivedRequest?.InvokeFailSafe(null, rdmMessage);
+                RDMMessageReceivedRequest?.InvokeFailSafe(null, rdmMessage);
             }
         }
-        public static event EventHandler<RDMMessage>? RDMMessageRereivedRequest;
-        public static event EventHandler<byte[]>? RDMMessageRereivedResponse;
+        public static event EventHandler<RDMMessage>? RDMMessageReceivedRequest;
+        public static event EventHandler<byte[]>? RDMMessageReceivedResponse;
     }
 }

@@ -85,7 +85,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             PrefixMultiplyer = Math.Pow(PrefixBase ?? 10, PrefixPower ?? 0);
         }
 
-        private static void validateType<T>(EIntegerType type, T dummy = default)
+        private static void validateType<T_In>(EIntegerType type, T_In dummy = default)
         {
             switch (dummy)
             {
@@ -153,10 +153,10 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             return new PDL(16);
         }
 
-        private T convertFormatedValueToRaw<T>(object formated)
+        private TOutput convertFormatedValueToRaw<TOutput>(object formated) where TOutput: T
         {
             if (PrefixMultiplyer == 1)
-                return (T)formated;
+                return (TOutput)formated;
 
             object rawValue = null;
             switch (formated)
@@ -172,11 +172,11 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                     break;
 
                 default:
-                    return (T)formated;
+                    return (TOutput)formated;
             }
 
             if (rawValue is not null)
-                return (T)Convert.ChangeType(rawValue, typeof(T));
+                return (TOutput)Convert.ChangeType(rawValue, typeof(T));
 
             throw new NotImplementedException();
         }

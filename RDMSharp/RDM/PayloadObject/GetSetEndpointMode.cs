@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.ENDPOINT_MODE, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.ENDPOINT_MODE, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.ENDPOINT_MODE, Command.ECommandDublicate.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.ENDPOINT_MODE, Command.ECommandDublicate.SetRequest)]
     public class GetSetEndpointMode : AbstractRDMPayloadObject
     {
         public GetSetEndpointMode(

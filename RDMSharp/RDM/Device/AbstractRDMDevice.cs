@@ -10,8 +10,6 @@ namespace RDMSharp
 {
     public abstract class AbstractRDMDevice : AbstractRDMCache, IRDMDevice
     {
-        private protected static readonly ILogger Logger = null;
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private readonly UID uid;
@@ -39,10 +37,10 @@ namespace RDMSharp
             this.uid = uid;
             this.subdevice = subDevice ?? SubDevice.Root;
             if (subDevices != null && !this.Subdevice.IsRoot)
-                throw new NotSupportedException($"A SubDevice {this.Subdevice} cannot have SubDevices.");
+                throw new NotSupportedException($"A SubDevice {this.Subdevice} can't have SubDevices.");
 
             if (this.Subdevice.IsBroadcast)
-                throw new NotSupportedException($"A SubDevice cannot be Broadcast.");
+                throw new NotSupportedException($"A SubDevice can't be Broadcast.");
 
 
             if (this.Subdevice == SubDevice.Root)

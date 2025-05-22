@@ -11,7 +11,7 @@ namespace RDMSharp.Metadata.JSON.Converter
         {
             if (reader.TokenType == JsonTokenType.String)
             {
-                var enumValue = JsonSerializer.Deserialize<Command.ECommandDublicte>(ref reader, options);
+                var enumValue = JsonSerializer.Deserialize<Command.ECommandDublicate>(ref reader, options);
                 return new Command(enumValue);
             }
             else if (reader.TokenType == JsonTokenType.StartObject)

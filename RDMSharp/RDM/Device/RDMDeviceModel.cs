@@ -1,4 +1,5 @@
-﻿using RDMSharp.Metadata;
+﻿using Microsoft.Extensions.Logging;
+using RDMSharp.Metadata;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -65,7 +66,7 @@ namespace RDMSharp
             }
             catch (Exception ex)
             {
-
+                Logger.LogError(ex);
             }
             return null;
         }
@@ -152,12 +153,12 @@ namespace RDMSharp
 
         private readonly Func<RDMMessage, Task> sendRdmFunktion;
 
-        internal RDMDeviceModel(UID uid, SubDevice sudevice, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
+        internal RDMDeviceModel(UID uid, SubDevice subdevice, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
         {
             this.sendRdmFunktion = sendRdmFunktion;
             DeviceInfo = deviceInfo;
             CurrentUsedUID = uid;
-            CurrentUsedSubDevice = sudevice;
+            CurrentUsedSubDevice = subdevice;
             ManufacturerID = uid.ManufacturerID;
             Manufacturer = (EManufacturer)uid.ManufacturerID;
         }
@@ -265,7 +266,7 @@ namespace RDMSharp
             await sendRdmFunktion.Invoke(rdmMessage);
         }
 
-        internal async Task ReceiveRDMMessage(RDMMessage rdmMessage)
+        internal void ReceiveRDMMessage(RDMMessage rdmMessage)
         {
             if (rdmMessage.SourceUID != CurrentUsedUID)
                 return;

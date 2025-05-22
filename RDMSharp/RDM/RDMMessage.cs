@@ -380,6 +380,7 @@ namespace RDMSharp
         }
 
         private object valueCache = null;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2200:Erneut ausführen, um Stapeldetails beizubehalten", Justification = "<Ausstehend>")]
         public object Value
         {
             get
@@ -410,7 +411,7 @@ namespace RDMSharp
                             manufacturer = DestUID.ManufacturerID;
                         }
 
-                        return valueCache = MetadataFactory.ParseDataToPayload(MetadataFactory.GetDefine(new ParameterBag(this.Parameter, manufacturer)), Tools.ConvertCommandDublicteToCommand(Command), this.ParameterData).ParsedObject;
+                        return valueCache = MetadataFactory.ParseDataToPayload(MetadataFactory.GetDefine(new ParameterBag(this.Parameter, manufacturer)), Tools.ConvertCommandDublicateToCommand(Command), this.ParameterData).ParsedObject;
 
 
                     }

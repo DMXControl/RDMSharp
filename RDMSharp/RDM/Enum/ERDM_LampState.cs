@@ -4,8 +4,8 @@ using System.ComponentModel;
 
 namespace RDMSharp
 {
-    [DataTreeEnum(ERDM_Parameter.LAMP_STATE, Command.ECommandDublicte.GetResponse, "state")]
-    [DataTreeEnum(ERDM_Parameter.LAMP_STATE, Command.ECommandDublicte.SetRequest, "state")]
+    [DataTreeEnum(ERDM_Parameter.LAMP_STATE, Command.ECommandDublicate.GetResponse, "state")]
+    [DataTreeEnum(ERDM_Parameter.LAMP_STATE, Command.ECommandDublicate.SetRequest, "state")]
     public enum ERDM_LampState : byte
     {
         [Description("Off")]

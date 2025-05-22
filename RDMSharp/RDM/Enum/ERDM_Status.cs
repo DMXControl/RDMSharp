@@ -3,9 +3,9 @@ using RDMSharp.Metadata.JSON;
 
 namespace RDMSharp
 {
-    [DataTreeEnum(ERDM_Parameter.STATUS_MESSAGES, Command.ECommandDublicte.GetRequest, "status_type")]
-    [DataTreeEnum(ERDM_Parameter.SUB_DEVICE_STATUS_REPORT_THRESHOLD, Command.ECommandDublicte.GetResponse, "status_type")]
-    [DataTreeEnum(ERDM_Parameter.SUB_DEVICE_STATUS_REPORT_THRESHOLD, Command.ECommandDublicte.SetRequest, "status_type")]
+    [DataTreeEnum(ERDM_Parameter.STATUS_MESSAGES, Command.ECommandDublicate.GetRequest, "status_type")]
+    [DataTreeEnum(ERDM_Parameter.SUB_DEVICE_STATUS_REPORT_THRESHOLD, Command.ECommandDublicate.GetResponse, "status_type")]
+    [DataTreeEnum(ERDM_Parameter.SUB_DEVICE_STATUS_REPORT_THRESHOLD, Command.ECommandDublicate.SetRequest, "status_type")]
     public enum ERDM_Status : byte
     {
         NONE = 0x00,

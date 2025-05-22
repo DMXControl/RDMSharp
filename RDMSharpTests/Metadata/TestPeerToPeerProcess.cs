@@ -20,20 +20,28 @@ namespace RDMSharpTests.Metadata
             Assert.That(peerToPeerProcess.RequestPayloadObject.IsUnset, Is.True);
             Assert.That(peerToPeerProcess.ResponsePayloadObject.IsUnset, Is.True);
 
-            AsyncRDMRequestHelper helper = null;
+            AsyncRDMRequestHelper? helper = null;
             helper = new AsyncRDMRequestHelper(sendMessage);
 
-            await Task.WhenAny(
-                peerToPeerProcess.Run(helper),
-                Task.Run(async () =>
-                {
-                    while (peerToPeerProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Running)
-                        await Task.Delay(100);
-                }));
+            try
+            {
+                await Task.WhenAny(
+                    peerToPeerProcess.Run(helper),
+                    Task.Run(async () =>
+                    {
+                        while (peerToPeerProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Running)
+                            await Task.Delay(100);
+                    }));
 
-            Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTreeBranch)));
-            Assert.That(peerToPeerProcess.ResponsePayloadObject.Children[0].Value, Is.EqualTo(DMX_ADDRESS));
-            Assert.That(peerToPeerProcess.ResponsePayloadObject.ParsedObject, Is.EqualTo(DMX_ADDRESS));
+                Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTreeBranch)));
+                Assert.That(peerToPeerProcess.ResponsePayloadObject.Children[0].Value, Is.EqualTo(DMX_ADDRESS));
+                Assert.That(peerToPeerProcess.ResponsePayloadObject.ParsedObject, Is.EqualTo(DMX_ADDRESS));                
+            }
+            finally
+            {
+                helper?.Dispose();
+                helper = null;
+            }
 
             async Task sendMessage(RDMMessage message)
             {
@@ -53,7 +61,7 @@ namespace RDMSharpTests.Metadata
                 };
 
                 await Task.Delay(10);
-                helper.ReceiveMessage(response);
+                helper?.ReceiveMessage(response);
             }
         }
 
@@ -77,22 +85,29 @@ namespace RDMSharpTests.Metadata
             Assert.That(peerToPeerProcess.RequestPayloadObject.IsUnset, Is.True);
             Assert.That(peerToPeerProcess.ResponsePayloadObject.IsUnset, Is.True);
 
-            AsyncRDMRequestHelper helper = null;
+            AsyncRDMRequestHelper? helper = null;
             byte[] parameterData = MetadataFactory.GetResponseMessageData(parameterBag, new DataTreeBranch(new DataTree[] { new DataTree("device_uids", 0, children: children) }));
             helper = new AsyncRDMRequestHelper(sendMessage);
-            
-            await Task.WhenAny(
-                peerToPeerProcess.Run(helper),
-                Task.Run(async () =>
-                {
-                    while (peerToPeerProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Running)
-                        await Task.Delay(100);
-                }));
 
-            Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTreeBranch)));
-            Assert.That(peerToPeerProcess.ResponsePayloadObject.Children[0].Children, Is.EqualTo(children));
-            Assert.That(peerToPeerProcess.ResponsePayloadObject.ParsedObject, Is.EqualTo(children.Select(dt => dt.Value).ToList()));
+            try
+            {
+                await Task.WhenAny(
+                    peerToPeerProcess.Run(helper),
+                    Task.Run(async () =>
+                    {
+                        while (peerToPeerProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Running)
+                            await Task.Delay(100);
+                    }));
 
+                Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTreeBranch)));
+                Assert.That(peerToPeerProcess.ResponsePayloadObject.Children[0].Children, Is.EqualTo(children));
+                Assert.That(peerToPeerProcess.ResponsePayloadObject.ParsedObject, Is.EqualTo(children.Select(dt => dt.Value).ToList()));
+            }
+            finally
+            {
+                helper?.Dispose();
+                helper = null;
+            }
 
             async Task sendMessage(RDMMessage message)
             {
@@ -116,7 +131,7 @@ namespace RDMSharpTests.Metadata
                 };
 
                 await Task.Delay(10);
-                helper.ReceiveMessage(response);
+                helper?.ReceiveMessage(response);
             }
         }
         [Test]
@@ -134,22 +149,30 @@ namespace RDMSharpTests.Metadata
             Assert.That(peerToPeerProcess.RequestPayloadObject.IsUnset, Is.True);
             Assert.That(peerToPeerProcess.ResponsePayloadObject.IsUnset, Is.True);
 
-            AsyncRDMRequestHelper helper = null;
+            AsyncRDMRequestHelper? helper = null;
             byte count = 0;
-            helper = new AsyncRDMRequestHelper(sendMessage);
 
-            await Task.WhenAny(
-                peerToPeerProcess.Run(helper),
-                Task.Run(async () =>
-                {
-                    while (peerToPeerProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Running)
-                        await Task.Delay(100);
-                }));
+            try
+            {
+                helper = new AsyncRDMRequestHelper(sendMessage);
 
-            Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTreeBranch)));
-            Assert.That(peerToPeerProcess.ResponsePayloadObject.Children[0].Value, Is.EqualTo(LAMP_STRIKES));
-            Assert.That(peerToPeerProcess.ResponsePayloadObject.ParsedObject, Is.EqualTo(LAMP_STRIKES));
+                await Task.WhenAny(
+                    peerToPeerProcess.Run(helper),
+                    Task.Run(async () =>
+                    {
+                        while (peerToPeerProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Running)
+                            await Task.Delay(100);
+                    }));
 
+                Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTreeBranch)));
+                Assert.That(peerToPeerProcess.ResponsePayloadObject.Children[0].Value, Is.EqualTo(LAMP_STRIKES));
+                Assert.That(peerToPeerProcess.ResponsePayloadObject.ParsedObject, Is.EqualTo(LAMP_STRIKES));
+            }
+            finally
+            {
+                helper?.Dispose();
+                helper = null;
+            }
             async Task sendMessage(RDMMessage message)
             {
                 Assert.That(count, Is.LessThan(2));
@@ -174,7 +197,7 @@ namespace RDMSharpTests.Metadata
 
                 await Task.Delay(10);
                 count++;
-                helper.ReceiveMessage(response);
+                helper?.ReceiveMessage(response);
             }
         }
     }

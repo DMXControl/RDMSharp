@@ -118,7 +118,7 @@ namespace RDMSharp
         public AbstractRemoteRDMDevice(UID uid, SubDevice? subDevice = null) : base(uid, subDevice)
         {
             if (subDevice.HasValue && subDevice.Value.IsBroadcast)
-                throw new NotSupportedException("A SubDevice cannot be Broadcast.");
+                throw new NotSupportedException("A SubDevice can't be Broadcast.");
         }
         protected override async void initialize(RDMDeviceInfo deviceInfo = null)
         {
@@ -316,10 +316,11 @@ namespace RDMSharp
             try
             {
                 if (deviceModel != null)
-                    await deviceModel?.ReceiveRDMMessage(rdmMessage);
+                    deviceModel?.ReceiveRDMMessage(rdmMessage);
             }
             catch (Exception e)
             {
+                await Task.CompletedTask;
                 Logger?.LogError(e, string.Empty);
             }
             

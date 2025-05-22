@@ -114,37 +114,37 @@ namespace RDMSharp
         }
 
 
-        public async Task<RequestResult> RequestMessage(RDMMessage requerst)
+        public async Task<RequestResult> RequestMessage(RDMMessage request)
         {
             try
             {
-                int key = generateKey(requerst);
-                if (requerst.SubDevice.IsBroadcast)
+                int key = generateKey(request);
+                if (request.SubDevice.IsBroadcast)
                 {
-                    Logger?.LogTrace($"Send Subdevice-Broadcast Request: {requerst.ToString()}");
-                    await _sendMethode.Invoke(requerst);
-                    return new RequestResult(requerst, null, TimeSpan.Zero); // Broadcasts are not expected to return a response.
+                    Logger?.LogTrace($"Send Subdevice-Broadcast Request: {request.ToString()}");
+                    await _sendMethode.Invoke(request);
+                    return new RequestResult(request, null, TimeSpan.Zero); // Broadcasts are not expected to return a response.
                 }
-                if (!buffer.TryAdd(key, new AsyncBufferBag(key, requerst)))
+                if (!buffer.TryAdd(key, new AsyncBufferBag(key, request)))
                 {
                     key += random.Next();
-                    buffer.TryAdd(key, new AsyncBufferBag(key, requerst));
+                    buffer.TryAdd(key, new AsyncBufferBag(key, request));
                 }
                 RDMMessage response = null;
-                Logger?.LogTrace($"Send Request: {requerst.ToString()}");
-                await _sendMethode.Invoke(requerst);
+                Logger?.LogTrace($"Send Request: {request.ToString()}");
+                await _sendMethode.Invoke(request);
                 int count = 0;
                 do
                 {
                     if (this.IsDisposing || this.IsDisposed)
-                        return new RequestResult(requerst);
+                        return new RequestResult(request);
 
                     buffer.TryGetValue(key, out AsyncBufferBag bag);
                     response = bag?.Response;
                     if (response != null)
                         break;
                     await Task.Delay(5, _cts.Token);
-                    if (requerst.Command == ERDM_Command.NONE)
+                    if (request.Command == ERDM_Command.NONE)
                     {
                         throw new Exception("Command is not set");
                     }
@@ -152,11 +152,11 @@ namespace RDMSharp
                     if (count % 300 == 299)
                     {
                         await Task.Delay(TimeSpan.FromTicks(random.Next(33, 777)), _cts.Token);
-                        Logger?.LogTrace($"Retry Request: {requerst.ToString()} ElapsedTime: {bag.ElapsedTime}");
-                        await _sendMethode.Invoke(requerst);
+                        Logger?.LogTrace($"Retry Request: {request.ToString()} ElapsedTime: {bag.ElapsedTime}");
+                        await _sendMethode.Invoke(request);
                         await Task.Delay(TimeSpan.FromTicks(random.Next(33, 777)), _cts.Token);
                     }
-                    if (count > 3 && requerst.Command == ERDM_Command.DISCOVERY_COMMAND)
+                    if (count > 3 && request.Command == ERDM_Command.DISCOVERY_COMMAND)
                     {
                         Logger?.LogTrace($"Discovery request exceeded timeout");
                         break;
@@ -164,22 +164,22 @@ namespace RDMSharp
 
                     if (count == 3000)
                     {
-                        Logger?.LogTrace($"Timeout Request: {requerst.ToString()} ElapsedTime: {bag.ElapsedTime}");
-                        return new RequestResult(requerst);
+                        Logger?.LogTrace($"Timeout Request: {request.ToString()} ElapsedTime: {bag.ElapsedTime}");
+                        return new RequestResult(request);
                     }
                 }
                 while (response == null);
                 buffer.TryRemove(key, out AsyncBufferBag bag2);
                 response = bag2.Response;
-                var result = new RequestResult(requerst, response, bag2.ElapsedTime);
-                Logger?.LogTrace($"Successful Request: {requerst.ToString()} Response: {response.ToString()} ElapsedTime: {bag2.ElapsedTime}");
+                var result = new RequestResult(request, response, bag2.ElapsedTime);
+                Logger?.LogTrace($"Successful Request: {request.ToString()} Response: {response.ToString()} ElapsedTime: {bag2.ElapsedTime}");
                 return result;
             }
             catch (Exception ex)
             {
                 Logger?.LogError(ex);
             }
-            return new RequestResult(requerst);
+            return new RequestResult(request);
         }
         private int generateKey(RDMMessage request)
         {
@@ -200,10 +200,10 @@ namespace RDMSharp
             public readonly int Key;
 
             public readonly RDMMessage Request;
-            public readonly DateTime RequestTimeStamp;
+            public readonly DateTime RequestTimestamp;
 
             public RDMMessage Response { get; private set; }
-            public DateTime? ResponseTimeStamp { get; private set; }
+            public DateTime? ResponseTimestamp { get; private set; }
 
             private TimeSpan? elapsedTime;
             public TimeSpan ElapsedTime
@@ -213,7 +213,7 @@ namespace RDMSharp
                     if (elapsedTime.HasValue)
                         return elapsedTime.Value;
 
-                    return DateTime.UtcNow - RequestTimeStamp; ;
+                    return DateTime.UtcNow - RequestTimestamp; ;
                 }
                 private set
                 {
@@ -226,13 +226,13 @@ namespace RDMSharp
                 Request = request;
                 Response = null;
                 Key = key;
-                RequestTimeStamp = DateTime.UtcNow;
+                RequestTimestamp = DateTime.UtcNow;
             }
             public void SetResponse(RDMMessage response)
             {
                 Response = response;
-                ResponseTimeStamp = DateTime.UtcNow;
-                ElapsedTime = ResponseTimeStamp.Value - RequestTimeStamp;
+                ResponseTimestamp = DateTime.UtcNow;
+                ElapsedTime = ResponseTimestamp.Value - RequestTimestamp;
             }
         }
     }

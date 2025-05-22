@@ -4,7 +4,7 @@ namespace RDMSharpTests
     {
         private AsyncRDMRequestHelper? asyncRDMRequestHelper;
         private bool hold = false;
-        private SemaphoreSlim hold_Semaphore;
+        private SemaphoreSlim? hold_Semaphore;
 
         [SetUp]
         public void Setup()
@@ -23,7 +23,7 @@ namespace RDMSharpTests
 
         private async Task sendMethode(RDMMessage rdmMessage)
         {
-            if (!hold)
+            if (!hold || hold_Semaphore == null)
                 return;
 
             if(hold_Semaphore.CurrentCount==0)
@@ -53,7 +53,7 @@ namespace RDMSharpTests
         [Test, Order(6)]
         public async Task TestSimultanRequests()
         {
-            await hold_Semaphore.WaitAsync();
+            await hold_Semaphore!.WaitAsync();
             hold=true;
             const int delay = 1000;
             UID[] sourceUIDs = new UID[] { new UID(3, 56), new UID(3, 33), new UID(40, 33) };
@@ -70,7 +70,7 @@ namespace RDMSharpTests
                         foreach (ERDM_Parameter parameter in parameters)
                             foreach (ERDM_Command command in commands)
                             {
-                                byte[] parameterData = null;
+                                byte[]? parameterData = null;
                                 if(parameter == ERDM_Parameter.DMX_START_ADDRESS && command == ERDM_Command.GET_COMMAND)
                                     parameterData = new byte[] { 0x00, 0x01 };
                                 else if (parameter == ERDM_Parameter.DMX_PERSONALITY && command == ERDM_Command.GET_COMMAND)
@@ -79,14 +79,14 @@ namespace RDMSharpTests
                                     parameterData = new byte[] { 0x01 };
                                 tasks.Add(testPackage(sourceUID, destUID, (byte)(tasks.Count % byte.MaxValue), subDevice, parameter, command, new byte[] { 0x00, 0x01 }, delay));
                             }
-            hold_Semaphore.Release();
+            hold_Semaphore?.Release();
             await Task.WhenAll(tasks);
         }
 
         [Test, Order(7)]
         public async Task TestSimultanRequestsSameTransactionID()
         {
-            await hold_Semaphore.WaitAsync();
+            await hold_Semaphore!.WaitAsync();
             hold = true;
             const int delay = 1000;
             UID[] sourceUIDs = new UID[] { new UID(3, 56), new UID(3, 33), new UID(40, 33) };
@@ -103,7 +103,7 @@ namespace RDMSharpTests
                         foreach (ERDM_Parameter parameter in parameters)
                             foreach (ERDM_Command command in commands)
                             {
-                                byte[] parameterData = null;
+                                byte[]? parameterData = null;
                                 if (parameter == ERDM_Parameter.DMX_START_ADDRESS && command == ERDM_Command.GET_COMMAND)
                                     parameterData = new byte[] { 0x00, 0x01 };
                                 else if (parameter == ERDM_Parameter.DMX_PERSONALITY && command == ERDM_Command.GET_COMMAND)
@@ -112,7 +112,7 @@ namespace RDMSharpTests
                                     parameterData = new byte[] { 0x01 };
                                 tasks.Add(testPackage(sourceUID, destUID, 1, subDevice, parameter, command, new byte[] { 0x00, 0x01 }, delay));
                             }
-            hold_Semaphore.Release();
+            hold_Semaphore?.Release();
             await Task.WhenAll(tasks);
         }
 
@@ -156,25 +156,25 @@ namespace RDMSharpTests
         }
         private void validate(RDMMessage request, RequestResult result)
         {
-            string faliMessage = $"Request: {request.ToString()} Response: {result.Response?.ToString()}";
+            string failMessage = $"Request: {request.ToString()} Response: {result.Response?.ToString()}";
 
             if (request.Command == ERDM_Command.SET_COMMAND && request.SubDevice.IsBroadcast)
             {
-                Assert.That(result.Success, Is.True, faliMessage);
-                Assert.That(result.Response, Is.Null, faliMessage);
+                Assert.That(result.Success, Is.True, failMessage);
+                Assert.That(result.Response, Is.Null, failMessage);
                 return;
             }
 
-            Assert.That(result.Success, Is.True, faliMessage);
-            Assert.That(result.Response, Is.Not.Null, faliMessage);
-            Assert.That(result.Response.DestUID, Is.EqualTo(request.SourceUID), faliMessage);
-            Assert.That(result.Response.SourceUID, Is.EqualTo(request.DestUID), faliMessage);
-            Assert.That(result.Response.SubDevice, Is.EqualTo(request.SubDevice), faliMessage);
-            Assert.That(result.Response.TransactionCounter, Is.EqualTo(request.TransactionCounter), faliMessage);
-            Assert.That(result.Response.Command, Is.EqualTo(request.Command | ERDM_Command.RESPONSE), faliMessage);
+            Assert.That(result.Success, Is.True, failMessage);
+            Assert.That(result.Response, Is.Not.Null, failMessage);
+            Assert.That(result.Response.DestUID, Is.EqualTo(request.SourceUID), failMessage);
+            Assert.That(result.Response.SourceUID, Is.EqualTo(request.DestUID), failMessage);
+            Assert.That(result.Response.SubDevice, Is.EqualTo(request.SubDevice), failMessage);
+            Assert.That(result.Response.TransactionCounter, Is.EqualTo(request.TransactionCounter), failMessage);
+            Assert.That(result.Response.Command, Is.EqualTo(request.Command | ERDM_Command.RESPONSE), failMessage);
 
             if (request.Command == ERDM_Command.GET_COMMAND && request.Parameter != ERDM_Parameter.QUEUED_MESSAGE)
-                Assert.That(result.Response.Parameter, Is.EqualTo(request.Parameter), faliMessage);
+                Assert.That(result.Response.Parameter, Is.EqualTo(request.Parameter), failMessage);
         }
         #endregion
     }

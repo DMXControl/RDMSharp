@@ -5,8 +5,8 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.PRESET_PLAYBACK, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.PRESET_PLAYBACK, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.PRESET_PLAYBACK, Command.ECommandDublicate.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.PRESET_PLAYBACK, Command.ECommandDublicate.SetRequest)]
     public class RDMPresetPlayback : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

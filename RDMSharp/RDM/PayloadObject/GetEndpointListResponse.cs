@@ -7,7 +7,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.ENDPOINT_LIST, Command.ECommandDublicte.GetResponse, true, "endpoints")]
+    [DataTreeObject(ERDM_Parameter.ENDPOINT_LIST, Command.ECommandDublicate.GetResponse, true, "endpoints")]
     public class GetEndpointListResponse : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

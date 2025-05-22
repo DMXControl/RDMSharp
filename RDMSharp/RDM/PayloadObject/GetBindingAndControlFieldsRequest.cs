@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.BINDING_CONTROL_FIELDS, Command.ECommandDublicte.GetRequest)]
+    [DataTreeObject(ERDM_Parameter.BINDING_CONTROL_FIELDS, Command.ECommandDublicate.GetRequest)]
     public class GetBindingAndControlFieldsRequest : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

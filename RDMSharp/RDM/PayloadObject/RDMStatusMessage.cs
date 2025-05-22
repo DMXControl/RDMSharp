@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.STATUS_MESSAGES, Command.ECommandDublicte.GetResponse, true, "slots")]
+    [DataTreeObject(ERDM_Parameter.STATUS_MESSAGES, Command.ECommandDublicate.GetResponse, true, "slots")]
     public class RDMStatusMessage : AbstractRDMPayloadObject
     {
         public RDMStatusMessage(

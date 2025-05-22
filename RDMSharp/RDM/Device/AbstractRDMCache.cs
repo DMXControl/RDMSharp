@@ -1,4 +1,5 @@
-﻿using RDMSharp.Metadata;
+﻿using Microsoft.Extensions.Logging;
+using RDMSharp.Metadata;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace RDMSharp
 {
     public abstract class AbstractRDMCache : IDisposable
     {
+        protected static ILogger Logger = null;
         protected bool IsDisposed { get; private set; }
         protected bool IsDisposing { get; private set; }
         internal ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch> parameterValuesDataTreeBranch { get; private set; } = new ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch>();
@@ -168,7 +170,7 @@ namespace RDMSharp
         }
         protected async Task requestSetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice, object value)
         {
-            define.GetCommand(Metadata.JSON.Command.ECommandDublicte.SetRequest, out var cmd);
+            define.GetCommand(Metadata.JSON.Command.ECommandDublicate.SetRequest, out var cmd);
             var req = cmd.Value.GetRequiredProperties();
             if (req.Length == 1)
             {
@@ -201,12 +203,12 @@ namespace RDMSharp
             }
             catch(Exception e)
             {
-
+                Logger.LogError(e, $"Failed to get parameter {parameterBag.PID} with empty payload");
             }
         }
         protected async Task requestGetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
         {
-            define.GetCommand(Metadata.JSON.Command.ECommandDublicte.GetRequest, out var cmd);
+            define.GetCommand(Metadata.JSON.Command.ECommandDublicate.GetRequest, out var cmd);
             var req = cmd.Value.GetRequiredProperties();
             if (req.Length == 1 && req[0] is Metadata.JSON.OneOfTypes.IIntegerType intType)
             {
@@ -214,7 +216,7 @@ namespace RDMSharp
                 {
                     string name = intType.Name;
 
-                    IComparable dependecyValue = (IComparable)parameterValuesDependeciePropertyBag.FirstOrDefault(bag => bag.Key.Parameter == parameterBag.PID && bag.Key.Command == Metadata.JSON.Command.ECommandDublicte.GetRequest && string.Equals(bag.Key.Name, name)).Value;
+                    IComparable dependecyValue = (IComparable)parameterValuesDependeciePropertyBag.FirstOrDefault(bag => bag.Key.Parameter == parameterBag.PID && bag.Key.Command == Metadata.JSON.Command.ECommandDublicate.GetRequest && string.Equals(bag.Key.Name, name)).Value;
 
                     object i = intType.GetMinimum();
                     object max = intType.GetMaximum();
@@ -239,7 +241,7 @@ namespace RDMSharp
                 }
                 catch (Exception e)
                 {
-
+                    Logger.LogError(e, $"Failed to get parameter {parameterBag.PID} with Bag: {parameterBag}");
                 }
             }
         }

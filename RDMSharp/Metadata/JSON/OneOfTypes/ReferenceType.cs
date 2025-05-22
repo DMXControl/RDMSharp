@@ -9,11 +9,13 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         [JsonPropertyName("$ref")]
         public readonly string URI { get; }
         [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
-        public readonly Command.ECommandDublicte Command { get; }
+        public readonly Command.ECommandDublicate Command { get; }
         [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
         public readonly ushort Pointer { get; }
         [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
+#pragma warning disable CS8632
         public readonly CommonPropertiesForNamed? ReferencedObject { get; }
+#pragma warning restore CS8632
 
         [JsonConstructor]
         public ReferenceType(string uri)
@@ -28,16 +30,16 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 switch (segments[0])
                 {
                     case "get_request":
-                        Command = JSON.Command.ECommandDublicte.GetRequest;
+                        Command = JSON.Command.ECommandDublicate.GetRequest;
                         break;
                     case "get_response":
-                        Command = JSON.Command.ECommandDublicte.GetResponse;
+                        Command = JSON.Command.ECommandDublicate.GetResponse;
                         break;
                     case "set_request":
-                        Command = JSON.Command.ECommandDublicte.SetRequest;
+                        Command = JSON.Command.ECommandDublicate.SetRequest;
                         break;
                     case "set_response":
-                        Command = JSON.Command.ECommandDublicte.SetResponse;
+                        Command = JSON.Command.ECommandDublicate.SetResponse;
                         break;
                 }
                 Pointer = ushort.Parse(segments[1]);

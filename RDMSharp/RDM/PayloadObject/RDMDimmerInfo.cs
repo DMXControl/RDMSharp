@@ -6,7 +6,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.DIMMER_INFO, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.DIMMER_INFO, Command.ECommandDublicate.GetResponse)]
     public class RDMDimmerInfo : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

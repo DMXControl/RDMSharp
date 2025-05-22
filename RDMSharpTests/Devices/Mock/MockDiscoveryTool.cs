@@ -5,10 +5,10 @@ namespace RDMSharpTests.Devices.Mock
     {
         public MockDiscoveryTool() : base()
         {
-            SendReceivePipelineImitateRealConditions.RDMMessageRereivedResponse += SendReceivePipelineImitateRealConditions_RDMMessageRereivedResponse;
+            SendReceivePipelineImitateRealConditions.RDMMessageReceivedResponse += SendReceivePipelineImitateRealConditions_RDMMessageReceivedResponse;
         }
 
-        private void SendReceivePipelineImitateRealConditions_RDMMessageRereivedResponse(object? sender, byte[] e)
+        private void SendReceivePipelineImitateRealConditions_RDMMessageReceivedResponse(object? sender, byte[] e)
         {
             try
             {

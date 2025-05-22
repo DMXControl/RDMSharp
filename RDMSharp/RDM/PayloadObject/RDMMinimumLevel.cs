@@ -5,8 +5,8 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.MINIMUM_LEVEL, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.MINIMUM_LEVEL, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.MINIMUM_LEVEL, Command.ECommandDublicate.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.MINIMUM_LEVEL, Command.ECommandDublicate.SetRequest)]
     public class RDMMinimumLevel : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

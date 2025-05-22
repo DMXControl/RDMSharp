@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.SENSOR_DEFINITION, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.SENSOR_DEFINITION, Command.ECommandDublicate.GetResponse)]
     public class RDMSensorDefinition : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
         public RDMSensorDefinition(

@@ -195,7 +195,7 @@ namespace RDMSharp
             if (Personalities != null)
             {
                 if (Personalities.Length >= byte.MaxValue)
-                    throw new ArgumentOutOfRangeException($"There to many {Personalities}! Maxumum is {byte.MaxValue - 1}");
+                    throw new ArgumentOutOfRangeException($"There to many {Personalities}! Maximum is {byte.MaxValue - 1}");
 
                 if (Personalities.Length != 0)
                 {
@@ -215,7 +215,7 @@ namespace RDMSharp
             {
                 var _sensors = Sensors.Values.ToArray();
                 if (_sensors.Length >= byte.MaxValue)
-                    throw new ArgumentOutOfRangeException($"There to many {Sensors}! Maxumum is {byte.MaxValue - 1}");
+                    throw new ArgumentOutOfRangeException($"There to many {Sensors}! Maximum is {byte.MaxValue - 1}");
 
                 if (_sensors.Min(s => s.SensorId) != 0)
                     throw new ArgumentOutOfRangeException($"The first Sensor should have the ID: 0, but is({_sensors.Min(s => s.SensorId)})");
@@ -399,8 +399,8 @@ namespace RDMSharp
                         throw new NotSupportedException($"The Protocoll not allow to set the Parameter: {parameter}");
                     else
                     {
-                        byte[] data = MetadataFactory.ParsePayloadToData(define, Metadata.JSON.Command.ECommandDublicte.SetRequest, DataTreeBranch.FromObject(value, null, parameterBag, ERDM_Command.SET_COMMAND));
-                        var obj = MetadataFactory.ParseDataToPayload(define, Metadata.JSON.Command.ECommandDublicte.SetRequest, data);
+                        byte[] data = MetadataFactory.ParsePayloadToData(define, Metadata.JSON.Command.ECommandDublicate.SetRequest, DataTreeBranch.FromObject(value, null, parameterBag, ERDM_Command.SET_COMMAND));
+                        var obj = MetadataFactory.ParseDataToPayload(define, Metadata.JSON.Command.ECommandDublicate.SetRequest, data);
                         if (!object.Equals(value, obj))
                             return false;
                     }
@@ -537,7 +537,7 @@ namespace RDMSharp
                 }
                 if (rdmMessage.Command == ERDM_Command.GET_COMMAND)
                 {
-                    if (rdmMessage.SubDevice == SubDevice.Broadcast) // no Response on Broadcast Subdevice, because this cant work on a if there are more then one Device responding on a singel line.
+                    if (rdmMessage.SubDevice == SubDevice.Broadcast) // no Response on Broadcast Subdevice, because this can't work on a if there are more then one Device responding on a single line.
                     {
                         response = new RDMMessage(ERDM_NackReason.SUB_DEVICE_OUT_OF_RANGE) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
                         goto FAIL;
@@ -564,13 +564,14 @@ namespace RDMSharp
                     }
                     catch (Exception e)
                     {
+                        Logger.LogError(e);
                         goto FAIL;
                     }
                 }
                 else if (rdmMessage.Command == ERDM_Command.SET_COMMAND)
                 {
                     bool success = false;
-                    //Handle set Requerst
+                    //Handle set Request
                     if (parameterValues.TryGetValue(rdmMessage.Parameter, out object comparisonValue) && parameterValues.TryUpdate(rdmMessage.Parameter, rdmMessage.Value, comparisonValue))
                     {
                         success = true;
@@ -597,6 +598,7 @@ namespace RDMSharp
                         }
                         catch (Exception e)
                         {
+                            Logger.LogError(e);
                             goto FAIL;
                         }
                     }
@@ -614,7 +616,7 @@ namespace RDMSharp
                 Logger?.LogError(e, string.Empty);
             }
         FAIL:
-            if (rdmMessage.SubDevice == SubDevice.Broadcast) // no Response on Broadcast Subdevice, because this cant work on a if there are more then one Device responding on a singel line.
+            if (rdmMessage.SubDevice == SubDevice.Broadcast) // no Response on Broadcast Subdevice, because this can't work on a if there are more then one Device responding on a singel line.
                 return null;
             if (rdmMessage.DestUID.IsBroadcast) // no Response on Broadcast
                 return null;

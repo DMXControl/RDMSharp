@@ -263,9 +263,9 @@ namespace RDMSharp
         {
             PresentValue = value;
             if (this.LowestHighestValueSupported)
-                updateLowestHighstValue(value);
+                updateLowestHighestValue(value);
         }
-        private void updateLowestHighstValue(short value)
+        private void updateLowestHighestValue(short value)
         {
             LowestValue = Math.Min(LowestValue, value);
             HighestValue = Math.Max(HighestValue, value);

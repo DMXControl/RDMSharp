@@ -61,13 +61,13 @@ namespace RDMSharp
 
                 State = EPeerToPeerProcessState.Running;
 
-                ECommandDublicte commandRequest = ECommandDublicte.GetRequest;
+                ECommandDublicate commandRequest = ECommandDublicate.GetRequest;
                 if (Command == ERDM_Command.SET_COMMAND)
-                    commandRequest = ECommandDublicte.SetRequest;
+                    commandRequest = ECommandDublicate.SetRequest;
 
-                ECommandDublicte commandResponse = ECommandDublicte.GetResponse;
+                ECommandDublicate commandResponse = ECommandDublicate.GetResponse;
                 if (Command == ERDM_Command.SET_COMMAND)
-                    commandResponse = ECommandDublicte.SetResponse;
+                    commandResponse = ECommandDublicate.SetResponse;
 
                 byte[] parameterData = MetadataFactory.ParsePayloadToData(Define, commandRequest, RequestPayloadObject);
                 request = new RDMMessage()

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION, Command.ECommandDublicate.GetResponse)]
     public class RDMDMXPersonalityDescription : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
         [DataTreeObjectConstructor]
@@ -29,7 +29,7 @@ namespace RDMSharp
         [DataTreeObjectProperty("personality", 0)]
         public byte PersonalityId { get; private set; }
 
-        [DataTreeObjectDependecieProperty("slot", ERDM_Parameter.SLOT_DESCRIPTION, Command.ECommandDublicte.GetRequest)]
+        [DataTreeObjectDependecieProperty("slot", ERDM_Parameter.SLOT_DESCRIPTION, Command.ECommandDublicate.GetRequest)]
         [DataTreeObjectProperty("dmx_slots_required", 1)]
         public ushort Slots { get; private set; }
 
