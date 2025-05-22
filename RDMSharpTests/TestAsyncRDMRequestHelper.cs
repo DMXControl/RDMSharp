@@ -117,7 +117,7 @@ namespace RDMSharpTests
         }
 
         #region
-        private async Task testPackage(UID sourceUID, UID destUID, byte transactionCounter, SubDevice subDevice, ERDM_Parameter parameter, ERDM_Command command, byte[] parameterData, int responseDelay = 10)
+        private async Task testPackage(UID sourceUID, UID destUID, byte transactionCounter, SubDevice subDevice, ERDM_Parameter parameter, ERDM_Command command, byte[] parameterData, int responseDelay = 100)
         {
             Assert.That(sourceUID, Is.Not.EqualTo(destUID));
             Assert.That(command.HasFlag(ERDM_Command.RESPONSE), Is.False);
@@ -141,7 +141,7 @@ namespace RDMSharpTests
                     ParameterData = parameterData
                 }, responseDelay);
         }
-        private async Task testPackage(RDMMessage request, RDMMessage response, int responseDelay = 10)
+        private async Task testPackage(RDMMessage request, RDMMessage response, int responseDelay = 100)
         {
             Task task = Task.Run(async () =>
             {
