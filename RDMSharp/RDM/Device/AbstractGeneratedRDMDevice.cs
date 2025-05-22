@@ -109,6 +109,7 @@ namespace RDMSharp
 
                 currentPersonality = value.Value;
                 this.OnPropertyChanged(nameof(this.CurrentPersonality));
+                this.updateDeviceInfo();
             }
         }
         private bool discoveryMuted;
@@ -476,7 +477,15 @@ namespace RDMSharp
                     goto default;
 
                 default:
-                    parameterValues.AddOrUpdate(parameter, value, (o, p) => value);
+                    bool notNew = false;
+                    parameterValues.AddOrUpdate(parameter, value, (o, p) =>
+                    {
+                        if (object.Equals(p, value))
+                            notNew = true;
+                        return value;
+                    });
+                    if (notNew)
+                        return;
                     updateParameterBag(parameter, index);
                     return;
             }
@@ -551,7 +560,7 @@ namespace RDMSharp
                         response = new RDMMessage(ERDM_NackReason.SUB_DEVICE_OUT_OF_RANGE) { Parameter = parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
                         goto FAIL;
                     }
-                    if(parameter == ERDM_Parameter.QUEUED_MESSAGE)
+                    if (parameter == ERDM_Parameter.QUEUED_MESSAGE)
                     {
                         if (ParameterUpdatedBag.IsEmpty)
                         {
@@ -570,6 +579,8 @@ namespace RDMSharp
                             messageCounter = (byte)Math.Min(ParameterUpdatedBag.Count, byte.MaxValue);
                         }
                     }
+                    else
+                        removeParamterFromParameterUpdateBag(parameter);
 
                     parameterValues.TryGetValue(parameter, out object responseValue);
                     var parameterBag = new ParameterBag(parameter, UID.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
@@ -684,22 +695,26 @@ namespace RDMSharp
                 return;
             try
             {
-                if (ParameterUpdatedBag.Any(p => p.Parameter == parameter && p.Index == index))
-                {
-                    var tempQueue = new ConcurrentQueue<ParameterUpdatedBag>();
-                    while (ParameterUpdatedBag.TryDequeue(out var item))
-                        if (!(item.Parameter.Equals(parameter) && Equals(parameter, index)))
-                            tempQueue.Enqueue(item);
-
-
-                    while (tempQueue.TryDequeue(out var item))
-                        ParameterUpdatedBag.Enqueue(item);
-                }
+                removeParamterFromParameterUpdateBag(parameter, index);
                 ParameterUpdatedBag.Enqueue(new ParameterUpdatedBag(parameter, index));
             }
             catch(Exception e)
             {
 
+            }
+        }
+        private void removeParamterFromParameterUpdateBag(ERDM_Parameter parameter, object index = null)
+        {
+            if (ParameterUpdatedBag.Any(p => p.Parameter == parameter && p.Index == index))
+            {
+                var tempQueue = new ConcurrentQueue<ParameterUpdatedBag>();
+                while (ParameterUpdatedBag.TryDequeue(out var item))
+                    if (!(item.Parameter.Equals(parameter) && Equals(parameter, index)))
+                        tempQueue.Enqueue(item);
+
+
+                while (tempQueue.TryDequeue(out var item))
+                    ParameterUpdatedBag.Enqueue(item);
             }
         }
         protected sealed override void OnDispose()

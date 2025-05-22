@@ -99,6 +99,8 @@ namespace RDMSharp
             }
         }
 
+        private DateTime lastSendQueuedMessage;
+
         private bool present;
         public bool Present
         {
@@ -114,6 +116,7 @@ namespace RDMSharp
                 OnPropertyChanged(nameof(Present));
             }
         }
+
 
         public AbstractRemoteRDMDevice(UID uid) : base(uid)
         {
@@ -134,6 +137,10 @@ namespace RDMSharp
         private async void DeviceModel_Initialized(object sender, EventArgs e)
         {
             deviceModel.Initialized -= DeviceModel_Initialized;
+            await collectParameters();
+        }
+        private async Task collectParameters()
+        {
             await collectAllParametersOnRoot();
             await scanSubDevices();
             AllDataPulled = true;
@@ -235,6 +242,8 @@ namespace RDMSharp
         {
             if (queued && !deviceModel.KnownNotSupportedParameters.Contains(ERDM_Parameter.QUEUED_MESSAGE))
             {
+                if (DateTime.UtcNow - lastSendQueuedMessage < TimeSpan.FromSeconds(4))
+                    return;
                 ParameterBag parameterBag = new ParameterBag(ERDM_Parameter.QUEUED_MESSAGE, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
                 var define = MetadataFactory.GetDefine(parameterBag);
                 if (define.GetRequest.HasValue)
@@ -242,6 +251,7 @@ namespace RDMSharp
                     byte mc = 0;
                     do
                     {
+                        lastSendQueuedMessage = DateTime.UtcNow;
                         mc = await requestGetParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
                     }
                     while (mc != 0);
@@ -252,7 +262,7 @@ namespace RDMSharp
             {
                 while(ParameterUpdatedBag.TryPeek(out ParameterUpdatedBag bag))
                 {
-                     if (DateTime.UtcNow - bag.Timestamp < TimeSpan.FromMilliseconds(10000))
+                     if (DateTime.UtcNow - bag.Timestamp < TimeSpan.FromSeconds(10))
                         return;
 
                     await requestParameter(bag.Parameter, bag.Index);
@@ -274,7 +284,7 @@ namespace RDMSharp
                 await deviceModel.Initialize();
             }
             else
-                await collectAllParametersOnRoot();
+                await collectParameters();
         }
         private async Task collectAllParametersOnRoot()
         {

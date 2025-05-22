@@ -25,7 +25,8 @@ namespace RDMSharp
             {
                 if (parameterUpdateTimer == null)
                     initializeParameterUpdateTimer();
-                parameterUpdateTimerElapsed += value; 
+
+                parameterUpdateTimerElapsed += value;
             }
             remove
             {
@@ -51,6 +52,7 @@ namespace RDMSharp
             parameterUpdateTimer.Enabled = false;
             parameterUpdateTimer.Elapsed -= ParameterUpdateTimer_Elapsed;
             parameterUpdateTimer.Dispose();
+            parameterUpdateTimer = null;
         }
 
         private void ParameterUpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
