@@ -133,7 +133,7 @@ namespace RDMSharp
         {
             if (_status.FoundDevices.Equals(FoundCount) &&
                 _status.RangeLeftToSearch.Equals(rangeToSearch) &&
-                _status.CurrentStatus.Equals(_statusString) &&
+                string.Equals(_status.CurrentStatus, _statusString) &&
                 _status.LastFoundUid.Equals(lastFoundUid) &&
                 _status.MessageCount.Equals(messageCount))
                 return _status;

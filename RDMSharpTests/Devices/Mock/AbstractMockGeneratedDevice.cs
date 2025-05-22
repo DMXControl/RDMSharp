@@ -64,7 +64,7 @@ namespace RDMSharpTests.Devices.Mock
             var i = SendReceivePipeline.GetNewIdentifyer();
             identifyer.TryAdd(i, rdmMessage);
             if (ImitateRealConditions)
-                await SendReceivePipelineImitateRealConditions.RDMMessageSend(rdmMessage);
+                SendReceivePipelineImitateRealConditions.RDMMessageSend(rdmMessage);
             else
                 SendReceivePipeline.RDMMessageSend(i, rdmMessage);
         }
