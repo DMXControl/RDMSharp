@@ -15,6 +15,7 @@ namespace RDMSharp
     {
         public static readonly ERDM_Parameter[] BLUEPRINT_MODEL_PARAMETERS = new ERDM_Parameter[]
         {
+            ERDM_Parameter.SUPPORTED_PARAMETERS,
             ERDM_Parameter.PARAMETER_DESCRIPTION,
             ERDM_Parameter.MANUFACTURER_LABEL,
             ERDM_Parameter.MANUFACTURER_URL,

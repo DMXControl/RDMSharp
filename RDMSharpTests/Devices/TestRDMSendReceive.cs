@@ -20,7 +20,7 @@ namespace RDMSharpTests.RDM.Devices
             remote.Dispose();
         }
 
-        [Test]
+        [Test, Order(1)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
         public async Task TestDevice1()
         {
@@ -102,7 +102,7 @@ namespace RDMSharpTests.RDM.Devices
             //});
         }
 
-        [Test]
+        [Test, Order(2)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
         public void TestDevice1Slots()
         {
@@ -182,7 +182,7 @@ namespace RDMSharpTests.RDM.Devices
             //});
         }
 
-        [Test]
+        [Test, Order(3)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
         public void TestDevice1Sensor()
         {
@@ -207,6 +207,16 @@ namespace RDMSharpTests.RDM.Devices
             ///Reset Sensors Broadcast
             ///Record Sensors Unicast
             ///Record Sensors Broadcast
+        }
+        [Test, Order(4)]
+        public async Task TestDevice1QueuedUpdates()
+        {
+            var parameterValuesRemote = remote.GetAllParameterValues();
+            var parameterValuesGenerated = generated.GetAllParameterValues();
+            await Task.Delay(5000);
+            generated.DMXAddress = 69;
+            await Task.Delay(5000);
+            Assert.That (remote.GetAllParameterValues()[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(69));
         }
     }
 }

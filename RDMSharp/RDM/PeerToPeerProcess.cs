@@ -18,7 +18,7 @@ namespace RDMSharp
         public readonly ERDM_Command Command;
         public readonly UID UID;
         public readonly SubDevice SubDevice;
-        public readonly ParameterBag ParameterBag;
+        public ParameterBag ParameterBag { get; private set; }
         public readonly DataTreeBranch RequestPayloadObject;
         public DataTreeBranch ResponsePayloadObject { get; private set; } = DataTreeBranch.Unset;
 
@@ -29,6 +29,7 @@ namespace RDMSharp
 
         private RDMMessage request = null;
         private RDMMessage response = null;
+        public byte MessageCounter => response?.MessageCounter ?? 0;
         public PeerToPeerProcess(ERDM_Command command, UID uid, SubDevice subDevice, ParameterBag parameterBag, DataTreeBranch? payloadObject = null)
         {
             if (command != ERDM_Command.GET_COMMAND)
@@ -41,7 +42,8 @@ namespace RDMSharp
             ParameterBag = parameterBag;
             RequestPayloadObject = payloadObject ?? DataTreeBranch.Unset;
 
-            Define = MetadataFactory.GetDefine(ParameterBag);
+            if (ParameterBag.PID != ERDM_Parameter.QUEUED_MESSAGE)
+                Define = MetadataFactory.GetDefine(ParameterBag);
         }
 
         public async Task Run(AsyncRDMRequestHelper asyncRDMRequestHelper)
@@ -69,7 +71,7 @@ namespace RDMSharp
                 if (Command == ERDM_Command.SET_COMMAND)
                     commandResponse = ECommandDublicate.SetResponse;
 
-                byte[] parameterData = MetadataFactory.ParsePayloadToData(Define, commandRequest, RequestPayloadObject);
+                byte[] parameterData = ParameterBag.PID != ERDM_Parameter.QUEUED_MESSAGE ? MetadataFactory.ParsePayloadToData(Define, commandRequest, RequestPayloadObject) : null;
                 request = new RDMMessage()
                 {
                     Command = Command,
@@ -98,6 +100,11 @@ namespace RDMSharp
                     bytes.AddRange(response.ParameterData);
                     if (response.ResponseType == ERDM_ResponseType.ACK)
                     {
+                        if (request.Parameter == ERDM_Parameter.QUEUED_MESSAGE)
+                        {
+                            ParameterBag = new ParameterBag(response.Parameter, ParameterBag.ManufacturerID, ParameterBag.DeviceModelID, ParameterBag.SoftwareVersionID);
+                            Define = MetadataFactory.GetDefine(ParameterBag);                        
+                        }
                         ResponsePayloadObject = MetadataFactory.ParseDataToPayload(Define, commandResponse, bytes.ToArray());
                         State = EPeerToPeerProcessState.Finished;
                         return;

@@ -189,7 +189,7 @@ namespace RDMSharp
             }
         }
 
-        protected async Task requestGetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
+        protected async Task<byte> requestGetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
         {
             try
             {
@@ -197,16 +197,18 @@ namespace RDMSharp
                 await runPeerToPeerProcess(ptpProcess);
                 if (!ptpProcess.ResponsePayloadObject.IsUnset)
                 {
-                    updateParameterValuesDependeciePropertyBag(parameterBag.PID, ptpProcess.ResponsePayloadObject);
-                    updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(parameterBag.PID), ptpProcess.ResponsePayloadObject);
+                    updateParameterValuesDependeciePropertyBag(ptpProcess.ParameterBag.PID, ptpProcess.ResponsePayloadObject);
+                    updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), ptpProcess.ResponsePayloadObject);
                 }
+                return ptpProcess.MessageCounter;
             }
             catch(Exception e)
             {
                 Logger.LogError(e, $"Failed to get parameter {parameterBag.PID} with empty payload");
             }
+            return 0;
         }
-        protected async Task requestGetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
+        protected async Task requestGetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice, object? i=null)
         {
             define.GetCommand(Metadata.JSON.Command.ECommandDublicate.GetRequest, out var cmd);
             var req = cmd.Value.GetRequiredProperties();
@@ -218,25 +220,36 @@ namespace RDMSharp
 
                     IComparable dependecyValue = (IComparable)parameterValuesDependeciePropertyBag.FirstOrDefault(bag => bag.Key.Parameter == parameterBag.PID && bag.Key.Command == Metadata.JSON.Command.ECommandDublicate.GetRequest && string.Equals(bag.Key.Name, name)).Value;
 
-                    object i = intType.GetMinimum();
-                    object max = intType.GetMaximum();
-                    object count = Convert.ChangeType(0, i.GetType());
-                    while (dependecyValue.CompareTo(count) > 0)
+                    if (i == null)
                     {
-                        if (!intType.IsInRange(i))
-                            continue;
+                        i = intType.GetMinimum();
+                        object max = intType.GetMaximum();
+                        object count = Convert.ChangeType(0, i.GetType());
+                        while (dependecyValue.CompareTo(count) > 0)
+                        {
+                            if (!intType.IsInRange(i))
+                                continue;
 
-                        if (((IComparable)max).CompareTo(i) == -1)
-                            return;
+                            if (((IComparable)max).CompareTo(i) == -1)
+                                return;
 
+                            DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
+                            PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
+                            await runPeerToPeerProcess(ptpProcess);
+                            if (!ptpProcess.ResponsePayloadObject.IsUnset)
+                                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, i), ptpProcess.ResponsePayloadObject);
+
+                            i = intType.IncrementJumpRange(i);
+                            count = intType.Increment(count);
+                        }
+                    }
+                    else
+                    {
                         DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
                         PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
                         await runPeerToPeerProcess(ptpProcess);
                         if (!ptpProcess.ResponsePayloadObject.IsUnset)
-                            updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(parameterBag.PID, i), ptpProcess.ResponsePayloadObject);
-
-                        i = intType.IncrementJumpRange(i);
-                        count = intType.Increment(count);
+                            updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, i), ptpProcess.ResponsePayloadObject);
                     }
                 }
                 catch (Exception e)

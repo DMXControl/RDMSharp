@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -25,6 +26,8 @@ namespace RDMSharp
         private List<IRDMDevice> subDevices;
         protected IList<IRDMDevice> SubDevices_Internal { get => subDevices; }
         public IReadOnlyCollection<IRDMDevice> SubDevices => SubDevices_Internal?.AsReadOnly();
+
+        protected ConcurrentQueue<ParameterUpdatedBag> ParameterUpdatedBag = new ConcurrentQueue<ParameterUpdatedBag>();
 
         public new bool IsDisposing { get; private set; }
         public new bool IsDisposed { get; private set; }

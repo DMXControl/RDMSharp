@@ -3,7 +3,10 @@ using RDMSharp.Metadata;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
+using System.Reflection;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace RDMSharp
@@ -133,6 +136,8 @@ namespace RDMSharp
             deviceModel.Initialized -= DeviceModel_Initialized;
             await collectAllParametersOnRoot();
             await scanSubDevices();
+            AllDataPulled = true;
+            GlobalTimers.Instance.ParameterUpdateTimerElapsed += Instance_ParameterUpdateTimerElapsed;
         }
 
         private async Task scanSubDevices()
@@ -210,18 +215,52 @@ namespace RDMSharp
                     case ERDM_Parameter.DEVICE_INFO:
                         continue;
                 }
-                ParameterBag parameterBag = new ParameterBag(parameter, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
-                var define = MetadataFactory.GetDefine(parameterBag);
-                if (define.GetRequest.HasValue)
-                {
-                    if (define.GetRequest.Value.GetIsEmpty())
-                        await requestGetParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
-                    else
-                        await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice);
-                }
+                await requestParameter(parameter);
+            }
+        }
+        private async Task requestParameter(ERDM_Parameter parameter, object payload = null)
+        {
+            ParameterBag parameterBag = new ParameterBag(parameter, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
+            var define = MetadataFactory.GetDefine(parameterBag);
+            if (define.GetRequest.HasValue)
+            {
+                if (define.GetRequest.Value.GetIsEmpty())
+                    await requestGetParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
+                else
+                    await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice, payload);
             }
         }
 
+        private async Task updateParameters(bool queued = true)
+        {
+            if (queued && !deviceModel.KnownNotSupportedParameters.Contains(ERDM_Parameter.QUEUED_MESSAGE))
+            {
+                ParameterBag parameterBag = new ParameterBag(ERDM_Parameter.QUEUED_MESSAGE, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
+                var define = MetadataFactory.GetDefine(parameterBag);
+                if (define.GetRequest.HasValue)
+                {
+                    byte mc = 0;
+                    do
+                    {
+                        mc = await requestGetParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
+                    }
+                    while (mc != 0);
+                }
+                return;
+            }
+            else
+            {
+                while(ParameterUpdatedBag.TryPeek(out ParameterUpdatedBag bag))
+                {
+                     if (DateTime.UtcNow - bag.Timestamp < TimeSpan.FromMilliseconds(10000))
+                        return;
+
+                    await requestParameter(bag.Parameter, bag.Index);
+
+                    ParameterUpdatedBag.TryDequeue(out bag);
+                }
+            }
+        }
 
         #endregion
         private async Task getDeviceModelAndCollectAllParameters()
@@ -240,14 +279,8 @@ namespace RDMSharp
         private async Task collectAllParametersOnRoot()
         {
             await requestParameters();
-            AllDataPulled = true;
         }
 
-        private async Task collectAllParametersOnSubDevices()
-        {
-            await requestParameters();
-            AllDataPulled = true;
-        }
         private async Task getPersonalityModelAndCollectAllParameters()
         {
             if (personalityModel != null)
@@ -262,6 +295,8 @@ namespace RDMSharp
 
         private async void AbstractRDMDevice_ParameterValueAdded(object sender, ParameterValueAddedEventArgs e)
         {
+            if (!Constants.BLUEPRINT_MODEL_PARAMETERS.Contains(e.Parameter) && !Constants.BLUEPRINT_MODEL_PERSONALITY_PARAMETERS.Contains(e.Parameter))
+                ParameterUpdatedBag.Enqueue(new ParameterUpdatedBag(e.Parameter, e.Index));
             switch (e.Parameter)
             {
                 case ERDM_Parameter.DMX_PERSONALITY:
@@ -277,6 +312,22 @@ namespace RDMSharp
         }
         private void AbstractRDMDevice_ParameterValueChanged(object sender, ParameterValueChangedEventArgs e)
         {
+            if (!Constants.BLUEPRINT_MODEL_PARAMETERS.Contains(e.Parameter) && !Constants.BLUEPRINT_MODEL_PERSONALITY_PARAMETERS.Contains(e.Parameter))
+            {
+                if (ParameterUpdatedBag.Any(p => p.Parameter == e.Parameter && p.Index == e.Index))
+                {
+                    var tempQueue = new ConcurrentQueue<ParameterUpdatedBag>();
+                    while (ParameterUpdatedBag.TryDequeue(out var item))
+                        if (!(item.Parameter.Equals(e.Parameter) && Equals(item.Index, e.Index)))
+                            tempQueue.Enqueue(item);
+
+
+                    while (tempQueue.TryDequeue(out var item))
+                        ParameterUpdatedBag.Enqueue(item);
+                }
+                ParameterUpdatedBag.Enqueue(new ParameterUpdatedBag(e.Parameter, e.Index));
+            }
+
             switch (e.Parameter)
             {
                 case ERDM_Parameter.SENSOR_VALUE when e.NewValue is RDMSensorValue sensorValue:
@@ -350,12 +401,19 @@ namespace RDMSharp
                 return base.GetAllParameterValues();
         }
 
+
+        private async void Instance_ParameterUpdateTimerElapsed(object sender, EventArgs e)
+        {
+            await updateParameters();
+        }
+
         public override string ToString()
         {
             return $"{base.ToString()} {this.DeviceModel}";
         }
         protected sealed override void OnDispose()
         {
+            GlobalTimers.Instance.ParameterUpdateTimerElapsed -= Instance_ParameterUpdateTimerElapsed;
             try
             {
                 onDispose();
@@ -368,5 +426,7 @@ namespace RDMSharp
             ParameterValueChanged -= AbstractRDMDevice_ParameterValueChanged;
         }
         protected abstract void onDispose();
+
+        
     }
 }
