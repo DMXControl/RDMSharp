@@ -156,8 +156,11 @@ namespace RDMSharp
                         await _sendMethode.Invoke(requerst);
                         await Task.Delay(TimeSpan.FromTicks(random.Next(33, 777)), _cts.Token);
                     }
-                    if (count > 1 && requerst.Command == ERDM_Command.DISCOVERY_COMMAND)
+                    if (count > 3 && requerst.Command == ERDM_Command.DISCOVERY_COMMAND)
+                    {
+                        Logger?.LogTrace($"Discovery request exceeded timeout");
                         break;
+                    }
 
                     if (count == 3000)
                     {
