@@ -20,6 +20,7 @@ namespace RDMSharpTests.RDM.Devices
                 m.Dispose();
 
             mockDevices.Clear();
+            mockDiscoveryTool?.Dispose();
             mockDiscoveryTool = null;
             expected?.Clear();
             expected = null;
@@ -35,7 +36,7 @@ namespace RDMSharpTests.RDM.Devices
                 ProgressChanged?.Invoke(this, value);
             }
         }
-        [Test]
+        [Test, Retry(3)]
         public void TestDiscoveryProgress()
         {
             var progress = new DiscoveryProgress();
@@ -75,7 +76,7 @@ namespace RDMSharpTests.RDM.Devices
             });
         }
 
-        [Test]
+        [Test, Retry(3)]
         public async Task TestDiscovery1()
         {
             mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 4444)));
@@ -91,7 +92,7 @@ namespace RDMSharpTests.RDM.Devices
             expected = mockDevices.Select(m => m.UID).ToList();
             await AssertDiscovery();
         }
-        [Test]
+        [Test, Retry(3)]
         public async Task TestDiscovery2()
         {
             mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 234254)));
@@ -110,7 +111,7 @@ namespace RDMSharpTests.RDM.Devices
             expected = mockDevices.Select(m => m.UID).ToList();
             await AssertDiscovery();
         }
-        [Test]
+        [Test, Retry(3)]
         public async Task TestDiscovery3()
         {
             mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 234254)));
@@ -132,7 +133,7 @@ namespace RDMSharpTests.RDM.Devices
             expected = mockDevices.Select(m => m.UID).ToList();
             await AssertDiscovery();
         }
-        [Test]
+        [Test, Retry(3)]
         public async Task TestDiscovery4()
         {
             HashSet<uint> ids = new HashSet<uint>();

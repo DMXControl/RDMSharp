@@ -181,6 +181,8 @@ namespace RDMSharp
         private int generateKey(RDMMessage request)
         {
             var command = (ERDM_Command)((byte)request.Command & ~(byte)ERDM_Command.RESPONSE);
+            if (command == ERDM_Command.DISCOVERY_COMMAND)
+                return random.Next();
 
             int key = (request.SourceUID.GetHashCode() + request.DestUID.GetHashCode())*111111111
                 + (9 + request.SubDevice.GetHashCode()) * 45123
