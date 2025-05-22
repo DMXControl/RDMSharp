@@ -1,10 +1,13 @@
-﻿namespace RDMSharpTests.Devices.Mock
+﻿using System.Collections.Concurrent;
+
+namespace RDMSharpTests.Devices.Mock
 {
     internal static class SendReceivePipelineImitateRealConditions
     {
         private static byte[]? data;
         private static SemaphoreSlim? semaphoreSlim;
         private static SemaphoreSlim? semaphoreSlim2;
+        private static ConcurrentQueue<Task> queue = new ConcurrentQueue<Task>();
         public static async Task RDMMessageSend(RDMMessage rdmMessage)
         {
             if (!rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
@@ -22,6 +25,9 @@
                 else
                 {
                     await semaphoreSlim2.WaitAsync();
+                    if (semaphoreSlim.CurrentCount == 0)
+                        queue.Enqueue(Task.Delay(1));
+
                     var newData = rdmMessage.BuildMessage();
                     var oldData = data;
                     var combined = new byte[Math.Max(newData.Length, oldData?.Length ?? 0)];
@@ -41,10 +47,13 @@
                 {
                     await semaphoreSlim.WaitAsync();
                     await Task.Delay(3);
+                    while (queue.TryDequeue(out Task waifOnMee))
+                        await waifOnMee;
                     await semaphoreSlim2.WaitAsync();
 
                     RDMMessageRereivedResponse?.InvokeFailSafe(null, data);
                     data = null;
+                    queue.Clear();
                     semaphoreSlim2.Release();
                     semaphoreSlim.Release();
                 }
