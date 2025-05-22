@@ -448,7 +448,15 @@ namespace RDMSharp
                 Command == ERDM_Command.SET_COMMAND_RESPONSE ||
                 Command.HasFlag(ERDM_Command.DISCOVERY_COMMAND))
             {
-                var val = this.Value;
+                object val = null;
+                try
+                {
+                    val = this.Value;
+                }
+                catch
+                {
+
+                }
                 if (val != null)
                     b.AppendLine("Value: " + valueString());
 
