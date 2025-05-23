@@ -242,7 +242,7 @@ namespace RDMSharp
         {
             if (queued && !deviceModel.KnownNotSupportedParameters.Contains(ERDM_Parameter.QUEUED_MESSAGE))
             {
-                if (DateTime.UtcNow - lastSendQueuedMessage < TimeSpan.FromSeconds(4))
+                if (DateTime.UtcNow - lastSendQueuedMessage < TimeSpan.FromMilliseconds(GlobalTimers.Instance.QueuedUpdateTime))
                     return;
                 ParameterBag parameterBag = new ParameterBag(ERDM_Parameter.QUEUED_MESSAGE, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
                 var define = MetadataFactory.GetDefine(parameterBag);
@@ -262,7 +262,7 @@ namespace RDMSharp
             {
                 while(ParameterUpdatedBag.TryPeek(out ParameterUpdatedBag bag))
                 {
-                     if (DateTime.UtcNow - bag.Timestamp < TimeSpan.FromSeconds(10))
+                     if (DateTime.UtcNow - bag.Timestamp < TimeSpan.FromMilliseconds(GlobalTimers.Instance.NonQueuedUpdateTime))
                         return;
 
                     await requestParameter(bag.Parameter, bag.Index);

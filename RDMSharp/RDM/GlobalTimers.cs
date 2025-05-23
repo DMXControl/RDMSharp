@@ -15,7 +15,23 @@ namespace RDMSharp
             }
         }
 
-        public int ParameterUpdateTimerInterval { get; set; } = 1000;
+
+        public int QueuedUpdateTime { get; set; } = 4000;
+        public int NonQueuedUpdateTime { get; set; } = 10000;
+        private int parameterUpdateTimerInterval = 1000;
+        public int ParameterUpdateTimerInterval
+        {
+            get
+            {
+                return parameterUpdateTimerInterval;
+            }
+            set
+            {
+                parameterUpdateTimerInterval = value;
+                if (parameterUpdateTimer != null)
+                    parameterUpdateTimer.Interval = value;
+            }
+        }
         private System.Timers.Timer? parameterUpdateTimer = null;
 
         private event EventHandler parameterUpdateTimerElapsed;

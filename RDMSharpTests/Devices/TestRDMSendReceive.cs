@@ -17,6 +17,8 @@ namespace RDMSharpTests.RDM.Devices
         [TearDown]
         public void TearDown()
         {
+            GlobalTimers.Instance.QueuedUpdateTime = 4000;
+            GlobalTimers.Instance.ParameterUpdateTimerInterval = 1000;
             generated?.Dispose();
             generated = null;
             remote?.Dispose();
@@ -214,6 +216,8 @@ namespace RDMSharpTests.RDM.Devices
         [Test, Order(4)]
         public async Task TestDevice1QueuedUpdates()
         {
+            GlobalTimers.Instance.QueuedUpdateTime = 100;
+            GlobalTimers.Instance.ParameterUpdateTimerInterval = 100;
             var parameterValuesRemote = remote!.GetAllParameterValues();
             var parameterValuesGenerated = generated!.GetAllParameterValues();
             Assert.That(parameterValuesRemote[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
@@ -224,7 +228,7 @@ namespace RDMSharpTests.RDM.Devices
             generated.DeviceLabel = "Test Label QUEUE";
             generated.SetParameter(ERDM_Parameter.IDENTIFY_DEVICE, true);
 
-            await Task.Delay(5000);
+            await Task.Delay(1000);
             parameterValuesRemote = remote.GetAllParameterValues();
 
             Assert.That(parameterValuesRemote[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(69));
@@ -235,7 +239,7 @@ namespace RDMSharpTests.RDM.Devices
             generated.DMXAddress = 44;
             generated.CurrentPersonality = 2;
 
-            await Task.Delay(5000);
+            await Task.Delay(1000);
             parameterValuesRemote = remote.GetAllParameterValues();
             Assert.That(parameterValuesRemote[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
             Assert.That(parameterValuesRemote[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(44));
