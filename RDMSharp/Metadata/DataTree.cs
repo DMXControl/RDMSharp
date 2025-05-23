@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace RDMSharp.Metadata
 {
+#pragma warning disable CS8632
     public readonly struct DataTree : IEquatable<DataTree>
     {
         public readonly string Name;
@@ -98,3 +99,4 @@ namespace RDMSharp.Metadata
         }
     }
 }
+#pragma warning restore CS8632

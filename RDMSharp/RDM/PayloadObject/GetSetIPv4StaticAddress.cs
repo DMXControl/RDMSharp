@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.IPV4_STATIC_ADDRESS, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.IPV4_STATIC_ADDRESS, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.IPV4_STATIC_ADDRESS, Command.ECommandDublicate.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.IPV4_STATIC_ADDRESS, Command.ECommandDublicate.SetRequest)]
     public class GetSetIPv4StaticAddress : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace RDMSharp
     {
         private static readonly ILogger Logger = null;
         private static readonly Random random = new Random();
-        private readonly ConcurrentDictionary<int, Tuple<RDMMessage, RDMMessage>> buffer = new ConcurrentDictionary<int, Tuple<RDMMessage, RDMMessage>>();
+        private readonly ConcurrentDictionary<int, AsyncBufferBag> buffer = new ConcurrentDictionary<int, AsyncBufferBag>();
         private readonly Func<RDMMessage, Task> _sendMethode;
         private CancellationTokenSource _cts;
         public bool IsDisposing, IsDisposed;
@@ -40,28 +41,41 @@ namespace RDMSharp
 
             if (rdmMessage.Command == ERDM_Command.DISCOVERY_COMMAND_RESPONSE)
             {
-                var o = buffer.FirstOrDefault(b => b.Value.Item1.Parameter == rdmMessage.Parameter);
+                var o = buffer.FirstOrDefault(b => b.Value.Request.Parameter == rdmMessage.Parameter);
                 if (o.Value == null)
                     return false;
-                var tuple = new Tuple<RDMMessage, RDMMessage>(o.Value.Item1, rdmMessage);
-                buffer.AddOrUpdate(o.Key, tuple, (x, y) => tuple);
+
+                updateBag(o.Value, rdmMessage);
                 return true;
             }
+            //By Key
+            var key = generateKey(rdmMessage);
+            if (buffer.TryGetValue(key, out AsyncBufferBag bag))
+                if (checkNonQueued(bag.Request, rdmMessage))
+                {
+                    updateBag(bag, rdmMessage);
+                    return true;
+                }
+
             //None Queued Parameters
-            var obj = buffer.Where(b => b.Value.Item1.Parameter != ERDM_Parameter.QUEUED_MESSAGE).FirstOrDefault(b => b.Value.Item2 == null && checkNonQueued(b.Value.Item1, rdmMessage));
+            var obj = buffer.Where(b => b.Value.Request.Parameter != ERDM_Parameter.QUEUED_MESSAGE).FirstOrDefault(b => b.Value.Response == null && checkNonQueued(b.Value.Request, rdmMessage));
             if (obj.Value != null)
             {
-                var tuple = new Tuple<RDMMessage, RDMMessage>(obj.Value.Item1, rdmMessage);
-                buffer.AddOrUpdate(obj.Key, tuple, (x, y) => tuple);
+                updateBag(obj.Value, rdmMessage);
                 return true;
             }
             //Queued Parameters
-            obj = buffer.Where(b => b.Value.Item1.Parameter == ERDM_Parameter.QUEUED_MESSAGE).FirstOrDefault(b => b.Value.Item2 == null && rdmMessage.TransactionCounter == b.Value.Item1.TransactionCounter && b.Value.Item1.DestUID == rdmMessage.SourceUID && b.Value.Item1.SourceUID == rdmMessage.DestUID);
+            obj = buffer.Where(b => b.Value.Request.Parameter == ERDM_Parameter.QUEUED_MESSAGE).FirstOrDefault(b => b.Value.Response == null && checkQueued(b.Value.Request, rdmMessage));
             if (obj.Value != null)
             {
-                var tuple = new Tuple<RDMMessage, RDMMessage>(obj.Value.Item1, rdmMessage);
-                buffer.AddOrUpdate(obj.Key, tuple, (x, y) => tuple);
+                updateBag(obj.Value, rdmMessage);
                 return true;
+            }
+
+            void updateBag(AsyncBufferBag bag, RDMMessage response)
+            {
+                bag.SetResponse(response);
+                buffer.AddOrUpdate(bag.Key, bag, (key, oldValue) => bag);
             }
             return false;
 
@@ -77,37 +91,60 @@ namespace RDMSharp
                     return false;
                 if (request.DestUID != response.SourceUID)
                     return false;
+                if ((request.Command | ERDM_Command.RESPONSE) != response.Command)
+                    return false;
+
+                return true;
+            }
+            bool checkQueued(RDMMessage request, RDMMessage response)
+            {
+                if (request.TransactionCounter != response.TransactionCounter)
+                    return false;
+                if (request.SubDevice != response.SubDevice)
+                    return false;
+                if (request.SourceUID != response.DestUID)
+                    return false;
+                if (request.DestUID != response.SourceUID)
+                    return false;
+                if ((request.Command | ERDM_Command.RESPONSE) != response.Command)
+                    return false;
 
                 return true;
             }
         }
 
 
-        public async Task<RequestResult> RequestMessage(RDMMessage requerst)
+        public async Task<RequestResult> RequestMessage(RDMMessage request)
         {
             try
             {
-                int key = random.Next();
-                if (requerst.SubDevice.IsBroadcast)
+                int key = generateKey(request);
+                if (request.SubDevice.IsBroadcast)
                 {
-                    await _sendMethode.Invoke(requerst);
-                    return new RequestResult(requerst, null); // Broadcasts are not expected to return a response.
+                    Logger?.LogTrace($"Send Subdevice-Broadcast Request: {request.ToString()}");
+                    await _sendMethode.Invoke(request);
+                    return new RequestResult(request, null, TimeSpan.Zero); // Broadcasts are not expected to return a response.
                 }
-                buffer.TryAdd(key, new Tuple<RDMMessage, RDMMessage>(requerst, null));
+                if (!buffer.TryAdd(key, new AsyncBufferBag(key, request)))
+                {
+                    key += random.Next();
+                    buffer.TryAdd(key, new AsyncBufferBag(key, request));
+                }
                 RDMMessage response = null;
-                await _sendMethode.Invoke(requerst);
+                Logger?.LogTrace($"Send Request: {request.ToString()}");
+                await _sendMethode.Invoke(request);
                 int count = 0;
                 do
                 {
                     if (this.IsDisposing || this.IsDisposed)
-                        return new RequestResult(requerst);
+                        return new RequestResult(request);
 
-                    buffer.TryGetValue(key, out Tuple<RDMMessage, RDMMessage> tuple1);
-                    response = tuple1.Item2;
+                    buffer.TryGetValue(key, out AsyncBufferBag bag);
+                    response = bag?.Response;
                     if (response != null)
                         break;
                     await Task.Delay(5, _cts.Token);
-                    if (requerst.Command == ERDM_Command.NONE)
+                    if (request.Command == ERDM_Command.NONE)
                     {
                         throw new Exception("Command is not set");
                     }
@@ -115,25 +152,88 @@ namespace RDMSharp
                     if (count % 300 == 299)
                     {
                         await Task.Delay(TimeSpan.FromTicks(random.Next(33, 777)), _cts.Token);
-                        await _sendMethode.Invoke(requerst);
+                        Logger?.LogTrace($"Retry Request: {request.ToString()} ElapsedTime: {bag.ElapsedTime}");
+                        await _sendMethode.Invoke(request);
                         await Task.Delay(TimeSpan.FromTicks(random.Next(33, 777)), _cts.Token);
                     }
-                    if (count > 1 && requerst.Command == ERDM_Command.DISCOVERY_COMMAND)
+                    if (count > 3 && request.Command == ERDM_Command.DISCOVERY_COMMAND)
+                    {
+                        Logger?.LogTrace($"Discovery request exceeded timeout");
                         break;
+                    }
 
                     if (count == 3000)
-                        return new RequestResult(requerst);
+                    {
+                        Logger?.LogTrace($"Timeout Request: {request.ToString()} ElapsedTime: {bag.ElapsedTime}");
+                        return new RequestResult(request);
+                    }
                 }
                 while (response == null);
-                buffer.TryRemove(key, out Tuple<RDMMessage, RDMMessage> tuple2);
-                response = tuple2.Item2;
-                return new RequestResult(requerst, response);
+                buffer.TryRemove(key, out AsyncBufferBag bag2);
+                response = bag2.Response;
+                var result = new RequestResult(request, response, bag2.ElapsedTime);
+                Logger?.LogTrace($"Successful Request: {request.ToString()} Response: {response.ToString()} ElapsedTime: {bag2.ElapsedTime}");
+                return result;
             }
             catch (Exception ex)
             {
                 Logger?.LogError(ex);
             }
-            return new RequestResult(requerst);
+            return new RequestResult(request);
+        }
+        private int generateKey(RDMMessage request)
+        {
+            var command = (ERDM_Command)((byte)request.Command & ~(byte)ERDM_Command.RESPONSE);
+            if (command == ERDM_Command.DISCOVERY_COMMAND)
+                return random.Next();
+
+            int key = (request.SourceUID.GetHashCode() + request.DestUID.GetHashCode())*111111111
+                + (9 + request.SubDevice.GetHashCode()) * 45123
+                + (123 + request.TransactionCounter.GetHashCode()) * 931
+                + request.Parameter.GetHashCode()*67
+                + command.GetHashCode()*7;
+            return key;
+        }
+
+        private class AsyncBufferBag
+        {
+            public readonly int Key;
+
+            public readonly RDMMessage Request;
+            public readonly DateTime RequestTimestamp;
+
+            public RDMMessage Response { get; private set; }
+            public DateTime? ResponseTimestamp { get; private set; }
+
+            private TimeSpan? elapsedTime;
+            public TimeSpan ElapsedTime
+            {
+                get
+                {
+                    if (elapsedTime.HasValue)
+                        return elapsedTime.Value;
+
+                    return DateTime.UtcNow - RequestTimestamp; ;
+                }
+                private set
+                {
+                    elapsedTime = value;
+                }
+            }
+
+            public AsyncBufferBag(int key, RDMMessage request)
+            {
+                Request = request;
+                Response = null;
+                Key = key;
+                RequestTimestamp = DateTime.UtcNow;
+            }
+            public void SetResponse(RDMMessage response)
+            {
+                Response = response;
+                ResponseTimestamp = DateTime.UtcNow;
+                ElapsedTime = ResponseTimestamp.Value - RequestTimestamp;
+            }
         }
     }
 }

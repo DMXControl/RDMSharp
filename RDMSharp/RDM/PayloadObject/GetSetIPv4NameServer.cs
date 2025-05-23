@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.DNS_IPV4_NAME_SERVER, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.DNS_IPV4_NAME_SERVER, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.DNS_IPV4_NAME_SERVER, Command.ECommandDublicate.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.DNS_IPV4_NAME_SERVER, Command.ECommandDublicate.SetRequest)]
     public class GetSetIPv4NameServer : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

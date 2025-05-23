@@ -7,7 +7,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.LIST_INTERFACES, Command.ECommandDublicte.GetResponse, true, "interfaces")]
+    [DataTreeObject(ERDM_Parameter.LIST_INTERFACES, Command.ECommandDublicate.GetResponse, true, "interfaces")]
     public class GetInterfaceListResponse : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

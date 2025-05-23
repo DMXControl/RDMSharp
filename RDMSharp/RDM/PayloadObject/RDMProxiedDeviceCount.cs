@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.PROXIED_DEVICES_COUNT, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.PROXIED_DEVICES_COUNT, Command.ECommandDublicate.GetResponse)]
     public class RDMProxiedDeviceCount : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

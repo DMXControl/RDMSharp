@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -10,8 +11,6 @@ namespace RDMSharp
 {
     public abstract class AbstractRDMDevice : AbstractRDMCache, IRDMDevice
     {
-        private protected static readonly ILogger Logger = null;
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private readonly UID uid;
@@ -28,6 +27,8 @@ namespace RDMSharp
         protected IList<IRDMDevice> SubDevices_Internal { get => subDevices; }
         public IReadOnlyCollection<IRDMDevice> SubDevices => SubDevices_Internal?.AsReadOnly();
 
+        protected ConcurrentQueue<ParameterUpdatedBag> ParameterUpdatedBag = new ConcurrentQueue<ParameterUpdatedBag>();
+
         public new bool IsDisposing { get; private set; }
         public new bool IsDisposed { get; private set; }
         public bool IsInitialized { get; private set; }
@@ -39,10 +40,10 @@ namespace RDMSharp
             this.uid = uid;
             this.subdevice = subDevice ?? SubDevice.Root;
             if (subDevices != null && !this.Subdevice.IsRoot)
-                throw new NotSupportedException($"A SubDevice {this.Subdevice} cannot have SubDevices.");
+                throw new NotSupportedException($"A SubDevice {this.Subdevice} can't have SubDevices.");
 
             if (this.Subdevice.IsBroadcast)
-                throw new NotSupportedException($"A SubDevice cannot be Broadcast.");
+                throw new NotSupportedException($"A SubDevice can't be Broadcast.");
 
 
             if (this.Subdevice == SubDevice.Root)

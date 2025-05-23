@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.DEVICE_INFO_OFFSTAGE, Command.ECommandDublicte.GetRequest)]
+    [DataTreeObject(ERDM_Parameter.DEVICE_INFO_OFFSTAGE, Command.ECommandDublicate.GetRequest)]
     public class GetDeviceInfoOffstageRequest : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

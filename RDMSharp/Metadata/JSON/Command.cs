@@ -8,11 +8,12 @@ using OneOf = RDMSharp.Metadata.JSON.OneOfTypes.OneOfTypes;
 
 namespace RDMSharp.Metadata.JSON
 {
+#pragma warning disable CS8632
     [JsonConverter(typeof(CommandConverter))]
     public readonly struct Command
     {
-        [JsonConverter(typeof(CustomEnumConverter<ECommandDublicte>))]
-        public enum ECommandDublicte
+        [JsonConverter(typeof(CustomEnumConverter<ECommandDublicate>))]
+        public enum ECommandDublicate
         {
             [JsonPropertyName("get_request")]
             GetRequest,
@@ -26,7 +27,7 @@ namespace RDMSharp.Metadata.JSON
             DifferentDid
         }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public readonly ECommandDublicte? EnumValue { get; }
+        public readonly ECommandDublicate? EnumValue { get; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public readonly OneOf? SingleField { get; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -43,7 +44,7 @@ namespace RDMSharp.Metadata.JSON
 
             return true;
         }
-        public Command(ECommandDublicte enumValue)
+        public Command(ECommandDublicate enumValue)
         {
             EnumValue = enumValue;
         }
@@ -92,3 +93,4 @@ namespace RDMSharp.Metadata.JSON
         }
     }
 }
+#pragma warning restore CS8632

@@ -6,10 +6,10 @@ namespace RDMSharp
     /// <summary>
     /// https://www.rdmprotocol.org/rdm/developers/developer-resources/
     /// </summary>
-    [DataTreeEnum(ERDM_Parameter.SUPPORTED_PARAMETERS, Command.ECommandDublicte.GetResponse, "pid", true, "pids")]
-    [DataTreeEnum(ERDM_Parameter.PARAMETER_DESCRIPTION, Command.ECommandDublicte.GetRequest, "pid")]
-    [DataTreeEnum(ERDM_Parameter.METADATA_JSON, Command.ECommandDublicte.GetRequest, "pid")]
-    [DataTreeEnum(ERDM_Parameter.METADATA_PARAMETER_VERSION, Command.ECommandDublicte.GetRequest, "pid")]
+    [DataTreeEnum(ERDM_Parameter.SUPPORTED_PARAMETERS, Command.ECommandDublicate.GetResponse, "pid", true, "pids")]
+    [DataTreeEnum(ERDM_Parameter.PARAMETER_DESCRIPTION, Command.ECommandDublicate.GetRequest, "pid")]
+    [DataTreeEnum(ERDM_Parameter.METADATA_JSON, Command.ECommandDublicate.GetRequest, "pid")]
+    [DataTreeEnum(ERDM_Parameter.METADATA_PARAMETER_VERSION, Command.ECommandDublicate.GetRequest, "pid")]
     public enum ERDM_Parameter : ushort
     {
         NONE = 0x0000,
@@ -120,7 +120,7 @@ namespace RDMSharp
         DNS_HOSTNAME = 0x070C,
         DNS_DOMAIN_NAME = 0x070D,
 
-        //E1.33 - 2019 RDMnet
+        //E1.33 - 2019 RDM-Net
         COMPONENT_SCOPE = 0x0800,
         SEARCH_DOMAIN = 0x0801,
         TCP_COMMS_STATUS = 0x0802,

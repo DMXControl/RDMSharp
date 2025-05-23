@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.MODULATION_FREQUENCY, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.MODULATION_FREQUENCY, Command.ECommandDublicate.GetResponse)]
     public class RDMModulationFrequency : AbstractRDMPayloadObjectOneOf
     {
         [DataTreeObjectConstructor]

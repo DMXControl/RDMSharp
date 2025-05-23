@@ -45,29 +45,29 @@ namespace RDMSharpTests.Metadata.JSON
             labeledBooleanType[1] = new LabeledBooleanType("NAME22", "DISPLAY_NAME22", "NOTES22", null, false);
             Assert.Throws(typeof(ArgumentException), () => booleanType = new BooleanType("NAME", "DISPLAY_NAME", "NOTES", null, "boolean", labeledBooleanType));
         }
-        private void DoParseDataTest(BooleanType booleanType, bool value, byte[] expectedData, string message = null)
+        private void DoParseDataTest(BooleanType booleanType, bool value, byte[] expectedData, string? message = null)
         {
             var dataTree = new DataTree(booleanType.Name, 0, value);
             var data = new byte[0];
-            Assert.DoesNotThrow(() => data = booleanType.ParsePayloadToData(dataTree), message);
+            Assert.DoesNotThrow(() => data = booleanType.ParsePayloadToData(dataTree), message!);
             Assert.That(data, Is.EqualTo(expectedData), message);
 
-            byte[] clonaData = new byte[data.Length];
-            Array.Copy(data, clonaData, clonaData.Length);
-            var parsedDataTree = booleanType.ParseDataToPayload(ref clonaData);
-            Assert.That(clonaData, Has.Length.EqualTo(0), message);
+            byte[] cloneData = new byte[data.Length];
+            Array.Copy(data, cloneData, cloneData.Length);
+            var parsedDataTree = booleanType.ParseDataToPayload(ref cloneData);
+            Assert.That(cloneData, Has.Length.EqualTo(0), message);
 
             Assert.That(parsedDataTree, Is.EqualTo(dataTree), message);
 
             //Test for short Data & PDL Issue
-            clonaData = new byte[data.Length - 1];
-            Array.Copy(data, clonaData, clonaData.Length);
-            Assert.DoesNotThrow(() => parsedDataTree = booleanType.ParseDataToPayload(ref clonaData));
+            cloneData = new byte[data.Length - 1];
+            Array.Copy(data, cloneData, cloneData.Length);
+            Assert.DoesNotThrow(() => parsedDataTree = booleanType.ParseDataToPayload(ref cloneData));
             Assert.That(parsedDataTree.Issues, Is.Not.Null);
             Assert.That(parsedDataTree.Value, Is.Not.Null);
 
-            Assert.Throws(typeof(ArithmeticException), () => data = booleanType.ParsePayloadToData(new DataTree("Different Name", dataTree.Index, dataTree.Value)), message);
-            Assert.Throws(typeof(ArithmeticException), () => data = booleanType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, 234)), message);
+            Assert.Throws(typeof(ArithmeticException), () => data = booleanType.ParsePayloadToData(new DataTree("Different Name", dataTree.Index, dataTree.Value)), message!);
+            Assert.Throws(typeof(ArithmeticException), () => data = booleanType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, 234)), message!);
         }
     }
 }

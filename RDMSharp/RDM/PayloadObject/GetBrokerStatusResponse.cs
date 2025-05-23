@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.BROKER_STATUS, Command.ECommandDublicte.GetRequest)]
+    [DataTreeObject(ERDM_Parameter.BROKER_STATUS, Command.ECommandDublicate.GetRequest)]
     public class GetBrokerStatusResponse : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

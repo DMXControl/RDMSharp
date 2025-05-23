@@ -3,14 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RDMSharp
 {
-    public abstract class AbstractDiscoveryTool : INotifyPropertyChanged
+    public abstract class AbstractDiscoveryTool : INotifyPropertyChanged, IDisposable
     {
         private protected static ILogger Logger = null;
         private readonly AsyncRDMRequestHelper asyncRDMRequestHelper;
+        private readonly CancellationTokenSource cts = new CancellationTokenSource();
         public event PropertyChangedEventHandler PropertyChanged;
         public bool discoveryInProgress;
         public bool DiscoveryInProgress
@@ -34,7 +36,7 @@ namespace RDMSharp
 
         protected void ReceiveRDMMessage(RDMMessage rdmMessage)
         {
-            asyncRDMRequestHelper.ReceiveMessage(rdmMessage);
+            asyncRDMRequestHelper?.ReceiveMessage(rdmMessage);
         }
 
         public async Task<IReadOnlyCollection<UID>> PerformDiscovery(IProgress<RDMDiscoveryStatus> progress = null, bool full = true)
@@ -54,7 +56,7 @@ namespace RDMSharp
                         Parameter = ERDM_Parameter.DISC_UN_MUTE,
                         DestUID = UID.Broadcast,
                     };
-                    unmuted = await SendRDMMessage(m);
+                    unmuted = await SendRDMMessage(m).WaitAsync(cts.Token);
                 }
                 if (!unmuted)
                 {
@@ -64,7 +66,7 @@ namespace RDMSharp
             }
             //Start Binary Search for each
             var erg = new RDMDiscoveryContext(progress);
-            await DiscoverDevicesBinarySearch(UID.Empty, UID.Broadcast - 1, erg);
+            await DiscoverDevicesBinarySearch(UID.Empty, UID.Broadcast - 1, erg).WaitAsync(cts.Token);
 
             DiscoveryInProgress = false;
             return erg.FoundUIDs.ToList();
@@ -178,7 +180,7 @@ namespace RDMSharp
                     context.AddFound(found);
 
                     //Find the Bad Devices
-                    Logger?.LogWarning($"You are lucky to use RDMSharp! Some Devices don't have a proper RDM implementation as they seam to have an off by one error, but we handled that for you: [{String.Join(",", found)}]");
+                    Logger?.LogWarning($"You are lucky to use RDMSharp! Some Devices don't have a proper RDM implementation as they sem to have an off by one error, but we handled that for you: [{String.Join(",", found)}]");
                 }
             }
         }
@@ -218,6 +220,13 @@ namespace RDMSharp
                 Logger?.LogWarning($"Unable to Mute Device {uid}. Not added to List of discovered Items. Hopefully discovery works anyway.");
 
             return muted;
+        }
+
+        public void Dispose()
+        {
+            asyncRDMRequestHelper?.Dispose();
+            cts.Cancel();
+            cts.Dispose();
         }
     }
 }

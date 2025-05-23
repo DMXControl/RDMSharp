@@ -294,27 +294,30 @@ namespace RDMSharpTests
                 Assert.That(pdl.Value.HasValue, Is.True);
                 Assert.That(pdl.MinLength.HasValue, Is.False);
                 Assert.That(pdl.MaxLength.HasValue, Is.False);
-                Assert.That(pdl.Value.Value, Is.EqualTo(0));
+                Assert.That(pdl.Value, Is.Not.Null);
+                Assert.That(pdl.Value!.Value, Is.EqualTo(0));
 
                 pdl = new PDL(13);
                 Assert.That(pdl.Value.HasValue, Is.True);
                 Assert.That(pdl.MinLength.HasValue, Is.False);
                 Assert.That(pdl.MaxLength.HasValue, Is.False);
-                Assert.That(pdl.Value.Value, Is.EqualTo(13));
+                Assert.That(pdl.Value, Is.Not.Null);
+                Assert.That(pdl.Value!.Value, Is.EqualTo(13));
 
 
                 pdl = new PDL(3, 5);
                 Assert.That(pdl.Value.HasValue, Is.False);
                 Assert.That(pdl.MinLength.HasValue, Is.True);
                 Assert.That(pdl.MaxLength.HasValue, Is.True);
-                Assert.That(pdl.MinLength.Value, Is.EqualTo(3));
-                Assert.That(pdl.MaxLength.Value, Is.EqualTo(5));
+                Assert.That(pdl.MinLength!.Value, Is.EqualTo(3));
+                Assert.That(pdl.MaxLength!.Value, Is.EqualTo(5));
 
                 pdl = new PDL(5, 5);
                 Assert.That(pdl.Value.HasValue, Is.True);
                 Assert.That(pdl.MinLength.HasValue, Is.False);
                 Assert.That(pdl.MaxLength.HasValue, Is.False);
-                Assert.That(pdl.Value.Value, Is.EqualTo(5));
+                Assert.That(pdl.Value, Is.Not.Null);
+                Assert.That(pdl.Value!.Value, Is.EqualTo(5));
 
 
                 List<PDL> list = new List<PDL>();
@@ -325,7 +328,8 @@ namespace RDMSharpTests
                 Assert.That(pdl.Value.HasValue, Is.True);
                 Assert.That(pdl.MinLength.HasValue, Is.False);
                 Assert.That(pdl.MaxLength.HasValue, Is.False);
-                Assert.That(pdl.Value.Value, Is.EqualTo(6));
+                Assert.That(pdl.Value, Is.Not.Null);
+                Assert.That(pdl.Value!.Value, Is.EqualTo(6));
 
                 list.Clear();
                 list.Add(new PDL(1, 2));
@@ -335,8 +339,8 @@ namespace RDMSharpTests
                 Assert.That(pdl.Value.HasValue, Is.False);
                 Assert.That(pdl.MinLength.HasValue, Is.True);
                 Assert.That(pdl.MaxLength.HasValue, Is.True);
-                Assert.That(pdl.MinLength.Value, Is.EqualTo(5));
-                Assert.That(pdl.MaxLength.Value, Is.EqualTo(8));
+                Assert.That(pdl.MinLength!.Value, Is.EqualTo(5));
+                Assert.That(pdl.MaxLength!.Value, Is.EqualTo(8));
 
 
                 Assert.Throws(typeof(ArgumentOutOfRangeException), () => new PDL(uint.MaxValue));

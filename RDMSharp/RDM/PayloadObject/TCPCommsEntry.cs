@@ -8,7 +8,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.TCP_COMMS_STATUS, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.TCP_COMMS_STATUS, Command.ECommandDublicate.GetResponse)]
     public class TCPCommsEntry : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.PARAMETER_DESCRIPTION, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.PARAMETER_DESCRIPTION, Command.ECommandDublicate.GetResponse)]
     public class RDMParameterDescription : AbstractRDMPayloadObject
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060")]

@@ -42,7 +42,7 @@ public class TestDefinedDataTreeObjects
     }
 
     [Test]
-    public async Task Test_DeviceInfo()
+    public void Test_DeviceInfo()
     {
         byte[] data = {
             0x01, 0x00, 0x00, 0x05, 0x06, 0x01, 0x02, 0x00,
@@ -53,7 +53,7 @@ public class TestDefinedDataTreeObjects
         var parameterBag = new ParameterBag(ERDM_Parameter.DEVICE_INFO);
         var define = MetadataFactory.GetDefine(parameterBag);
 
-        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicte.GetResponse, data);
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, data);
 
         Assert.Multiple(() =>
         {
@@ -63,7 +63,8 @@ public class TestDefinedDataTreeObjects
             Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMDeviceInfo)));
 
             var obj = dataTreeBranch.ParsedObject as RDMDeviceInfo;
-            Assert.That(obj.RdmProtocolVersionMajor, Is.EqualTo(1));
+            Assert.That(obj, Is.Not.Null);
+            Assert.That(obj!.RdmProtocolVersionMajor, Is.EqualTo(1));
             Assert.That(obj.RdmProtocolVersionMinor, Is.EqualTo(0));
             Assert.That(obj.DeviceModelId, Is.EqualTo(0x0005));
             Assert.That(obj.ProductCategoryCoarse, Is.EqualTo(ERDM_ProductCategoryCoarse.POWER));
@@ -82,7 +83,7 @@ public class TestDefinedDataTreeObjects
     }
 
     [Test]
-    public async Task Test_Personality()
+    public void Test_Personality()
     {
         byte[] data = {
             0x01, 0x03
@@ -91,7 +92,7 @@ public class TestDefinedDataTreeObjects
         var parameterBag = new ParameterBag(ERDM_Parameter.DMX_PERSONALITY);
         var define = MetadataFactory.GetDefine(parameterBag);
 
-        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicte.GetResponse, data);
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, data);
 
         Assert.Multiple(() =>
         {
@@ -101,7 +102,8 @@ public class TestDefinedDataTreeObjects
             Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMDMXPersonality)));
 
             var obj = dataTreeBranch.ParsedObject as RDMDMXPersonality;
-            Assert.That(obj.CurrentPersonality, Is.EqualTo(1));
+            Assert.That(obj, Is.Not.Null);
+            Assert.That(obj!.CurrentPersonality, Is.EqualTo(1));
             Assert.That(obj.OfPersonalities, Is.EqualTo(3));
         });
 
@@ -110,7 +112,7 @@ public class TestDefinedDataTreeObjects
     }
 
     [Test]
-    public async Task Test_Personality_Description()
+    public void Test_Personality_Description()
     {
         byte[] data = {
             0x01, 0x00, 0x01, 0x53, 0x45, 0x51, 0x55, 0x45,
@@ -120,7 +122,7 @@ public class TestDefinedDataTreeObjects
         var parameterBag = new ParameterBag(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION);
         var define = MetadataFactory.GetDefine(parameterBag);
 
-        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicte.GetResponse, data);
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, data);
 
         Assert.Multiple(() =>
         {
@@ -130,7 +132,8 @@ public class TestDefinedDataTreeObjects
             Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMDMXPersonalityDescription)));
 
             var obj = dataTreeBranch.ParsedObject as RDMDMXPersonalityDescription;
-            Assert.That(obj.PersonalityId, Is.EqualTo(1));
+            Assert.That(obj, Is.Not.Null);
+            Assert.That(obj!.PersonalityId, Is.EqualTo(1));
             Assert.That(obj.Slots, Is.EqualTo(1));
             Assert.That(obj.Description, Is.EqualTo("SEQUENCE"));
         });
@@ -140,7 +143,7 @@ public class TestDefinedDataTreeObjects
     }
 
     [Test]
-    public async Task Test_Slot_Description()
+    public void Test_Slot_Description()
     {
         byte[] data = {
             0x00, 0x00, 0x53, 0x41, 0x46, 0x45, 0x54, 0x59
@@ -149,7 +152,7 @@ public class TestDefinedDataTreeObjects
         var parameterBag = new ParameterBag(ERDM_Parameter.SLOT_DESCRIPTION);
         var define = MetadataFactory.GetDefine(parameterBag);
 
-        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicte.GetResponse, data);
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, data);
 
         Assert.Multiple(() =>
         {
@@ -159,7 +162,8 @@ public class TestDefinedDataTreeObjects
             Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMSlotDescription)));
 
             var obj = dataTreeBranch.ParsedObject as RDMSlotDescription;
-            Assert.That(obj.SlotId, Is.EqualTo(0));
+            Assert.That(obj, Is.Not.Null);
+            Assert.That(obj!.SlotId, Is.EqualTo(0));
             Assert.That(obj.Description, Is.EqualTo("SAFETY"));
         });
 
@@ -167,7 +171,7 @@ public class TestDefinedDataTreeObjects
         Assert.That(reversed, Is.EqualTo(dataTreeBranch));
     }
     [Test]
-    public async Task Test_Slot_Info()
+    public void Test_Slot_Info()
     {
         byte[] data = {
             0,0,0,0,1,
@@ -180,7 +184,7 @@ public class TestDefinedDataTreeObjects
         var parameterBag = new ParameterBag(ERDM_Parameter.SLOT_INFO);
         var define = MetadataFactory.GetDefine(parameterBag);
 
-        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicte.GetResponse, data);
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, data);
 
         Assert.Multiple(() =>
         {
@@ -190,7 +194,8 @@ public class TestDefinedDataTreeObjects
             Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMSlotInfo[])));
 
             var obj = dataTreeBranch.ParsedObject as RDMSlotInfo[];
-            Assert.That(obj[0].SlotOffset, Is.EqualTo(0));
+            Assert.That(obj, Is.Not.Null);
+            Assert.That(obj![0].SlotOffset, Is.EqualTo(0));
             Assert.That(obj[0].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
             Assert.That(obj[0].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.INTENSITY));
 
@@ -216,7 +221,7 @@ public class TestDefinedDataTreeObjects
     }
 
     [Test]
-    public async Task Test_Display_Invert()
+    public void Test_Display_Invert()
     {
         byte[] data = {
             0x01
@@ -225,7 +230,7 @@ public class TestDefinedDataTreeObjects
         var parameterBag = new ParameterBag(ERDM_Parameter.DISPLAY_INVERT);
         var define = MetadataFactory.GetDefine(parameterBag);
 
-        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicte.SetRequest, data);
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.SetRequest, data);
 
         Assert.Multiple(() =>
         {
@@ -243,7 +248,7 @@ public class TestDefinedDataTreeObjects
     }
 
     [Test]
-    public async Task Test_Status_Messages()
+    public void Test_Status_Messages()
     {
         byte[] data = {
             0x02
@@ -252,7 +257,7 @@ public class TestDefinedDataTreeObjects
         var parameterBag = new ParameterBag(ERDM_Parameter.STATUS_MESSAGES);
         var define = MetadataFactory.GetDefine(parameterBag);
 
-        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicte.GetRequest, data);
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetRequest, data);
 
         Assert.Multiple(() =>
         {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.INTERFACE_LABEL, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.INTERFACE_LABEL, Command.ECommandDublicate.GetResponse)]
     public class GetInterfaceNameResponse : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

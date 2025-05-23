@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.LOCK_PIN, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.LOCK_PIN, Command.ECommandDublicate.SetRequest)]
     public class SetLockPinRequest : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

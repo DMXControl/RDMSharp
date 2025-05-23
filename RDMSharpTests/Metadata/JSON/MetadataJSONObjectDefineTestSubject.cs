@@ -42,12 +42,19 @@ namespace RDMSharpTests.Metadata.JSON
             }
             return instances.ToArray();
         }
-        private static string getContent(string path)
+        private static string? getContent(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
                 return null;
+
             var assembly = typeof(MetadataJSONObjectDefineTestSubject).Assembly;
-            using Stream stream = assembly.GetManifestResourceStream(path);
+            if (assembly == null)
+                return null;
+
+            using Stream? stream = assembly.GetManifestResourceStream(path);
+            if (stream == null)
+                return null;
+
             using StreamReader reader = new StreamReader(stream);
             return reader.ReadToEnd();
         }

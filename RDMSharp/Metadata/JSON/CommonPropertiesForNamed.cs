@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON
 {
+#pragma warning disable CS8632
     public abstract class CommonPropertiesForNamed
     {
         [JsonPropertyName("name")]
@@ -14,6 +15,7 @@ namespace RDMSharp.Metadata.JSON
         [JsonPropertyName("notes")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public abstract string? Notes { get; }
+
         [JsonPropertyName("resources")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public abstract string[]? Resources { get; }
@@ -32,3 +34,4 @@ namespace RDMSharp.Metadata.JSON
         }
     }
 }
+#pragma warning restore CS8632

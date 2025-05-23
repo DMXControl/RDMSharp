@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.REAL_TIME_CLOCK, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.REAL_TIME_CLOCK, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.REAL_TIME_CLOCK, Command.ECommandDublicate.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.REAL_TIME_CLOCK, Command.ECommandDublicate.SetRequest)]
     public class RDMRealTimeClock : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

@@ -1,4 +1,5 @@
-﻿using RDMSharp.Metadata.JSON;
+﻿using Microsoft.Extensions.Logging;
+using RDMSharp.Metadata.JSON;
 using RDMSharp.Metadata.JSON.OneOfTypes;
 using System;
 using System.Collections;
@@ -13,6 +14,7 @@ namespace RDMSharp.Metadata
 {
     public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
     {
+        private static ILogger Logger = null;
         public static readonly DataTreeBranch Empty = new DataTreeBranch();
         public static readonly DataTreeBranch Unset = new DataTreeBranch(true);
 
@@ -43,7 +45,7 @@ namespace RDMSharp.Metadata
         {
             ParsedObject = parsedObject;
         }
-        public DataTreeBranch(MetadataJSONObjectDefine define, Command.ECommandDublicte commandType, params DataTree[] children) : this(children)
+        public DataTreeBranch(MetadataJSONObjectDefine define, Command.ECommandDublicate commandType, params DataTree[] children) : this(children)
         {
             if (define == null)
                 throw new ArgumentNullException();
@@ -51,13 +53,13 @@ namespace RDMSharp.Metadata
             ParsedObject = this.getParsedObject(define, commandType);
         }
 
-        private object getParsedObject(MetadataJSONObjectDefine define, Command.ECommandDublicte commandType)
+        private object getParsedObject(MetadataJSONObjectDefine define, Command.ECommandDublicate commandType)
         {
             ushort pid = define.PID;
             var definedDataTreeObjectType = MetadataFactory.GetDefinedDataTreeObjectType(define, commandType);
             return getParsedObject(pid, definedDataTreeObjectType, commandType);
         }
-        private object getParsedObject(ushort pid, Type definedDataTreeObjectType, Command.ECommandDublicte commandType)
+        private object getParsedObject(ushort pid, Type definedDataTreeObjectType, Command.ECommandDublicate commandType)
         {
             if (IsEmpty || IsUnset)
                 return null;
@@ -176,7 +178,10 @@ namespace RDMSharp.Metadata
             }
             catch (Exception e)
             {
+                Logger.LogError(e);
+#pragma warning disable CA2200
                 throw e;
+#pragma warning restore CA2200
             }
 
             throw new NotImplementedException();
@@ -216,16 +221,16 @@ namespace RDMSharp.Metadata
 
                 switch (cmd.Value.EnumValue)
                 {
-                    case Command.ECommandDublicte.GetRequest:
+                    case Command.ECommandDublicate.GetRequest:
                         cmd = define.GetRequest;
                         break;
-                    case Command.ECommandDublicte.GetResponse:
+                    case Command.ECommandDublicate.GetResponse:
                         cmd = define.GetResponse;
                         break;
-                    case Command.ECommandDublicte.SetRequest:
+                    case Command.ECommandDublicate.SetRequest:
                         cmd = define.SetRequest;
                         break;
-                    case Command.ECommandDublicte.SetResponse:
+                    case Command.ECommandDublicate.SetResponse:
                         cmd = define.SetResponse;
                         break;
                 }
@@ -291,7 +296,7 @@ namespace RDMSharp.Metadata
             if (isArray)
                 type = type.GetElementType();
 
-            if (type.GetCustomAttributes<DataTreeObjectAttribute>().FirstOrDefault(a => a.Parameter == parameter && a.Command == Tools.ConvertCommandDublicteToCommand(command) && a.IsArray == isArray) is not DataTreeObjectAttribute dataTreeObjectAttribute)
+            if (type.GetCustomAttributes<DataTreeObjectAttribute>().FirstOrDefault(a => a.Parameter == parameter && a.Command == Tools.ConvertCommandDublicateToCommand(command) && a.IsArray == isArray) is not DataTreeObjectAttribute dataTreeObjectAttribute)
                 return DataTreeBranch.Unset;
 
             List<DataTree> children = new List<DataTree>();
@@ -342,7 +347,7 @@ namespace RDMSharp.Metadata
 
             static DataTree[] convertToDataTree(object value, PropertyInfo[] properties, ERDM_Parameter parameter)
             {
-                List<DataTree> innetChildren = new List<DataTree>();
+                List<DataTree> innerChildren = new List<DataTree>();
                 Dictionary<string, List<DataTree>> deeperChildren = new Dictionary<string, List<DataTree>>();
                 foreach (var property in properties)
                 {
@@ -368,15 +373,15 @@ namespace RDMSharp.Metadata
                             ddc.Add(new DataTree(path[1], attribute.Index, val));
                         }
                         else
-                            innetChildren.Add(new DataTree(attribute.Name, attribute.Index, val));
+                            innerChildren.Add(new DataTree(attribute.Name, attribute.Index, val));
                     }
                 }
                 foreach (var dC in deeperChildren)
                 {
-                    var index = FindMissingNumbers(innetChildren.Select(ic => (int)ic.Index)).FirstOrDefault();
-                    innetChildren.Add(new DataTree(dC.Key, (uint)index, children: dC.Value.OrderBy(c => c.Index).ToArray()));
+                    var index = FindMissingNumbers(innerChildren.Select(ic => (int)ic.Index)).FirstOrDefault();
+                    innerChildren.Add(new DataTree(dC.Key, (uint)index, children: dC.Value.OrderBy(c => c.Index).ToArray()));
                 }
-                return innetChildren.OrderBy(iC => iC.Index).ToArray();
+                return innerChildren.OrderBy(iC => iC.Index).ToArray();
 
                 static IEnumerable<int> FindMissingNumbers(IEnumerable<int> numbers)
                 {

@@ -2,7 +2,13 @@
 {
     internal sealed class MockGeneratedDevice1 : AbstractMockGeneratedDevice
     {
-        public override EManufacturer ManufacturerID => (EManufacturer)0x9fff;
+        public override EManufacturer ManufacturerID
+        {
+            get
+            {
+                return (EManufacturer)UID.ManufacturerID;
+            }
+        }
         public override ushort DeviceModelID => 20;
         public override ERDM_ProductCategoryCoarse ProductCategoryCoarse => ERDM_ProductCategoryCoarse.CONTROL;
         public override ERDM_ProductCategoryFine ProductCategoryFine => ERDM_ProductCategoryFine.DATA_CONVERSION;

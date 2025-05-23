@@ -257,11 +257,15 @@ namespace RDMSharpTests.Metadata.JSON
             };
             foreach (CommonPropertiesForNamed integerType in types)
             {
+                Assert.That(integerType, Is.Not.Null);
                 Assert.That(((IIntegerType)integerType).PrefixBase, Is.EqualTo(2));
                 Assert.That(((IIntegerType)integerType).PrefixPower, Is.EqualTo(10));
                 Assert.That(((IIntegerType)integerType).PrefixMultiplyer, Is.EqualTo(1024));
 
-                uint pdl = integerType.GetDataLength().Value.Value;
+                var val = integerType.GetDataLength().Value;
+                Assert.That(val, Is.Not.Null);
+
+                uint pdl = val.Value;
                 Assert.Multiple(() =>
                 {
                     var data = new byte[pdl];
@@ -307,11 +311,15 @@ namespace RDMSharpTests.Metadata.JSON
             };
             foreach (CommonPropertiesForNamed integerType in types)
             {
+                Assert.That(integerType, Is.Not.Null);
                 Assert.That(((IIntegerType)integerType).PrefixBase, Is.EqualTo(-1024));
                 Assert.That(((IIntegerType)integerType).PrefixPower, Is.EqualTo(1));
                 Assert.That(((IIntegerType)integerType).PrefixMultiplyer, Is.EqualTo(-1024));
 
-                uint pdl = integerType.GetDataLength().Value.Value;
+                var val = integerType.GetDataLength().Value;
+                Assert.That(val, Is.Not.Null);
+
+                uint pdl = val.Value;
                 Assert.Multiple(() =>
                 {
                     string message= ((IIntegerType)integerType).Type.ToString();
@@ -358,11 +366,15 @@ namespace RDMSharpTests.Metadata.JSON
             };
             foreach (CommonPropertiesForNamed integerType in types)
             {
+                Assert.That(integerType, Is.Not.Null);
                 Assert.That(((IIntegerType)integerType).PrefixBase, Is.EqualTo(10));
                 Assert.That(((IIntegerType)integerType).PrefixPower, Is.EqualTo(-4));
                 Assert.That(((IIntegerType)integerType).PrefixMultiplyer, Is.EqualTo(0.0001));
 
-                uint pdl = integerType.GetDataLength().Value.Value;
+                var val = integerType.GetDataLength().Value;
+                Assert.That(val, Is.Not.Null);
+
+                uint pdl = val.Value;
                 Assert.Multiple(() =>
                 {
                     var data = new byte[pdl];
@@ -393,28 +405,28 @@ namespace RDMSharpTests.Metadata.JSON
             }
         }
 
-        private void DoParseDataTest<T>(IntegerType<T> integerType, T value, byte[] expectedData, string message = null)
+        private void DoParseDataTest<T>(IntegerType<T> integerType, T value, byte[] expectedData, string? message = null)
         {
             var dataTree = new DataTree(integerType.Name, 0, value);
             var data = new byte[0];
-            Assert.DoesNotThrow(() => data = integerType.ParsePayloadToData(dataTree), message);
+            Assert.DoesNotThrow(() => data = integerType.ParsePayloadToData(dataTree), message!);
             Assert.That(data, Is.EqualTo(expectedData), message);
 
-            byte[] clonaData = new byte[data.Length];
-            Array.Copy(data, clonaData, clonaData.Length);
-            var parsedDataTree = integerType.ParseDataToPayload(ref clonaData);
-            Assert.That(clonaData, Has.Length.EqualTo(0), message);
+            byte[] cloneData = new byte[data.Length];
+            Array.Copy(data, cloneData, cloneData.Length);
+            var parsedDataTree = integerType.ParseDataToPayload(ref cloneData);
+            Assert.That(cloneData, Has.Length.EqualTo(0), message);
 
             Assert.That(parsedDataTree, Is.EqualTo(dataTree), message);
 
             //Test for short Data & PDL Issue
-            clonaData = new byte[data.Length - 1];
-            Array.Copy(data, clonaData, clonaData.Length);
-            Assert.DoesNotThrow(() => parsedDataTree = integerType.ParseDataToPayload(ref clonaData));
+            cloneData = new byte[data.Length - 1];
+            Array.Copy(data, cloneData, cloneData.Length);
+            Assert.DoesNotThrow(() => parsedDataTree = integerType.ParseDataToPayload(ref cloneData));
             Assert.That(parsedDataTree.Issues, Is.Not.Null);
             Assert.That(parsedDataTree.Value, Is.Not.Null);
 
-            Assert.Throws(typeof(ArithmeticException), () => data = integerType.ParsePayloadToData(new DataTree("Different Name", dataTree.Index, dataTree.Value)), message);
+            Assert.Throws(typeof(ArithmeticException), () => data = integerType.ParsePayloadToData(new DataTree("Different Name", dataTree.Index, dataTree.Value)), message!);
         }
     }
 }

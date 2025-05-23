@@ -9,8 +9,8 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.COMPONENT_SCOPE, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.COMPONENT_SCOPE, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.COMPONENT_SCOPE, Command.ECommandDublicate.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.COMPONENT_SCOPE, Command.ECommandDublicate.SetRequest)]
     public class GetSetComponentScope : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

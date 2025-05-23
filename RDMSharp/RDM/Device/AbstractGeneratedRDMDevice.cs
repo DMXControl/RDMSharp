@@ -109,6 +109,7 @@ namespace RDMSharp
 
                 currentPersonality = value.Value;
                 this.OnPropertyChanged(nameof(this.CurrentPersonality));
+                this.updateDeviceInfo();
             }
         }
         private bool discoveryMuted;
@@ -127,6 +128,7 @@ namespace RDMSharp
             }
         }
 
+        private bool _initialized = false;
 
         protected AbstractGeneratedRDMDevice(UID uid, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null, IRDMDevice[] subDevices = null) : this(uid, SubDevice.Root, parameters, manufacturer, sensors, subDevices)
         {
@@ -146,6 +148,8 @@ namespace RDMSharp
             var _params = parameters.ToList();
             _params.Add(ERDM_Parameter.DEVICE_INFO);
             _params.Add(ERDM_Parameter.SUPPORTED_PARAMETERS);
+            _params.Add(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID);
+            _params.Add(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL);
             _params.Add(ERDM_Parameter.DEVICE_LABEL);
             _params.Add(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION);
             _params.Add(ERDM_Parameter.MANUFACTURER_LABEL);
@@ -195,7 +199,7 @@ namespace RDMSharp
             if (Personalities != null)
             {
                 if (Personalities.Length >= byte.MaxValue)
-                    throw new ArgumentOutOfRangeException($"There to many {Personalities}! Maxumum is {byte.MaxValue - 1}");
+                    throw new ArgumentOutOfRangeException($"There to many {Personalities}! Maximum is {byte.MaxValue - 1}");
 
                 if (Personalities.Length != 0)
                 {
@@ -215,7 +219,7 @@ namespace RDMSharp
             {
                 var _sensors = Sensors.Values.ToArray();
                 if (_sensors.Length >= byte.MaxValue)
-                    throw new ArgumentOutOfRangeException($"There to many {Sensors}! Maxumum is {byte.MaxValue - 1}");
+                    throw new ArgumentOutOfRangeException($"There to many {Sensors}! Maximum is {byte.MaxValue - 1}");
 
                 if (_sensors.Min(s => s.SensorId) != 0)
                     throw new ArgumentOutOfRangeException($"The first Sensor should have the ID: 0, but is({_sensors.Min(s => s.SensorId)})");
@@ -252,14 +256,14 @@ namespace RDMSharp
                                 case nameof(Sensor.LowestHighestValueSupported):
                                 case nameof(Sensor.RecordedValueSupported):
                                     sensorDef.AddOrUpdate(sensor.SensorId, (RDMSensorDefinition)sensor, (o1, o2) => (RDMSensorDefinition)sensor);
-                                    setParameterValue(ERDM_Parameter.SENSOR_DEFINITION, sensorDef);
+                                    setParameterValue(ERDM_Parameter.SENSOR_DEFINITION, sensorDef, sensor.SensorId);
                                     break;
                                 case nameof(Sensor.PresentValue):
                                 case nameof(Sensor.LowestValue):
                                 case nameof(Sensor.HighestValue):
                                 case nameof(Sensor.RecordedValue):
                                     sensorValue.AddOrUpdate(sensor.SensorId, (RDMSensorValue)sensor, (o1, o2) => (RDMSensorValue)sensor);
-                                    setParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue);
+                                    setParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue, sensor.SensorId);
                                     break;
                             }
                         };
@@ -277,6 +281,8 @@ namespace RDMSharp
             #endregion
 
             updateDeviceInfo();
+            ParameterUpdatedBag.Clear();
+            _initialized = true;
         }
 
         private void updateDeviceInfo()
@@ -399,8 +405,8 @@ namespace RDMSharp
                         throw new NotSupportedException($"The Protocoll not allow to set the Parameter: {parameter}");
                     else
                     {
-                        byte[] data = MetadataFactory.ParsePayloadToData(define, Metadata.JSON.Command.ECommandDublicte.SetRequest, DataTreeBranch.FromObject(value, null, parameterBag, ERDM_Command.SET_COMMAND));
-                        var obj = MetadataFactory.ParseDataToPayload(define, Metadata.JSON.Command.ECommandDublicte.SetRequest, data);
+                        byte[] data = MetadataFactory.ParsePayloadToData(define, Metadata.JSON.Command.ECommandDublicate.SetRequest, DataTreeBranch.FromObject(value, null, parameterBag, ERDM_Command.SET_COMMAND));
+                        var obj = MetadataFactory.ParseDataToPayload(define, Metadata.JSON.Command.ECommandDublicate.SetRequest, data);
                         if (!object.Equals(value, obj))
                             return false;
                     }
@@ -420,7 +426,7 @@ namespace RDMSharp
             {
                 case nameof(DeviceInfo):
                     trySetParameter(ERDM_Parameter.DEVICE_INFO, this.DeviceInfo);
-                    trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, this.DeviceInfo.SoftwareVersionId);
+                    trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID, this.DeviceInfo.SoftwareVersionId);
                     break;
                 case nameof(DeviceModelDescription):
                     trySetParameter(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION, this.DeviceModelDescription);
@@ -462,7 +468,7 @@ namespace RDMSharp
             setParameterValue(parameter, value);
             return true;
         }
-        private void setParameterValue(ERDM_Parameter parameter, object value)
+        private void setParameterValue(ERDM_Parameter parameter, object value, object index=null)
         {
             switch (parameter)
             {
@@ -471,7 +477,16 @@ namespace RDMSharp
                     goto default;
 
                 default:
-                    parameterValues.AddOrUpdate(parameter, value, (o, p) => value);
+                    bool notNew = false;
+                    parameterValues.AddOrUpdate(parameter, value, (o, p) =>
+                    {
+                        if (object.Equals(p, value))
+                            notNew = true;
+                        return value;
+                    });
+                    if (notNew)
+                        return;
+                    updateParameterBag(parameter, index);
                     return;
             }
         }
@@ -537,25 +552,50 @@ namespace RDMSharp
                 }
                 if (rdmMessage.Command == ERDM_Command.GET_COMMAND)
                 {
-                    if (rdmMessage.SubDevice == SubDevice.Broadcast) // no Response on Broadcast Subdevice, because this cant work on a if there are more then one Device responding on a singel line.
+                    ERDM_Parameter parameter = rdmMessage.Parameter;
+                    object requestValue = rdmMessage.Value;
+                    byte messageCounter = 0;
+                    if (rdmMessage.SubDevice == SubDevice.Broadcast) // no Response on Broadcast Subdevice, because this can't work on a if there are more then one Device responding on a single line.
                     {
-                        response = new RDMMessage(ERDM_NackReason.SUB_DEVICE_OUT_OF_RANGE) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
+                        response = new RDMMessage(ERDM_NackReason.SUB_DEVICE_OUT_OF_RANGE) { Parameter = parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
                         goto FAIL;
                     }
-                    
-                    parameterValues.TryGetValue(rdmMessage.Parameter, out object responseValue);
+                    if (parameter == ERDM_Parameter.QUEUED_MESSAGE)
+                    {
+                        if (ParameterUpdatedBag.IsEmpty)
+                        {
+                            response = new RDMMessage
+                            {
+                                Parameter = ERDM_Parameter.STATUS_MESSAGES,
+                                Command = ERDM_Command.GET_COMMAND_RESPONSE,
+                                MessageCounter = 0
+                            };
+                            goto FAIL;
+                        }
+                        else if (ParameterUpdatedBag.TryDequeue(out var item))
+                        {
+                            parameter = item.Parameter;
+                            requestValue = item.Index;
+                            messageCounter = (byte)Math.Min(ParameterUpdatedBag.Count, byte.MaxValue);
+                        }
+                    }
+                    else
+                        removeParamterFromParameterUpdateBag(parameter);
+
+                    parameterValues.TryGetValue(parameter, out object responseValue);
+                    var parameterBag = new ParameterBag(parameter, UID.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
+                    var dataTreeBranch = DataTreeBranch.FromObject(responseValue, requestValue, parameterBag, ERDM_Command.GET_COMMAND_RESPONSE);
                     try
                     {
-                        var parameterBag = new ParameterBag(rdmMessage.Parameter, UID.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
-                        var dataTreeBranch = DataTreeBranch.FromObject(responseValue, rdmMessage.Value, parameterBag, ERDM_Command.GET_COMMAND_RESPONSE);
                         if (!dataTreeBranch.IsUnset)
                         {
                             var data = MetadataFactory.GetResponseMessageData(parameterBag, dataTreeBranch);
                             if (data != null)
                                 response = new RDMMessage
                                 {
-                                    Parameter = rdmMessage.Parameter,
+                                    Parameter = parameter,
                                     Command = ERDM_Command.GET_COMMAND_RESPONSE,
+                                    MessageCounter = messageCounter,
                                     ParameterData = data,
                                 };
                         }
@@ -564,13 +604,14 @@ namespace RDMSharp
                     }
                     catch (Exception e)
                     {
+                        Logger.LogError(e);
                         goto FAIL;
                     }
                 }
                 else if (rdmMessage.Command == ERDM_Command.SET_COMMAND)
                 {
                     bool success = false;
-                    //Handle set Requerst
+                    //Handle set Request
                     if (parameterValues.TryGetValue(rdmMessage.Parameter, out object comparisonValue) && parameterValues.TryUpdate(rdmMessage.Parameter, rdmMessage.Value, comparisonValue))
                     {
                         success = true;
@@ -597,6 +638,7 @@ namespace RDMSharp
                         }
                         catch (Exception e)
                         {
+                            Logger.LogError(e);
                             goto FAIL;
                         }
                     }
@@ -614,7 +656,7 @@ namespace RDMSharp
                 Logger?.LogError(e, string.Empty);
             }
         FAIL:
-            if (rdmMessage.SubDevice == SubDevice.Broadcast) // no Response on Broadcast Subdevice, because this cant work on a if there are more then one Device responding on a singel line.
+            if (rdmMessage.SubDevice == SubDevice.Broadcast) // no Response on Broadcast Subdevice, because this can't work on a if there are more then one Device responding on a singel line.
                 return null;
             if (rdmMessage.DestUID.IsBroadcast) // no Response on Broadcast
                 return null;
@@ -645,6 +687,34 @@ namespace RDMSharp
                 case ERDM_Parameter.DEVICE_LABEL:
                     DeviceLabel = (string)value;
                     break;
+            }
+        }
+        private void updateParameterBag(ERDM_Parameter parameter, object index = null)
+        {
+            if (!IsInitialized || !_initialized)
+                return;
+            try
+            {
+                removeParamterFromParameterUpdateBag(parameter, index);
+                ParameterUpdatedBag.Enqueue(new ParameterUpdatedBag(parameter, index));
+            }
+            catch(Exception e)
+            {
+
+            }
+        }
+        private void removeParamterFromParameterUpdateBag(ERDM_Parameter parameter, object index = null)
+        {
+            if (ParameterUpdatedBag.Any(p => p.Parameter == parameter && p.Index == index))
+            {
+                var tempQueue = new ConcurrentQueue<ParameterUpdatedBag>();
+                while (ParameterUpdatedBag.TryDequeue(out var item))
+                    if (!(item.Parameter.Equals(parameter) && Equals(parameter, index)))
+                        tempQueue.Enqueue(item);
+
+
+                while (tempQueue.TryDequeue(out var item))
+                    ParameterUpdatedBag.Enqueue(item);
             }
         }
         protected sealed override void OnDispose()

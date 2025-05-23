@@ -5,9 +5,9 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.PRESET_STATUS, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.PRESET_STATUS, Command.ECommandDublicte.SetRequest)]
-    [DataTreeObject(ERDM_Parameter.CAPTURE_PRESET, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.PRESET_STATUS, Command.ECommandDublicate.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.PRESET_STATUS, Command.ECommandDublicate.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.CAPTURE_PRESET, Command.ECommandDublicate.SetRequest)]
     public class RDMPresetStatus : AbstractRDMPayloadObject
     {
         public RDMPresetStatus(

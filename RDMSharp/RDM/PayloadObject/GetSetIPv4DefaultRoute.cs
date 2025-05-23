@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.IPV4_DEFAULT_ROUTE, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.IPV4_DEFAULT_ROUTE, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.IPV4_DEFAULT_ROUTE, Command.ECommandDublicate.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.IPV4_DEFAULT_ROUTE, Command.ECommandDublicate.SetRequest)]
     public class GetSetIPv4DefaultRoute : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

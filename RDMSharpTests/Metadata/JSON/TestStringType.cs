@@ -133,7 +133,7 @@ namespace RDMSharpTests.Metadata.JSON
         {
             Console.OutputEncoding = Encoding.UTF8;
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, "string", null, null, 3, 6, 5, 8, null);
-            string str = "12";
+            string? str = "12";
             DataTree dataTree = new DataTree("NAME FAIL", 0, str);
             Assert.Throws(typeof(ArithmeticException), () => stringType.ParsePayloadToData(dataTree));
             dataTree = new DataTree("NAME", 0, str);

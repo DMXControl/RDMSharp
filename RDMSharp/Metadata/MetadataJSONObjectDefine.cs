@@ -10,6 +10,7 @@ namespace RDMSharp.Metadata
 {
     public class MetadataJSONObjectDefine
     {
+#pragma warning disable CS8632
         [JsonPropertyName("name")]
         public string Name { get; }
 
@@ -160,25 +161,25 @@ namespace RDMSharp.Metadata
 
                     switch (reference.Command)
                     {
-                        case Command.ECommandDublicte.GetRequest:
+                        case Command.ECommandDublicate.GetRequest:
                             if (!getRequest.HasValue)
                                 throw new JsonException($"The Referenced Command ({reference.Command.ToString()})is not defined");
                             reference = new ReferenceType(reference.URI, getRequest.Value.ListOfFields[reference.Pointer].ObjectType);
                             break;
 
-                        case Command.ECommandDublicte.GetResponse:
+                        case Command.ECommandDublicate.GetResponse:
                             if (!getResponse.HasValue)
                                 throw new JsonException($"The Referenced Command ({reference.Command.ToString()})is not defined");
                             reference = new ReferenceType(reference.URI, getResponse.Value.ListOfFields[reference.Pointer].ObjectType);
                             break;
 
-                        case Command.ECommandDublicte.SetRequest:
+                        case Command.ECommandDublicate.SetRequest:
                             if (!setRequest.HasValue)
                                 throw new JsonException($"The Referenced Command ({reference.Command.ToString()})is not defined");
                             reference = new ReferenceType(reference.URI, setRequest.Value.ListOfFields[reference.Pointer].ObjectType);
                             break;
 
-                        case Command.ECommandDublicte.SetResponse:
+                        case Command.ECommandDublicate.SetResponse:
                             if (!setResponse.HasValue)
                                 throw new JsonException($"The Referenced Command ({reference.Command.ToString()})is not defined");
                             reference = new ReferenceType(reference.URI, setResponse.Value.ListOfFields[reference.Pointer].ObjectType);
@@ -189,21 +190,21 @@ namespace RDMSharp.Metadata
             }
         }
 
-        public void GetCommand(Command.ECommandDublicte eCommand, out Command? command)
+        public void GetCommand(Command.ECommandDublicate eCommand, out Command? command)
         {
             command = null;
             switch (eCommand)
             {
-                case Command.ECommandDublicte.GetRequest:
+                case Command.ECommandDublicate.GetRequest:
                     command = GetRequest.Value;
                     break;
-                case Command.ECommandDublicte.GetResponse:
+                case Command.ECommandDublicate.GetResponse:
                     command = GetResponse.Value;
                     break;
-                case Command.ECommandDublicte.SetRequest:
+                case Command.ECommandDublicate.SetRequest:
                     command = SetRequest.Value;
                     break;
-                case Command.ECommandDublicte.SetResponse:
+                case Command.ECommandDublicate.SetResponse:
                     command = SetResponse.Value;
                     break;
             }
@@ -222,3 +223,5 @@ namespace RDMSharp.Metadata
         }
     }
 }
+
+#pragma warning restore CS8632

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.LOCK_STATE_DESCRIPTION, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.LOCK_STATE_DESCRIPTION, Command.ECommandDublicate.GetResponse)]
     public class RDMLockStateDescription : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
         [DataTreeObjectConstructor]

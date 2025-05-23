@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.DMX_PERSONALITY, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.DMX_PERSONALITY, Command.ECommandDublicate.GetResponse)]
     public class RDMDMXPersonality : AbstractRDMPayloadObjectOneOf
     {
         [DataTreeObjectConstructor]

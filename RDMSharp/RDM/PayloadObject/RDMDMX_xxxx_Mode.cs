@@ -5,10 +5,10 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.DMX_FAIL_MODE, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.DMX_FAIL_MODE, Command.ECommandDublicte.SetRequest)]
-    [DataTreeObject(ERDM_Parameter.DMX_STARTUP_MODE, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.DMX_STARTUP_MODE, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.DMX_FAIL_MODE, Command.ECommandDublicate.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.DMX_FAIL_MODE, Command.ECommandDublicate.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.DMX_STARTUP_MODE, Command.ECommandDublicate.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.DMX_STARTUP_MODE, Command.ECommandDublicate.SetRequest)]
     public class RDMDMX_xxxx_Mode : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]
