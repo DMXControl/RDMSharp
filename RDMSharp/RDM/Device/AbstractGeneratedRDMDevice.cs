@@ -929,7 +929,7 @@ namespace RDMSharp
         }
         protected abstract void onDispose();
 
-        private class ControllerCommunicationCache()
+        private class ControllerCommunicationCache
         {
             public readonly UID Uid;
             public DateTime LastSeen = DateTime.UtcNow;
@@ -939,7 +939,7 @@ namespace RDMSharp
 
             internal ConcurrentQueue<ParameterUpdatedBag> ParameterUpdatedBag = new ConcurrentQueue<ParameterUpdatedBag>();
 
-            public ControllerCommunicationCache(UID uid) : this()
+            public ControllerCommunicationCache(UID uid)
             {
                 this.Uid = uid;
             }
