@@ -1,12 +1,13 @@
 ﻿using RDMSharp.Metadata;
 using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace RDMSharp
 {
     [DataTreeObject(ERDM_Parameter.STATUS_MESSAGES, Command.ECommandDublicate.GetResponse, true, "slots")]
-    public class RDMStatusMessage : AbstractRDMPayloadObject
+    public class RDMStatusMessage : AbstractRDMPayloadObject, IEquatable<RDMStatusMessage>
     {
         public RDMStatusMessage(
             ushort subDeviceId = 0,
@@ -24,11 +25,11 @@ namespace RDMSharp
 
         [DataTreeObjectConstructor]
         public RDMStatusMessage(
-            [DataTreeObjectParameter("slots/subdevice_id")] ushort subDeviceId,
-            [DataTreeObjectParameter("slots/status_type")] byte statusType,
-            [DataTreeObjectParameter("slots/status_message_id")] byte statusMessage,
-            [DataTreeObjectParameter("slots/data_value_1")] short dataValue1,
-            [DataTreeObjectParameter("slots/data_value_2")] short dataValue2)
+            [DataTreeObjectParameter("subdevice_id")] ushort subDeviceId,
+            [DataTreeObjectParameter("status_type")] byte statusType,
+            [DataTreeObjectParameter("status_message_id")] ushort statusMessage,
+            [DataTreeObjectParameter("data_value_1")] short dataValue1,
+            [DataTreeObjectParameter("data_value_2")] short dataValue2)
             : this(subDeviceId, (ERDM_Status)statusType, (ERDM_StatusMessage)statusMessage, dataValue1, dataValue2)
         {
         }
@@ -41,6 +42,11 @@ namespace RDMSharp
         public short DataValue2 { get; private set; }
         public const int PDL = 9;
         public string FormatedString => StatusMessage.GetStatusMessage(DataValue1, DataValue2);
+
+        internal void Clear()
+        {
+            StatusType |= ERDM_Status.CLEARED;
+        }
 
         public override string ToString()
         {
@@ -83,6 +89,17 @@ namespace RDMSharp
             data.AddRange(Tools.ValueToData(this.DataValue1));
             data.AddRange(Tools.ValueToData(this.DataValue2));
             return data.ToArray();
+        }
+
+        public bool Equals(RDMStatusMessage other)
+        {
+            if (other is null) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return this.SubDeviceId == other.SubDeviceId &&
+                   this.StatusType == other.StatusType &&
+                   this.StatusMessage == other.StatusMessage &&
+                   this.DataValue1 == other.DataValue1 &&
+                   this.DataValue2 == other.DataValue2;
         }
     }
 }

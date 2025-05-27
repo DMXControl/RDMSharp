@@ -208,7 +208,7 @@ namespace RDMSharp
             }
             return 0;
         }
-        protected async Task requestGetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice, object? i=null)
+        protected async Task<byte> requestGetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice, object i=null)
         {
             define.GetCommand(Metadata.JSON.Command.ECommandDublicate.GetRequest, out var cmd);
             var req = cmd.Value.GetRequiredProperties();
@@ -231,7 +231,7 @@ namespace RDMSharp
                                 continue;
 
                             if (((IComparable)max).CompareTo(i) == -1)
-                                return;
+                                return 0;
 
                             DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
                             PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
@@ -242,6 +242,7 @@ namespace RDMSharp
                             i = intType.IncrementJumpRange(i);
                             count = intType.Increment(count);
                         }
+                        return 0;
                     }
                     else
                     {
@@ -249,14 +250,16 @@ namespace RDMSharp
                         PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
                         await runPeerToPeerProcess(ptpProcess);
                         if (!ptpProcess.ResponsePayloadObject.IsUnset)
-                            updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, i), ptpProcess.ResponsePayloadObject);
+                            updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, parameterBag.PID == ERDM_Parameter.QUEUED_MESSAGE || parameterBag.PID == ERDM_Parameter.STATUS_MESSAGES ? null : i), ptpProcess.ResponsePayloadObject);
+                        return ptpProcess.MessageCounter;
                     }
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(e, $"Failed to get parameter {parameterBag.PID} with Bag: {parameterBag}");
+                    Logger?.LogError(e, $"Failed to get parameter {parameterBag.PID} with Bag: {parameterBag}");
                 }
             }
+            return 0;
         }
 
 

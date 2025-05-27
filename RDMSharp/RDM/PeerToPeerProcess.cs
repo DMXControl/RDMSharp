@@ -42,8 +42,8 @@ namespace RDMSharp
             ParameterBag = parameterBag;
             RequestPayloadObject = payloadObject ?? DataTreeBranch.Unset;
 
-            if (ParameterBag.PID != ERDM_Parameter.QUEUED_MESSAGE)
-                Define = MetadataFactory.GetDefine(ParameterBag);
+            //if (ParameterBag.PID != ERDM_Parameter.QUEUED_MESSAGE)
+            Define = MetadataFactory.GetDefine(ParameterBag);
         }
 
         public async Task Run(AsyncRDMRequestHelper asyncRDMRequestHelper)
@@ -71,7 +71,8 @@ namespace RDMSharp
                 if (Command == ERDM_Command.SET_COMMAND)
                     commandResponse = ECommandDublicate.SetResponse;
 
-                byte[] parameterData = ParameterBag.PID != ERDM_Parameter.QUEUED_MESSAGE ? MetadataFactory.ParsePayloadToData(Define, commandRequest, RequestPayloadObject) : null;
+                byte[] parameterData = //ParameterBag.PID != ERDM_Parameter.QUEUED_MESSAGE ? 
+                    MetadataFactory.ParsePayloadToData(Define, commandRequest, RequestPayloadObject);// : null;
                 request = new RDMMessage()
                 {
                     Command = Command,

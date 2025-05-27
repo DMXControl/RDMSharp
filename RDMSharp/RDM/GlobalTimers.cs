@@ -4,7 +4,7 @@ namespace RDMSharp
 {
     public class GlobalTimers
     {
-        private static GlobalTimers? instance = null;
+        private static GlobalTimers instance = null;
         public static GlobalTimers Instance
         {
             get
@@ -15,10 +15,12 @@ namespace RDMSharp
             }
         }
 
-
-        public int QueuedUpdateTime { get; set; } = 4000;
-        public int NonQueuedUpdateTime { get; set; } = 10000;
-        private int parameterUpdateTimerInterval = 1000;
+        public const int DefaultQueuedUpdateTime = 4000; // 4 seconds
+        public const int DefaultNonQueuedUpdateTime = 10000; // 10 seconds
+        public const int DefaultUpdateTimerInterval = 10000; // 10 seconds
+        public int QueuedUpdateTime { get; set; } = DefaultQueuedUpdateTime;
+        public int NonQueuedUpdateTime { get; set; } = DefaultNonQueuedUpdateTime;
+        private int parameterUpdateTimerInterval = DefaultUpdateTimerInterval;
         public int ParameterUpdateTimerInterval
         {
             get
@@ -32,7 +34,7 @@ namespace RDMSharp
                     parameterUpdateTimer.Interval = value;
             }
         }
-        private System.Timers.Timer? parameterUpdateTimer = null;
+        private System.Timers.Timer parameterUpdateTimer = null;
 
         private event EventHandler parameterUpdateTimerElapsed;
         public event EventHandler ParameterUpdateTimerElapsed
@@ -69,6 +71,13 @@ namespace RDMSharp
             parameterUpdateTimer.Elapsed -= ParameterUpdateTimer_Elapsed;
             parameterUpdateTimer.Dispose();
             parameterUpdateTimer = null;
+        }
+
+        public void ResetAllTimersToDefault()
+        {
+            QueuedUpdateTime = DefaultQueuedUpdateTime;
+            NonQueuedUpdateTime = DefaultNonQueuedUpdateTime;
+            ParameterUpdateTimerInterval = DefaultUpdateTimerInterval;
         }
 
         private void ParameterUpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)

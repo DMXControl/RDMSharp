@@ -29,6 +29,12 @@ namespace RDMSharp
         public sealed override IReadOnlyDictionary<byte, Sensor> Sensors { get { return sensors.AsReadOnly(); } }
         public sealed override IReadOnlyDictionary<ushort, Slot> Slots { get { return PersonalityModel.Slots; } }
 
+
+        private readonly ConcurrentDictionary<int, RDMStatusMessage> statusMessages = new ConcurrentDictionary<int, RDMStatusMessage>();
+        public sealed override IReadOnlyDictionary<int, RDMStatusMessage> StatusMessages { get { return statusMessages.AsReadOnly(); } }
+
+        protected ConcurrentQueue<ParameterUpdatedBag> ParameterUpdatedBag = new ConcurrentQueue<ParameterUpdatedBag>();
+
         private RDMDeviceInfo deviceInfo;
         public override RDMDeviceInfo DeviceInfo { get { return deviceInfo; } }
 
@@ -221,6 +227,11 @@ namespace RDMSharp
                 {
                     case ERDM_Parameter.DEVICE_INFO:
                         continue;
+                    case ERDM_Parameter.QUEUED_MESSAGE:
+                        continue;
+                    case ERDM_Parameter.STATUS_MESSAGES:
+                        await requestParameter(parameter, ERDM_Status.NONE);
+                        continue;
                 }
                 await requestParameter(parameter);
             }
@@ -252,7 +263,7 @@ namespace RDMSharp
                     do
                     {
                         lastSendQueuedMessage = DateTime.UtcNow;
-                        mc = await requestGetParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
+                        mc = await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice, ERDM_Status.ADVISORY);
                     }
                     while (mc != 0);
                 }

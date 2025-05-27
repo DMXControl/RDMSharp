@@ -22,12 +22,12 @@ namespace RDMSharp
         public abstract RDMDeviceInfo DeviceInfo { get; }
         public abstract IReadOnlyDictionary<byte, Sensor> Sensors { get; }
         public abstract IReadOnlyDictionary<ushort, Slot> Slots { get; }
+        public abstract IReadOnlyDictionary<int, RDMStatusMessage> StatusMessages { get; }
 
         private List<IRDMDevice> subDevices;
         protected IList<IRDMDevice> SubDevices_Internal { get => subDevices; }
         public IReadOnlyCollection<IRDMDevice> SubDevices => SubDevices_Internal?.AsReadOnly();
 
-        protected ConcurrentQueue<ParameterUpdatedBag> ParameterUpdatedBag = new ConcurrentQueue<ParameterUpdatedBag>();
 
         public new bool IsDisposing { get; private set; }
         public new bool IsDisposed { get; private set; }

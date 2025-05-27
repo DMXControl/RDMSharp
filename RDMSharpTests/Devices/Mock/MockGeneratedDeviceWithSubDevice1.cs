@@ -41,6 +41,11 @@
         private static readonly Sensor[] SENSORS = new Sensor[] {
             new MockSensorTemp(0, 1, 3000)};
         public override GeneratedPersonality[] Personalities => PERSONALITYS;
+
+        public override bool SupportQueued => true;
+
+        public override bool SupportStatus => true;
+
         public MockGeneratedDeviceWithSubDeviceMaster1(UID uid, ushort subDevicesCount) : base(uid, getSubDevices(uid, subDevicesCount), SENSORS)
         {
         }
@@ -70,6 +75,11 @@
             new MockSensorTemp(0, 1, 3000)};
 
         public override GeneratedPersonality[] Personalities => PERSONALITYS;
+
+        public override bool SupportQueued => true;
+
+        public override bool SupportStatus => true;
+
         public MockGeneratedDeviceWithSubDeviceSub1(UID uid, ushort subDeviceID) : base(uid, getSubDevice(subDeviceID), SENSORS)
         {
         }

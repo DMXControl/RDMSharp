@@ -54,6 +54,10 @@ namespace RDMSharpTests.Devices.Mock
         {
             await base.ReceiveRDMMessage(rdmMessage);
         }
+        internal RDMMessage? ProcessRequestMessage_Internal(RDMMessage request)
+        {
+            return base.processRequestMessage(request);
+        }
         protected override async Task SendRDMMessage(RDMMessage rdmMessage)
         {
             if (rdmMessage == null)
@@ -70,6 +74,20 @@ namespace RDMSharpTests.Devices.Mock
             else
                 SendReceivePipeline.RDMMessageSend(i, rdmMessage);
         }
+
+        internal new void AddStatusMessage(RDMStatusMessage statusMessage)
+        {
+            base.AddStatusMessage(statusMessage);
+        }
+        internal new void ClearStatusMessage(RDMStatusMessage statusMessage)
+        {
+            base.ClearStatusMessage(statusMessage);
+        }
+        internal new void RemoveStatusMessage(RDMStatusMessage statusMessage)
+        {
+            base.RemoveStatusMessage(statusMessage);
+        }
+
         protected sealed override void onDispose()
         {
             try

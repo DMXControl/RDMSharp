@@ -279,8 +279,15 @@ namespace RDMSharp.Metadata
 
                 var tryGetValueMethod = type.GetMethod("TryGetValue");
                 object[] parameters = { key, null };
-
-                bool found = (bool)tryGetValueMethod.Invoke(obj, parameters);
+                bool found = false;
+                try
+                {
+                    found = (bool)tryGetValueMethod.Invoke(obj, parameters);
+                }
+                catch(Exception e)
+                {
+                    Logger.LogError(e);
+                }
 
                 if (found)
                 {

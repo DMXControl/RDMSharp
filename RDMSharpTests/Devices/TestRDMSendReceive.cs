@@ -10,6 +10,7 @@ namespace RDMSharpTests.RDM.Devices
         [SetUp]
         public void Setup()
         {
+            GlobalTimers.Instance.ResetAllTimersToDefault();
             var uid = new UID((ushort)random.Next(), (uint)random.Next());
             generated = new MockGeneratedDevice1(uid);
             remote = new MockDevice(uid, false);
@@ -17,8 +18,7 @@ namespace RDMSharpTests.RDM.Devices
         [TearDown]
         public void TearDown()
         {
-            GlobalTimers.Instance.QueuedUpdateTime = 4000;
-            GlobalTimers.Instance.ParameterUpdateTimerInterval = 1000;
+            GlobalTimers.Instance.ResetAllTimersToDefault();
             generated?.Dispose();
             generated = null;
             remote?.Dispose();
