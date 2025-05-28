@@ -20,8 +20,393 @@ namespace RDMSharpTests.RDM.Devices
             generated = null;
         }
 
+
         [Test, Order(1)]
-        public void TestGetStatusMessages()
+        public void TestGetSUPPORTED_PARAMETERS()
+        {
+            #region Test Basic
+            Assert.That(generated, Is.Not.Null);
+            RDMMessage request = new RDMMessage()
+            {
+                Command = ERDM_Command.GET_COMMAND,
+                DestUID = DEVCIE_UID,
+                SourceUID = CONTROLLER_UID,
+                Parameter = ERDM_Parameter.SUPPORTED_PARAMETERS,
+                SubDevice = SubDevice.Root,
+            };
+
+            RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SUPPORTED_PARAMETERS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.Parameters.Length * 2));
+            Assert.That(response.Value, Is.TypeOf(typeof(ERDM_Parameter[])));
+            var parametersRemote = ((ERDM_Parameter[])response.Value).OrderBy(p => p).ToArray();
+            var parametersGenerated = generated.Parameters.OrderBy(p => p).ToArray();
+            Assert.That(parametersRemote, Is.EquivalentTo(parametersGenerated));
+            #endregion
+        }
+        [Test, Order(5)]
+        public void TestGetDEVICE_INFO()
+        {
+            #region Test Basic
+            Assert.That(generated, Is.Not.Null);
+            RDMMessage request = new RDMMessage()
+            {
+                Command = ERDM_Command.GET_COMMAND,
+                DestUID = DEVCIE_UID,
+                SourceUID = CONTROLLER_UID,
+                Parameter = ERDM_Parameter.DEVICE_INFO,
+                SubDevice = SubDevice.Root,
+            };
+
+            RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEVICE_INFO));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(19));
+            Assert.That(response.Value, Is.EqualTo(generated.DeviceInfo));
+            #endregion
+        }
+        [Test, Order(6)]
+        public void TestGetIDENTIFY_DEVICE()
+        {
+            #region Test Basic
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(generated.Identify, Is.False);
+            RDMMessage request = new RDMMessage()
+            {
+                Command = ERDM_Command.GET_COMMAND,
+                DestUID = DEVCIE_UID,
+                SourceUID = CONTROLLER_UID,
+                Parameter = ERDM_Parameter.IDENTIFY_DEVICE,
+                SubDevice = SubDevice.Root,
+            };
+
+            RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IDENTIFY_DEVICE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(1));
+            Assert.That(response.Value, Is.EqualTo(generated.Identify));
+            #endregion
+
+            #region Test Label changed
+            Assert.That(generated.Identify, Is.False);
+            generated.Identify = true;
+            Assert.That(generated.Identify, Is.True);
+            response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IDENTIFY_DEVICE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(1));
+            Assert.That(response.Value, Is.EqualTo(generated.Identify));
+            #endregion
+        }
+        [Test, Order(7)]
+        public void TestGetDMX_START_ADDRESS()
+        {
+            #region Test Basic
+            Assert.That(generated, Is.Not.Null);
+            RDMMessage request = new RDMMessage()
+            {
+                Command = ERDM_Command.GET_COMMAND,
+                DestUID = DEVCIE_UID,
+                SourceUID = CONTROLLER_UID,
+                Parameter = ERDM_Parameter.DMX_START_ADDRESS,
+                SubDevice = SubDevice.Root,
+            };
+
+            RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DMX_START_ADDRESS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(2));
+            Assert.That(response.Value, Is.EqualTo(generated.DMXAddress));
+            #endregion
+
+
+            #region Test Address changed
+            generated.DMXAddress = 40;
+            Assert.That(generated.DMXAddress, Is.EqualTo(40));
+
+            response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DMX_START_ADDRESS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(2));
+            Assert.That(response.Value, Is.EqualTo(generated.DMXAddress));
+            #endregion
+        }
+        [Test, Order(9)]
+        public void TestGetDEVICE_LABEL()
+        {
+            #region Test Basic
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(generated.DeviceLabel, Is.EqualTo("Dummy Device 1"));
+            RDMMessage request = new RDMMessage()
+            {
+                Command = ERDM_Command.GET_COMMAND,
+                DestUID = DEVCIE_UID,
+                SourceUID = CONTROLLER_UID,
+                Parameter = ERDM_Parameter.DEVICE_LABEL,
+                SubDevice = SubDevice.Root,
+            };
+
+            RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEVICE_LABEL));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.DeviceLabel.Length));
+            Assert.That(response.Value, Is.EqualTo(generated.DeviceLabel));
+            #endregion
+
+            #region Test Label changed
+            Assert.That(generated.DeviceLabel, Is.EqualTo("Dummy Device 1"));
+            generated.DeviceLabel = "Rem x Ram";
+            Assert.That(generated.DeviceLabel, Is.EqualTo("Rem x Ram"));
+            response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEVICE_LABEL));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.DeviceLabel.Length));
+            Assert.That(response.Value, Is.EqualTo(generated.DeviceLabel));
+            #endregion
+        }
+        [Test, Order(10)]
+        public void TestGetDMX_PERSONALITY_DESCRIPTION()
+        {
+            #region Test Basic
+            Assert.That(generated, Is.Not.Null);
+            RDMMessage request = new RDMMessage()
+            {
+                Command = ERDM_Command.GET_COMMAND,
+                DestUID = DEVCIE_UID,
+                SourceUID = CONTROLLER_UID,
+                Parameter = ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION,
+                SubDevice = SubDevice.Root,
+                ParameterData = new byte[] { 0x00 } // Requesting invalid 0 
+            };
+
+            RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.ACTION_NOT_SUPPORTED }));
+
+            for (byte b = 0; b < generated.Personalities.Length; b++)
+            {
+                request.ParameterData = new byte[] { (byte)(b + 1) };
+                response = generated.ProcessRequestMessage_Internal(request);
+                Assert.That(response, Is.Not.Null);
+                Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+                Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+                Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION));
+                Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+                var pers = generated.Personalities[b];
+                var expected = new RDMDMXPersonalityDescription(pers.ID, pers.SlotCount, pers.Description);
+                Assert.That(response.ParameterData, Has.Length.EqualTo(expected.ToPayloadData().Length));
+                Assert.That(response.Value, Is.EqualTo(expected));
+            }
+            #endregion
+        }
+        [Test, Order(11)]
+        public void TestGetDMX_PERSONALITY()
+        {
+            #region Test Basic
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(generated.CurrentPersonality, Is.EqualTo(1));
+            RDMMessage request = new RDMMessage()
+            {
+                Command = ERDM_Command.GET_COMMAND,
+                DestUID = DEVCIE_UID,
+                SourceUID = CONTROLLER_UID,
+                Parameter = ERDM_Parameter.DMX_PERSONALITY,
+                SubDevice = SubDevice.Root,
+            };
+
+            RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DMX_PERSONALITY));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            var pers = generated.Personalities[0];
+            var expected = new RDMDMXPersonality(pers.ID, (byte)generated.Personalities.Count());
+            Assert.That(response.ParameterData, Has.Length.EqualTo(expected.ToPayloadData().Length));
+            Assert.That(response.Value, Is.EqualTo(expected));
+            #endregion
+
+            #region Test Label changed
+            Assert.That(generated.CurrentPersonality, Is.EqualTo(1));
+            generated.CurrentPersonality = 2;
+            Assert.That(generated.CurrentPersonality, Is.EqualTo(2));
+            response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DMX_PERSONALITY));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            pers = generated.Personalities[1];
+            expected = new RDMDMXPersonality(pers.ID, (byte)generated.Personalities.Count());
+            Assert.That(response.ParameterData, Has.Length.EqualTo(expected.ToPayloadData().Length));
+            Assert.That(response.Value, Is.EqualTo(expected));
+            #endregion
+        }
+        [Test, Order(15)]
+        public void TestGetMANUFACTURER_LABEL()
+        {
+            #region Test Basic
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(generated.ManufacturerLabel, Is.EqualTo("Dummy Manufacturer 9FFF"));
+            RDMMessage request = new RDMMessage()
+            {
+                Command = ERDM_Command.GET_COMMAND,
+                DestUID = DEVCIE_UID,
+                SourceUID = CONTROLLER_UID,
+                Parameter = ERDM_Parameter.MANUFACTURER_LABEL,
+                SubDevice = SubDevice.Root,
+            };
+
+            RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.MANUFACTURER_LABEL));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.ManufacturerLabel.Length));
+            Assert.That(response.Value, Is.EqualTo(generated.ManufacturerLabel));
+            #endregion
+        }
+        [Test, Order(16)]
+        public void TestGetDEVICE_MODEL_DESCRIPTION()
+        {
+            #region Test Basic
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(generated.DeviceModelDescription, Is.EqualTo("Test Model Description"));
+            RDMMessage request = new RDMMessage()
+            {
+                Command = ERDM_Command.GET_COMMAND,
+                DestUID = DEVCIE_UID,
+                SourceUID = CONTROLLER_UID,
+                Parameter = ERDM_Parameter.DEVICE_MODEL_DESCRIPTION,
+                SubDevice = SubDevice.Root,
+            };
+
+            RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.DeviceModelDescription.Length));
+            Assert.That(response.Value, Is.EqualTo(generated.DeviceModelDescription));
+            #endregion
+        }
+        [Test, Order(30)]
+        public void TestGetBOOT_SOFTWARE_VERSION_ID()
+        {
+            #region Test Basic
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(generated.ParameterValues[ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID], Is.EqualTo(4660));
+            RDMMessage request = new RDMMessage()
+            {
+                Command = ERDM_Command.GET_COMMAND,
+                DestUID = DEVCIE_UID,
+                SourceUID = CONTROLLER_UID,
+                Parameter = ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID,
+                SubDevice = SubDevice.Root,
+            };
+
+            RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(4));
+            Assert.That(response.Value, Is.EqualTo(generated.ParameterValues[ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID]));
+            #endregion
+        }
+        [Test, Order(30)]
+        public void TestGetBOOT_SOFTWARE_VERSION_LABEL()
+        {
+            const string SOFTWARE_VERSION_LABEL = "Dummy Software";
+            #region Test Basic
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(generated.ParameterValues[ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL], Is.EqualTo(SOFTWARE_VERSION_LABEL));
+            RDMMessage request = new RDMMessage()
+            {
+                Command = ERDM_Command.GET_COMMAND,
+                DestUID = DEVCIE_UID,
+                SourceUID = CONTROLLER_UID,
+                Parameter = ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL,
+                SubDevice = SubDevice.Root,
+            };
+
+            RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(SOFTWARE_VERSION_LABEL.Length));
+            Assert.That(response.Value, Is.EqualTo(SOFTWARE_VERSION_LABEL));
+            #endregion
+        }
+
+        [Test, Order(100)]
+        public void TestGetSTATUS_MESSAGES()
         {
             #region Test Empty Status Messages
             Assert.That(generated, Is.Not.Null);
@@ -186,7 +571,7 @@ namespace RDMSharpTests.RDM.Devices
             #endregion
         }
         [Test, Order(1000)]
-        public void TestGetQueuedMessages()
+        public void TestGetQUEUED_MESSAGE()
         {
             #region Test Empty queue
             Assert.That(generated, Is.Not.Null);

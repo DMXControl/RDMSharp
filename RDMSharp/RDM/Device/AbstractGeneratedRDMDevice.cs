@@ -137,6 +137,23 @@ namespace RDMSharp
             }
         }
 
+        private bool identify;
+        public bool Identify
+        {
+            get
+            {
+                return identify;
+            }
+            set
+            {
+                if (string.Equals(identify, value))
+                    return;
+
+                identify = value;
+                this.OnPropertyChanged(nameof(this.Identify));
+            }
+        }
+
         private bool _initialized = false;
 
         protected AbstractGeneratedRDMDevice(UID uid, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null, IRDMDevice[] subDevices = null) : this(uid, SubDevice.Root, parameters, manufacturer, sensors, subDevices)
@@ -164,6 +181,7 @@ namespace RDMSharp
             _params.Add(ERDM_Parameter.DEVICE_LABEL);
             _params.Add(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION);
             _params.Add(ERDM_Parameter.MANUFACTURER_LABEL);
+            _params.Add(ERDM_Parameter.IDENTIFY_DEVICE);
             if (SupportDMXAddress)
                 _params.Add(ERDM_Parameter.DMX_START_ADDRESS);
             if ((Personalities?.Length ?? 0) != 0)
@@ -184,6 +202,7 @@ namespace RDMSharp
 
             Parameters = _params.Distinct().ToArray();
             trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters);
+            trySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, Identify);
             #endregion
 
             #region ManufacturerLabel
@@ -452,6 +471,9 @@ namespace RDMSharp
                     break;
                 case nameof(DMXAddress):
                     trySetParameter(ERDM_Parameter.DMX_START_ADDRESS, this.DMXAddress);
+                    break;
+                case nameof(Identify):
+                    trySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, this.Identify);
                     break;
                 case nameof(CurrentPersonality):
                     trySetParameter(ERDM_Parameter.DMX_PERSONALITY, new RDMDMXPersonality(this.currentPersonality, (byte)(Personalities?.Length ?? 0)));
@@ -745,6 +767,9 @@ namespace RDMSharp
             catch (Exception e)
             {
                 Logger?.LogError(e, string.Empty);
+
+                response = new RDMMessage(ERDM_NackReason.ACTION_NOT_SUPPORTED) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
+                goto FAIL;
             }
         FAIL:
             if (rdmMessage.SubDevice == SubDevice.Broadcast) // no Response on Broadcast Subdevice, because this can't work on a if there are more then one Device responding on a singel line.

@@ -22,7 +22,6 @@
         }
         private void setInitParameters()
         {
-            this.trySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, false);
             this.trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, $"Dummy Software");
         }
 

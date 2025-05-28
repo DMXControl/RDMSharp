@@ -226,7 +226,7 @@ namespace RDMSharpTests.RDM.Devices
             
             generated.DMXAddress = 69;
             generated.DeviceLabel = "Test Label QUEUE";
-            generated.SetParameter(ERDM_Parameter.IDENTIFY_DEVICE, true);
+            generated.Identify = true;
 
             await Task.Delay(1000);
             parameterValuesRemote = remote.GetAllParameterValues();
@@ -235,7 +235,7 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(parameterValuesRemote[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo("Test Label QUEUE"));
             Assert.That(parameterValuesRemote[ERDM_Parameter.IDENTIFY_DEVICE], Is.True);
 
-            generated.SetParameter(ERDM_Parameter.IDENTIFY_DEVICE, false);
+            generated.Identify = false;
             generated.DMXAddress = 44;
             generated.CurrentPersonality = 2;
 
