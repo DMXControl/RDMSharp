@@ -587,7 +587,7 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
             Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
             Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_DEFINITION));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_DESCRIPTION));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
             Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.ACTION_NOT_SUPPORTED }));
@@ -603,7 +603,7 @@ namespace RDMSharpTests.RDM.Devices
                     Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
                     Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
                     Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-                    Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_DEFINITION));
+                    Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_DESCRIPTION));
                     Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
                     Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
                     Assert.That(response.ParameterData, Has.Length.EqualTo(2 + slot.Description.Length));
@@ -1039,7 +1039,7 @@ namespace RDMSharpTests.RDM.Devices
                 Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
                 Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
                 Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_DEFINITION));
+                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_DESCRIPTION));
                 Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
                 Assert.That(response.MessageCounter, Is.EqualTo(9-b));
                 Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
