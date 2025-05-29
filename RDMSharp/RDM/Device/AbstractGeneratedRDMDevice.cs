@@ -32,7 +32,7 @@ namespace RDMSharp
         private ConcurrentDictionary<object, object> sensorDef;
         private ConcurrentDictionary<object, object> sensorValue;
 
-        public sealed override IReadOnlyDictionary<ushort, Slot> Slots { get { return CurrentPersonality.HasValue ? Personalities[CurrentPersonality.Value].Slots : null; } }
+        public sealed override IReadOnlyDictionary<ushort, Slot> Slots { get { return CurrentPersonality.HasValue ? Personalities?.FirstOrDefault(p => p.ID.Equals(CurrentPersonality.Value))?.Slots : null; } }
 
         private ConcurrentDictionary<int, RDMStatusMessage> statusMessages = new ConcurrentDictionary<int, RDMStatusMessage>();
         public sealed override IReadOnlyDictionary<int, RDMStatusMessage> StatusMessages { get { return statusMessages.AsReadOnly(); } }
@@ -112,6 +112,9 @@ namespace RDMSharp
                     throw new NullReferenceException($"{CurrentPersonality} can't be null if {ERDM_Parameter.DMX_PERSONALITY} is Supported");
                 if (value.Value == 0)
                     throw new ArgumentOutOfRangeException($"{CurrentPersonality} can't 0 if {ERDM_Parameter.DMX_PERSONALITY} is Supported");
+
+                if (!this.Personalities.Any(p => p.ID == value.Value))
+                    throw new ArgumentOutOfRangeException($"No Personality found with ID: {value.Value}");
 
                 if (currentPersonality == value)
                     return;
