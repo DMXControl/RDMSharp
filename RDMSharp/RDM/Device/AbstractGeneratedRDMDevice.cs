@@ -755,6 +755,11 @@ namespace RDMSharp
                         catch (Exception e)
                         {
                             Logger.LogError(e);
+                            if (e is ArgumentOutOfRangeException)
+                                response = new RDMMessage(ERDM_NackReason.ACTION_NOT_SUPPORTED) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
+                            else
+                                response = new RDMMessage(ERDM_NackReason.FORMAT_ERROR) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
+
                             goto FAIL;
                         }
                     }

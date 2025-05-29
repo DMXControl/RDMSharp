@@ -36,7 +36,7 @@ namespace RDMSharpTests.RDM.Devices
                 ProgressChanged?.Invoke(this, value);
             }
         }
-        [Test, Retry(3)]
+        [Test, Retry(3), CancelAfter(120000)]
         public void TestDiscoveryProgress()
         {
             var progress = new DiscoveryProgress();
@@ -76,7 +76,7 @@ namespace RDMSharpTests.RDM.Devices
             });
         }
 
-        [Test, Retry(3)]
+        [Test, Retry(3), CancelAfter(30000)]
         public async Task TestDiscovery1()
         {
             mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 4444)));
@@ -92,7 +92,7 @@ namespace RDMSharpTests.RDM.Devices
             expected = mockDevices.Select(m => m.UID).ToList();
             await AssertDiscovery();
         }
-        [Test, Retry(3)]
+        [Test, Retry(3), CancelAfter(60000)]
         public async Task TestDiscovery2()
         {
             mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 234254)));
@@ -111,7 +111,7 @@ namespace RDMSharpTests.RDM.Devices
             expected = mockDevices.Select(m => m.UID).ToList();
             await AssertDiscovery();
         }
-        [Test, Retry(3)]
+        [Test, Retry(3), CancelAfter(60000)]
         public async Task TestDiscovery3()
         {
             mockDevices.Add(new MockGeneratedDevice1(new UID(0x9fff, 234254)));
@@ -133,7 +133,7 @@ namespace RDMSharpTests.RDM.Devices
             expected = mockDevices.Select(m => m.UID).ToList();
             await AssertDiscovery();
         }
-        [Test, Retry(3)]
+        [Test, Retry(3), CancelAfter(180000)]
         public async Task TestDiscovery4()
         {
             HashSet<uint> ids = new HashSet<uint>();
@@ -152,7 +152,7 @@ namespace RDMSharpTests.RDM.Devices
             expected = mockDevices.Select(m => m.UID).ToList();
             await AssertDiscovery();
         }
-        [Test, Retry(3)]
+        [Test, Retry(3), CancelAfter(180000)]
         public async Task TestDiscovery5TotalyRandom()
         {
             HashSet<uint> ids = new HashSet<uint>();
