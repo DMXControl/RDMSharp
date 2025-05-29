@@ -467,7 +467,10 @@ namespace RDMSharpTests.RDM.Devices
             #endregion
 
             #region Test Invalid Calls
+            Assert.Throws(typeof(NullReferenceException), () => generated.CurrentPersonality = null); // Change to personality null
+            Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonality = 0); // Change to personality 0
             Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonality = 4); // Change to personality 4
+            Assert.DoesNotThrow(() => generated.CurrentPersonality = 3); // Change to personality 3
             #endregion
         }
 
@@ -533,10 +536,12 @@ namespace RDMSharpTests.RDM.Devices
             #endregion
 
             #region Test Invalid Calls
+            Assert.Throws(typeof(NullReferenceException), () => generated.CurrentPersonality = null); // Change to personality null
+            Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonality = 0); // Change to personality 0
             Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonality = 4); // Change to personality 4
+            Assert.DoesNotThrow(() => generated.CurrentPersonality = 3); // Change to personality 3
             #endregion
         }
-
 
         [Test, Order(42)]
         public void TestGetSLOT_DESCRIPTION()
@@ -571,7 +576,10 @@ namespace RDMSharpTests.RDM.Devices
             #endregion
 
             #region Test Invalid Calls
+            Assert.Throws(typeof(NullReferenceException), () => generated.CurrentPersonality = null); // Change to personality null
+            Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonality = 0); // Change to personality 0
             Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonality = 4); // Change to personality 4
+            Assert.DoesNotThrow(() => generated.CurrentPersonality = 3); // Change to personality 3
 
             request.ParameterData = new byte[] { (byte)((10 >> 8) & 0xFF), (byte)(10 & 0xFF) };
             response = generated.ProcessRequestMessage_Internal(request);
@@ -579,7 +587,7 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
             Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
             Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_DESCRIPTION));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_DEFINITION));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
             Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.ACTION_NOT_SUPPORTED }));
@@ -595,11 +603,85 @@ namespace RDMSharpTests.RDM.Devices
                     Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
                     Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
                     Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-                    Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_DESCRIPTION));
+                    Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_DEFINITION));
                     Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
                     Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
                     Assert.That(response.ParameterData, Has.Length.EqualTo(2 + slot.Description.Length));
                     Assert.That(response.Value, Is.EqualTo(new RDMSlotDescription(slot.SlotId, slot.Description)));
+                }
+            }
+        }
+
+        [Test, Order(51)]
+        public void TestGetSENSOR_DEFINITION()
+        {
+            RDMMessage request = new RDMMessage()
+            {
+                Command = ERDM_Command.GET_COMMAND,
+                DestUID = DEVCIE_UID,
+                SourceUID = CONTROLLER_UID,
+                Parameter = ERDM_Parameter.SENSOR_DEFINITION,
+                SubDevice = SubDevice.Root,
+            };
+            RDMMessage? response = null;
+            #region Test Basic
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(generated.Sensors, Has.Count.EqualTo(5));
+            doTests(generated.Sensors.Values.ToArray());
+            #endregion
+
+            void doTests(Sensor[] sensors)
+            {
+                foreach (Sensor sensor in sensors)
+                {
+                    request.ParameterData = new byte[] { sensor.SensorId };
+                    response = generated.ProcessRequestMessage_Internal(request);
+                    Assert.That(response, Is.Not.Null);
+                    Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+                    Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+                    Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+                    Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_DEFINITION));
+                    Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+                    Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+                    Assert.That(response.ParameterData, Has.Length.EqualTo(13 + sensor.Description.Length));
+                    Assert.That(response.Value, Is.EqualTo(new RDMSensorDefinition(sensor.SensorId, sensor.Type, sensor.Unit, sensor.Prefix, sensor.RangeMinimum, sensor.RangeMaximum, sensor.NormalMinimum, sensor.NormalMaximum, sensor.LowestHighestValueSupported, sensor.RecordedValueSupported, sensor.Description)));
+                }
+            }
+        }
+
+        [Test, Order(52)]
+        public void TestGetSENSOR_VALUE()
+        {
+            RDMMessage request = new RDMMessage()
+            {
+                Command = ERDM_Command.GET_COMMAND,
+                DestUID = DEVCIE_UID,
+                SourceUID = CONTROLLER_UID,
+                Parameter = ERDM_Parameter.SENSOR_VALUE,
+                SubDevice = SubDevice.Root,
+            };
+            RDMMessage? response = null;
+            #region Test Basic
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(generated.Sensors, Has.Count.EqualTo(5));
+            doTests(generated.Sensors.Values.ToArray());
+            #endregion
+
+            void doTests(Sensor[] sensors)
+            {
+                foreach (Sensor sensor in sensors)
+                {
+                    request.ParameterData = new byte[] { sensor.SensorId };
+                    response = generated.ProcessRequestMessage_Internal(request);
+                    Assert.That(response, Is.Not.Null);
+                    Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+                    Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+                    Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+                    Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_VALUE));
+                    Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+                    Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+                    Assert.That(response.ParameterData, Has.Length.EqualTo(9));
+                    Assert.That(response.Value, Is.EqualTo(new RDMSensorValue(sensor.SensorId, sensor.PresentValue, sensor.LowestValue, sensor.HighestValue, sensor.RecordedValue)));
                 }
             }
         }
@@ -957,7 +1039,7 @@ namespace RDMSharpTests.RDM.Devices
                 Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
                 Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
                 Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_DESCRIPTION));
+                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_DEFINITION));
                 Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
                 Assert.That(response.MessageCounter, Is.EqualTo(9-b));
                 Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
@@ -1000,13 +1082,6 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             #endregion
-        }
-        // Gibt das Low- und High-Byte eines ushort-Werts i zurück
-        public static (byte low, byte high) GetLowHighBytes(ushort i)
-        {
-            byte low = (byte)(i & 0xFF);
-            byte high = (byte)((i >> 8) & 0xFF);
-            return (low, high);
         }
     }
 }
