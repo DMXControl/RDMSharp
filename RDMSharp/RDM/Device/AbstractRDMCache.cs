@@ -11,7 +11,7 @@ namespace RDMSharp
 {
     public abstract class AbstractRDMCache : IDisposable
     {
-        protected static ILogger Logger = null;
+        protected static ILogger Logger = LoggingTools.CreateLogger<AbstractRDMCache>();
         protected bool IsDisposed { get; private set; }
         protected bool IsDisposing { get; private set; }
         internal ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch> parameterValuesDataTreeBranch { get; private set; } = new ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch>();
@@ -204,7 +204,7 @@ namespace RDMSharp
             }
             catch(Exception e)
             {
-                Logger.LogError(e, $"Failed to get parameter {parameterBag.PID} with empty payload");
+                Logger?.LogError(e, $"Failed to get parameter {parameterBag.PID} with empty payload");
             }
             return 0;
         }

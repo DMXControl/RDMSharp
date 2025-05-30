@@ -443,7 +443,7 @@ namespace RDMSharp
             }
             catch (Exception e)
             {
-                Logger.LogError(e);
+                Logger?.LogError(e);
             }
             ParameterValueAdded -= AbstractRDMDevice_ParameterValueAdded;
             ParameterValueChanged -= AbstractRDMDevice_ParameterValueChanged;

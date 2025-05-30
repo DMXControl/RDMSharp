@@ -10,7 +10,7 @@ namespace RDMSharp
 {
     public abstract class AbstractDiscoveryTool : INotifyPropertyChanged, IDisposable
     {
-        private protected static ILogger Logger = null;
+        private protected static ILogger Logger = LoggingTools.CreateLogger<AbstractDiscoveryTool>();
         private readonly AsyncRDMRequestHelper asyncRDMRequestHelper;
         private readonly CancellationTokenSource cts = new CancellationTokenSource();
         public event PropertyChangedEventHandler PropertyChanged;

@@ -16,7 +16,7 @@ namespace RDMSharp.Metadata
 {
     public static class MetadataFactory
     {
-        private static readonly ILogger Logger = null;
+        private static readonly ILogger Logger = LoggingTools.CreateLogger(typeof(MetadataFactory));
         private const string SCHEMA_FILE_NAME = "schema.json";
         private const string JSON_ENDING = ".json";
         private static ConcurrentDictionary<string, MetadataVersion> metadataVersionList;
@@ -102,7 +102,7 @@ namespace RDMSharp.Metadata
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex);
+                Logger?.LogError(ex);
             }
             throw new DefineNotFoundException($"{parameter}");
         }
@@ -181,7 +181,7 @@ namespace RDMSharp.Metadata
             }
             catch (Exception e)
             {
-                Logger.LogError(e);
+                Logger?.LogError(e);
             }
 
             if (command.SingleField.HasValue)

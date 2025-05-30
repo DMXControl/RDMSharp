@@ -66,7 +66,7 @@ namespace RDMSharp
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex);
+                Logger?.LogError(ex);
             }
             return null;
         }

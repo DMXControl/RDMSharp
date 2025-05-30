@@ -9,7 +9,7 @@ namespace RDMSharp
 {
     public class RDMMessage : IEquatable<RDMMessage>
     {
-        private static readonly ILogger Logger = null;
+        private static readonly ILogger Logger = LoggingTools.CreateLogger<RDMMessage>();
         private byte[] _parameterData = Array.Empty<byte>();
         private byte? preambleCount = null;
 

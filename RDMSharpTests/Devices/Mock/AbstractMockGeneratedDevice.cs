@@ -130,7 +130,7 @@ namespace RDMSharpTests.Devices.Mock
             }
             catch (Exception e)
             {
-                Logger.LogError(e);
+                Logger?.LogError(e);
             }
             SendReceivePipeline.RDMMessageReceived -= SendReceivePipeline_RDMMessageReceived;
             SendReceivePipelineImitateRealConditions.RDMMessageReceivedRequest -= SendReceivePipelineImitateRealConditions_RDMMessageReceivedRequest;

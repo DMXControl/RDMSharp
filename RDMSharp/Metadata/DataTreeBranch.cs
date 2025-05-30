@@ -14,7 +14,7 @@ namespace RDMSharp.Metadata
 {
     public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
     {
-        private static ILogger Logger = null;
+        private static ILogger Logger = LoggingTools.CreateLogger<DataTreeBranch>();
         public static readonly DataTreeBranch Empty = new DataTreeBranch();
         public static readonly DataTreeBranch Unset = new DataTreeBranch(true);
 
@@ -178,7 +178,7 @@ namespace RDMSharp.Metadata
             }
             catch (Exception e)
             {
-                Logger.LogError(e);
+                Logger?.LogError(e);
 #pragma warning disable CA2200
                 throw e;
 #pragma warning restore CA2200
@@ -286,7 +286,7 @@ namespace RDMSharp.Metadata
                 }
                 catch(Exception e)
                 {
-                    Logger.LogError(e);
+                    Logger?.LogError(e);
                 }
 
                 if (found)

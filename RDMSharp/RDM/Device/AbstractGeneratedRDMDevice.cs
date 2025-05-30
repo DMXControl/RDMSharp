@@ -842,7 +842,7 @@ namespace RDMSharp
                     }
                     catch (Exception e)
                     {
-                        Logger.LogError(e);
+                        Logger?.LogError(e);
                         goto FAIL;
                     }
                 }
@@ -898,7 +898,7 @@ namespace RDMSharp
                         }
                         catch (Exception e)
                         {
-                            Logger.LogError(e);
+                            Logger?.LogError(e);
                             if (e is ArgumentOutOfRangeException || e is KeyNotFoundException)
                                 response = new RDMMessage(ERDM_NackReason.DATA_OUT_OF_RANGE) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
                             else
@@ -1016,7 +1016,7 @@ namespace RDMSharp
             }
             catch(Exception e)
             {
-                Logger.LogError(e);
+                Logger?.LogError(e);
             }
         }
         private void addOrUpdateParameterFromParameterUpdateBag(ERDM_Parameter parameter, object index = null)
@@ -1146,7 +1146,7 @@ namespace RDMSharp
             }
             catch (Exception e)
             {
-                Logger.LogError(e);
+                Logger?.LogError(e);
             }
         }
         protected abstract void onDispose();
