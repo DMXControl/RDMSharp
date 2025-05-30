@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.PRESET_INFO, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.PRESET_INFO, Command.ECommandDublicate.GetResponse)]
     public class RDMPresetInfo : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.ENDPOINT_TIMING, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.ENDPOINT_TIMING, Command.ECommandDublicate.GetResponse)]
     public class GetEndpointTimingResponse : AbstractRDMPayloadObjectOneOf
     {
         [DataTreeObjectConstructor]

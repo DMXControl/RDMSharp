@@ -15,6 +15,7 @@ namespace RDMSharp
     {
         public static readonly ERDM_Parameter[] BLUEPRINT_MODEL_PARAMETERS = new ERDM_Parameter[]
         {
+            ERDM_Parameter.SUPPORTED_PARAMETERS,
             ERDM_Parameter.PARAMETER_DESCRIPTION,
             ERDM_Parameter.MANUFACTURER_LABEL,
             ERDM_Parameter.MANUFACTURER_URL,
@@ -570,18 +571,18 @@ namespace RDMSharp
 
             return new ReadOnlyDictionary<K, V>(source);
         }
-        public static ECommandDublicte ConvertCommandDublicteToCommand(ERDM_Command v)
+        public static ECommandDublicate ConvertCommandDublicateToCommand(ERDM_Command v)
         {
             switch (v)
             {
                 case ERDM_Command.GET_COMMAND:
-                    return ECommandDublicte.GetRequest;
+                    return ECommandDublicate.GetRequest;
                 case ERDM_Command.GET_COMMAND_RESPONSE:
-                    return ECommandDublicte.GetResponse;
+                    return ECommandDublicate.GetResponse;
                 case ERDM_Command.SET_COMMAND:
-                    return ECommandDublicte.SetRequest;
+                    return ECommandDublicate.SetRequest;
                 case ERDM_Command.SET_COMMAND_RESPONSE:
-                    return ECommandDublicte.SetResponse;
+                    return ECommandDublicate.SetResponse;
             }
             throw new NotSupportedException();
         }

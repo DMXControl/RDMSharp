@@ -38,8 +38,9 @@ namespace RDMSharpTests.Metadata.JSON
         {
             try
             {
-                MetadataJSONObjectDefine deserialized = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(testSubject.Define.Content);
-                Assert.That(deserialized.Version, Is.AtLeast(1));
+                MetadataJSONObjectDefine? deserialized = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(testSubject.Define.Content);
+                Assert.That(deserialized, Is.Not.Null);
+                Assert.That(deserialized!.Version, Is.AtLeast(1));
                 Assert.That(deserialized.Name, Is.Not.WhiteSpace);
                 Assert.That(deserialized.Name, Is.Not.Empty);
                 string serialized = JsonSerializer.Serialize(deserialized);
@@ -64,14 +65,16 @@ namespace RDMSharpTests.Metadata.JSON
                 Warn.If(ex.Message, Is.EqualTo("Unexpected JSON format Type: int128 for FieldContainer.").Or.EqualTo("Unexpected JSON format Type: uint128 for FieldContainer."), "Due to .NET6 limitations");
                 return;
 #else
-                throw;
+#pragma warning disable CA2200
+                throw ex;
+#pragma warning restore CA2200
 #endif
             }
         }
         [Test]
-        public void TestDeseriaizedObject()
+        public void TestDeserializedObject()
         {
-            MetadataJSONObjectDefine deserialized = null;
+            MetadataJSONObjectDefine? deserialized = null;
             testString(testSubject.Define.ToString());
             try
             {
@@ -85,9 +88,12 @@ namespace RDMSharpTests.Metadata.JSON
                 Warn.If(ex.Message, Is.EqualTo("Unexpected JSON format Type: int128 for FieldContainer.").Or.EqualTo("Unexpected JSON format Type: uint128 for FieldContainer."), "Due to .NET6 limitations");
                 return;
 #else
-                throw;
+#pragma warning disable CA2200
+                throw ex;
+#pragma warning restore CA2200
 #endif
             }
+            Assert.That(deserialized, Is.Not.Null);
             Assert.That(deserialized.Version, Is.AtLeast(1));
             Assert.That(deserialized.Name, Is.Not.WhiteSpace);
             Assert.That(deserialized.Name, Is.Not.Empty);
@@ -114,7 +120,7 @@ namespace RDMSharpTests.Metadata.JSON
             if (deserialized.GetRequest != null)
             {
                 testCommand(deserialized.GetRequest.Value);
-                deserialized.GetCommand(Command.ECommandDublicte.GetRequest, out Command? command);
+                deserialized.GetCommand(Command.ECommandDublicate.GetRequest, out Command? command);
                 if (command != null)
                     testCommand(command.Value);
             }
@@ -122,7 +128,7 @@ namespace RDMSharpTests.Metadata.JSON
             if (deserialized.GetResponse != null)
             {
                 testCommand(deserialized.GetResponse.Value);
-                deserialized.GetCommand(Command.ECommandDublicte.GetResponse, out Command? command);
+                deserialized.GetCommand(Command.ECommandDublicate.GetResponse, out Command? command);
                 if (command != null)
                     testCommand(command.Value);
             }
@@ -130,7 +136,7 @@ namespace RDMSharpTests.Metadata.JSON
             if (deserialized.SetRequest != null)
             {
                 testCommand(deserialized.SetRequest.Value);
-                deserialized.GetCommand(Command.ECommandDublicte.SetRequest, out Command? command);
+                deserialized.GetCommand(Command.ECommandDublicate.SetRequest, out Command? command);
                 if (command != null)
                     testCommand(command.Value);
             }
@@ -138,7 +144,7 @@ namespace RDMSharpTests.Metadata.JSON
             if (deserialized.SetResponse != null)
             {
                 testCommand(deserialized.SetResponse.Value);
-                deserialized.GetCommand(Command.ECommandDublicte.SetResponse, out Command? command);
+                deserialized.GetCommand(Command.ECommandDublicate.SetResponse, out Command? command);
                 if (command != null)
                     testCommand(command.Value);
             }
@@ -155,7 +161,7 @@ namespace RDMSharpTests.Metadata.JSON
             {
                 testString(command.ToString()!);
                 PDL? pdl = null;
-                if (command.EnumValue is Command.ECommandDublicte _enum)
+                if (command.EnumValue is Command.ECommandDublicate _enum)
                 {
                     Assert.That(command.GetIsEmpty(), Is.False);
                     testString(_enum.ToString()!);
@@ -222,7 +228,7 @@ namespace RDMSharpTests.Metadata.JSON
             static void testReference(ReferenceType reference)
             {
                 testString(reference.ToString());
-                Assert.That(reference.Command, Is.EqualTo(Command.ECommandDublicte.GetRequest).Or.EqualTo(Command.ECommandDublicte.GetResponse).Or.EqualTo(Command.ECommandDublicte.SetRequest).Or.EqualTo(Command.ECommandDublicte.SetResponse));
+                Assert.That(reference.Command, Is.EqualTo(Command.ECommandDublicate.GetRequest).Or.EqualTo(Command.ECommandDublicate.GetResponse).Or.EqualTo(Command.ECommandDublicate.SetRequest).Or.EqualTo(Command.ECommandDublicate.SetResponse));
                 Assert.That(reference.Pointer, Is.AtLeast(0));
             }
             static void testIntegerType<T>(IntegerType<T> integerType)

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.DMX_PERSONALITY_ID, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.DMX_PERSONALITY_ID, Command.ECommandDublicate.GetResponse)]
     public class RDMPersonalityId : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
     {
         [DataTreeObjectConstructor]

@@ -4,10 +4,10 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.IPV4_DHCP_MODE, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.IPV4_DHCP_MODE, Command.ECommandDublicte.SetRequest)]
-    [DataTreeObject(ERDM_Parameter.IPV4_ZEROCONF_MODE, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.IPV4_ZEROCONF_MODE, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.IPV4_DHCP_MODE, Command.ECommandDublicate.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.IPV4_DHCP_MODE, Command.ECommandDublicate.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.IPV4_ZEROCONF_MODE, Command.ECommandDublicate.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.IPV4_ZEROCONF_MODE, Command.ECommandDublicate.SetRequest)]
     public class GetSetIPV4_xxx_Mode : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

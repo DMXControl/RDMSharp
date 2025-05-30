@@ -4,28 +4,33 @@ namespace RDMSharpTests.RDM.Devices
 {
     public class TestRDMSendReceive
     {
-        private MockGeneratedDevice1 generated;
-        private MockDevice remote;
+        private MockGeneratedDevice1? generated;
+        private MockDevice? remote;
+        private Random random = new Random();
         [SetUp]
         public void Setup()
         {
-            var uid = new UID(0x9fff, 1);
+            GlobalTimers.Instance.ResetAllTimersToDefault();
+            var uid = new UID((ushort)random.Next(), (uint)random.Next());
             generated = new MockGeneratedDevice1(uid);
             remote = new MockDevice(uid, false);
         }
         [TearDown]
         public void TearDown()
         {
-            generated.Dispose();
-            remote.Dispose();
+            GlobalTimers.Instance.ResetAllTimersToDefault();
+            generated?.Dispose();
+            generated = null;
+            remote?.Dispose();
+            remote = null;
         }
 
-        [Test]
+        [Test, Order(1)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
         public async Task TestDevice1()
         {
-            var parameterValuesRemote = remote.GetAllParameterValues();
-            var parameterValuesGenerated = generated.GetAllParameterValues();
+            var parameterValuesRemote = remote!.GetAllParameterValues();
+            var parameterValuesGenerated = generated!.GetAllParameterValues();
 
             //Assert.Multiple(() =>
             //{
@@ -102,11 +107,11 @@ namespace RDMSharpTests.RDM.Devices
             //});
         }
 
-        [Test]
+        [Test, Order(2)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
         public void TestDevice1Slots()
         {
-            var slotIntensity = remote.Slots[0];
+            var slotIntensity = remote!.Slots[0];
             var slotStrobe = remote.Slots[1];
             var slotRed = remote.Slots[2];
             var slotGreen = remote.Slots[3];
@@ -114,7 +119,7 @@ namespace RDMSharpTests.RDM.Devices
 
             //Assert.Multiple(() =>
             //{
-                Assert.That(slotIntensity, Is.EqualTo(generated.Personalities[0].Slots[0]));
+                Assert.That(slotIntensity, Is.EqualTo(generated!.Personalities[0].Slots[0]));
                 Assert.That(slotStrobe, Is.EqualTo(generated.Personalities[0].Slots[1]));
                 Assert.That(slotRed, Is.EqualTo(generated.Personalities[0].Slots[2]));
                 Assert.That(slotGreen, Is.EqualTo(generated.Personalities[0].Slots[3]));
@@ -182,12 +187,12 @@ namespace RDMSharpTests.RDM.Devices
             //});
         }
 
-        [Test]
+        [Test, Order(3)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
         public void TestDevice1Sensor()
         {
-            var sensorsRemote = remote.Sensors.Values.ToList();
-            var sensorsGenerated = generated.Sensors.Values.ToList();
+            var sensorsRemote = remote!.Sensors.Values.ToList();
+            var sensorsGenerated = generated!.Sensors.Values.ToList();
 
             Assert.Multiple(() =>
             {
@@ -207,6 +212,38 @@ namespace RDMSharpTests.RDM.Devices
             ///Reset Sensors Broadcast
             ///Record Sensors Unicast
             ///Record Sensors Broadcast
+        }
+        [Test, Order(4)]
+        public async Task TestDevice1QueuedUpdates()
+        {
+            GlobalTimers.Instance.QueuedUpdateTime = 100;
+            GlobalTimers.Instance.ParameterUpdateTimerInterval = 100;
+            var parameterValuesRemote = remote!.GetAllParameterValues();
+            var parameterValuesGenerated = generated!.GetAllParameterValues();
+            Assert.That(parameterValuesRemote[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
+
+            await Task.Delay(1000);
+            
+            generated.DMXAddress = 69;
+            generated.DeviceLabel = "Test Label QUEUE";
+            generated.Identify = true;
+
+            await Task.Delay(1000);
+            parameterValuesRemote = remote.GetAllParameterValues();
+
+            Assert.That(parameterValuesRemote[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(69));
+            Assert.That(parameterValuesRemote[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo("Test Label QUEUE"));
+            Assert.That(parameterValuesRemote[ERDM_Parameter.IDENTIFY_DEVICE], Is.True);
+
+            generated.Identify = false;
+            generated.DMXAddress = 44;
+            generated.CurrentPersonality = 2;
+
+            await Task.Delay(1000);
+            parameterValuesRemote = remote.GetAllParameterValues();
+            Assert.That(parameterValuesRemote[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
+            Assert.That(parameterValuesRemote[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(44));
+            Assert.That(parameterValuesRemote[ERDM_Parameter.DMX_PERSONALITY], Is.EqualTo(new RDMDMXPersonality(2, 3)));
         }
     }
 }

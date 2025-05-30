@@ -3,8 +3,8 @@ using RDMSharp.Metadata.JSON;
 
 namespace RDMSharp
 {
-    [DataTreeEnum(ERDM_Parameter.POWER_STATE, Command.ECommandDublicte.GetResponse, "state")]
-    [DataTreeEnum(ERDM_Parameter.POWER_STATE, Command.ECommandDublicte.SetRequest, "state")]
+    [DataTreeEnum(ERDM_Parameter.POWER_STATE, Command.ECommandDublicate.GetResponse, "state")]
+    [DataTreeEnum(ERDM_Parameter.POWER_STATE, Command.ECommandDublicate.SetRequest, "state")]
     public enum ERDM_PowerState : byte
     {
         FULL_OFF = 0x00,

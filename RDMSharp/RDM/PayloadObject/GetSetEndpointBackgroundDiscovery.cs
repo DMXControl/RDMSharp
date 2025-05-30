@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.BACKGROUND_DISCOVERY, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.BACKGROUND_DISCOVERY, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.BACKGROUND_DISCOVERY, Command.ECommandDublicate.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.BACKGROUND_DISCOVERY, Command.ECommandDublicate.SetRequest)]
     public class GetSetEndpointBackgroundDiscovery : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

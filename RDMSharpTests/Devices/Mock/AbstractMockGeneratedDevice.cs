@@ -6,7 +6,6 @@ namespace RDMSharpTests.Devices.Mock
     {
         private readonly ConcurrentDictionary<long, RDMMessage> identifyer = new ConcurrentDictionary<long, RDMMessage>();
         private bool eventRegistered = false;
-        private byte transactionCounter = 0;
         private bool imitateRealConditions = false;
         internal bool ImitateRealConditions
         {
@@ -18,11 +17,11 @@ namespace RDMSharpTests.Devices.Mock
                 registerEvent();
             }
         }
-        public AbstractMockGeneratedDevice(UID uid, ERDM_Parameter[] parameters, string manufacturer, Sensor[] sensors = null, IRDMDevice[] subDevices = null) : base(uid, parameters, manufacturer, sensors: sensors, subDevices: subDevices)
+        public AbstractMockGeneratedDevice(UID uid, ERDM_Parameter[] parameters, string manufacturer, Sensor[]? sensors = null, IRDMDevice[]? subDevices = null) : base(uid, parameters, manufacturer, sensors: sensors, subDevices: subDevices)
         {
             registerEvent();
         }
-        public AbstractMockGeneratedDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, string manufacturer, Sensor[] sensors = null) : base(uid, subDevice, parameters, manufacturer, sensors: sensors)
+        public AbstractMockGeneratedDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, string manufacturer, Sensor[]? sensors = null) : base(uid, subDevice, parameters, manufacturer, sensors: sensors)
         {
             registerEvent();
         }
@@ -32,16 +31,16 @@ namespace RDMSharpTests.Devices.Mock
                 return;
             eventRegistered = true;
 
-            SendReceivePipeline.RDMMessageRereived -= SendReceivePipeline_RDMMessageRereived;
-            SendReceivePipelineImitateRealConditions.RDMMessageRereivedRequest -= SendReceivePipelineImitateRealConditions_RDMMessageRereivedRequest;
+            SendReceivePipeline.RDMMessageReceived -= SendReceivePipeline_RDMMessageReceived;
+            SendReceivePipelineImitateRealConditions.RDMMessageReceivedRequest -= SendReceivePipelineImitateRealConditions_RDMMessageReceivedRequest;
 
             if (ImitateRealConditions)
-                SendReceivePipelineImitateRealConditions.RDMMessageRereivedRequest += SendReceivePipelineImitateRealConditions_RDMMessageRereivedRequest;
+                SendReceivePipelineImitateRealConditions.RDMMessageReceivedRequest += SendReceivePipelineImitateRealConditions_RDMMessageReceivedRequest;
             else
-                SendReceivePipeline.RDMMessageRereived += SendReceivePipeline_RDMMessageRereived;
+                SendReceivePipeline.RDMMessageReceived += SendReceivePipeline_RDMMessageReceived;
         }
 
-        private async void SendReceivePipeline_RDMMessageRereived(object? sender, Tuple<long, RDMMessage> tuple)
+        private async void SendReceivePipeline_RDMMessageReceived(object? sender, Tuple<long, RDMMessage> tuple)
         {
             if (identifyer.TryGetValue(tuple.Item1, out var rdmMessage) && RDMMessage.Equals(rdmMessage, tuple.Item2))
             {
@@ -51,23 +50,44 @@ namespace RDMSharpTests.Devices.Mock
 
             await base.ReceiveRDMMessage(tuple.Item2);
         }
-        private async void SendReceivePipelineImitateRealConditions_RDMMessageRereivedRequest(object? sender, RDMMessage rdmMessage)
+        private async void SendReceivePipelineImitateRealConditions_RDMMessageReceivedRequest(object? sender, RDMMessage rdmMessage)
         {
             await base.ReceiveRDMMessage(rdmMessage);
+        }
+        internal RDMMessage? ProcessRequestMessage_Internal(RDMMessage request)
+        {
+            return base.processRequestMessage(request);
         }
         protected override async Task SendRDMMessage(RDMMessage rdmMessage)
         {
             if (rdmMessage == null)
+            {
+                await Task.CompletedTask;
                 return;
+            }
             registerEvent();
             
             var i = SendReceivePipeline.GetNewIdentifyer();
             identifyer.TryAdd(i, rdmMessage);
             if (ImitateRealConditions)
-                await SendReceivePipelineImitateRealConditions.RDMMessageSend(rdmMessage);
+                _ = SendReceivePipelineImitateRealConditions.RDMMessageSend(rdmMessage); // in this case as responder we don't wait for comlpletion of the send, we just send it and forget it
             else
                 SendReceivePipeline.RDMMessageSend(i, rdmMessage);
         }
+
+        internal new void AddStatusMessage(RDMStatusMessage statusMessage)
+        {
+            base.AddStatusMessage(statusMessage);
+        }
+        internal new void ClearStatusMessage(RDMStatusMessage statusMessage)
+        {
+            base.ClearStatusMessage(statusMessage);
+        }
+        internal new void RemoveStatusMessage(RDMStatusMessage statusMessage)
+        {
+            base.RemoveStatusMessage(statusMessage);
+        }
+
         protected sealed override void onDispose()
         {
             try
@@ -78,13 +98,14 @@ namespace RDMSharpTests.Devices.Mock
             {
                 Logger.LogError(e);
             }
-            SendReceivePipeline.RDMMessageRereived -= SendReceivePipeline_RDMMessageRereived;
-            SendReceivePipelineImitateRealConditions.RDMMessageRereivedRequest -= SendReceivePipelineImitateRealConditions_RDMMessageRereivedRequest;
+            SendReceivePipeline.RDMMessageReceived -= SendReceivePipeline_RDMMessageReceived;
+            SendReceivePipelineImitateRealConditions.RDMMessageReceivedRequest -= SendReceivePipelineImitateRealConditions_RDMMessageReceivedRequest;
             eventRegistered = false;
-            transactionCounter = 0;
             identifyer.Clear();
             ImitateRealConditions = false;
         }
+#pragma warning disable CS0114
         protected abstract void OnDispose();
+#pragma warning restore CS0114 
     }
 }

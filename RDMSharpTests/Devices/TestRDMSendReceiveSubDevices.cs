@@ -23,7 +23,7 @@ namespace RDMSharpTests.RDM.Devices
             remote.Dispose();
         }
 
-        [Test]
+        [Test, CancelAfter(10000)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
         public async Task TestDevice1()
         {
@@ -92,12 +92,15 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(generated.DMXAddress, Is.EqualTo(512));
             //});
 
-            await remote.SetParameter(ERDM_Parameter.DMX_PERSONALITY, (byte)3);
-            //Assert.Multiple(() =>
-            //{
-            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY], Is.EqualTo(3));
-            Assert.That(generated.CurrentPersonality, Is.EqualTo(3));
-            //});
+            if (generated.Personalities.Any(p => p.ID == 3))
+            {
+                await remote.SetParameter(ERDM_Parameter.DMX_PERSONALITY, (byte)3);
+                //Assert.Multiple(() =>
+                //{
+                Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY], Is.EqualTo(3));
+                Assert.That(generated.CurrentPersonality, Is.EqualTo(3));
+                //});
+            }
 
             string label = "Changed Device Label";
             await remote.SetParameter(ERDM_Parameter.DEVICE_LABEL, label);

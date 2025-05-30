@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.ENDPOINT_TO_UNIVERSE, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.ENDPOINT_TO_UNIVERSE, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.ENDPOINT_TO_UNIVERSE, Command.ECommandDublicate.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.ENDPOINT_TO_UNIVERSE, Command.ECommandDublicate.SetRequest)]
     public class GetSetEndpointToUniverse : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.SELF_TEST_DESCRIPTION, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.SELF_TEST_DESCRIPTION, Command.ECommandDublicate.GetResponse)]
     public class RDMSelfTestDescription : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

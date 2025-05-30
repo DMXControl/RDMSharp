@@ -1,4 +1,5 @@
 ﻿using Json.Schema;
+using Microsoft.Extensions.Logging;
 using RDMSharp.Metadata.JSON;
 using System;
 using System.Collections.Concurrent;
@@ -15,6 +16,7 @@ namespace RDMSharp.Metadata
 {
     public static class MetadataFactory
     {
+        private static readonly ILogger Logger = null;
         private const string SCHEMA_FILE_NAME = "schema.json";
         private const string JSON_ENDING = ".json";
         private static List<MetadataVersion> metadataVersionList;
@@ -96,7 +98,7 @@ namespace RDMSharp.Metadata
             }
             catch (Exception ex)
             {
-
+                Logger.LogError(ex);
             }
             throw new DefineNotFoundException($"{parameter}");
         }
@@ -139,7 +141,7 @@ namespace RDMSharp.Metadata
             throw new DefineNotFoundException($"{parameter}");
         }
 
-        internal static byte[] ParsePayloadToData(MetadataJSONObjectDefine define, Command.ECommandDublicte commandType, DataTreeBranch payload)
+        internal static byte[] ParsePayloadToData(MetadataJSONObjectDefine define, Command.ECommandDublicate commandType, DataTreeBranch payload)
         {
             define.GetCommand(commandType, out Command? _command);
             if (_command is not Command command)
@@ -163,7 +165,7 @@ namespace RDMSharp.Metadata
 
             throw new ArithmeticException();
         }
-        internal static DataTreeBranch ParseDataToPayload(MetadataJSONObjectDefine define, Command.ECommandDublicte commandType, byte[] data)
+        internal static DataTreeBranch ParseDataToPayload(MetadataJSONObjectDefine define, Command.ECommandDublicate commandType, byte[] data)
         {
             define.GetCommand(commandType, out Command? _command);
             if (_command is not Command command)
@@ -175,7 +177,7 @@ namespace RDMSharp.Metadata
             }
             catch (Exception e)
             {
-
+                Logger.LogError(e);
             }
 
             if (command.SingleField.HasValue)
@@ -193,19 +195,19 @@ namespace RDMSharp.Metadata
         }
         internal static byte[] GetRequestMessageData(ParameterBag parameter, DataTreeBranch payloadData)
         {
-            return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicte.GetRequest, payloadData);
+            return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicate.GetRequest, payloadData);
         }
         internal static byte[] GetResponseMessageData(ParameterBag parameter, DataTreeBranch payloadData)
         {
-            return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicte.GetResponse, payloadData);
+            return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicate.GetResponse, payloadData);
         }
         internal static byte[] SetRequestMessageData(ParameterBag parameter, DataTreeBranch payloadData)
         {
-            return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicte.SetRequest, payloadData);
+            return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicate.SetRequest, payloadData);
         }
         internal static byte[] SetResponseMessageData(ParameterBag parameter, DataTreeBranch payloadData)
         {
-            return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicte.SetResponse, payloadData);
+            return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicate.SetResponse, payloadData);
         }
 
         private static List<Type> definedDataTreeObjects;
@@ -228,21 +230,21 @@ namespace RDMSharp.Metadata
             definedDataTreeObjects.AddRange(Tools.FindClassesWithAttribute<DataTreeObjectAttribute>());
         }
 
-        public static Type GetDefinedDataTreeObjectType(MetadataJSONObjectDefine define, Command.ECommandDublicte commandType)
+        public static Type GetDefinedDataTreeObjectType(MetadataJSONObjectDefine define, Command.ECommandDublicate commandType)
         {
             return GetDefinedDataTreeObjectType((ERDM_Parameter)define.PID, commandType);
         }
         public static Type GetDefinedDataTreeObjectType(MetadataJSONObjectDefine define, ERDM_Command command)
         {
-            Command.ECommandDublicte commandType = Tools.ConvertCommandDublicteToCommand(command);
+            Command.ECommandDublicate commandType = Tools.ConvertCommandDublicateToCommand(command);
             return GetDefinedDataTreeObjectType((ERDM_Parameter)define.PID, commandType);
         }
         public static Type GetDefinedDataTreeObjectType(ERDM_Parameter parameter, ERDM_Command command)
         {
-            Command.ECommandDublicte commandType = Tools.ConvertCommandDublicteToCommand(command);
+            Command.ECommandDublicate commandType = Tools.ConvertCommandDublicateToCommand(command);
             return GetDefinedDataTreeObjectType(parameter, commandType);
         }
-        public static Type GetDefinedDataTreeObjectType(ERDM_Parameter parameter, Command.ECommandDublicte commandType)
+        public static Type GetDefinedDataTreeObjectType(ERDM_Parameter parameter, Command.ECommandDublicate commandType)
         {
             return DefinedDataTreeObjects.Where(t =>
             {

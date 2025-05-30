@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.DEVICE_INFO, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.DEVICE_INFO, Command.ECommandDublicate.GetResponse)]
     public class RDMDeviceInfo : AbstractRDMPayloadObject
     {
         public RDMDeviceInfo(
@@ -80,15 +80,15 @@ namespace RDMSharp
         [DataTreeObjectProperty("software_version_id", 4)]
         public uint SoftwareVersionId { get; private set; }
 
-        [DataTreeObjectDependecieProperty("slot", ERDM_Parameter.SLOT_DESCRIPTION, Command.ECommandDublicte.GetRequest)]
+        [DataTreeObjectDependecieProperty("slot", ERDM_Parameter.SLOT_DESCRIPTION, Command.ECommandDublicate.GetRequest)]
         [DataTreeObjectProperty("dmx_footprint", 5)]
         public ushort? Dmx512Footprint { get; private set; }
 
         [DataTreeObjectProperty("current_personality", 6)]
         public byte? Dmx512CurrentPersonality { get; private set; }
 
-        [DataTreeObjectDependecieProperty("personality", ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION, Command.ECommandDublicte.GetRequest)]
-        [DataTreeObjectDependecieProperty("personality", ERDM_Parameter.DMX_PERSONALITY_ID, Command.ECommandDublicte.GetRequest)]
+        [DataTreeObjectDependecieProperty("personality", ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("personality", ERDM_Parameter.DMX_PERSONALITY_ID, Command.ECommandDublicate.GetRequest)]
         [DataTreeObjectProperty("personality_count", 7)]
         public byte Dmx512NumberOfPersonalities { get; private set; }
 
@@ -98,8 +98,8 @@ namespace RDMSharp
         [DataTreeObjectProperty("sub_device_count", 9)]
         public ushort SubDeviceCount { get; private set; }
 
-        [DataTreeObjectDependecieProperty("sensor", ERDM_Parameter.SENSOR_DEFINITION, Command.ECommandDublicte.GetRequest)]
-        [DataTreeObjectDependecieProperty("sensor", ERDM_Parameter.SENSOR_VALUE, Command.ECommandDublicte.GetRequest)]
+        [DataTreeObjectDependecieProperty("sensor", ERDM_Parameter.SENSOR_DEFINITION, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("sensor", ERDM_Parameter.SENSOR_VALUE, Command.ECommandDublicate.GetRequest)]
         [DataTreeObjectProperty("sensor_count", 10)]
         public byte SensorCount { get; private set; }
 

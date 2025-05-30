@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.COMMS_STATUS_NSC, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.COMMS_STATUS_NSC, Command.ECommandDublicate.GetResponse)]
     public class GetCommunicationStatusNullStartCodeResponse : AbstractRDMPayloadObject
     {
         public GetCommunicationStatusNullStartCodeResponse(

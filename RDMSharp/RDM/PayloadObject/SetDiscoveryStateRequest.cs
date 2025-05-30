@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.DISCOVERY_STATE, Command.ECommandDublicte.SetResponse)]
+    [DataTreeObject(ERDM_Parameter.DISCOVERY_STATE, Command.ECommandDublicate.SetResponse)]
     public class SetDiscoveryStateRequest : AbstractRDMPayloadObject
     {
         public SetDiscoveryStateRequest(

@@ -2,7 +2,13 @@
 {
     internal sealed class MockGeneratedDevice1 : AbstractMockGeneratedDevice
     {
-        public override EManufacturer ManufacturerID => (EManufacturer)0x9fff;
+        public override EManufacturer ManufacturerID
+        {
+            get
+            {
+                return (EManufacturer)UID.ManufacturerID;
+            }
+        }
         public override ushort DeviceModelID => 20;
         public override ERDM_ProductCategoryCoarse ProductCategoryCoarse => ERDM_ProductCategoryCoarse.CONTROL;
         public override ERDM_ProductCategoryFine ProductCategoryFine => ERDM_ProductCategoryFine.DATA_CONVERSION;
@@ -44,10 +50,14 @@
             new MockSensorVolt3_3(3, 331),
             new MockSensorVolt5(4, 498) };
         public override GeneratedPersonality[] Personalities => PERSONALITYS;
-        public MockGeneratedDevice1(UID uid) : base(uid, SubDevice.Root, new ERDM_Parameter[] { ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL }, "Dummy Manufacturer 9FFF", SENSORS)
+
+        public override bool SupportQueued => true;
+
+        public override bool SupportStatus => true;
+
+        public MockGeneratedDevice1(UID uid) : base(uid, SubDevice.Root, new ERDM_Parameter[] { ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL }, "Dummy Manufacturer 9FFF", SENSORS)
         {
             this.DeviceLabel = "Dummy Device 1";
-            this.trySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, false);
             this.trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, $"Dummy Software");
         }
 

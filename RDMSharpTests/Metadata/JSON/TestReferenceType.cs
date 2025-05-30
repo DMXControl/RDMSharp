@@ -11,7 +11,7 @@ namespace RDMSharpTests.Metadata.JSON
         public void TestMany()
         {
             var referenceType = new ReferenceType("#/get_request/0");
-            Assert.That(referenceType.Command, Is.EqualTo(Command.ECommandDublicte.GetRequest));
+            Assert.That(referenceType.Command, Is.EqualTo(Command.ECommandDublicate.GetRequest));
             Assert.That(referenceType.Pointer, Is.EqualTo(0));
 
             Assert.DoesNotThrow(() =>
@@ -29,6 +29,7 @@ namespace RDMSharpTests.Metadata.JSON
         {
             var referenceType = new ReferenceType("#/get_request/0", new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "uid", null, null));
             Assert.That(referenceType.GetDataLength().Value, Is.EqualTo(6));
+            Assert.That(referenceType.ReferencedObject, Is.Not.Null);
             var uid = new UID(0x4646, 0x12345678);
             var data = referenceType.ParsePayloadToData(new DataTree(referenceType.ReferencedObject.Name, 0, uid));
             Assert.That(data, Is.EqualTo(new byte[] { 0x46, 0x46, 0x12, 0x34, 0x56, 0x78 }));

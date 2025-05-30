@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.DMX_BLOCK_ADDRESS, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.DMX_BLOCK_ADDRESS, Command.ECommandDublicate.GetResponse)]
     public class RDMDMXBlockAddress : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

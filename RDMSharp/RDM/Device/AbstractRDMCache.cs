@@ -1,4 +1,5 @@
-﻿using RDMSharp.Metadata;
+﻿using Microsoft.Extensions.Logging;
+using RDMSharp.Metadata;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace RDMSharp
 {
     public abstract class AbstractRDMCache : IDisposable
     {
+        protected static ILogger Logger = null;
         protected bool IsDisposed { get; private set; }
         protected bool IsDisposing { get; private set; }
         internal ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch> parameterValuesDataTreeBranch { get; private set; } = new ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch>();
@@ -168,7 +170,7 @@ namespace RDMSharp
         }
         protected async Task requestSetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice, object value)
         {
-            define.GetCommand(Metadata.JSON.Command.ECommandDublicte.SetRequest, out var cmd);
+            define.GetCommand(Metadata.JSON.Command.ECommandDublicate.SetRequest, out var cmd);
             var req = cmd.Value.GetRequiredProperties();
             if (req.Length == 1)
             {
@@ -187,7 +189,7 @@ namespace RDMSharp
             }
         }
 
-        protected async Task requestGetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
+        protected async Task<byte> requestGetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
         {
             try
             {
@@ -195,18 +197,20 @@ namespace RDMSharp
                 await runPeerToPeerProcess(ptpProcess);
                 if (!ptpProcess.ResponsePayloadObject.IsUnset)
                 {
-                    updateParameterValuesDependeciePropertyBag(parameterBag.PID, ptpProcess.ResponsePayloadObject);
-                    updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(parameterBag.PID), ptpProcess.ResponsePayloadObject);
+                    updateParameterValuesDependeciePropertyBag(ptpProcess.ParameterBag.PID, ptpProcess.ResponsePayloadObject);
+                    updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), ptpProcess.ResponsePayloadObject);
                 }
+                return ptpProcess.MessageCounter;
             }
             catch(Exception e)
             {
-
+                Logger.LogError(e, $"Failed to get parameter {parameterBag.PID} with empty payload");
             }
+            return 0;
         }
-        protected async Task requestGetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
+        protected async Task<byte> requestGetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice, object i=null)
         {
-            define.GetCommand(Metadata.JSON.Command.ECommandDublicte.GetRequest, out var cmd);
+            define.GetCommand(Metadata.JSON.Command.ECommandDublicate.GetRequest, out var cmd);
             var req = cmd.Value.GetRequiredProperties();
             if (req.Length == 1 && req[0] is Metadata.JSON.OneOfTypes.IIntegerType intType)
             {
@@ -214,34 +218,48 @@ namespace RDMSharp
                 {
                     string name = intType.Name;
 
-                    IComparable dependecyValue = (IComparable)parameterValuesDependeciePropertyBag.FirstOrDefault(bag => bag.Key.Parameter == parameterBag.PID && bag.Key.Command == Metadata.JSON.Command.ECommandDublicte.GetRequest && string.Equals(bag.Key.Name, name)).Value;
+                    IComparable dependecyValue = (IComparable)parameterValuesDependeciePropertyBag.FirstOrDefault(bag => bag.Key.Parameter == parameterBag.PID && bag.Key.Command == Metadata.JSON.Command.ECommandDublicate.GetRequest && string.Equals(bag.Key.Name, name)).Value;
 
-                    object i = intType.GetMinimum();
-                    object max = intType.GetMaximum();
-                    object count = Convert.ChangeType(0, i.GetType());
-                    while (dependecyValue.CompareTo(count) > 0)
+                    if (i == null)
                     {
-                        if (!intType.IsInRange(i))
-                            continue;
+                        i = intType.GetMinimum();
+                        object max = intType.GetMaximum();
+                        object count = Convert.ChangeType(0, i.GetType());
+                        while (dependecyValue.CompareTo(count) > 0)
+                        {
+                            if (!intType.IsInRange(i))
+                                continue;
 
-                        if (((IComparable)max).CompareTo(i) == -1)
-                            return;
+                            if (((IComparable)max).CompareTo(i) == -1)
+                                return 0;
 
+                            DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
+                            PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
+                            await runPeerToPeerProcess(ptpProcess);
+                            if (!ptpProcess.ResponsePayloadObject.IsUnset)
+                                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, i), ptpProcess.ResponsePayloadObject);
+
+                            i = intType.IncrementJumpRange(i);
+                            count = intType.Increment(count);
+                        }
+                        return 0;
+                    }
+                    else
+                    {
                         DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
                         PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
                         await runPeerToPeerProcess(ptpProcess);
                         if (!ptpProcess.ResponsePayloadObject.IsUnset)
-                            updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(parameterBag.PID, i), ptpProcess.ResponsePayloadObject);
-
-                        i = intType.IncrementJumpRange(i);
-                        count = intType.Increment(count);
+                            updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, parameterBag.PID == ERDM_Parameter.QUEUED_MESSAGE || parameterBag.PID == ERDM_Parameter.STATUS_MESSAGES ? null : i), ptpProcess.ResponsePayloadObject);
+                        return ptpProcess.MessageCounter;
                     }
                 }
                 catch (Exception e)
                 {
-
+                    Logger?.LogError(e, $"Failed to get parameter {parameterBag.PID} with Bag: {parameterBag}");
                 }
             }
+            return 0;
         }
 
 

@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.RDM_TRAFFIC_ENABLE, Command.ECommandDublicte.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.RDM_TRAFFIC_ENABLE, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.RDM_TRAFFIC_ENABLE, Command.ECommandDublicate.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.RDM_TRAFFIC_ENABLE, Command.ECommandDublicate.SetRequest)]
     public class GetSetEndpointRDMTrafficEnable : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

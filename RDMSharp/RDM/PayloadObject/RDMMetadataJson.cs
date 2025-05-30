@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.METADATA_JSON, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.METADATA_JSON, Command.ECommandDublicate.GetResponse)]
     public class RDMMetadataJson : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

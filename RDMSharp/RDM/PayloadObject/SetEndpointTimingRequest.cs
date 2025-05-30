@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.ENDPOINT_TIMING, Command.ECommandDublicte.SetRequest)]
+    [DataTreeObject(ERDM_Parameter.ENDPOINT_TIMING, Command.ECommandDublicate.SetRequest)]
 
     public class SetEndpointTimingRequest : AbstractRDMPayloadObject
     {

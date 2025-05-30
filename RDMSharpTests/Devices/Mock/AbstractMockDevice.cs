@@ -29,15 +29,15 @@ namespace RDMSharpTests.Devices.Mock
             if (eventRegistered)
                 return;
             eventRegistered = true;
-            SendReceivePipeline.RDMMessageRereived -= SendReceivePipeline_RDMMessageRereived;
-            SendReceivePipelineImitateRealConditions.RDMMessageRereivedRequest -= SendReceivePipelineImitateRealConditions_RDMMessageRereivedRequest;
+            SendReceivePipeline.RDMMessageReceived -= SendReceivePipeline_RDMMessageReceived;
+            SendReceivePipelineImitateRealConditions.RDMMessageReceivedRequest -= SendReceivePipelineImitateRealConditions_RDMMessageReceivedRequest;
 
             if (ImitateRealConditions)
-                SendReceivePipelineImitateRealConditions.RDMMessageRereivedRequest += SendReceivePipelineImitateRealConditions_RDMMessageRereivedRequest;
+                SendReceivePipelineImitateRealConditions.RDMMessageReceivedRequest += SendReceivePipelineImitateRealConditions_RDMMessageReceivedRequest;
             else
-                SendReceivePipeline.RDMMessageRereived += SendReceivePipeline_RDMMessageRereived;
+                SendReceivePipeline.RDMMessageReceived += SendReceivePipeline_RDMMessageReceived;
         }
-        private async void SendReceivePipeline_RDMMessageRereived(object? sender, Tuple<long, RDMMessage> tuple)
+        private async void SendReceivePipeline_RDMMessageReceived(object? sender, Tuple<long, RDMMessage> tuple)
         {
             if (identifyer.TryGetValue(tuple.Item1, out var rdmMessage))
             {
@@ -51,7 +51,7 @@ namespace RDMSharpTests.Devices.Mock
             await base.ReceiveRDMMessage(tuple.Item2);
         }
 
-        private async void SendReceivePipelineImitateRealConditions_RDMMessageRereivedRequest(object? sender, RDMMessage rdmMessage)
+        private async void SendReceivePipelineImitateRealConditions_RDMMessageReceivedRequest(object? sender, RDMMessage rdmMessage)
         {
             await base.ReceiveRDMMessage(rdmMessage);
         }
@@ -81,14 +81,16 @@ namespace RDMSharpTests.Devices.Mock
             {
                 Logger.LogError(e);
             }
-            SendReceivePipeline.RDMMessageRereived -= SendReceivePipeline_RDMMessageRereived;
-            SendReceivePipelineImitateRealConditions.RDMMessageRereivedRequest -= SendReceivePipelineImitateRealConditions_RDMMessageRereivedRequest;
+            SendReceivePipeline.RDMMessageReceived -= SendReceivePipeline_RDMMessageReceived;
+            SendReceivePipelineImitateRealConditions.RDMMessageReceivedRequest -= SendReceivePipelineImitateRealConditions_RDMMessageReceivedRequest;
             eventRegistered = false;
             transactionCounter = 0;
             identifyer.Clear();
             ImitateRealConditions = false;
         }
+#pragma warning disable CS0114
         protected abstract void OnDispose();
+#pragma warning restore CS0114
     }
 
     internal abstract class AbstractMockSubDevice : AbstractMockDevice, IRDMRemoteSubDevice

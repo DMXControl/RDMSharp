@@ -380,6 +380,7 @@ namespace RDMSharp
         }
 
         private object valueCache = null;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2200:Erneut ausführen, um Stapeldetails beizubehalten", Justification = "<Ausstehend>")]
         public object Value
         {
             get
@@ -410,7 +411,7 @@ namespace RDMSharp
                             manufacturer = DestUID.ManufacturerID;
                         }
 
-                        return valueCache = MetadataFactory.ParseDataToPayload(MetadataFactory.GetDefine(new ParameterBag(this.Parameter, manufacturer)), Tools.ConvertCommandDublicteToCommand(Command), this.ParameterData).ParsedObject;
+                        return valueCache = MetadataFactory.ParseDataToPayload(MetadataFactory.GetDefine(new ParameterBag(this.Parameter, manufacturer)), Tools.ConvertCommandDublicateToCommand(Command), this.ParameterData).ParsedObject;
 
 
                     }
@@ -448,7 +449,15 @@ namespace RDMSharp
                 Command == ERDM_Command.SET_COMMAND_RESPONSE ||
                 Command.HasFlag(ERDM_Command.DISCOVERY_COMMAND))
             {
-                var val = this.Value;
+                object val = null;
+                try
+                {
+                    val = this.Value;
+                }
+                catch
+                {
+
+                }
                 if (val != null)
                     b.AppendLine("Value: " + valueString());
 

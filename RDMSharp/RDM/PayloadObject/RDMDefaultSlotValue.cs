@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.DEFAULT_SLOT_VALUE, Command.ECommandDublicte.GetResponse, true, "slots")]
+    [DataTreeObject(ERDM_Parameter.DEFAULT_SLOT_VALUE, Command.ECommandDublicate.GetResponse, true, "slots")]
     public class RDMDefaultSlotValue : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

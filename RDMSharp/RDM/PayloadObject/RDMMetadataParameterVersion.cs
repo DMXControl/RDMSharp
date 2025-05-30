@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.METADATA_PARAMETER_VERSION, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.METADATA_PARAMETER_VERSION, Command.ECommandDublicate.GetResponse)]
     public class RDMMetadataParameterVersion : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

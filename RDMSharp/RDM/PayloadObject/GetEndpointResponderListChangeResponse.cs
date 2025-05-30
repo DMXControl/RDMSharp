@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.ENDPOINT_RESPONDER_LIST_CHANGE, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.ENDPOINT_RESPONDER_LIST_CHANGE, Command.ECommandDublicate.GetResponse)]
     public class GetEndpointResponderListChangeResponse : AbstractRDMPayloadObject
     {
         [DataTreeObjectConstructor]

@@ -18,8 +18,8 @@
             Console.WriteLine(rdmMessage);
 #endif
 
-            RDMMessageRereived?.InvokeFailSafe(null, new Tuple<long, RDMMessage>(identifyer, rdmMessage));
+            RDMMessageReceived?.InvokeFailSafe(null, new Tuple<long, RDMMessage>(identifyer, rdmMessage));
         }
-        public static event EventHandler<Tuple<long, RDMMessage>>? RDMMessageRereived;
+        public static event EventHandler<Tuple<long, RDMMessage>>? RDMMessageReceived;
     }
 }

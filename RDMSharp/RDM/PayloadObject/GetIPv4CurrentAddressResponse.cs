@@ -6,7 +6,7 @@ using System.Net;
 
 namespace RDMSharp
 {
-    [DataTreeObject(ERDM_Parameter.IPV4_CURRENT_ADDRESS, Command.ECommandDublicte.GetResponse)]
+    [DataTreeObject(ERDM_Parameter.IPV4_CURRENT_ADDRESS, Command.ECommandDublicate.GetResponse)]
     public class GetIPv4CurrentAddressResponse : AbstractRDMPayloadObject
     {
         public GetIPv4CurrentAddressResponse(

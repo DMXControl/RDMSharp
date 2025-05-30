@@ -10,19 +10,18 @@
         public override string DeviceModelDescription => "Test Model Description SubDevice";
         public override bool SupportDMXAddress => true;
 
-        protected MockGeneratedDeviceWithSubDevice1(UID uid, MockGeneratedDeviceWithSubDeviceSub1[] subDevices = null, Sensor[] sensors = null) : base(uid, new ERDM_Parameter[] { ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL }, "Dummy Manufacturer 9FEF", sensors, subDevices)
+        protected MockGeneratedDeviceWithSubDevice1(UID uid, MockGeneratedDeviceWithSubDeviceSub1[]? subDevices = null, Sensor[]? sensors = null) : base(uid, new ERDM_Parameter[] { ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL }, "Dummy Manufacturer 9FEF", sensors, subDevices)
         {
             this.DeviceLabel = "Dummy Device Master";
             this.setInitParameters();
         }
-        protected MockGeneratedDeviceWithSubDevice1(UID uid, SubDevice subDevice, Sensor[] sensors = null) : base(uid, subDevice, new ERDM_Parameter[] { ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL }, "Dummy Manufacturer 9FEF", sensors)
+        protected MockGeneratedDeviceWithSubDevice1(UID uid, SubDevice subDevice, Sensor[]? sensors = null) : base(uid, subDevice, new ERDM_Parameter[] { ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL }, "Dummy Manufacturer 9FEF", sensors)
         {
             this.DeviceLabel = "Dummy Device SubDevice";
             this.setInitParameters();
         }
         private void setInitParameters()
         {
-            this.trySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, false);
             this.trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, $"Dummy Software");
         }
 
@@ -41,6 +40,11 @@
         private static readonly Sensor[] SENSORS = new Sensor[] {
             new MockSensorTemp(0, 1, 3000)};
         public override GeneratedPersonality[] Personalities => PERSONALITYS;
+
+        public override bool SupportQueued => true;
+
+        public override bool SupportStatus => true;
+
         public MockGeneratedDeviceWithSubDeviceMaster1(UID uid, ushort subDevicesCount) : base(uid, getSubDevices(uid, subDevicesCount), SENSORS)
         {
         }
@@ -70,6 +74,11 @@
             new MockSensorTemp(0, 1, 3000)};
 
         public override GeneratedPersonality[] Personalities => PERSONALITYS;
+
+        public override bool SupportQueued => true;
+
+        public override bool SupportStatus => true;
+
         public MockGeneratedDeviceWithSubDeviceSub1(UID uid, ushort subDeviceID) : base(uid, getSubDevice(subDeviceID), SENSORS)
         {
         }
