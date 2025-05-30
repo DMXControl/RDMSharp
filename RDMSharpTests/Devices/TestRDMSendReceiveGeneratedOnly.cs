@@ -1418,6 +1418,21 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             #endregion
+
+            #region
+            request.ParameterData = new byte[] { (byte)ERDM_Status.NONE };
+            response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.QUEUED_MESSAGE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.MessageCounter, Is.EqualTo(0));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] {ERDM_NackReason.FORMAT_ERROR }));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+            #endregion
         }
     }
 }
