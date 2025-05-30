@@ -53,11 +53,17 @@ namespace RDMSharp
 
         public DateTime Date { get; private set; }
 
+        [DataTreeObjectProperty("year", 0)]
         public ushort Year { get; private set; }
+        [DataTreeObjectProperty("month", 1)]
         public byte Month { get; private set; }
+        [DataTreeObjectProperty("day", 2)]
         public byte Day { get; private set; }
+        [DataTreeObjectProperty("hour", 3)]
         public byte Hour { get; private set; }
+        [DataTreeObjectProperty("minute", 4)]
         public byte Minute { get; private set; }
+        [DataTreeObjectProperty("second", 5)]
         public byte Second { get; private set; }
         public const int PDL = 7;
 

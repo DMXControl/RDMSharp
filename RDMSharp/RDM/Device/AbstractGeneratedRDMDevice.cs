@@ -5,7 +5,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -193,6 +192,23 @@ namespace RDMSharp
             }
         }
 
+        public DateTime realTimeClock;
+        public DateTime RealTimeClock
+        {
+            get
+            {
+                return realTimeClock;
+            }
+            private set
+            {
+                if (DateTime.Equals(realTimeClock, value))
+                    return;
+
+                realTimeClock = value;
+                this.OnPropertyChanged(nameof(this.RealTimeClock));
+            }
+        }
+
         private bool _initialized = false;
 
         protected AbstractGeneratedRDMDevice(UID uid, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null, IRDMDevice[] subDevices = null) : this(uid, SubDevice.Root, parameters, manufacturer, sensors, subDevices)
@@ -222,6 +238,7 @@ namespace RDMSharp
             _params.Add(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION);
             _params.Add(ERDM_Parameter.MANUFACTURER_LABEL);
             _params.Add(ERDM_Parameter.IDENTIFY_DEVICE);
+            _params.Add(ERDM_Parameter.REAL_TIME_CLOCK);
             if (SupportDMXAddress)
                 _params.Add(ERDM_Parameter.DMX_START_ADDRESS);
             if ((Personalities?.Length ?? 0) != 0)
@@ -234,6 +251,7 @@ namespace RDMSharp
             }
 
             Parameters = _params.Distinct().ToArray();
+            trySetParameter(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(DateTime.Now));
             trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters);
             trySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, Identify);
             #endregion
@@ -292,6 +310,25 @@ namespace RDMSharp
             #region DMX-Address
             if (Parameters.Contains(ERDM_Parameter.DMX_START_ADDRESS))
                 DMXAddress = 1;
+            #endregion
+
+            #region RealTimeClock
+            if (Parameters.Contains(ERDM_Parameter.REAL_TIME_CLOCK))
+                Task.Run(async () =>
+                {
+                    
+                    while (true)
+                    {
+                        double last = 0;
+                        await Task.Delay(100);
+                        var dateTime = DateTime.UtcNow.TimeOfDay.TotalSeconds;
+                        if (Math.Abs(dateTime - last) > 1)
+                        {
+                            last = dateTime;
+                            RealTimeClock = DateTime.Now;
+                        }
+                    }
+                });
             #endregion
 
             updateDeviceInfo();
@@ -610,6 +647,9 @@ namespace RDMSharp
                     break;
                 case nameof(BootSoftwareVersionLabel):
                     trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, this.BootSoftwareVersionLabel);
+                    break;
+                case nameof(RealTimeClock):
+                    trySetParameter(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(this.RealTimeClock));
                     break;
             }
             base.OnPropertyChanged(property);
@@ -979,7 +1019,7 @@ namespace RDMSharp
             response.SubDevice = rdmMessage.SubDevice;
             if(response.ResponseType == ERDM_ResponseType.NACK_REASON)
             {
-
+                Logger?.LogTrace($"RDM NACK: {response.NackReason} for Parameter: {response.Parameter} on Device: {this.UID} with Subdevice: {response.SubDevice}");
             }
             return response;
         }
