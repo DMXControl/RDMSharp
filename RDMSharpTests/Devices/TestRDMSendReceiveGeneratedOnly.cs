@@ -499,6 +499,21 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.ParameterData, Has.Length.EqualTo(BOOT_SOFTWARE_VERSION_LABEL.Length));
             Assert.That(response.Value, Is.EqualTo(BOOT_SOFTWARE_VERSION_LABEL));
             #endregion
+
+            #region Test Label changed
+            generated.BootSoftwareVersionLabel = "Rem x Ram";
+            Assert.That(generated.BootSoftwareVersionLabel, Is.EqualTo("Rem x Ram"));
+            response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.BootSoftwareVersionLabel.Length));
+            Assert.That(response.Value, Is.EqualTo(generated.BootSoftwareVersionLabel));
+            #endregion
         }
         [Test, Order(32)]
         public void TestGetSOFTWARE_VERSION_LABEL()
@@ -526,6 +541,21 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(SOFTWARE_VERSION_LABEL.Length));
             Assert.That(response.Value, Is.EqualTo(SOFTWARE_VERSION_LABEL));
+            #endregion
+
+            #region Test Label changed
+            generated.SoftwareVersionLabel = "Rem x Ram";
+            Assert.That(generated.SoftwareVersionLabel, Is.EqualTo("Rem x Ram"));
+            response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SOFTWARE_VERSION_LABEL));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.SoftwareVersionLabel.Length));
+            Assert.That(response.Value, Is.EqualTo(generated.SoftwareVersionLabel));
             #endregion
         }
 
