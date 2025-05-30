@@ -630,6 +630,43 @@ namespace RDMSharpTests.RDM.Devices
             doTests(generated.Sensors.Values.ToArray());
             #endregion
 
+
+            #region Test Remove Sensors
+
+            foreach (var sensor in generated.Sensors.Values.ToArray())
+                generated.RemoveSensors(sensor);
+
+            request.Command = ERDM_Command.SET_COMMAND;
+            response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+                Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+                Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_DEFINITION));
+                Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+                Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.UNKNOWN_PID }));
+                Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+            });
+
+            request.Command = ERDM_Command.GET_COMMAND;
+            response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+                Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+                Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_DEFINITION));
+                Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+                Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.UNKNOWN_PID }));
+                Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+            });
+            #endregion
+
             void doTests(Sensor[] sensors)
             {
                 foreach (Sensor sensor in sensors)
@@ -770,8 +807,8 @@ namespace RDMSharpTests.RDM.Devices
                 });
             }
             #endregion
-            #region Test Reset Sensor Values Set_Request (Broadcast)
 
+            #region Test Reset Sensor Values Set_Request (Broadcast)
             request.ParameterData = new byte[] { 0xff };
             response = generated.ProcessRequestMessage_Internal(request);
             Assert.That(response, Is.Not.Null);
@@ -800,6 +837,41 @@ namespace RDMSharpTests.RDM.Devices
                     Assert.That(remoteSensor.RecordedValue, Is.EqualTo(generatedSensor.RecordedValue));
                 });
             }
+            #endregion
+
+            #region Test Remove Sensors
+            foreach (var sensor in generated.Sensors.Values.ToArray())
+                generated.RemoveSensors(sensor);
+
+            request.ParameterData = new byte[] { 0 };
+            response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+                Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+                Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_VALUE));
+                Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+                Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.UNKNOWN_PID }));
+                Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+            });
+
+            request.Command = ERDM_Command.GET_COMMAND;
+            response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+                Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+                Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_VALUE));
+                Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+                Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.UNKNOWN_PID }));
+                Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+            });
             #endregion
 
             void doTests(Sensor[] sensors)
@@ -910,6 +982,27 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
             Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS }));
+            #endregion
+
+            #region Test Remove Sensors
+            foreach (var sensor in generated.Sensors.Values.ToArray())
+                generated.RemoveSensors(sensor);
+
+            request.ParameterData = new byte[] { 0 };
+            request.Command = ERDM_Command.SET_COMMAND;
+            response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+                Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+                Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.RECORD_SENSORS));
+                Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+                Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.UNKNOWN_PID }));
+                Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+            });
             #endregion
         }
 
@@ -1076,6 +1169,22 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(statusMessages[0].StatusType, Is.EqualTo(ERDM_Status.ERROR_CLEARED));
             for (int i = 0; i < 2; i++)
                 Assert.That(statusMessages[i], Is.EqualTo(generated.StatusMessages[i]));
+            #endregion
+
+            #region Test Remove Status Messages
+            foreach (RDMStatusMessage statusMessage in generated.StatusMessages.Values.ToArray())
+                generated.RemoveStatusMessage(statusMessage);
+
+            request.ParameterData = new byte[] { (byte)ERDM_Status.ADVISORY };
+            response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.STATUS_MESSAGES));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             #endregion
         }
         [Test, Order(1000)]

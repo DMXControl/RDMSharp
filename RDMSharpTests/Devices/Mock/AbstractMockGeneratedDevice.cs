@@ -87,6 +87,14 @@ namespace RDMSharpTests.Devices.Mock
         {
             base.RemoveStatusMessage(statusMessage);
         }
+        internal new void AddSensors(params Sensor[] sensor)
+        {
+            base.AddSensors(sensor);
+        }
+        internal new void RemoveSensors(params Sensor[] sensor)
+        {
+            base.RemoveSensors(sensor);
+        }
 
         protected sealed override void onDispose()
         {

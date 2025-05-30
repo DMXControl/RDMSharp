@@ -293,8 +293,10 @@ namespace RDMSharp
             if (sensors == null)
                 throw new ArgumentNullException();
 
-            sensorDef = new ConcurrentDictionary<object, object>();
-            sensorValue = new ConcurrentDictionary<object, object>();
+            if (sensorDef is null)
+                sensorDef = new ConcurrentDictionary<object, object>();
+            if (sensorValue is null)
+                sensorValue = new ConcurrentDictionary<object, object>();
             foreach (var sensor in @sensors)
             {
                 if (sensor == null)
@@ -354,6 +356,15 @@ namespace RDMSharp
                     }
                 }
             }
+
+            if (sensorDef?.IsEmpty ?? false)
+                sensorDef = null;
+            if (sensorValue?.IsEmpty ?? false)
+                sensorValue = null;
+
+            setParameterValue(ERDM_Parameter.SENSOR_DEFINITION, sensorDef);
+            setParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue);
+
             updateSupportedParametersOnAddRemoveSensors();
         }
 
@@ -564,6 +575,11 @@ namespace RDMSharp
 
                 default:
                     bool notNew = false;
+                    if (value is null)
+                    {
+                        parameterValues.TryRemove(parameter, out object oldValue);
+                        return;
+                    }
                     parameterValues.AddOrUpdate(parameter, value, (o, p) =>
                     {
                         if (object.Equals(p, value)&& value is not ConcurrentDictionary<object, object>)
@@ -782,7 +798,7 @@ namespace RDMSharp
                     {
                         success = true;
                         object responseValue = rdmMessage.Value;
-                        if(comparisonValue is ConcurrentDictionary<object, object> dict)
+                        if (comparisonValue is ConcurrentDictionary<object, object> dict)
                         {
                             switch (rdmMessage.Parameter)
                             {
@@ -835,7 +851,7 @@ namespace RDMSharp
                             goto FAIL;
                         }
                     }
-                    else if(Parameters.Contains(rdmMessage.Parameter))//Parameter is not in parameterValues
+                    else if (Parameters.Contains(rdmMessage.Parameter))//Parameter is not in parameterValues
                     {
                         var parameterBag = new ParameterBag(rdmMessage.Parameter, UID.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
                         var define = MetadataFactory.GetDefine(parameterBag);
@@ -860,6 +876,8 @@ namespace RDMSharp
                                 goto FAIL;
                         }
                     }
+                    else
+                        goto FAIL;
 
                     //Do set Response
                     if (!success)
