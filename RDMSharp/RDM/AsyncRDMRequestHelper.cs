@@ -121,7 +121,7 @@ namespace RDMSharp
                 int key = generateKey(request);
                 if (request.SubDevice.IsBroadcast)
                 {
-                    Logger?.LogTrace($"Send Subdevice-Broadcast Request: {request.ToString()}");
+                    Logger?.LogTrace($"Send Subdevice-Broadcast Request: {request?.ToString()}");
                     await _sendMethode.Invoke(request);
                     return new RequestResult(request, null, TimeSpan.Zero); // Broadcasts are not expected to return a response.
                 }
@@ -131,7 +131,7 @@ namespace RDMSharp
                     buffer.TryAdd(key, new AsyncBufferBag(key, request));
                 }
                 RDMMessage response = null;
-                Logger?.LogTrace($"Send Request: {request.ToString()}");
+                Logger?.LogTrace($"Send Request: {request?.ToString()}");
                 await _sendMethode.Invoke(request);
                 int count = 0;
                 do
@@ -152,7 +152,7 @@ namespace RDMSharp
                     if (count % 300 == 299)
                     {
                         await Task.Delay(TimeSpan.FromTicks(random.Next(33, 777)), _cts.Token);
-                        Logger?.LogTrace($"Retry Request: {request.ToString()} ElapsedTime: {bag.ElapsedTime}");
+                        Logger?.LogTrace($"Retry Request: {request?.ToString()} ElapsedTime: {bag?.ElapsedTime}");
                         await _sendMethode.Invoke(request);
                         await Task.Delay(TimeSpan.FromTicks(random.Next(33, 777)), _cts.Token);
                     }
@@ -164,7 +164,7 @@ namespace RDMSharp
 
                     if (count == 3000)
                     {
-                        Logger?.LogTrace($"Timeout Request: {request.ToString()} ElapsedTime: {bag.ElapsedTime}");
+                        Logger?.LogTrace($"Timeout Request: {request?.ToString()} ElapsedTime: {bag?.ElapsedTime}");
                         return new RequestResult(request);
                     }
                 }
@@ -172,7 +172,7 @@ namespace RDMSharp
                 buffer.TryRemove(key, out AsyncBufferBag bag2);
                 response = bag2.Response;
                 var result = new RequestResult(request, response, bag2.ElapsedTime);
-                Logger?.LogTrace($"Successful Request: {request.ToString()} Response: {response.ToString()} ElapsedTime: {bag2.ElapsedTime}");
+                Logger?.LogTrace($"Successful Request: {request?.ToString()} Response: {response?.ToString()} ElapsedTime: {bag2?.ElapsedTime}");
                 return result;
             }
             catch (Exception ex)
