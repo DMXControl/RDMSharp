@@ -228,7 +228,10 @@ namespace RDMSharp
             if (SupportQueued)
                 _params.Add(ERDM_Parameter.QUEUED_MESSAGE);
             if (SupportStatus)
+            {
                 _params.Add(ERDM_Parameter.STATUS_MESSAGES);
+                _params.Add(ERDM_Parameter.CLEAR_STATUS_ID);
+            }
 
             _params.Add(ERDM_Parameter.DEVICE_INFO);
             _params.Add(ERDM_Parameter.SUPPORTED_PARAMETERS);
@@ -963,6 +966,15 @@ namespace RDMSharp
                                         sensor.RecordValue();
                                 else
                                     Sensors[sensorID].RecordValue();
+                                response = new RDMMessage
+                                {
+                                    Parameter = rdmMessage.Parameter,
+                                    Command = ERDM_Command.SET_COMMAND_RESPONSE
+                                };
+                                goto FAIL;
+                            case ERDM_Parameter.CLEAR_STATUS_ID:
+                                this.statusMessages.Clear();
+                                setParameterValue(ERDM_Parameter.STATUS_MESSAGES, this.statusMessages.Select(sm => sm.Value).ToArray());
                                 response = new RDMMessage
                                 {
                                     Parameter = rdmMessage.Parameter,

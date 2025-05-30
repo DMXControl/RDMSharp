@@ -1340,6 +1340,29 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             #endregion
+
+
+            #region CLEAR_STATUS_ID
+            generated.AddStatusMessage(new RDMStatusMessage(
+                subDeviceId: 0,
+                statusType: ERDM_Status.ERROR,
+                statusMessage: ERDM_StatusMessage.OVERCURRENT,
+                dataValue1: 1234,
+                dataValue2: 5678));
+            request.ParameterData = new byte[] { };
+            request.Parameter = ERDM_Parameter.CLEAR_STATUS_ID;
+            request.Command = ERDM_Command.SET_COMMAND;
+            response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CLEAR_STATUS_ID));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.MessageCounter, Is.EqualTo(0));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+            #endregion
         }
         [Test, Order(1000)]
         public void TestGetQUEUED_MESSAGE()
@@ -1602,6 +1625,22 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.MessageCounter, Is.EqualTo(0));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
             Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.FORMAT_ERROR }));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+            #endregion
+
+            #region CLEAR_STATUS_ID
+            request.ParameterData = new byte[] { };
+            request.Parameter = ERDM_Parameter.CLEAR_STATUS_ID;
+            request.Command = ERDM_Command.SET_COMMAND;
+            response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CLEAR_STATUS_ID));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.MessageCounter, Is.EqualTo(0));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             #endregion
         }

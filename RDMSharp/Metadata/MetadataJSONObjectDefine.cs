@@ -195,16 +195,16 @@ namespace RDMSharp.Metadata
             command = null;
             switch (eCommand)
             {
-                case Command.ECommandDublicate.GetRequest:
+                case Command.ECommandDublicate.GetRequest when GetRequest is not null:
                     command = GetRequest.Value;
                     break;
-                case Command.ECommandDublicate.GetResponse:
+                case Command.ECommandDublicate.GetResponse when GetResponse is not null:
                     command = GetResponse.Value;
                     break;
-                case Command.ECommandDublicate.SetRequest:
+                case Command.ECommandDublicate.SetRequest when SetRequest is not null:
                     command = SetRequest.Value;
                     break;
-                case Command.ECommandDublicate.SetResponse:
+                case Command.ECommandDublicate.SetResponse when SetResponse is not null:
                     command = SetResponse.Value;
                     break;
             }

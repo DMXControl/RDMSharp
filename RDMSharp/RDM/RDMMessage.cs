@@ -408,16 +408,18 @@ namespace RDMSharp
 
                     var parameterBag = new ParameterBag(this.Parameter, manufacturer);
                     var define = MetadataFactory.GetDefine(parameterBag);
+                    var cd = Tools.ConvertCommandDublicateToCommand(Command);
+                    Metadata.JSON.Command? cmd = null;
                     if ((this.ParameterData?.Length ?? 0) == 0)
                         return null;
 
                     if (define is null)
                         return null;
+
                     try
                     {
-                        var cd = Tools.ConvertCommandDublicateToCommand(Command);
-                        define.GetCommand(cd, out Metadata.JSON.Command? cmd);
-                        if (!cmd.HasValue)
+                        define.GetCommand(cd, out cmd);
+                        if (cmd is null || !cmd.HasValue)
                             return null;
                         if(cmd.Value.GetIsEmpty())
                             return null;
