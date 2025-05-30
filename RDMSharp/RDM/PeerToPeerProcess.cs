@@ -1,4 +1,5 @@
-﻿using RDMSharp.Metadata;
+﻿using Microsoft.Extensions.Logging;
+using RDMSharp.Metadata;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace RDMSharp
 {
     public class PeerToPeerProcess
     {
+        private static readonly ILogger Logger = LoggingTools.CreateLogger<PeerToPeerProcess>();
         public enum EPeerToPeerProcessState
         {
             Waiting,
@@ -121,6 +123,7 @@ namespace RDMSharp
             }
             catch (Exception e)
             {
+                Logger?.LogError(e);
                 this.Exception = e;
                 State = EPeerToPeerProcessState.Failed;
             }

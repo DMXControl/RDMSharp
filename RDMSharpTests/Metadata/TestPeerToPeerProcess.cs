@@ -35,7 +35,8 @@ namespace RDMSharpTests.Metadata
 
                 Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTreeBranch)));
                 Assert.That(peerToPeerProcess.ResponsePayloadObject.Children[0].Value, Is.EqualTo(DMX_ADDRESS));
-                Assert.That(peerToPeerProcess.ResponsePayloadObject.ParsedObject, Is.EqualTo(DMX_ADDRESS));                
+                Assert.That(peerToPeerProcess.ResponsePayloadObject.ParsedObject, Is.EqualTo(DMX_ADDRESS));
+                Assert.That(peerToPeerProcess.Exception, Is.Null);
             }
             finally
             {
@@ -84,6 +85,7 @@ namespace RDMSharpTests.Metadata
             Assert.That(peerToPeerProcess.State, Is.EqualTo(PeerToPeerProcess.EPeerToPeerProcessState.Waiting));
             Assert.That(peerToPeerProcess.RequestPayloadObject.IsUnset, Is.True);
             Assert.That(peerToPeerProcess.ResponsePayloadObject.IsUnset, Is.True);
+            Assert.That(peerToPeerProcess.Exception, Is.Null);
 
             AsyncRDMRequestHelper? helper = null;
             byte[] parameterData = MetadataFactory.GetResponseMessageData(parameterBag, new DataTreeBranch(new DataTree[] { new DataTree("device_uids", 0, children: children) }));
@@ -148,6 +150,7 @@ namespace RDMSharpTests.Metadata
             Assert.That(peerToPeerProcess.State, Is.EqualTo(PeerToPeerProcess.EPeerToPeerProcessState.Waiting));
             Assert.That(peerToPeerProcess.RequestPayloadObject.IsUnset, Is.True);
             Assert.That(peerToPeerProcess.ResponsePayloadObject.IsUnset, Is.True);
+            Assert.That(peerToPeerProcess.Exception, Is.Null);
 
             AsyncRDMRequestHelper? helper = null;
             byte count = 0;
@@ -167,6 +170,7 @@ namespace RDMSharpTests.Metadata
                 Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTreeBranch)));
                 Assert.That(peerToPeerProcess.ResponsePayloadObject.Children[0].Value, Is.EqualTo(LAMP_STRIKES));
                 Assert.That(peerToPeerProcess.ResponsePayloadObject.ParsedObject, Is.EqualTo(LAMP_STRIKES));
+                Assert.That(peerToPeerProcess.Exception, Is.Null);
             }
             finally
             {
