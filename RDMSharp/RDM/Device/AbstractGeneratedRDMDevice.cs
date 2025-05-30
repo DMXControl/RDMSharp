@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -17,7 +18,7 @@ namespace RDMSharp
         public abstract bool SupportQueued { get; }
         public abstract bool SupportStatus { get; }
         #region DeviceInfoStuff
-        public readonly ERDM_Parameter[] Parameters;
+        public ERDM_Parameter[] Parameters { get; private set; }
         public abstract EManufacturer ManufacturerID { get; }
         public abstract ushort DeviceModelID { get; }
         public abstract ERDM_ProductCategoryCoarse ProductCategoryCoarse { get; }
@@ -195,13 +196,6 @@ namespace RDMSharp
                 _params.Add(ERDM_Parameter.SLOT_DESCRIPTION);
                 _params.Add(ERDM_Parameter.DEFAULT_SLOT_VALUE);
             }
-            if ((sensors?.Length ?? 0) != 0)
-            {
-                _params.Add(ERDM_Parameter.SENSOR_DEFINITION);
-                _params.Add(ERDM_Parameter.SENSOR_VALUE);
-                if (Sensors.Values.Any(s => s.RecordedValueSupported))
-                    _params.Add(ERDM_Parameter.RECORD_SENSORS);
-            }
 
             Parameters = _params.Distinct().ToArray();
             trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters);
@@ -307,7 +301,8 @@ namespace RDMSharp
                     throw new ArgumentNullException(nameof(sensor));
                 if (this.sensors.ContainsKey(sensor.SensorId))
                     throw new ArgumentOutOfRangeException($"The Sensor with the ID: {sensor.SensorId} already exists");
-                if(this.sensors.TryAdd(sensor.SensorId, sensor))
+
+                if (this.sensors.TryAdd(sensor.SensorId, sensor))
                 {
                     if (!sensorDef.TryAdd(sensor.SensorId, (RDMSensorDefinition)sensor))
                         throw new Exception($"{sensor.SensorId} already used as {nameof(RDMSensorDefinition)}");
@@ -333,6 +328,8 @@ namespace RDMSharp
 
             setParameterValue(ERDM_Parameter.SENSOR_DEFINITION, sensorDef);
             setParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue);
+
+            updateSupportedParametersOnAddRemoveSensors();
         }
         protected void RemoveSensors(params Sensor[] @sensors)
         {
@@ -357,6 +354,51 @@ namespace RDMSharp
                     }
                 }
             }
+            updateSupportedParametersOnAddRemoveSensors();
+        }
+
+        private void updateSupportedParametersOnAddRemoveSensors()
+        {
+            var oldParameters = Parameters;
+            if (!this.sensors.IsEmpty)
+            {
+                List<ERDM_Parameter> _params = Parameters.ToList();
+                _params.Add(ERDM_Parameter.SENSOR_DEFINITION);
+                _params.Add(ERDM_Parameter.SENSOR_VALUE);
+                Parameters = _params.Distinct().ToArray();
+            }
+            else if (
+                Parameters.Contains(ERDM_Parameter.SENSOR_DEFINITION) ||
+                Parameters.Contains(ERDM_Parameter.SENSOR_VALUE) ||
+                Parameters.Contains(ERDM_Parameter.RECORD_SENSORS) ||
+                Parameters.Contains(ERDM_Parameter.SENSOR_TYPE_CUSTOM) ||
+                Parameters.Contains(ERDM_Parameter.SENSOR_UNIT_CUSTOM))
+            {
+                List<ERDM_Parameter> _params = Parameters.ToList();
+                _params.RemoveAll(p =>
+                    p == ERDM_Parameter.SENSOR_DEFINITION ||
+                    p == ERDM_Parameter.SENSOR_VALUE ||
+                    p == ERDM_Parameter.RECORD_SENSORS ||
+                    p == ERDM_Parameter.SENSOR_TYPE_CUSTOM ||
+                    p == ERDM_Parameter.SENSOR_UNIT_CUSTOM);
+                Parameters = _params.Distinct().ToArray();
+            }
+
+            if (sensors.Values.Any(s => s.RecordedValueSupported) && !Parameters.Contains(ERDM_Parameter.RECORD_SENSORS))
+            {
+                List<ERDM_Parameter> _params = Parameters.ToList();
+                _params.Insert(_params.IndexOf(ERDM_Parameter.SENSOR_VALUE) + 1, ERDM_Parameter.RECORD_SENSORS);
+                Parameters = _params.Distinct().ToArray();
+            }
+            else if (!sensors.Values.Any(s => s.RecordedValueSupported) && Parameters.Contains(ERDM_Parameter.RECORD_SENSORS))
+            {
+                List<ERDM_Parameter> _params = Parameters.ToList();
+                _params.RemoveAll(sensors => sensors == ERDM_Parameter.RECORD_SENSORS);
+                Parameters = _params.Distinct().ToArray();
+            }
+
+            if (!Parameters.SequenceEqual(oldParameters))
+                trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters);
         }
 
         private void Sensor_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -524,7 +566,7 @@ namespace RDMSharp
                     bool notNew = false;
                     parameterValues.AddOrUpdate(parameter, value, (o, p) =>
                     {
-                        if (object.Equals(p, value))
+                        if (object.Equals(p, value)&& value is not ConcurrentDictionary<object, object>)
                             notNew = true;
                         return value;
                     });
@@ -535,7 +577,7 @@ namespace RDMSharp
                         updateParameterBag(parameter, index);
                         return;
                     }
-                    else if(value is ConcurrentDictionary<object, object> dict)
+                    if(value is ConcurrentDictionary<object, object> dict)
                     {
                         foreach (var p in dict)
                             updateParameterBag(parameter, p.Key);
@@ -696,6 +738,14 @@ namespace RDMSharp
                         removeParameterFromParameterUpdateBag(parameter);
 
                     parameterValues.TryGetValue(parameter, out object responseValue);
+
+                    if(responseValue is ConcurrentDictionary<object, object> dict)
+                    {
+                        var val = dict[requestValue];
+                        if (val == null)
+                            throw new ArgumentOutOfRangeException("No matching id found");
+                    }
+
                     var parameterBag = new ParameterBag(parameter, UID.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
                     var dataTreeBranch = DataTreeBranch.FromObject(responseValue, requestValue, parameterBag, ERDM_Command.GET_COMMAND_RESPONSE);
                     try
@@ -728,10 +778,32 @@ namespace RDMSharp
                 {
                     bool success = false;
                     //Handle set Request
-                    if (parameterValues.TryGetValue(rdmMessage.Parameter, out object comparisonValue) && parameterValues.TryUpdate(rdmMessage.Parameter, rdmMessage.Value, comparisonValue))
+                    if (parameterValues.TryGetValue(rdmMessage.Parameter, out object comparisonValue) && (comparisonValue is ConcurrentDictionary<object, object> || parameterValues.TryUpdate(rdmMessage.Parameter, rdmMessage.Value, comparisonValue)))
                     {
                         success = true;
-                        var responseValue = rdmMessage.Value;
+                        object responseValue = rdmMessage.Value;
+                        if(comparisonValue is ConcurrentDictionary<object, object> dict)
+                        {
+                            switch (rdmMessage.Parameter)
+                            {
+                                case ERDM_Parameter.SENSOR_VALUE:
+                                    if (!object.Equals(rdmMessage.Value, byte.MaxValue))
+                                    {
+                                        this.Sensors[(byte)rdmMessage.Value].ResetValues();
+                                        responseValue = dict[rdmMessage.Value];
+                                    }
+                                    else //Broadcast
+                                    {
+                                        foreach (var sensor in this.Sensors.Values)
+                                            sensor.ResetValues();
+                                        responseValue = new RDMSensorValue(0xff);
+                                    }
+                                    break;
+                                default:
+                                    responseValue = dict[rdmMessage.Value];
+                                    break;
+                            }
+                        }
 
                         try
                         {
@@ -755,12 +827,37 @@ namespace RDMSharp
                         catch (Exception e)
                         {
                             Logger.LogError(e);
-                            if (e is ArgumentOutOfRangeException)
-                                response = new RDMMessage(ERDM_NackReason.ACTION_NOT_SUPPORTED) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
+                            if (e is ArgumentOutOfRangeException || e is KeyNotFoundException)
+                                response = new RDMMessage(ERDM_NackReason.DATA_OUT_OF_RANGE) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
                             else
                                 response = new RDMMessage(ERDM_NackReason.FORMAT_ERROR) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
 
                             goto FAIL;
+                        }
+                    }
+                    else if(Parameters.Contains(rdmMessage.Parameter))//Parameter is not in parameterValues
+                    {
+                        var parameterBag = new ParameterBag(rdmMessage.Parameter, UID.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
+                        var define = MetadataFactory.GetDefine(parameterBag);
+                        switch (rdmMessage.Parameter)
+                        {
+                            case ERDM_Parameter.RECORD_SENSORS when rdmMessage.Value is byte sensorID:
+                                success = true;
+                                if (sensorID == 0xFF)//Broadcast
+                                    foreach (var sensor in Sensors.Values)
+                                        sensor.RecordValue();
+                                else
+                                    Sensors[sensorID].RecordValue();
+                                response = new RDMMessage
+                                {
+                                    Parameter = rdmMessage.Parameter,
+                                    Command = ERDM_Command.SET_COMMAND_RESPONSE
+                                };
+                                goto FAIL;
+
+                            default:
+                                response = new RDMMessage(ERDM_NackReason.ACTION_NOT_SUPPORTED) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
+                                goto FAIL;
                         }
                     }
 
@@ -776,7 +873,18 @@ namespace RDMSharp
             {
                 Logger?.LogError(e, string.Empty);
 
-                response = new RDMMessage(ERDM_NackReason.ACTION_NOT_SUPPORTED) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
+                if (e is ArgumentOutOfRangeException || e is KeyNotFoundException)
+                    response = new RDMMessage(ERDM_NackReason.DATA_OUT_OF_RANGE) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
+                else
+                {
+                    var define = MetadataFactory.GetDefine(new ParameterBag(rdmMessage.Parameter, (ushort)ManufacturerID, DeviceModelID, SoftwareVersionID));
+                    if (
+                        (rdmMessage.Command == ERDM_Command.GET_COMMAND && !define.GetRequest.HasValue) ||
+                        (rdmMessage.Command == ERDM_Command.SET_COMMAND && !define.SetRequest.HasValue))
+                        response = new RDMMessage(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
+                    else
+                        response = new RDMMessage(ERDM_NackReason.ACTION_NOT_SUPPORTED) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
+                }
                 goto FAIL;
             }
         FAIL:

@@ -85,7 +85,8 @@ namespace RDMSharp
                 while (State == EPeerToPeerProcessState.Running)
                 {
                     var responseResult = await asyncRDMRequestHelper.RequestMessage(request);
-                    if (!responseResult.Success)
+                    if (!responseResult.Success ||
+                        (responseResult.Response is not null && responseResult.Response.ResponseType == ERDM_ResponseType.NACK_REASON))
                     {
                         State = EPeerToPeerProcessState.Failed;
                         return;

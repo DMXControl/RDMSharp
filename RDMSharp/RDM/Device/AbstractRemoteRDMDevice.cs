@@ -352,6 +352,8 @@ namespace RDMSharp
             switch (e.Parameter)
             {
                 case ERDM_Parameter.SENSOR_VALUE when e.NewValue is RDMSensorValue sensorValue:
+                    if (sensorValue.SensorId == byte.MaxValue) //Ignore Broadcast as in Spec.
+                        break;
                     var sensor = sensors.GetOrAdd(sensorValue.SensorId, (a) => new Sensor(a));
                     sensor.UpdateValue(sensorValue);
                     break;

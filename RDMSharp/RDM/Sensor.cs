@@ -232,6 +232,37 @@ namespace RDMSharp
             LowestHighestValueSupported = lowestHighestValueSupported;
             RecordedValueSupported = recordedValueSupported;
         }
+        protected Sensor(in byte sensorId,
+            in short initValue,
+            in ERDM_SensorType type,
+            in ERDM_SensorUnit unit,
+            in ERDM_UnitPrefix prefix,
+            in string description,
+            in short rangeMinimum,
+            in short rangeMaximum,
+            in short normalMinimum,
+            in short normalMaximum,
+            in bool lowestHighestValueSupported = false,
+            in bool recordedValueSupported = false) : this(
+                sensorId,
+                type,
+                unit,
+                prefix,
+                description,
+                rangeMinimum,
+                rangeMaximum,
+                normalMinimum,
+                normalMaximum,
+                lowestHighestValueSupported,
+                recordedValueSupported)
+        {
+            this.UpdateValue(initValue);
+            if (LowestHighestValueSupported)
+            {
+                LowestValue = initValue;
+                HighestValue = initValue;
+            }
+        }
         internal void UpdateDescription(RDMSensorDefinition sensorDescription)
         {
             if (this.SensorId != sensorDescription.SensorId)
@@ -270,10 +301,10 @@ namespace RDMSharp
             LowestValue = Math.Min(LowestValue, value);
             HighestValue = Math.Max(HighestValue, value);
         }
-        internal void RecordValue(short value)
+        internal void RecordValue()
         {
             if (this.RecordedValueSupported)
-                RecordedValue = value;
+                RecordedValue = PresentValue;
         }
         internal void ResetValues()
         {
