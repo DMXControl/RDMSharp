@@ -19,18 +19,20 @@ namespace RDMSharp.Metadata
         private static readonly ILogger Logger = null;
         private const string SCHEMA_FILE_NAME = "schema.json";
         private const string JSON_ENDING = ".json";
-        private static List<MetadataVersion> metadataVersionList;
-        private static Dictionary<MetadataVersion, List<MetadataJSONObjectDefine>> metadataVersionDefinesBagDictionary;
+        private static ConcurrentDictionary<string, MetadataVersion> metadataVersionList;
+        private static ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>> metadataVersionDefinesBagDictionary;
         private static ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine> parameterBagDefineCache;
 
-        public static IReadOnlyCollection<MetadataVersion> MetadataVersionList
+        public static IReadOnlyDictionary<string, MetadataVersion> MetadataVersionList
         {
             get
             {
                 if (metadataVersionList == null)
                 {
-                    metadataVersionList = new List<MetadataVersion>();
-                    metadataVersionList.AddRange(GetResources().Select(r => new MetadataVersion(r)));
+                    metadataVersionList = new ConcurrentDictionary<string, MetadataVersion>();
+                    var metaDataVersions = GetResources().Select(r => new MetadataVersion(r));
+                    foreach (var mv in metaDataVersions)
+                        metadataVersionList.TryAdd(mv.Path, mv);
                 }
                 return metadataVersionList.AsReadOnly();
             }
@@ -42,15 +44,17 @@ namespace RDMSharp.Metadata
         }
         private static void fillDefaultMetadataVersionList()
         {
-            metadataVersionList.AddRange(GetResources().Select(r => new MetadataVersion(r)));
+            var metaDataVersions = GetResources().Select(r => new MetadataVersion(r));
+            foreach (var mv in metaDataVersions)
+                metadataVersionList.TryAdd(mv.Path, mv);
 
             if (metadataVersionDefinesBagDictionary == null)
-                metadataVersionDefinesBagDictionary = new Dictionary<MetadataVersion, List<MetadataJSONObjectDefine>>();
+                metadataVersionDefinesBagDictionary = new ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>>();
 
             var schemaList = GetMetadataSchemaVersions();
             ConcurrentDictionary<string, JsonSchema> versionSchemas = new ConcurrentDictionary<string, JsonSchema>();
 
-            foreach (var mv in metadataVersionList.Where(_mv => !_mv.IsSchema))
+            foreach (var mv in metadataVersionList.Values.Where(_mv => !_mv.IsSchema))
             {
                 var schema = schemaList.First(s => s.Version.Equals(mv.Version));
                 if (!versionSchemas.TryGetValue(schema.Version, out JsonSchema jsonSchema))
@@ -64,7 +68,7 @@ namespace RDMSharp.Metadata
                 {
                     MetadataJSONObjectDefine jsonDefine = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(metadataBag.Content);
                     if (!metadataVersionDefinesBagDictionary.ContainsKey(schema))
-                        metadataVersionDefinesBagDictionary.Add(schema, new List<MetadataJSONObjectDefine>());
+                        metadataVersionDefinesBagDictionary.TryAdd(schema, new List<MetadataJSONObjectDefine>());
 
                     metadataVersionDefinesBagDictionary[schema].Add(jsonDefine);
                 }
@@ -73,11 +77,11 @@ namespace RDMSharp.Metadata
 
         public static IReadOnlyCollection<MetadataVersion> GetMetadataSchemaVersions()
         {
-            return MetadataVersionList.Where(r => r.IsSchema).ToList().AsReadOnly();
+            return MetadataVersionList.Values.Where(r => r.IsSchema).ToList().AsReadOnly();
         }
         public static IReadOnlyCollection<MetadataVersion> GetMetadataDefineVersions()
         {
-            return MetadataVersionList.Where(r => !r.IsSchema).ToList().AsReadOnly();
+            return MetadataVersionList.Values.Where(r => !r.IsSchema).ToList().AsReadOnly();
         }
         internal static MetadataJSONObjectDefine GetDefine(ParameterBag parameter)
         {

@@ -158,6 +158,41 @@ namespace RDMSharp
             }
         }
 
+
+        private string softwareVersionLabel;
+        public string SoftwareVersionLabel
+        {
+            get
+            {
+                return softwareVersionLabel;
+            }
+            protected set
+            {
+                if (string.Equals(softwareVersionLabel, value))
+                    return;
+
+                softwareVersionLabel = value;
+                this.OnPropertyChanged(nameof(this.SoftwareVersionLabel));
+            }
+        }
+
+        private string bootSoftwareVersionLabel;
+        public string BootSoftwareVersionLabel
+        {
+            get
+            {
+                return bootSoftwareVersionLabel;
+            }
+            protected set
+            {
+                if (string.Equals(bootSoftwareVersionLabel, value))
+                    return;
+
+                bootSoftwareVersionLabel = value;
+                this.OnPropertyChanged(nameof(this.BootSoftwareVersionLabel));
+            }
+        }
+
         private bool _initialized = false;
 
         protected AbstractGeneratedRDMDevice(UID uid, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null, IRDMDevice[] subDevices = null) : this(uid, SubDevice.Root, parameters, manufacturer, sensors, subDevices)
@@ -172,7 +207,7 @@ namespace RDMSharp
                 throw new Exception($"{uid.ManufacturerID} not match the {ManufacturerID}");
 
             #region Parameters
-            var _params = parameters.ToList();
+            var _params = parameters?.ToList() ?? new List<ERDM_Parameter>();
             if (SupportQueued)
                 _params.Add(ERDM_Parameter.QUEUED_MESSAGE);
             if (SupportStatus)
@@ -180,6 +215,7 @@ namespace RDMSharp
 
             _params.Add(ERDM_Parameter.DEVICE_INFO);
             _params.Add(ERDM_Parameter.SUPPORTED_PARAMETERS);
+            _params.Add(ERDM_Parameter.SOFTWARE_VERSION_LABEL);
             _params.Add(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID);
             _params.Add(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL);
             _params.Add(ERDM_Parameter.DEVICE_LABEL);
@@ -259,7 +295,17 @@ namespace RDMSharp
             #endregion
 
             updateDeviceInfo();
+            orderSupportedParameters();
             _initialized = true;
+        }
+
+        private void orderSupportedParameters()
+        {
+            var queued = Parameters.Where(p => p == ERDM_Parameter.QUEUED_MESSAGE).ToArray();
+            var others = Parameters.Where(p => p != ERDM_Parameter.QUEUED_MESSAGE)
+                                   .OrderBy(p => (ushort)p)
+                                   .ToArray();
+            Parameters = others.Concat(queued).ToArray();
         }
 
         private void updateDeviceInfo()
@@ -332,6 +378,7 @@ namespace RDMSharp
             setParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue);
 
             updateSupportedParametersOnAddRemoveSensors();
+            updateDeviceInfo();
         }
         protected void RemoveSensors(params Sensor[] @sensors)
         {
@@ -366,6 +413,7 @@ namespace RDMSharp
             setParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue);
 
             updateSupportedParametersOnAddRemoveSensors();
+            updateDeviceInfo();
         }
 
         private void updateSupportedParametersOnAddRemoveSensors()
@@ -410,6 +458,8 @@ namespace RDMSharp
 
             if (!Parameters.SequenceEqual(oldParameters))
                 trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters);
+
+            orderSupportedParameters();
         }
 
         private void Sensor_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -554,6 +604,12 @@ namespace RDMSharp
                     break;
                 case nameof(ManufacturerLabel):
                     trySetParameter(ERDM_Parameter.MANUFACTURER_LABEL, this.ManufacturerLabel);
+                    break;
+                case nameof(SoftwareVersionLabel):
+                    trySetParameter(ERDM_Parameter.SOFTWARE_VERSION_LABEL, this.SoftwareVersionLabel);
+                    break;
+                case nameof(BootSoftwareVersionLabel):
+                    trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, this.BootSoftwareVersionLabel);
                     break;
             }
             base.OnPropertyChanged(property);
@@ -921,6 +977,10 @@ namespace RDMSharp
             response.SourceUID = rdmMessage.DestUID;
             response.DestUID = rdmMessage.SourceUID;
             response.SubDevice = rdmMessage.SubDevice;
+            if(response.ResponseType == ERDM_ResponseType.NACK_REASON)
+            {
+
+            }
             return response;
         }
         public sealed override IReadOnlyDictionary<ERDM_Parameter, object> GetAllParameterValues()
@@ -941,6 +1001,9 @@ namespace RDMSharp
                 case ERDM_Parameter.DEVICE_LABEL:
                     DeviceLabel = (string)value;
                     break;
+                case ERDM_Parameter.IDENTIFY_DEVICE:
+                    Identify = (bool)value;
+                    break;
             }
         }
         private void updateParameterBag(ERDM_Parameter parameter, object index = null)
@@ -960,7 +1023,7 @@ namespace RDMSharp
         {
             foreach (var cache in controllerCommunicationCache)
             {
-                if (cache.Value.ParameterUpdatedBag.Any(p => p.Parameter == parameter && p.Index == index))
+                if (cache.Value.ParameterUpdatedBag.Any(p => p.Parameter == parameter))
                 {
                     var tempQueue = new ConcurrentQueue<ParameterUpdatedBag>();
                     while (cache.Value.ParameterUpdatedBag.TryDequeue(out var item))
@@ -968,8 +1031,8 @@ namespace RDMSharp
                             tempQueue.Enqueue(item);
 
 
-                    while (tempQueue.TryDequeue(out var item))
-                        cache.Value.ParameterUpdatedBag.Enqueue(item);
+                            while (tempQueue.TryDequeue(out var item))
+                                cache.Value.ParameterUpdatedBag.Enqueue(item);
                 }
                 cache.Value.ParameterUpdatedBag.Enqueue(new ParameterUpdatedBag(parameter, index));
             }

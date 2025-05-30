@@ -60,7 +60,8 @@
         public MockGeneratedDevice1(UID uid) : base(uid, SubDevice.Root, new ERDM_Parameter[] { ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL }, "Dummy Manufacturer 9FFF", GetSensors())
         {
             this.DeviceLabel = "Dummy Device 1";
-            this.trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, $"Dummy Software");
+            this.SoftwareVersionLabel = $"Dummy Software";
+            this.BootSoftwareVersionLabel = $"Dummy Bootloader Software";
         }
         protected sealed override void OnDispose()
         {
