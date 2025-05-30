@@ -16,6 +16,7 @@ namespace RDMSharp
         public sealed override bool IsGenerated => true;
         public abstract bool SupportQueued { get; }
         public abstract bool SupportStatus { get; }
+        public virtual bool SupportRealTimeClock { get; }
         #region DeviceInfoStuff
         public ERDM_Parameter[] Parameters { get; private set; }
         public abstract EManufacturer ManufacturerID { get; }
@@ -238,7 +239,8 @@ namespace RDMSharp
             _params.Add(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION);
             _params.Add(ERDM_Parameter.MANUFACTURER_LABEL);
             _params.Add(ERDM_Parameter.IDENTIFY_DEVICE);
-            _params.Add(ERDM_Parameter.REAL_TIME_CLOCK);
+            if (SupportRealTimeClock)
+                _params.Add(ERDM_Parameter.REAL_TIME_CLOCK);
             if (SupportDMXAddress)
                 _params.Add(ERDM_Parameter.DMX_START_ADDRESS);
             if ((Personalities?.Length ?? 0) != 0)
@@ -251,7 +253,8 @@ namespace RDMSharp
             }
 
             Parameters = _params.Distinct().ToArray();
-            trySetParameter(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(DateTime.Now));
+            if (SupportRealTimeClock)
+                trySetParameter(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(DateTime.Now));
             trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters);
             trySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, Identify);
             #endregion
@@ -813,7 +816,7 @@ namespace RDMSharp
                             messageCounter = (byte)Math.Min(controllerCache.ParameterUpdatedBag.Count, byte.MaxValue);
                         }
                     }
-                    else if(parameter == ERDM_Parameter.STATUS_MESSAGES)
+                    if(parameter == ERDM_Parameter.STATUS_MESSAGES)
                     {
                         ERDM_Status statusCode = ERDM_Status.NONE;
                         if (requestValue is ERDM_Status status)
@@ -882,7 +885,7 @@ namespace RDMSharp
                     }
                     catch (Exception e)
                     {
-                        Logger?.LogError(e);
+                        Logger?.LogError(e, $"ParameterBag:{parameterBag}{Environment.NewLine}Command: {rdmMessage.Command}{Environment.NewLine}RequestValue: {requestValue ?? "<NULL>"}{Environment.NewLine}ResponseValue: {responseValue ?? "<NULL>"}");
                         goto FAIL;
                     }
                 }

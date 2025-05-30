@@ -1,6 +1,6 @@
 ﻿namespace RDMSharpTests.Devices.Mock
 {
-    internal sealed class MockGeneratedDevice1 : AbstractMockGeneratedDevice
+    internal class MockGeneratedDevice1 : AbstractMockGeneratedDevice
     {
         public override EManufacturer ManufacturerID
         {

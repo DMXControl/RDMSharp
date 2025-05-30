@@ -1,5 +1,4 @@
 using RDMSharpTests.Devices.Mock;
-using System.Threading.Tasks;
 
 namespace RDMSharpTests.RDM.Devices
 {
@@ -750,7 +749,7 @@ namespace RDMSharpTests.RDM.Devices
 
             void doTests(Slot[] slots)
             {
-                foreach(Slot slot in slots)
+                foreach (Slot slot in slots)
                 {
                     request.ParameterData = new byte[] { (byte)((slot.SlotId >> 8) & 0xFF), (byte)(slot.SlotId & 0xFF) };
                     response = generated.ProcessRequestMessage_Internal(request);
@@ -1452,7 +1451,7 @@ namespace RDMSharpTests.RDM.Devices
 
             #region Test set DeviceLabel (single value changed)
             Assert.That(generated.DeviceLabel, Is.EqualTo("Dummy Device 1"));
-            generated.DeviceLabel= "Test Device Queued Message 1";
+            generated.DeviceLabel = "Test Device Queued Message 1";
             Assert.That(generated.DeviceLabel, Is.EqualTo("Test Device Queued Message 1"));
 
             response = generated.ProcessRequestMessage_Internal(request);
@@ -1532,7 +1531,7 @@ namespace RDMSharpTests.RDM.Devices
                 Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
                 Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_DESCRIPTION));
                 Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-                Assert.That(response.MessageCounter, Is.EqualTo(9-b));
+                Assert.That(response.MessageCounter, Is.EqualTo(9 - b));
                 Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
                 Assert.That(response.ParameterData, Has.Length.EqualTo(generated.Personalities[1].Slots[b].Description.Length + 2));
                 Assert.That(response.Value, Is.EqualTo(new RDMSlotDescription(slot.SlotId, slot.Description)));
@@ -1574,6 +1573,23 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             #endregion
 
+            request.ParameterData = new byte[] { (byte)ERDM_Status.ADVISORY };
+            var sm = new RDMStatusMessage(0, ERDM_Status.ADVISORY, ERDM_StatusMessage.AMPS, 222);
+            generated.AddStatusMessage(sm);
+            response = generated.ProcessRequestMessage_Internal(request);
+            Assert.That(response, Is.Not.Null);
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.STATUS_MESSAGES));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.MessageCounter, Is.EqualTo(0));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(9));
+            Assert.That(response.Value, Is.TypeOf(typeof(RDMStatusMessage[])));
+            RDMStatusMessage[] messages = (RDMStatusMessage[])response.Value;
+            Assert.That(messages[0], Is.EqualTo(sm));
+
             #region
             request.ParameterData = new byte[] { (byte)ERDM_Status.NONE };
             response = generated.ProcessRequestMessage_Internal(request);
@@ -1585,7 +1601,7 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.MessageCounter, Is.EqualTo(0));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-            Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] {ERDM_NackReason.FORMAT_ERROR }));
+            Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.FORMAT_ERROR }));
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             #endregion
         }
@@ -1593,6 +1609,9 @@ namespace RDMSharpTests.RDM.Devices
         [Test, Retry(3), Order(61)]
         public async Task TestGetREAL_TIME_CLOCK()
         {
+            TearDown();
+            generated = new RealTimeMockDevice(DEVCIE_UID);
+            await Task.Delay(500);
             #region Test Basic
             Assert.That(generated, Is.Not.Null);
             await Task.Delay(1000);
@@ -1624,6 +1643,15 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(timeRem.Minute, Is.EqualTo(timeGen.Minute));
             Assert.That(timeRem.Second, Is.AtLeast(timeGen.Second - 2).And.AtMost(timeGen.Second + 2));
             #endregion
+
+        }
+        class RealTimeMockDevice : MockGeneratedDevice1
+        {
+            public RealTimeMockDevice(UID uid) : base(uid)
+            {
+            }
+
+            public override bool SupportRealTimeClock => true;
         }
     }
 }

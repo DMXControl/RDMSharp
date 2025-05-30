@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using RDMSharp.Metadata;
+using RDMSharp.Metadata.JSON;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -399,25 +400,44 @@ namespace RDMSharp
                     if (this.ParameterData?.Length == 0)
                         return valueCache = null;
 
+                    ushort manufacturer = 0;
+                    if (this.Command.HasFlag(ERDM_Command.RESPONSE))
+                        manufacturer = SourceUID.ManufacturerID;
+                    else
+                        manufacturer = DestUID.ManufacturerID;
+
+                    var parameterBag = new ParameterBag(this.Parameter, manufacturer);
+                    var define = MetadataFactory.GetDefine(parameterBag);
+                    if ((this.ParameterData?.Length ?? 0) == 0)
+                        return null;
+
+                    if (define is null)
+                        return null;
                     try
                     {
-                        ushort manufacturer = 0;
-                        if (this.Command.HasFlag(ERDM_Command.RESPONSE))
-                        {
-                            manufacturer = SourceUID.ManufacturerID;
-                        }
-                        else
-                        {
-                            manufacturer = DestUID.ManufacturerID;
-                        }
-
-                        return valueCache = MetadataFactory.ParseDataToPayload(MetadataFactory.GetDefine(new ParameterBag(this.Parameter, manufacturer)), Tools.ConvertCommandDublicateToCommand(Command), this.ParameterData).ParsedObject;
-
-
+                        var cd = Tools.ConvertCommandDublicateToCommand(Command);
+                        define.GetCommand(cd, out Metadata.JSON.Command? cmd);
+                        if (!cmd.HasValue)
+                            return null;
+                        if(cmd.Value.GetIsEmpty())
+                            return null;
+                        return valueCache = MetadataFactory.ParseDataToPayload(define, cd, this.ParameterData).ParsedObject;
                     }
                     catch (Exception ex)
                     {
-                        Logger?.LogError(ex);
+                        StringBuilder b = new StringBuilder(128);
+                        b.AppendLine("Dest: " + DestUID);
+                        b.AppendLine("Source: " + SourceUID);
+                        b.AppendLine("Transaction: " + TransactionCounter);
+                        b.AppendLine("MessageCounter: " + MessageCounter);
+                        if (ResponseType.HasValue)
+                            b.AppendLine("Responsetype: " + ResponseType);
+                        if (PortID.HasValue)
+                            b.AppendLine("PortID: " + PortID);
+                        b.AppendLine("SubDevice: " + SubDevice);
+                        b.AppendLine("Command: " + Command);
+                        b.AppendLine("Parameter: " + ((ERDM_Parameter)Parameter).ToString());
+                        Logger?.LogError(ex,$"Message: {b.ToString()}");
                         throw ex;
                     }
                 }
