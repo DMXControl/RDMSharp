@@ -208,7 +208,7 @@ namespace RDMSharp
         {
             this.SensorId = sensorId;
         }
-        internal Sensor(in byte sensorId,
+        internal protected Sensor(in byte sensorId,
             in ERDM_SensorType type,
             in ERDM_SensorUnit unit,
             in ERDM_UnitPrefix prefix,
@@ -234,7 +234,7 @@ namespace RDMSharp
             LowestHighestValueSupported = lowestHighestValueSupported;
             RecordedValueSupported = recordedValueSupported;
         }
-        internal Sensor(in byte sensorId,
+        internal protected Sensor(in byte sensorId,
             in short initValue,
             in ERDM_SensorType type,
             in ERDM_SensorUnit unit,
