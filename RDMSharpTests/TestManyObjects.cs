@@ -358,7 +358,7 @@ namespace RDMSharpTests
                 ParameterUpdatedBag bag = new ParameterUpdatedBag(ERDM_Parameter.SENSOR_DEFINITION, 1);
                 Assert.That(bag.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_DEFINITION));
                 Assert.That(bag.Index, Is.EqualTo(1));
-                var secounds= DateTime.UtcNow.TimeOfDay.TotalSeconds;
+                var secounds = DateTime.UtcNow.TimeOfDay.TotalSeconds;
                 var utc = DateTime.UtcNow;
                 Assert.That(bag.Timestamp.TimeOfDay.TotalSeconds, Is.InRange(secounds - 2, secounds + 2));
                 Assert.That(bag.ToString(), Contains.Substring("SENSOR_DEFINITION"));
@@ -417,6 +417,58 @@ namespace RDMSharpTests
                 Assert.Throws(typeof(ArgumentException), () => new PeerToPeerProcess(ERDM_Command.NONE, new UID(1234, 5678), SubDevice.Root, bag, DataTreeBranch.Unset));
                 Assert.Throws(typeof(ArgumentException), () => new PeerToPeerProcess(ERDM_Command.RESPONSE, new UID(1234, 5678), SubDevice.Root, bag, DataTreeBranch.Unset));
             });
+        }
+
+        [Test]
+        public void TestSensor()
+        {
+            ConcurrentDictionary<string,object> dict = new ConcurrentDictionary<string, object>();
+            Sensor sensor = new Sensor(2);
+            Assert.DoesNotThrow(() => { sensor.PropertyChanged += Sensor_PropertyChanged; });
+            sensor.UpdateDescription(new RDMSensorDefinition(2, 1, 2, 3, 4, 5, 6, 7, true, true, "test"));
+            sensor.UpdateValue(new RDMSensorValue(2, 44, 33, 55, 40));
+            Assert.Multiple(() =>
+            {
+                Assert.That(sensor.SensorId, Is.EqualTo(2));
+                Assert.That(sensor.Description, Is.Not.Null);
+                Assert.That(sensor.Description, Is.EqualTo("test"));
+                Assert.That(sensor.PresentValue, Is.EqualTo(44));
+                Assert.That(sensor.LowestValue, Is.EqualTo(33));
+                Assert.That(sensor.HighestValue, Is.EqualTo(55));
+                Assert.That(sensor.RecordedValue, Is.EqualTo(40));
+                Assert.That(sensor.Type, Is.EqualTo(ERDM_SensorType.VOLTAGE));
+                Assert.That(sensor.Unit, Is.EqualTo(ERDM_SensorUnit.VOLTS_DC));
+                Assert.That(sensor.Prefix, Is.EqualTo(ERDM_UnitPrefix.MILLI));
+                Assert.That(sensor.RangeMaximum, Is.EqualTo(5));
+                Assert.That(sensor.RangeMinimum, Is.EqualTo(4));
+                Assert.That(sensor.NormalMaximum, Is.EqualTo(7));
+                Assert.That(sensor.NormalMinimum, Is.EqualTo(6));
+                Assert.That(sensor.LowestHighestValueSupported, Is.True);
+                Assert.That(sensor.RecordedValueSupported, Is.True);
+                Assert.That(sensor.ToString(), Contains.Substring("Sensor: 2"));
+                Assert.That(sensor.ToString(), Contains.Substring("PresentValue: 44"));
+                Assert.That(sensor.ToString(), Contains.Substring("LowestValue: 33"));
+                Assert.That(sensor.ToString(), Contains.Substring("HighestValue: 55"));
+                Assert.That(sensor.ToString(), Contains.Substring("RecordedValue: 40"));
+                Assert.That(sensor.ToString(), Contains.Substring("Description: test"));
+                Assert.DoesNotThrow(() => { sensor.PropertyChanged -= Sensor_PropertyChanged; });
+            });
+
+            //Test again to cover the Update methods and CodeCoverage
+            sensor.UpdateDescription(new RDMSensorDefinition(2, 1, 2, 3, 4, 5, 6, 7, true, true, "test"));
+            sensor.UpdateValue(new RDMSensorValue(2, 44, 33, 55, 40));
+
+            sensor.UpdateDescription(new RDMSensorDefinition(2, 1, 2, 3, 4, 5, 6, 7, false, false, "test"));
+            sensor.UpdateValue(new RDMSensorValue(2, 44, 33, 55, 40));
+
+            Assert.That(sensor.LowestHighestValueSupported, Is.False);
+            Assert.That(sensor.RecordedValueSupported, Is.False);
+            Assert.That(dict, Has.Count.EqualTo(14));
+
+            void Sensor_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+            {
+                dict.AddOrUpdate(e!.PropertyName!, 1, (key, oldValue) => null!);
+            }
         }
     }
 }
