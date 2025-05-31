@@ -28,4 +28,4 @@ jobs:
     - name: Create Nuget Package
       run: dotnet pack --configuration Release
     - name: Upload to Nuget.org
-      run: dotnet nuget push ArtNetSharp/bin/Release/RDMSharp.*.nupkg --api-key ${{secrets.NUGET_KEY}} -s https://api.nuget.org/v3/index.json
+      run: dotnet nuget push RDMSharp/bin/Release/RDMSharp.*.nupkg --api-key ${{secrets.NUGET_KEY}} -s https://api.nuget.org/v3/index.json
