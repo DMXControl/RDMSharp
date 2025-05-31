@@ -429,6 +429,8 @@ namespace RDMSharpTests
             sensor.UpdateValue(new RDMSensorValue(2, 44, 33, 55, 40));
             Assert.Multiple(() =>
             {
+                Assert.That(sensor, Is.Not.Null);
+                Assert.That(Sensor.Equals(sensor, null), Is.False);
                 Assert.That(sensor.SensorId, Is.EqualTo(2));
                 Assert.That(sensor.Description, Is.Not.Null);
                 Assert.That(sensor.Description, Is.EqualTo("test"));
@@ -453,6 +455,9 @@ namespace RDMSharpTests
                 Assert.That(sensor.ToString(), Contains.Substring("Description: test"));
                 Assert.DoesNotThrow(() => { sensor.PropertyChanged -= Sensor_PropertyChanged; });
             });
+            Assert.Throws(typeof(InvalidOperationException), () => sensor.UpdateDescription(new RDMSensorDefinition(5, 1, 2, 3, 4, 5, 6, 7, true, true, "test")));
+            Assert.Throws(typeof(InvalidOperationException), () => sensor.UpdateValue(new RDMSensorValue(9, 44, 33, 55, 40)));
+            Assert.Throws(typeof(ArgumentNullException), () => new Sensor(1, ERDM_SensorType.TIME, ERDM_SensorUnit.NEWTON, ERDM_UnitPrefix.PETA, null, 1, 2, 3, 4, true, false));
 
             //Test again to cover the Update methods and CodeCoverage
             sensor.UpdateDescription(new RDMSensorDefinition(2, 1, 2, 3, 4, 5, 6, 7, true, true, "test"));
@@ -464,6 +469,7 @@ namespace RDMSharpTests
             Assert.That(sensor.LowestHighestValueSupported, Is.False);
             Assert.That(sensor.RecordedValueSupported, Is.False);
             Assert.That(dict, Has.Count.EqualTo(14));
+            Assert.That(sensor.GetHashCode(), Is.Not.EqualTo(0));
 
             void Sensor_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
             {

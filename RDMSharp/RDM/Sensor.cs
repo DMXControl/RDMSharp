@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text;
 
+[assembly: InternalsVisibleTo("RDMSharpTests")]
 namespace RDMSharp
 {
     public class Sensor : INotifyPropertyChanged, IEquatable<Sensor>
@@ -206,7 +208,7 @@ namespace RDMSharp
         {
             this.SensorId = sensorId;
         }
-        protected Sensor(in byte sensorId,
+        internal Sensor(in byte sensorId,
             in ERDM_SensorType type,
             in ERDM_SensorUnit unit,
             in ERDM_UnitPrefix prefix,
@@ -232,7 +234,7 @@ namespace RDMSharp
             LowestHighestValueSupported = lowestHighestValueSupported;
             RecordedValueSupported = recordedValueSupported;
         }
-        protected Sensor(in byte sensorId,
+        internal Sensor(in byte sensorId,
             in short initValue,
             in ERDM_SensorType type,
             in ERDM_SensorUnit unit,
