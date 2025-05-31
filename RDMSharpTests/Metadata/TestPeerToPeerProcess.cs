@@ -163,8 +163,11 @@ namespace RDMSharpTests.Metadata
                     peerToPeerProcess.Run(helper),
                     Task.Run(async () =>
                     {
+                        Assert.ThrowsAsync(typeof(ArgumentNullException), async () => await peerToPeerProcess.Run(null));
                         while (peerToPeerProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Running)
                             await Task.Delay(100);
+
+                        Assert.DoesNotThrowAsync(async () => await peerToPeerProcess.Run(helper));
                     }));
 
                 Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTreeBranch)));

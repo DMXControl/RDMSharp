@@ -348,5 +348,39 @@ namespace RDMSharpTests
                 Assert.Throws(typeof(ArgumentOutOfRangeException), () => new PDL(1, uint.MaxValue));
             });
         }
+
+        [Test]
+        public void TestParameterUpdatedBag()
+        {
+            Assert.Multiple(() =>
+            {
+                ParameterUpdatedBag bag = new ParameterUpdatedBag(ERDM_Parameter.SENSOR_DEFINITION, 1);
+                Assert.That(bag.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_DEFINITION));
+                Assert.That(bag.Index, Is.EqualTo(1));
+                var secounds= DateTime.UtcNow.TimeOfDay.TotalSeconds;
+                var utc = DateTime.UtcNow;
+                Assert.That(bag.Timestamp.TimeOfDay.TotalSeconds, Is.InRange(secounds - 2, secounds + 2));
+                Assert.That(bag.ToString(), Contains.Substring("SENSOR_DEFINITION"));
+                Assert.That(bag.ToString(), Contains.Substring("(1)"));
+                Assert.That(bag.ToString(), Contains.Substring(utc.Year.ToString()));
+                Assert.That(bag.ToString(), Contains.Substring(utc.Month.ToString()));
+                Assert.That(bag.ToString(), Contains.Substring(utc.Day.ToString()));
+                Assert.That(bag.ToString(), Contains.Substring(utc.Hour.ToString()));
+
+            });
+        }
+        [Test]
+        public void TestParameterDataCacheBag()
+        {
+            Assert.Multiple(() =>
+            {
+                ParameterDataCacheBag bag = new ParameterDataCacheBag(ERDM_Parameter.SENSOR_DEFINITION, 1);
+                Assert.That(bag.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_DEFINITION));
+                Assert.That(bag.Index, Is.EqualTo(1));
+                Assert.That(bag.ToString(), Contains.Substring("SENSOR_DEFINITION"));
+                Assert.That(bag.ToString(), Contains.Substring("(1)"));
+
+            });
+        }
     }
 }

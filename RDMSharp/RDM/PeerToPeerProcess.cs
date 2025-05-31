@@ -50,21 +50,18 @@ namespace RDMSharp
 
         public async Task Run(AsyncRDMRequestHelper asyncRDMRequestHelper)
         {
+            if (asyncRDMRequestHelper is null)
+                throw new ArgumentNullException(nameof(asyncRDMRequestHelper));
             await run(asyncRDMRequestHelper);
         }
 
         private async Task run(AsyncRDMRequestHelper asyncRDMRequestHelper)
         {
+            if (State != EPeerToPeerProcessState.Waiting)
+                return;
+            State = EPeerToPeerProcessState.Running;
             try
             {
-                if (State != EPeerToPeerProcessState.Waiting)
-                    return;
-
-                if (asyncRDMRequestHelper == null)
-                    throw new ArgumentNullException(nameof(asyncRDMRequestHelper));
-
-                State = EPeerToPeerProcessState.Running;
-
                 ECommandDublicate commandRequest = ECommandDublicate.GetRequest;
                 if (Command == ERDM_Command.SET_COMMAND)
                     commandRequest = ECommandDublicate.SetRequest;
