@@ -20,7 +20,7 @@
             if (Index == null)
                 return $"{Parameter}";
             else
-                return $"{Parameter}: {Index}";
+                return $"{Parameter} ({Index})";
         }
     }
 }
