@@ -431,7 +431,9 @@ namespace RDMSharpTests
             {
                 Assert.That(sensor, Is.Not.Null);
                 Assert.That(Sensor.Equals(sensor, null), Is.False);
-                Assert.That(sensor.SensorId, Is.EqualTo(2));
+                Assert.That(Object.Equals(sensor, null), Is.False);
+                Assert.That(sensor!.Equals(null), Is.False);
+                Assert.That(sensor!.SensorId, Is.EqualTo(2));
                 Assert.That(sensor.Description, Is.Not.Null);
                 Assert.That(sensor.Description, Is.EqualTo("test"));
                 Assert.That(sensor.PresentValue, Is.EqualTo(44));
