@@ -51,7 +51,7 @@ Contributions are welcome! Please open issues or submit pull requests via GitHub
 
 ## License
 
-This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International Public License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International Public License. See the [LICENSE](LICENSE.md) file for details.
 
 ## Contact
 
