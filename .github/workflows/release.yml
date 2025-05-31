@@ -9,22 +9,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.2.2
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4.2.0
       with:
-        dotnet-version: | 
-          6.0.x
-          7.0.x
-          8.0.x
+          dotnet-version: | 
+            7.0
+            8.0
+            9.0
     - name: Install dependencies
       run: dotnet restore
     - name: Build
       run: dotnet build --configuration Release --no-restore
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4.6.0
+      with:
+        path: RDMSharp/bin/Release/**/RDMSharp.dll
     - name: Create Nuget Package
       run: dotnet pack --configuration Release
-    - name: Upload to Github Feed
-      run: dotnet nuget push RDMSharp/bin/Release/RDMSharp.*.nupkg --api-key ${{secrets.GITHUB_TOKEN}} -s https://nuget.pkg.github.com/DMXControl/index.json
     - name: Upload to Nuget.org
       run: dotnet nuget push RDMSharp/bin/Release/RDMSharp.*.nupkg --api-key ${{secrets.NUGET_KEY}} -s https://api.nuget.org/v3/index.json
-
