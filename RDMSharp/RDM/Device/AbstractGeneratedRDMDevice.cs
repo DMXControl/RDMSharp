@@ -865,6 +865,12 @@ namespace RDMSharp
                     }
 
                     var parameterBag = new ParameterBag(parameter, UID.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
+                    var define = MetadataFactory.GetDefine(parameterBag);
+                    if (define.GetRequest is null)
+                    {
+                        response = new RDMMessage(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
+                        goto FAIL;
+                    }
                     var dataTreeBranch = DataTreeBranch.FromObject(responseValue, requestValue, parameterBag, ERDM_Command.GET_COMMAND_RESPONSE);
                     try
                     {
