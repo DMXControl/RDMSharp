@@ -44,6 +44,8 @@ namespace RDMSharp
             ParameterBag = parameterBag;
             RequestPayloadObject = payloadObject ?? DataTreeBranch.Unset;
 
+            Logger?.LogTrace($"Create PeerToPeerProcess: {Command} UID: {UID} SubDevice: {SubDevice} Parameter: {ParameterBag.PID} PayloadObject: {RequestPayloadObject.ToString()}");
+
             //if (ParameterBag.PID != ERDM_Parameter.QUEUED_MESSAGE)
             Define = MetadataFactory.GetDefine(ParameterBag);
         }

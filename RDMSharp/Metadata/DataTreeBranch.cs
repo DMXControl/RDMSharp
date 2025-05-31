@@ -423,6 +423,12 @@ namespace RDMSharp.Metadata
 
         public bool Equals(DataTreeBranch other)
         {
+            if ((this.Children is null) && (other.Children is null))
+                return true;
+
+            if ((this.Children is null) || (other.Children is null))
+                return false;
+
             for (int i = 0; i < Children.Length; i++)
             {
                 DataTree me = Children[i];

@@ -1,3 +1,4 @@
+using RDMSharp.Metadata;
 using RDMSharp.RDM;
 using System.Collections.Concurrent;
 using System.Reflection;
@@ -367,6 +368,15 @@ namespace RDMSharpTests
                 Assert.That(bag.ToString(), Contains.Substring(utc.Day.ToString()));
                 Assert.That(bag.ToString(), Contains.Substring(utc.Hour.ToString()));
 
+                bag = new ParameterUpdatedBag(ERDM_Parameter.ADD_TAG);
+                Assert.That(bag.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
+                Assert.That(bag.Index, Is.Null);
+                Assert.That(bag.ToString(), Contains.Substring("ADD_TAG"));
+                Assert.That(bag.ToString(), Contains.Substring(utc.Year.ToString()));
+                Assert.That(bag.ToString(), Contains.Substring(utc.Month.ToString()));
+                Assert.That(bag.ToString(), Contains.Substring(utc.Day.ToString()));
+                Assert.That(bag.ToString(), Contains.Substring(utc.Hour.ToString()));
+
             });
         }
         [Test]
@@ -380,6 +390,32 @@ namespace RDMSharpTests
                 Assert.That(bag.ToString(), Contains.Substring("SENSOR_DEFINITION"));
                 Assert.That(bag.ToString(), Contains.Substring("(1)"));
 
+                bag = new ParameterDataCacheBag(ERDM_Parameter.ADD_TAG);
+                Assert.That(bag.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
+                Assert.That(bag.Index, Is.Null);
+                Assert.That(bag.ToString(), Is.EqualTo("ADD_TAG"));
+            });
+        }
+        [Test]
+        public void TestPeerToPeerProcess()
+        {
+
+            ParameterBag bag = new ParameterBag(ERDM_Parameter.DMX_START_ADDRESS, 1234, 333, 4);
+            PeerToPeerProcess ptp = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, new UID(1234, 5678), SubDevice.Root, bag);
+            Assert.Multiple(() =>
+            {
+                Assert.That(ptp.Command, Is.EqualTo(ERDM_Command.GET_COMMAND));
+                Assert.That(ptp.SubDevice, Is.EqualTo(SubDevice.Root));
+                Assert.That(ptp.RequestPayloadObject, Is.EqualTo(DataTreeBranch.Unset));
+            });
+            Assert.Multiple(() =>
+            {
+                Assert.Throws(typeof(ArgumentException), () => new PeerToPeerProcess(ERDM_Command.DISCOVERY_COMMAND, new UID(1234, 5678), SubDevice.Root, bag, DataTreeBranch.Unset));
+                Assert.Throws(typeof(ArgumentException), () => new PeerToPeerProcess(ERDM_Command.DISCOVERY_COMMAND_RESPONSE, new UID(1234, 5678), SubDevice.Root, bag, DataTreeBranch.Unset));
+                Assert.Throws(typeof(ArgumentException), () => new PeerToPeerProcess(ERDM_Command.GET_COMMAND_RESPONSE, new UID(1234, 5678), SubDevice.Root, bag, DataTreeBranch.Unset));
+                Assert.Throws(typeof(ArgumentException), () => new PeerToPeerProcess(ERDM_Command.SET_COMMAND_RESPONSE, new UID(1234, 5678), SubDevice.Root, bag, DataTreeBranch.Unset));
+                Assert.Throws(typeof(ArgumentException), () => new PeerToPeerProcess(ERDM_Command.NONE, new UID(1234, 5678), SubDevice.Root, bag, DataTreeBranch.Unset));
+                Assert.Throws(typeof(ArgumentException), () => new PeerToPeerProcess(ERDM_Command.RESPONSE, new UID(1234, 5678), SubDevice.Root, bag, DataTreeBranch.Unset));
             });
         }
     }

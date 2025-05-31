@@ -341,6 +341,7 @@ namespace RDMSharpTests.RDM.Devices
                 var expected = new RDMDMXPersonalityDescription(pers.ID, pers.SlotCount, pers.Description);
                 Assert.That(response.ParameterData, Has.Length.EqualTo(expected.ToPayloadData().Length));
                 Assert.That(response.Value, Is.EqualTo(expected));
+                Assert.That(((RDMDMXPersonalityDescription)response.Value).Index, Is.EqualTo(expected.Index));
             }
             #endregion
         }
@@ -371,6 +372,9 @@ namespace RDMSharpTests.RDM.Devices
             var expected = new RDMDMXPersonality(pers.ID, (byte)generated.Personalities.Count());
             Assert.That(response.ParameterData, Has.Length.EqualTo(expected.ToPayloadData().Length));
             Assert.That(response.Value, Is.EqualTo(expected));
+            Assert.That(((RDMDMXPersonality)response.Value).MinIndex, Is.EqualTo(1));
+            Assert.That(((RDMDMXPersonality)response.Value).Index, Is.EqualTo(1));
+            Assert.That(((RDMDMXPersonality)response.Value).Count, Is.EqualTo(3));
             #endregion
 
             #region Test Label changed

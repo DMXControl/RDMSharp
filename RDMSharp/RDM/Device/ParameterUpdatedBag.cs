@@ -7,7 +7,7 @@ namespace RDMSharp
         public readonly ERDM_Parameter Parameter;
         public readonly object Index;
         public readonly DateTime Timestamp;
-        public ParameterUpdatedBag(in ERDM_Parameter parameter, in object index)
+        public ParameterUpdatedBag(in ERDM_Parameter parameter, in object index = null)
         {
             Parameter = parameter;
             Index = index;
