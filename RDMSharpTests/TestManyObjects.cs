@@ -373,20 +373,16 @@ namespace RDMSharpTests
                 Assert.That(bag.Timestamp.TimeOfDay.TotalSeconds, Is.InRange(secounds - 2, secounds + 2));
                 Assert.That(bag.ToString(), Contains.Substring("SENSOR_DEFINITION"));
                 Assert.That(bag.ToString(), Contains.Substring("(1)"));
-                Assert.That(bag.ToString(), Contains.Substring(utc.Year.ToString()));
-                Assert.That(bag.ToString(), Contains.Substring(utc.Month.ToString()));
-                Assert.That(bag.ToString(), Contains.Substring(utc.Day.ToString()));
-                Assert.That(bag.ToString(), Contains.Substring(utc.Hour.ToString()));
+
+                string formattedDate = utc.ToString("d", System.Globalization.CultureInfo.CurrentCulture);
+                Assert.That(bag.ToString(), Contains.Substring(formattedDate));
 
                 bag = new ParameterUpdatedBag(ERDM_Parameter.ADD_TAG);
                 Assert.That(bag.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
                 Assert.That(bag.Index, Is.Null);
                 Assert.That(bag.ToString(), Contains.Substring("ADD_TAG"));
-                Assert.That(bag.ToString(), Contains.Substring(utc.Year.ToString()));
-                Assert.That(bag.ToString(), Contains.Substring(utc.Month.ToString()));
-                Assert.That(bag.ToString(), Contains.Substring(utc.Day.ToString()));
-                Assert.That(bag.ToString(), Contains.Substring(utc.Hour.ToString()));
-
+                formattedDate = utc.ToString("d", System.Globalization.CultureInfo.CurrentCulture);
+                Assert.That(bag.ToString(), Contains.Substring(formattedDate));
             });
         }
         [Test]
