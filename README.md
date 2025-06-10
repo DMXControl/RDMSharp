@@ -33,11 +33,11 @@ Or via the NuGet Package Manager in Visual Studio.
 
 ## Supported Platforms
 
-- .NET 6 (not recommended)
-- .NET 7 (not recommended)
-- .NET 8
-- .NET 9
-- .NET 10 (upcoming)
+- [![.NET 6](https://img.shields.io/badge/.NET%206-5C2D91?logo=.net&logoColor=white)](https://dotnet.microsoft.com/download/dotnet/6.0) (not recommended)
+- [![.NET 7](https://img.shields.io/badge/.NET%207-5C2D91?logo=.net&logoColor=white)](https://dotnet.microsoft.com/download/dotnet/7.0) (not recommended)
+- [![.NET 8](https://img.shields.io/badge/.NET%208-5C2D91?logo=.net&logoColor=white)](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [![.NET 9](https://img.shields.io/badge/.NET%209-5C2D91?logo=.net&logoColor=white)](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [![.NET 10](https://img.shields.io/badge/.NET%2010-5C2D91?logo=.net&logoColor=white)](https://dotnet.microsoft.com/download/dotnet/10.0) (upcoming)
 
 ## Contributing
 
@@ -49,10 +49,33 @@ Contributions are welcome! Please open issues or submit pull requests via GitHub
 4. Push to the branch (`git push origin feature/your-feature`)
 5. Open a pull request
 
-## License
+## License ![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-orange.svg)
 
 This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International Public License. See the [LICENSE](LICENSE.md) file for details.
 
 ## Contact
 
 For questions or support, please open an issue on GitHub.
+
+---
+
+**RDMSharp** is developed and maintained by [DMXControl Projects e.V.](https://www.dmxcontrol-projects.org/).
+
+---
+
+![NuGet Version](https://img.shields.io/nuget/v/RDMSharp?color=green)
+![NuGet Downloads](https://img.shields.io/nuget/dt/RDMSharp?color=green)
+![GitHub Top Language](https://img.shields.io/github/languages/top/DMXControl/RDMSharp?color=blue)
+![GitHub Code Size](https://img.shields.io/github/languages/code-size/DMXControl/RDMSharp)
+
+![GitHub Last Commit](https://img.shields.io/github/last-commit/DMXControl/RDMSharp?color=black)
+![Contributions](https://img.shields.io/badge/contributions-welcome-black.svg)
+![Contributors](https://img.shields.io/github/contributors/DMXControl/RDMSharp?color=black)
+![GitHub issues](https://img.shields.io/github/issues/DMXControl/RDMSharp?color=black)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/DMXControl/RDMSharp?color=black)
+
+![Discord](https://img.shields.io/discord/1051582916137861241)
+
+![GitHub Forks](https://img.shields.io/github/forks/DMXControl/RDMSharp?style=social)
+![GitHub Watchers](https://img.shields.io/github/watchers/DMXControl/RDMSharp?style=social)
+![GitHub Stars](https://img.shields.io/github/stars/DMXControl/RDMSharp?style=social)
