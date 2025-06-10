@@ -49,7 +49,7 @@ Contributions are welcome! Please open issues or submit pull requests via GitHub
 4. Push to the branch (`git push origin feature/your-feature`)
 5. Open a pull request
 
-## License ![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-orange.svg)
+## License [![License](https://img.shields.io/badge/license-CC%20BY--NC%204.0-orange.svg)](LICENSE.md)
 
 This project is licensed under the Creative Commons Attribution-NonCommercial 4.0 International Public License. See the [LICENSE](LICENSE.md) file for details.
 
@@ -63,8 +63,8 @@ For questions or support, please open an issue on GitHub.
 
 ---
 
-![NuGet Version](https://img.shields.io/nuget/v/RDMSharp?color=green)
-![NuGet Downloads](https://img.shields.io/nuget/dt/RDMSharp?color=green)
+[![NuGet Version](https://img.shields.io/nuget/v/RDMSharp?color=green)](https://www.nuget.org/packages/RDMSharp/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/RDMSharp?color=green)](https://www.nuget.org/packages/RDMSharp/)
 ![GitHub Top Language](https://img.shields.io/github/languages/top/DMXControl/RDMSharp?color=blue)
 ![GitHub Code Size](https://img.shields.io/github/languages/code-size/DMXControl/RDMSharp)
 
