@@ -47,12 +47,13 @@ namespace RDMSharp.Metadata
         }
         private static void fillDefaultMetadataVersionList()
         {
+            if (metadataVersionDefinesBagDictionary != null)
+                return;
+
+            metadataVersionDefinesBagDictionary = new ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>>();
             var metaDataVersions = GetResources().Select(r => new MetadataVersion(r));
             foreach (var mv in metaDataVersions)
                 metadataVersionList.TryAdd(mv.Path, mv);
-
-            if (metadataVersionDefinesBagDictionary == null)
-                metadataVersionDefinesBagDictionary = new ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>>();
 
             var schemaList = GetMetadataSchemaVersions();
             ConcurrentDictionary<string, JsonSchema> versionSchemas = new ConcurrentDictionary<string, JsonSchema>();
@@ -84,7 +85,14 @@ namespace RDMSharp.Metadata
         }
         public static IReadOnlyCollection<MetadataVersion> GetMetadataDefineVersions()
         {
-            return MetadataVersionList.Values.Where(r => !r.IsSchema).ToList().AsReadOnly();
+            try
+            {
+                return MetadataVersionList.Values.Where(r => !r.IsSchema).ToList().AsReadOnly();
+            }
+            finally
+            {
+                fillDefaultMetadataVersionList();
+            }
         }
         public static MetadataJSONObjectDefine GetDefine(ParameterBag parameter)
         {
@@ -187,8 +195,8 @@ namespace RDMSharp.Metadata
         private static MetadataJSONObjectDefine getDefine(ParameterBag parameter)
         {
             var version = GetMetadataSchemaVersions().First();
-            if (metadataVersionDefinesBagDictionary == null)
-                fillDefaultMetadataVersionList();
+
+            fillDefaultMetadataVersionList();
             var possibleDefines = metadataVersionDefinesBagDictionary[version].FindAll(d => d.PID == (ushort)parameter.PID && d.ManufacturerID == parameter.ManufacturerID);
             if (possibleDefines.Count == 1)
                 return possibleDefines[0];
