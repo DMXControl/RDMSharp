@@ -167,10 +167,15 @@ namespace RDMSharp
         {
             await Task.CompletedTask;
         }
+        protected virtual async Task OnResponseMessage(RDMMessage rdmMessage)
+        {
+            await Task.CompletedTask;
+        }
 
         protected async Task runPeerToPeerProcess(PeerToPeerProcess ptpProcess)
         {
             ptpProcess.BeforeSendMessage = OnSendRDMMessage;
+            ptpProcess.ResponseMessage = OnResponseMessage;
             await ptpProcess?.Run();
         }
         protected async Task requestSetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)

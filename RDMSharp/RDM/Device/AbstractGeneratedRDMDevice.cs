@@ -223,6 +223,8 @@ namespace RDMSharp
             if (!((ushort)ManufacturerID).Equals(uid.ManufacturerID))
                 throw new Exception($"{uid.ManufacturerID} not match the {ManufacturerID}");
 
+            RDMSharp.Instance.MessageReceivedEvent += Instance_MessageReceivedEvent;
+
             #region Parameters
             var _params = parameters?.ToList() ?? new List<ERDM_Parameter>();
             if (SupportQueued)
@@ -703,13 +705,58 @@ namespace RDMSharp
                     return;
             }
         }
-        protected sealed override async Task OnReceiveRDMMessage(RDMMessage rdmMessage)
+
+
+        #region SendReceive Pipeline
+        private async void Instance_MessageReceivedEvent(object sender, RDMMessage e)
+        {
+            await this.ReceiveRDMMessage(e);
+        }
+        protected async Task ReceiveRDMMessage(RDMMessage rdmMessage)
+        {
+            if (!this.Subdevice.IsRoot && !rdmMessage.SubDevice.IsBroadcast)
+                return;
+
+            if (this.IsDisposed || IsDisposing)
+                return;
+            try
+            {
+                if (rdmMessage.SubDevice.IsBroadcast)
+                {
+                    List<Task> tasks = new List<Task>();
+                    foreach (var sd in this.SubDevices)
+                        tasks.Add(OnReceiveRDMMessage(rdmMessage));
+                    await Task.WhenAll(tasks);
+                    return;
+                }
+                AbstractGeneratedRDMDevice sds = null;
+                if (rdmMessage.SubDevice.IsRoot)
+                    sds = this;
+                else
+                    sds = this.SubDevices?.OfType<AbstractGeneratedRDMDevice>().FirstOrDefault(sd => sd.Subdevice == rdmMessage.SubDevice);
+
+                if (sds != null)
+                    await sds.OnReceiveRDMMessage(rdmMessage);
+
+            }
+            catch (Exception e)
+            {
+                Logger?.LogError(e, string.Empty);
+            }
+        }
+#endregion
+        protected async Task OnReceiveRDMMessage(RDMMessage rdmMessage)
         {
             if ((rdmMessage.DestUID.IsBroadcast || rdmMessage.DestUID == UID) && !rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
             {
                 if (rdmMessage.SubDevice.IsBroadcast || rdmMessage.SubDevice == this.Subdevice)
                     await RDMSharp.Instance.SendMessage(processRequestMessage(rdmMessage));
             }
+        }
+        protected sealed override async Task OnResponseMessage(RDMMessage rdmMessage)
+        {
+            await OnReceiveRDMMessage(rdmMessage);
+            await base.OnResponseMessage(rdmMessage);
         }
 
         protected RDMMessage processRequestMessage(RDMMessage rdmMessage)
@@ -1201,6 +1248,7 @@ namespace RDMSharp
         }
         protected sealed override void OnDispose()
         {
+            RDMSharp.Instance.MessageReceivedEvent -= Instance_MessageReceivedEvent;
             try
             {
                 onDispose();

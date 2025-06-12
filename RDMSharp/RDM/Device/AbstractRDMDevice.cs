@@ -1,11 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace RDMSharp
 {
@@ -45,7 +41,6 @@ namespace RDMSharp
             if (this.Subdevice.IsBroadcast)
                 throw new NotSupportedException($"A SubDevice can't be Broadcast.");
 
-            RDMSharp.Instance.MessageReceivedEvent += Instance_MessageReceivedEvent;
 
 
             if (this.Subdevice == SubDevice.Root)
@@ -61,11 +56,6 @@ namespace RDMSharp
 
                 performInitialize();
             }
-        }
-
-        private async void Instance_MessageReceivedEvent(object sender, RDMMessage e)
-        {
-            await this.ReceiveRDMMessage(e);
         }
 
         protected void performInitialize(RDMDeviceInfo deviceInfo=null)
@@ -89,43 +79,6 @@ namespace RDMSharp
         }
 
 
-        #region SendReceive Pipeline
-        protected async Task ReceiveRDMMessage(RDMMessage rdmMessage)
-        {
-            if (!this.Subdevice.IsRoot && !rdmMessage.SubDevice.IsBroadcast)
-                return;
-
-            if (this.IsDisposed || IsDisposing)
-                return;
-            try
-            {
-                if (rdmMessage.SubDevice.IsBroadcast)
-                {
-                    List<Task> tasks = new List<Task>();
-                    foreach (var sd in this.subDevices)
-                        tasks.Add(OnReceiveRDMMessage(rdmMessage));
-                    await Task.WhenAll(tasks);
-                    return;
-                }
-                AbstractRDMDevice sds = null;
-                if (rdmMessage.SubDevice.IsRoot)
-                    sds = this;
-                else
-                    sds = this.subDevices?.OfType<AbstractRDMDevice>().FirstOrDefault(sd => sd.Subdevice == rdmMessage.SubDevice);
-
-                if (sds != null)
-                    await sds.OnReceiveRDMMessage(rdmMessage);
-
-            }
-            catch (Exception e)
-            {
-                Logger?.LogError(e, string.Empty);
-            }
-        }
-        protected abstract Task OnReceiveRDMMessage(RDMMessage rdmMessage);
-        #endregion
-
-
         protected virtual void OnPropertyChanged(string property)
         {
             this.PropertyChanged.InvokeFailSafe(this, new PropertyChangedEventArgs(property));
@@ -143,8 +96,6 @@ namespace RDMSharp
             if (IsDisposing || IsDisposed)
                 return;
             IsDisposing = true;
-
-            RDMSharp.Instance.MessageReceivedEvent -= Instance_MessageReceivedEvent;
 
             try
             {

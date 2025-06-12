@@ -32,6 +32,7 @@ namespace RDMSharp
         private RDMMessage request = null;
         private RDMMessage response = null;
         public Func<RDMMessage, Task> BeforeSendMessage;
+        public Func<RDMMessage, Task> ResponseMessage;
         public byte MessageCounter => response?.MessageCounter ?? 0;
         public PeerToPeerProcess(ERDM_Command command, UID uid, SubDevice subDevice, ParameterBag parameterBag, DataTreeBranch? payloadObject = null)
         {
@@ -104,7 +105,7 @@ namespace RDMSharp
                         if (request.Parameter == ERDM_Parameter.QUEUED_MESSAGE)
                         {
                             ParameterBag = new ParameterBag(response.Parameter, ParameterBag.ManufacturerID, ParameterBag.DeviceModelID, ParameterBag.SoftwareVersionID);
-                            Define = MetadataFactory.GetDefine(ParameterBag);                        
+                            Define = MetadataFactory.GetDefine(ParameterBag);
                         }
                         if (Define != null)
                             ResponsePayloadObject = MetadataFactory.ParseDataToPayload(Define, commandResponse, bytes.ToArray());
@@ -124,6 +125,18 @@ namespace RDMSharp
                 Logger?.LogError(e);
                 this.Exception = e;
                 State = EPeerToPeerProcessState.Failed;
+            }
+            finally
+            {
+                if (response is not null && ResponseMessage is not null)
+                    try
+                    {
+                        ResponseMessage(response);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger?.LogError(ex, "Error in ResponseMessage callback");
+                    }
             }
         }
     }

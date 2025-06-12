@@ -152,12 +152,14 @@ namespace RDMSharp
         }
         protected override async void initialize(RDMDeviceInfo deviceInfo = null)
         {
+            Logger?.LogDebug($"Remote RDM Device {UID} SubDevice: {Subdevice} initializing.");
             base.initialize(deviceInfo);
             GlobalTimers.Instance.PresentUpdateTimerElapsed += Instance_PresentUpdateTimerElapsed;
             ParameterValueAdded += AbstractRDMDevice_ParameterValueAdded;
             ParameterValueChanged += AbstractRDMDevice_ParameterValueChanged;
             ParameterRequested += AbstractRDMDevice_ParameterRequested;
             await requestDeviceInfo(deviceInfo);
+            Logger ?.LogDebug($"Remote RDM Device {UID} SubDevice: {Subdevice} initialized.");
         }
 
         private void Instance_PresentUpdateTimerElapsed(object sender, EventArgs e)
@@ -383,6 +385,7 @@ namespace RDMSharp
         }
         private void AbstractRDMDevice_ParameterRequested(object sender, ParameterRequestedEventArgs e)
         {
+            LastSeen = DateTime.UtcNow;
             UpdateParameterUpdatedBag(e.Parameter, e.Index);
         }
         private void UpdateParameterUpdatedBag(ERDM_Parameter parameter, object index)
@@ -425,33 +428,10 @@ namespace RDMSharp
             return false;
         }
 
-        protected sealed override async Task OnReceiveRDMMessage(RDMMessage rdmMessage)
+        protected sealed override async Task OnResponseMessage(RDMMessage rdmMessage)
         {
-            try
-            {
-                if (deviceModel != null)
-                    deviceModel?.ReceiveRDMMessage(rdmMessage);
-            }
-            catch (Exception e)
-            {
-                await Task.CompletedTask;
-                Logger?.LogError(e, string.Empty);
-            }
-            
-            if (rdmMessage.SourceUID != UID || !rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
-                return;
-
             LastSeen = DateTime.UtcNow;
-
-            //if (asyncRDMRequestHelper?.ReceiveMessage(rdmMessage) ?? false)
-            //    return;
-
-            if ((rdmMessage.NackReason?.Length ?? 0) != 0)
-                if (this.deviceModel?.handleNACKReason(rdmMessage) == false)
-                    return;
-
-            if (deviceModel?.IsInitialized == false)
-                return;
+            await base.OnResponseMessage(rdmMessage);
         }
         public sealed override IReadOnlyDictionary<ERDM_Parameter, object> GetAllParameterValues()
         {

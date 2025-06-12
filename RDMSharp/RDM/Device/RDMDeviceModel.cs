@@ -252,18 +252,6 @@ namespace RDMSharp
         }
         #endregion
 
-        internal void ReceiveRDMMessage(RDMMessage rdmMessage)
-        {
-            if (rdmMessage.SourceUID != CurrentUsedUID)
-                return;
-
-            if (!rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
-                return;
-
-            if (rdmMessage.NackReason?.Contains(ERDM_NackReason.UNKNOWN_PID) ?? false)
-                AddParameterToKnownNotSupportedParameters(rdmMessage.Parameter);
-        }
-
         public bool IsModelOf(UID uid, SubDevice subDevice, RDMDeviceInfo other)
         {
             var deviceInfo = this.DeviceInfo;
@@ -290,10 +278,16 @@ namespace RDMSharp
 
             return true;
         }
+        protected sealed override Task OnResponseMessage(RDMMessage rdmMessage)
+        {
+            if (rdmMessage.ResponseType == ERDM_ResponseType.NACK_REASON)
+                handleNACKReason(rdmMessage);
+            return base.OnResponseMessage(rdmMessage);
+        }
 
         internal bool handleNACKReason(RDMMessage rdmMessage)
         {
-            if (rdmMessage.NackReason.Contains(ERDM_NackReason.ACTION_NOT_SUPPORTED))
+            if (rdmMessage.NackReason.Contains(ERDM_NackReason.ACTION_NOT_SUPPORTED) || rdmMessage.NackReason.Contains(ERDM_NackReason.UNKNOWN_PID))
             {
                 AddParameterToKnownNotSupportedParameters(rdmMessage.Parameter);
                 return false;
