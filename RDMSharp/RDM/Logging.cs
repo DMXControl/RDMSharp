@@ -4,12 +4,24 @@ using System;
 namespace RDMSharp
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2254:Vorlage muss ein statischer Ausdruck sein", Justification = "<Ausstehend>")]
-    public static class LoggingTools
+    public static class Logging
     {
-        public static ILoggerFactory LoggerFactory { get; } = Microsoft.Extensions.Logging.LoggerFactory.Create((builder) =>
+        private static ILoggerFactory loggerFactory;
+        public static ILoggerFactory LoggerFactory
         {
-            builder.AddConsole();
-        });
+            get
+            {
+                return loggerFactory ??= Microsoft.Extensions.Logging.LoggerFactory.Create((builder) =>
+                {
+                });
+            }
+            set
+            {
+                if (loggerFactory != null)
+                    throw new InvalidOperationException("LoggerFactory is already set. It can only be set once.");
+                loggerFactory = value;
+            }
+        }
         internal static ILogger<T> CreateLogger<T>() => LoggerFactory.CreateLogger<T>();
         internal static ILogger CreateLogger(Type type) => LoggerFactory.CreateLogger(type);
         internal static ILogger CreateLogger(string categoryName) => LoggerFactory.CreateLogger(categoryName);

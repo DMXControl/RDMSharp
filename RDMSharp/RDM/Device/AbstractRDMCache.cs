@@ -11,7 +11,7 @@ namespace RDMSharp
 {
     public abstract class AbstractRDMCache : IDisposable
     {
-        protected static ILogger Logger = LoggingTools.CreateLogger<AbstractRDMCache>();
+        protected static ILogger Logger = Logging.CreateLogger<AbstractRDMCache>();
         protected bool IsDisposed { get; private set; }
         protected bool IsDisposing { get; private set; }
         internal ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch> parameterValuesDataTreeBranch { get; private set; } = new ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch>();

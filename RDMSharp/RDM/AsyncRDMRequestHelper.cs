@@ -10,7 +10,7 @@ namespace RDMSharp
 {
     public class AsyncRDMRequestHelper : IDisposable
     {
-        private static readonly ILogger Logger = LoggingTools.CreateLogger<AsyncRDMRequestHelper>();
+        private static readonly ILogger Logger = Logging.CreateLogger<AsyncRDMRequestHelper>();
         private static readonly Random random = new Random();
         private readonly ConcurrentDictionary<int, AsyncBufferBag> buffer = new ConcurrentDictionary<int, AsyncBufferBag>();
         private readonly Func<RDMMessage, Task> _sendMethode;

@@ -19,7 +19,7 @@ namespace RDMSharp.Metadata
 {
     public static class MetadataFactory
     {
-        private static readonly ILogger Logger = LoggingTools.CreateLogger(typeof(MetadataFactory));
+        private static readonly ILogger Logger = Logging.CreateLogger(typeof(MetadataFactory));
         private const string SCHEMA_FILE_NAME = "schema.json";
         private const string JSON_ENDING = ".json";
         private static ConcurrentDictionary<string, MetadataVersion> metadataVersionList;
@@ -220,7 +220,9 @@ namespace RDMSharp.Metadata
 
 
 
-            throw new DefineNotFoundException($"{parameter}");
+            if ((ushort)parameter.PID < 0x8000 || (ushort)parameter.PID > 0xFFDF)
+                throw new DefineNotFoundException($"{parameter}");
+            return null;
         }
 
         internal static byte[] ParsePayloadToData(MetadataJSONObjectDefine define, Command.ECommandDublicate commandType, DataTreeBranch payload)

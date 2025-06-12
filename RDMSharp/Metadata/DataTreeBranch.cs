@@ -14,7 +14,7 @@ namespace RDMSharp.Metadata
 {
     public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
     {
-        private static ILogger Logger = LoggingTools.CreateLogger<DataTreeBranch>();
+        private static ILogger Logger = Logging.CreateLogger<DataTreeBranch>();
         public static readonly DataTreeBranch Empty = new DataTreeBranch();
         public static readonly DataTreeBranch Unset = new DataTreeBranch(true);
 

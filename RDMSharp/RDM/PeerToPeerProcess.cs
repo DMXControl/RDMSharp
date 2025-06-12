@@ -9,7 +9,7 @@ namespace RDMSharp
 {
     public class PeerToPeerProcess
     {
-        private static readonly ILogger Logger = LoggingTools.CreateLogger<PeerToPeerProcess>();
+        private static readonly ILogger Logger = Logging.CreateLogger<PeerToPeerProcess>();
         public enum EPeerToPeerProcessState
         {
             Waiting,
