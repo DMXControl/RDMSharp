@@ -173,7 +173,7 @@ namespace RDMSharp
             await requestBlueprintParameters();
             await requestPersonalityBlueprintParameters();
 
-            asyncRDMRequestHelper.Dispose();
+            asyncRDMRequestHelper?.Dispose();
             asyncRDMRequestHelper = null;
 
             IsInitialized = true;

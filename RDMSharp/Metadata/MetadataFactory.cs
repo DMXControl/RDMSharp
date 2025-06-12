@@ -83,7 +83,7 @@ namespace RDMSharp.Metadata
         {
             return MetadataVersionList.Values.Where(r => !r.IsSchema).ToList().AsReadOnly();
         }
-        internal static MetadataJSONObjectDefine GetDefine(ParameterBag parameter)
+        public static MetadataJSONObjectDefine GetDefine(ParameterBag parameter)
         {
             try
             {
