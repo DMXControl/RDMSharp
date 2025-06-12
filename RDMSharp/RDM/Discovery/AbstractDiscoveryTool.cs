@@ -11,7 +11,6 @@ namespace RDMSharp
     public abstract class AbstractDiscoveryTool : INotifyPropertyChanged, IDisposable
     {
         private protected static ILogger Logger = Logging.CreateLogger<AbstractDiscoveryTool>();
-        private readonly AsyncRDMRequestHelper asyncRDMRequestHelper;
         private readonly CancellationTokenSource cts = new CancellationTokenSource();
         public event PropertyChangedEventHandler PropertyChanged;
         public bool discoveryInProgress;
@@ -29,14 +28,6 @@ namespace RDMSharp
 
         public AbstractDiscoveryTool()
         {
-            asyncRDMRequestHelper = new AsyncRDMRequestHelper(SendRDMMessage);
-        }
-
-        protected abstract Task<bool> SendRDMMessage(RDMMessage rdmMessage);
-
-        protected void ReceiveRDMMessage(RDMMessage rdmMessage)
-        {
-            asyncRDMRequestHelper?.ReceiveMessage(rdmMessage);
         }
 
         public async Task<IReadOnlyCollection<UID>> PerformDiscovery(IProgress<RDMDiscoveryStatus> progress = null, bool full = true)
@@ -56,7 +47,8 @@ namespace RDMSharp
                         Parameter = ERDM_Parameter.DISC_UN_MUTE,
                         DestUID = UID.Broadcast,
                     };
-                    unmuted = await SendRDMMessage(m).WaitAsync(cts.Token);
+                    await RDMSharp.Instance.SendMessage(m).WaitAsync(cts.Token);
+                    unmuted = true;
                 }
                 if (!unmuted)
                 {
@@ -101,7 +93,7 @@ namespace RDMSharp
                     ParameterData = new DiscUniqueBranchRequest(uidStart, uidEnd).ToPayloadData()
                 };
                 context.IncreaseMessageCounter();
-                var res = await asyncRDMRequestHelper.RequestMessage(m);
+                var res = await RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(m);
                 if (res.Success)
                 {
                     success = res.Success;
@@ -204,7 +196,7 @@ namespace RDMSharp
                     Parameter = ERDM_Parameter.DISC_MUTE,
                     DestUID = uid
                 };
-                var res = await asyncRDMRequestHelper.RequestMessage(n);
+                var res = await RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(n);
                 if (res.Success)
                 {
                     muted = res.Success;
@@ -224,7 +216,6 @@ namespace RDMSharp
 
         public void Dispose()
         {
-            asyncRDMRequestHelper?.Dispose();
             cts.Cancel();
             cts.Dispose();
         }

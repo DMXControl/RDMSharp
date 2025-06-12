@@ -31,15 +31,17 @@ namespace RDMSharpTests
                 if (rdmMessage == null)
                     return;
 
-                RDMSharp.RDMSharp.Instance.MessageReceived(rdmMessage);
+                RDMSharp.RDMSharp.Instance.ResponseReceived(rdmMessage);
             };
-            SendReceivePipelineImitateRealConditions.RDMMessageReceivedRequest += (sender, rdmMessage) =>
+            SendReceivePipelineImitateRealConditions.RDMMessageReceivedRequest += async (sender, rdmMessage) =>
             {
                 if (!ImitateRealConditions)
                     return;
                 if (rdmMessage == null)
                     return;
-                RDMSharp.RDMSharp.Instance.MessageReceived(rdmMessage);
+
+                if (RDMSharp.RDMSharp.Instance.RequestReceived(rdmMessage, out RDMMessage response))
+                    await SendRDMMessage(response);
             };
             SendReceivePipeline.RDMMessageReceived += (sender, tuple) =>
             {
@@ -50,7 +52,11 @@ namespace RDMSharpTests
                 RDMMessage rdmMessage = tuple.Item2;
                 if (rdmMessage == null)
                     return;
-                RDMSharp.RDMSharp.Instance.MessageReceived(rdmMessage);
+                if (rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
+                    RDMSharp.RDMSharp.Instance.ResponseReceived(rdmMessage);
+                else
+                    if (RDMSharp.RDMSharp.Instance.RequestReceived(rdmMessage, out RDMMessage response))
+                    _ = SendRDMMessage(response);
             };
         }
 

@@ -709,14 +709,15 @@ namespace RDMSharp
 
 
         #region SendReceive Pipeline
-        private async void Instance_RequestReceivedEvent(object sender, RequestReceivedEventArgs e)
+        private void Instance_RequestReceivedEvent(object sender, RequestReceivedEventArgs e)
         {
+            RDMMessage response = null;
             if ((e.Request.DestUID.IsBroadcast || e.Request.DestUID == UID) && !e.Request.Command.HasFlag(ERDM_Command.RESPONSE))
             {
                 if (e.Request.SubDevice.IsBroadcast)
                 {
                     foreach (var sd in this.SubDevices)
-                        processRequestMessage(e.Request);
+                        _ = processRequestMessage(e.Request); //Drop response on Broadcast
                     return;
                 }
 
@@ -727,8 +728,12 @@ namespace RDMSharp
                     sds = this.SubDevices?.OfType<AbstractGeneratedRDMDevice>().FirstOrDefault(sd => sd.Subdevice == e.Request.SubDevice);
 
                 if (sds != null)
-                    sds.processRequestMessage(e.Request);
+                    response = sds.processRequestMessage(e.Request);
             }
+            if (e.Request.Command != ERDM_Command.DISCOVERY_COMMAND)
+                e.Response = response;
+            else if (response != null && response.Command == ERDM_Command.DISCOVERY_COMMAND_RESPONSE)
+                RDMSharp.Instance.SendMessage(response);
         }
 #endregion
         protected async Task OnReceiveRDMMessage(RDMMessage rdmMessage)

@@ -40,12 +40,16 @@ namespace RDMSharp
         }
         public bool RequestReceived(RDMMessage request, out RDMMessage response)
         {
+
             var e = new RequestReceivedEventArgs(request);
             RequestReceivedEvent.InvokeFailSafe(this, e);
-            if (e.Response is not null)
+            if (request.Command != ERDM_Command.DISCOVERY_COMMAND || request.DestUID.IsBroadcast)
             {
-                response = e.Response;
-                return true;
+                if (e.Response is not null)
+                {
+                    response = e.Response;
+                    return true;
+                }
             }
             response = null;
             return false;
