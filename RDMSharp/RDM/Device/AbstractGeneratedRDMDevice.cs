@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using static RDMSharp.RDMSharp;
 
 [assembly: InternalsVisibleTo("RDMSharpTests")]
 namespace RDMSharp
@@ -223,7 +224,7 @@ namespace RDMSharp
             if (!((ushort)ManufacturerID).Equals(uid.ManufacturerID))
                 throw new Exception($"{uid.ManufacturerID} not match the {ManufacturerID}");
 
-            RDMSharp.Instance.MessageReceivedEvent += Instance_MessageReceivedEvent;
+            RDMSharp.Instance.RequestReceivedEvent += Instance_RequestReceivedEvent;
 
             #region Parameters
             var _params = parameters?.ToList() ?? new List<ERDM_Parameter>();
@@ -708,40 +709,25 @@ namespace RDMSharp
 
 
         #region SendReceive Pipeline
-        private async void Instance_MessageReceivedEvent(object sender, RDMMessage e)
+        private async void Instance_RequestReceivedEvent(object sender, RequestReceivedEventArgs e)
         {
-            await this.ReceiveRDMMessage(e);
-        }
-        protected async Task ReceiveRDMMessage(RDMMessage rdmMessage)
-        {
-            if (!this.Subdevice.IsRoot && !rdmMessage.SubDevice.IsBroadcast)
-                return;
-
-            if (this.IsDisposed || IsDisposing)
-                return;
-            try
+            if ((e.Request.DestUID.IsBroadcast || e.Request.DestUID == UID) && !e.Request.Command.HasFlag(ERDM_Command.RESPONSE))
             {
-                if (rdmMessage.SubDevice.IsBroadcast)
+                if (e.Request.SubDevice.IsBroadcast)
                 {
-                    List<Task> tasks = new List<Task>();
                     foreach (var sd in this.SubDevices)
-                        tasks.Add(OnReceiveRDMMessage(rdmMessage));
-                    await Task.WhenAll(tasks);
+                        processRequestMessage(e.Request);
                     return;
                 }
+
                 AbstractGeneratedRDMDevice sds = null;
-                if (rdmMessage.SubDevice.IsRoot)
+                if (e.Request.SubDevice.IsRoot)
                     sds = this;
                 else
-                    sds = this.SubDevices?.OfType<AbstractGeneratedRDMDevice>().FirstOrDefault(sd => sd.Subdevice == rdmMessage.SubDevice);
+                    sds = this.SubDevices?.OfType<AbstractGeneratedRDMDevice>().FirstOrDefault(sd => sd.Subdevice == e.Request.SubDevice);
 
                 if (sds != null)
-                    await sds.OnReceiveRDMMessage(rdmMessage);
-
-            }
-            catch (Exception e)
-            {
-                Logger?.LogError(e, string.Empty);
+                    sds.processRequestMessage(e.Request);
             }
         }
 #endregion
@@ -1248,7 +1234,7 @@ namespace RDMSharp
         }
         protected sealed override void OnDispose()
         {
-            RDMSharp.Instance.MessageReceivedEvent -= Instance_MessageReceivedEvent;
+            RDMSharp.Instance.RequestReceivedEvent -= Instance_RequestReceivedEvent;
             try
             {
                 onDispose();
