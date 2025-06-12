@@ -42,13 +42,16 @@ namespace RDMSharp
         {
 
             var e = new RequestReceivedEventArgs(request);
-            RequestReceivedEvent.InvokeFailSafe(this, e);
-            if (request.Command != ERDM_Command.DISCOVERY_COMMAND || request.DestUID.IsBroadcast)
+            foreach (Delegate handler in RequestReceivedEvent?.GetInvocationList() ?? Array.Empty<Delegate>())
             {
+                handler.InvokeFailSafe(this, e);
                 if (e.Response is not null)
                 {
-                    response = e.Response;
-                    return true;
+                    if (request.Command != ERDM_Command.DISCOVERY_COMMAND || request.DestUID.IsBroadcast)
+                    {
+                        response = e.Response;
+                        return true;
+                    }
                 }
             }
             response = null;
