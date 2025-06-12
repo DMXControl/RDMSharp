@@ -12,6 +12,7 @@ namespace RDMSharpTests.RDM.Devices
         [SetUp]
         public void Setup()
         {
+            GlobalTimers.Instance.InternalAllTimersToTestSpeed();
             var uid = new UID(0x9fef, 1);
             generated = new MockGeneratedDeviceWithSubDeviceMaster1(uid, SUBDEVICE_COUNT);
             remote = new MockDevice(uid, false);
@@ -19,6 +20,7 @@ namespace RDMSharpTests.RDM.Devices
         [TearDown]
         public void TearDown()
         {
+            GlobalTimers.Instance.ResetAllTimersToDefault();
             generated.Dispose();
             remote.Dispose();
         }

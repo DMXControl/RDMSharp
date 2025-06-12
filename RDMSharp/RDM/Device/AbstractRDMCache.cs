@@ -24,6 +24,7 @@ namespace RDMSharp
         }
         protected event EventHandler<ParameterValueAddedEventArgs> ParameterValueAdded;
         protected event EventHandler<ParameterValueChangedEventArgs> ParameterValueChanged;
+        protected event EventHandler<ParameterRequestedEventArgs> ParameterRequested;
 
         public class ParameterValueAddedEventArgs : EventArgs
         {
@@ -51,6 +52,17 @@ namespace RDMSharp
                 Index = index;
                 NewValue = newValue;
                 OldValue = oldValue;
+            }
+        }
+        public class ParameterRequestedEventArgs : EventArgs
+        {
+            public readonly ERDM_Parameter Parameter;
+            public readonly object Index;
+
+            public ParameterRequestedEventArgs(ERDM_Parameter parameter, object index = null)
+            {
+                Parameter = parameter;
+                Index = index;
             }
         }
 
@@ -149,9 +161,9 @@ namespace RDMSharp
                                 ParameterValueAdded?.InvokeFailSafe(this, new ParameterValueAddedEventArgs(pid, valueToStore, bag.Index));
                         }
                     });
-
-
             }
+
+            ParameterRequested?.InvokeFailSafe(this, new ParameterRequestedEventArgs(bag.Parameter, bag.Index));
         }
 
         protected async Task runPeerToPeerProcess(PeerToPeerProcess ptpProcess)

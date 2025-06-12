@@ -17,9 +17,9 @@ namespace RDMSharp
             byte type = 0, //Obsolete
             ERDM_SensorUnit unit = ERDM_SensorUnit.NONE,
             ERDM_UnitPrefix prefix = ERDM_UnitPrefix.NONE,
-            int minValidValue = 0,
-            int maxValidValue = 0,
-            int defaultValue = 0,
+            uint minValidValue = 0,
+            uint maxValidValue = 0,
+            uint defaultValue = 0,
             string description = "")
         {
             this.ParameterId = parameterId;
@@ -49,9 +49,9 @@ namespace RDMSharp
             [DataTreeObjectParameter("type")] byte type, //Obsolete
             [DataTreeObjectParameter("unit")] byte unit,
             [DataTreeObjectParameter("unit_prefix")] byte prefix,
-            [DataTreeObjectParameter("min_valid_value")] int minValidValue,
-            [DataTreeObjectParameter("max_valid_value")] int maxValidValue,
-            [DataTreeObjectParameter("default_value")] int defaultValue,
+            [DataTreeObjectParameter("min_valid_value")] uint minValidValue,
+            [DataTreeObjectParameter("max_valid_value")] uint maxValidValue,
+            [DataTreeObjectParameter("default_value")] uint defaultValue,
             [DataTreeObjectParameter("description")] string description)
             : this(parameterId, pdlSize, (ERDM_DataType)dataType, (ERDM_CommandClass)commandClass, type, (ERDM_SensorUnit)unit, (ERDM_UnitPrefix)prefix, minValidValue, maxValidValue, defaultValue, description)
         {
@@ -63,9 +63,9 @@ namespace RDMSharp
         public ERDM_CommandClass CommandClass { get; private set; }
         public ERDM_SensorUnit Unit { get; private set; }
         public ERDM_UnitPrefix Prefix { get; private set; }
-        public int MinValidValue { get; private set; }
-        public int MaxValidValue { get; private set; }
-        public int DefaultValue { get; private set; }
+        public uint MinValidValue { get; private set; }
+        public uint MaxValidValue { get; private set; }
+        public uint DefaultValue { get; private set; }
         public string Description { get; private set; }
         public const int PDL_MIN = 20;
         public const int PDL_MAX = PDL_MIN + 32;
@@ -101,9 +101,9 @@ namespace RDMSharp
                 type: Tools.DataToByte(ref data),//Obsolet, but need it in constructor to remove the byte from Data
                 unit: Tools.DataToEnum<ERDM_SensorUnit>(ref data),
                 prefix: Tools.DataToEnum<ERDM_UnitPrefix>(ref data),
-                minValidValue: Tools.DataToInt(ref data),
-                maxValidValue: Tools.DataToInt(ref data),
-                defaultValue: Tools.DataToInt(ref data),
+                minValidValue: Tools.DataToUInt(ref data),
+                maxValidValue: Tools.DataToUInt(ref data),
+                defaultValue: Tools.DataToUInt(ref data),
                 description: Tools.DataToString(ref data)
             );
 

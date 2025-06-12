@@ -1,11 +1,14 @@
 ﻿using Json.Schema;
 using Microsoft.Extensions.Logging;
 using RDMSharp.Metadata.JSON;
+using RDMSharp.Metadata.JSON.OneOfTypes;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -104,7 +107,82 @@ namespace RDMSharp.Metadata
             {
                 Logger?.LogError(ex);
             }
-            throw new DefineNotFoundException($"{parameter}");
+            if ((ushort)parameter.PID < 0x8000 || (ushort)parameter.PID > 0xFFDF)
+                throw new DefineNotFoundException($"{parameter}");
+
+            return null;
+        }
+        public static void AddDefineFromParameterDescription(UID uid,SubDevice subDevice, RDMDeviceInfo deviceInfo, RDMParameterDescription parameterDescription)
+        {
+            SubdevicesForRequests[] getRequestSubdeviceRange = null;
+            SubdevicesForResponses[] getResponseSubdeviceRange = null;
+            SubdevicesForRequests[] setRequestSubdeviceRange = null;
+            SubdevicesForResponses[] setResponseSubdeviceRange = null;
+            Command? getCommandRequest = null;
+            Command? getCommandResponse = null;
+            Command? setCommandRequest = null;
+            Command? setCommandResponse = null;
+            if (deviceInfo.SubDeviceCount == 0)
+            {
+                if (parameterDescription.CommandClass.HasFlag(ERDM_CommandClass.GET))
+                {
+                    getRequestSubdeviceRange = new SubdevicesForRequests[] { new SubdevicesForRequests(SubdevicesForRequests.ESubdevicesForRequests.Root) };
+                    getResponseSubdeviceRange = new SubdevicesForResponses[] { new SubdevicesForResponses(SubdevicesForResponses.ESubdevicesForResponses.Root) };
+                }
+                if (parameterDescription.CommandClass.HasFlag(ERDM_CommandClass.SET))
+                {
+                    setRequestSubdeviceRange = new SubdevicesForRequests[] { new SubdevicesForRequests(SubdevicesForRequests.ESubdevicesForRequests.Root) };
+                    setResponseSubdeviceRange = new SubdevicesForResponses[] { new SubdevicesForResponses(SubdevicesForResponses.ESubdevicesForResponses.Root) };
+                }
+            }
+            if (parameterDescription.CommandClass.HasFlag(ERDM_CommandClass.GET))
+            {
+                getCommandRequest = new Command();
+                OneOfTypes? oneOfType = null;
+                string name = parameterDescription.Description;
+                string displayName = null;
+                LabeledIntegerType[] labeledIntegerTypes = null;
+                switch (parameterDescription.DataType)
+                {
+                    case ERDM_DataType.ASCII:
+                        oneOfType = new OneOfTypes(new StringType(name, displayName, null, null, "string", null, null, 0, parameterDescription.PDLSize, null, null, true));
+                        break;
+                    case ERDM_DataType.UNSIGNED_BYTE:
+                        oneOfType = new OneOfTypes(new IntegerType<byte>(name, displayName, null, null, EIntegerType.UInt8, labeledIntegerTypes, labeledIntegerTypes != null, new Range<byte>[] { new Range<byte>((byte)parameterDescription.MinValidValue, (byte)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), null));
+                        break;
+                    case ERDM_DataType.SIGNED_BYTE:
+                        oneOfType = new OneOfTypes(new IntegerType<sbyte>(name, displayName, null, null, EIntegerType.Int8, labeledIntegerTypes, labeledIntegerTypes != null, new Range<sbyte>[] { new Range<sbyte>((sbyte)parameterDescription.MinValidValue, (sbyte)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), null));
+                        break;
+                }
+                if (oneOfType.HasValue)
+                    getCommandResponse = new Command(oneOfType.Value);
+                else
+                    getCommandResponse = new Command();
+            }
+            if (parameterDescription.CommandClass.HasFlag(ERDM_CommandClass.SET))
+            {
+                setCommandRequest = new Command(Command.ECommandDublicate.GetResponse);
+                setCommandResponse = new Command();
+            }
+            MetadataJSONObjectDefine define = new MetadataJSONObjectDefine(
+                parameterDescription.Description,
+                null,
+                null,
+                uid.ManufacturerID,
+                deviceInfo.DeviceModelId,
+                deviceInfo.SoftwareVersionId,
+                parameterDescription.ParameterId,
+                0,
+                getRequestSubdeviceRange,
+                getResponseSubdeviceRange,
+                setRequestSubdeviceRange,
+                setResponseSubdeviceRange,
+                getCommandRequest,
+                getCommandResponse,
+                setCommandRequest,
+                setCommandResponse);
+
+            parameterBagDefineCache.TryAdd(new ParameterBag((ERDM_Parameter)define.PID, define.ManufacturerID, define.DeviceModelID, define.SoftwareVersionID), define);
         }
         private static MetadataJSONObjectDefine getDefine(ParameterBag parameter)
         {

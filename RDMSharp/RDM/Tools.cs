@@ -93,12 +93,20 @@ namespace RDMSharp
             return $"{number}{prefix}{suffix}";
         }
 
-        public static string GetFormatedSensorValue(in int value, in ERDM_UnitPrefix prefix, in ERDM_SensorUnit unit)
+        public static string GetFormatedSensorValue(in uint value, in ERDM_UnitPrefix prefix, in ERDM_SensorUnit unit)
+        {
+            return $"{FormatNumber(prefix.GetNormalizedValue(value))}{unit.GetUnitSymbol()}";
+        }
+        public static string GetFormatedSensorValue(in short value, in ERDM_UnitPrefix prefix, in ERDM_SensorUnit unit)
         {
             return $"{FormatNumber(prefix.GetNormalizedValue(value))}{unit.GetUnitSymbol()}";
         }
 
-        public static double GetNormalizedValue(this ERDM_UnitPrefix prefix, in int value)
+        public static double GetNormalizedValue(this ERDM_UnitPrefix prefix, in uint value)
+        {
+            return value * (prefix.GetAttribute<UnitPrefixAttribute>().Multiplyer);
+        }
+        public static double GetNormalizedValue(this ERDM_UnitPrefix prefix, in short value)
         {
             return value * (prefix.GetAttribute<UnitPrefixAttribute>().Multiplyer);
         }

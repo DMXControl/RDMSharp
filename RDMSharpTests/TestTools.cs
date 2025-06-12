@@ -25,7 +25,7 @@ namespace RDMSharpTests
                 {
                     short val1 = 1;
                     if (e == ERDM_StatusMessage.PROXY_BROADCAST_DROPPED)
-                        val1 = unchecked((short)(ushort)ERDM_Parameter.DIMMING_CURVE);
+                        val1 = unchecked((short)(ushort)ERDM_Parameter.CURVE);
                     string str = e.GetStatusMessage(val1, 120);
                     Console.WriteLine($"{e} => {str}");
 

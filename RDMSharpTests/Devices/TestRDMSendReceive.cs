@@ -10,7 +10,7 @@ namespace RDMSharpTests.RDM.Devices
         [SetUp]
         public void Setup()
         {
-            GlobalTimers.Instance.ResetAllTimersToDefault();
+            GlobalTimers.Instance.InternalAllTimersToTestSpeed();
             var uid = new UID((ushort)random.Next(), (uint)random.Next());
             generated = new MockGeneratedDevice1(uid);
             remote = new MockDevice(uid, false);

@@ -161,7 +161,9 @@ namespace RDMSharp
             CurrentUsedSubDevice = subdevice;
             ManufacturerID = uid.ManufacturerID;
             Manufacturer = (EManufacturer)uid.ManufacturerID;
+            this.ParameterValueAdded += RDMDeviceModel_ParameterValueAdded;
         }
+
         internal async Task Initialize()
         {
             if (IsInitialized)
@@ -199,7 +201,13 @@ namespace RDMSharp
                     if (!this.supportedParameters.TryGetValue(para, out _))
                         supportedParameters.TryAdd(para, true);
                 }
+                if (DeviceInfo.Dmx512StartAddress.HasValue && DeviceInfo.Dmx512StartAddress >= 1 && DeviceInfo.Dmx512StartAddress.Value <= 512) // Remote Device not send DMX_START_ADDRESS Parameter but uses it!
+                    supportedParameters.TryAdd(ERDM_Parameter.DMX_START_ADDRESS, true);
+
+                if (DeviceInfo.Dmx512CurrentPersonality.HasValue) // Remote Device not send DMX_PERSONALITY Parameter but uses it!
+                    supportedParameters.TryAdd(ERDM_Parameter.DMX_PERSONALITY, true);
             }
+            await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
         }
 
         private async Task requestBlueprintParameters()
@@ -212,9 +220,13 @@ namespace RDMSharp
                 {
                     if (define.GetRequest.Value.GetIsEmpty())
                         await requestGetParameterWithEmptyPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
+                    else if (parameter == ERDM_Parameter.PARAMETER_DESCRIPTION)
+                        foreach (var pid in this.supportedParameters.Where(p => (ushort)p.Key >= 0x8000 && (ushort)p.Key <= 0xFFDF).Select(p => (ushort)p.Key))
+                            await requestGetParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice, pid);
                     else
                         await requestGetParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
                 }
+                await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
             }
         }
         private async Task requestPersonalityBlueprintParameters(RDMPersonalityModel personalityModel = null)
@@ -247,6 +259,7 @@ namespace RDMSharp
                         else
                             await requestGetParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
                     }
+                    await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
                 }
             }
             finally
@@ -274,6 +287,8 @@ namespace RDMSharp
             if (!rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
                 return;
 
+            if (rdmMessage.NackReason?.Contains(ERDM_NackReason.UNKNOWN_PID) ?? false)
+                AddParameterToKnownNotSupportedParameters(rdmMessage.Parameter);
             asyncRDMRequestHelper?.ReceiveMessage(rdmMessage);
         }
 
@@ -317,6 +332,12 @@ namespace RDMSharp
         internal void AddParameterToKnownNotSupportedParameters(ERDM_Parameter parameter)
         {
             this.supportedParameters.AddOrUpdate(parameter, false, (x, y) => false);
+        }
+
+        private void RDMDeviceModel_ParameterValueAdded(object sender, ParameterValueAddedEventArgs e)
+        {
+            if (e.Parameter == ERDM_Parameter.PARAMETER_DESCRIPTION)
+                MetadataFactory.AddDefineFromParameterDescription(this.CurrentUsedUID, this.CurrentUsedSubDevice, this.DeviceInfo, e.Value as RDMParameterDescription);
         }
 
         public new void Dispose()

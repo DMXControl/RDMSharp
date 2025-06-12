@@ -72,8 +72,9 @@ namespace RDMSharp
                 if (Command == ERDM_Command.SET_COMMAND)
                     commandResponse = ECommandDublicate.SetResponse;
 
-                byte[] parameterData = //ParameterBag.PID != ERDM_Parameter.QUEUED_MESSAGE ? 
-                    MetadataFactory.ParsePayloadToData(Define, commandRequest, RequestPayloadObject);// : null;
+                byte[] parameterData = null;
+                if (Define != null)
+                    parameterData = MetadataFactory.ParsePayloadToData(Define, commandRequest, RequestPayloadObject);
                 request = new RDMMessage()
                 {
                     Command = Command,
@@ -108,7 +109,8 @@ namespace RDMSharp
                             ParameterBag = new ParameterBag(response.Parameter, ParameterBag.ManufacturerID, ParameterBag.DeviceModelID, ParameterBag.SoftwareVersionID);
                             Define = MetadataFactory.GetDefine(ParameterBag);                        
                         }
-                        ResponsePayloadObject = MetadataFactory.ParseDataToPayload(Define, commandResponse, bytes.ToArray());
+                        if (Define != null)
+                            ResponsePayloadObject = MetadataFactory.ParseDataToPayload(Define, commandResponse, bytes.ToArray());
                         State = EPeerToPeerProcessState.Finished;
                         return;
                     }
