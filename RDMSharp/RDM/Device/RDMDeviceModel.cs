@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using RDMSharp.Metadata;
+﻿using RDMSharp.Metadata;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -19,7 +18,7 @@ namespace RDMSharp
             var kdm = knownDeviceModels.Values.FirstOrDefault(dm => dm.IsModelOf(uid, subDevice, deviceInfo));
             if (kdm == null)
             {
-                kdm = new RDMDeviceModel(uid, subDevice, deviceInfo, sendRdmFunktion);
+                kdm = new RDMDeviceModel(uid, subDevice, deviceInfo);
                 knownDeviceModels.TryAdd(kdm.GetHashCode(), kdm);
             }
 
@@ -48,9 +47,7 @@ namespace RDMSharp
                         remoteRDMDevice.Subdevice,
                         remoteRDMDevice.DeviceInfo.DeviceModelId,
                         remoteRDMDevice.DeviceInfo.SoftwareVersionId,
-                        remoteRDMDevice.DeviceInfo.Dmx512CurrentPersonality.Value,
-                        sendRdmFunktion
-                        );
+                        remoteRDMDevice.DeviceInfo.Dmx512CurrentPersonality.Value);
                     if (knownPersonalityModels.TryAdd(kpm.PersonalityID, kpm))
                     {
                         AbstractRDMCache abstractRDMCache = remoteRDMDevice as AbstractRDMCache;
@@ -149,13 +146,8 @@ namespace RDMSharp
             get { return this.supportedParameters.Where(sp => !sp.Value).Select(sp => sp.Key).OrderBy(p => p).ToArray().AsReadOnly(); }
         }
 
-
-
-        private readonly Func<RDMMessage, Task> sendRdmFunktion;
-
-        internal RDMDeviceModel(UID uid, SubDevice subdevice, RDMDeviceInfo deviceInfo, Func<RDMMessage, Task> sendRdmFunktion)
+        internal RDMDeviceModel(UID uid, SubDevice subdevice, RDMDeviceInfo deviceInfo)
         {
-            this.sendRdmFunktion = sendRdmFunktion;
             DeviceInfo = deviceInfo;
             CurrentUsedUID = uid;
             CurrentUsedSubDevice = subdevice;
@@ -169,14 +161,9 @@ namespace RDMSharp
             if (IsInitialized)
                 return;
 
-            asyncRDMRequestHelper = new AsyncRDMRequestHelper(sendRDMMessage);
-
             await requestSupportedParameters();
             await requestBlueprintParameters();
             await requestPersonalityBlueprintParameters();
-
-            asyncRDMRequestHelper?.Dispose();
-            asyncRDMRequestHelper = null;
 
             IsInitialized = true;
             Initialized?.Invoke(this, EventArgs.Empty);
@@ -238,15 +225,11 @@ namespace RDMSharp
                         currentUsedSubDevice,
                         DeviceInfo.DeviceModelId,
                         DeviceInfo.SoftwareVersionId,
-                        DeviceInfo.Dmx512CurrentPersonality.Value,
-                        sendRdmFunktion
-                        );
+                        DeviceInfo.Dmx512CurrentPersonality.Value);
                 knownPersonalityModels.TryAdd(personalityModel.PersonalityID, personalityModel);
             }
-            var backup = asyncRDMRequestHelper;
             try
             {
-                asyncRDMRequestHelper = personalityModel.GetAsyncRDMRequestHelper();
                 this.ParameterValueAdded += personalityModel.RDMDeviceModel_ParameterValueAdded;
                 foreach (ERDM_Parameter parameter in this.SupportedPersonalityBlueprintParameters)
                 {
@@ -265,19 +248,9 @@ namespace RDMSharp
             finally
             {
                 this.ParameterValueAdded -= personalityModel.RDMDeviceModel_ParameterValueAdded;
-                asyncRDMRequestHelper = backup;
-                personalityModel.DisposeAsyncRDMRequestHelper();
             }
         }
-
         #endregion
-
-
-        private async Task sendRDMMessage(RDMMessage rdmMessage)
-        {
-            rdmMessage.DestUID = CurrentUsedUID;
-            await sendRdmFunktion.Invoke(rdmMessage);
-        }
 
         internal void ReceiveRDMMessage(RDMMessage rdmMessage)
         {
@@ -289,7 +262,6 @@ namespace RDMSharp
 
             if (rdmMessage.NackReason?.Contains(ERDM_NackReason.UNKNOWN_PID) ?? false)
                 AddParameterToKnownNotSupportedParameters(rdmMessage.Parameter);
-            asyncRDMRequestHelper?.ReceiveMessage(rdmMessage);
         }
 
         public bool IsModelOf(UID uid, SubDevice subDevice, RDMDeviceInfo other)

@@ -66,8 +66,6 @@ namespace RDMSharp
             }
         }
 
-        protected AsyncRDMRequestHelper asyncRDMRequestHelper;
-
         public AbstractRDMCache()
         {
 
@@ -165,10 +163,15 @@ namespace RDMSharp
 
             ParameterRequested?.InvokeFailSafe(this, new ParameterRequestedEventArgs(bag.Parameter, bag.Index));
         }
+        protected virtual async Task OnSendRDMMessage(RDMMessage rdmMessage)
+        {
+            await Task.CompletedTask;
+        }
 
         protected async Task runPeerToPeerProcess(PeerToPeerProcess ptpProcess)
         {
-            await ptpProcess?.Run(asyncRDMRequestHelper);
+            ptpProcess.BeforeSendMessage = OnSendRDMMessage;
+            await ptpProcess?.Run();
         }
         protected async Task requestSetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
         {
@@ -281,9 +284,6 @@ namespace RDMSharp
                 return;
 
             this.IsDisposing = true;
-
-            this.asyncRDMRequestHelper?.Dispose();
-            this.asyncRDMRequestHelper = null;
 
             this.parameterValues.Clear();
             this.parameterValues = null;

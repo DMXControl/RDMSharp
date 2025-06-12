@@ -31,6 +31,7 @@ namespace RDMSharp
 
         private RDMMessage request = null;
         private RDMMessage response = null;
+        public Func<RDMMessage, Task> BeforeSendMessage;
         public byte MessageCounter => response?.MessageCounter ?? 0;
         public PeerToPeerProcess(ERDM_Command command, UID uid, SubDevice subDevice, ParameterBag parameterBag, DataTreeBranch? payloadObject = null)
         {
@@ -50,15 +51,9 @@ namespace RDMSharp
             Define = MetadataFactory.GetDefine(ParameterBag);
         }
 
-        public async Task Run(AsyncRDMRequestHelper asyncRDMRequestHelper)
+        public async Task Run(AsyncRDMRequestHelper asyncRDMRequestHelper = null)
         {
-            if (asyncRDMRequestHelper is null)
-                throw new ArgumentNullException(nameof(asyncRDMRequestHelper));
-            await run(asyncRDMRequestHelper);
-        }
-
-        private async Task run(AsyncRDMRequestHelper asyncRDMRequestHelper)
-        {
+            asyncRDMRequestHelper ??= RDMSharp.Instance.AsyncRDMRequestHelper;
             if (State != EPeerToPeerProcessState.Waiting)
                 return;
             State = EPeerToPeerProcessState.Running;
@@ -86,6 +81,8 @@ namespace RDMSharp
                 List<byte> bytes = new List<byte>();
                 while (State == EPeerToPeerProcessState.Running)
                 {
+                    if (BeforeSendMessage != null)
+                        await BeforeSendMessage(request);
                     var responseResult = await asyncRDMRequestHelper.RequestMessage(request);
                     if (!responseResult.Success ||
                         (responseResult.Response is not null && responseResult.Response.ResponseType == ERDM_ResponseType.NACK_REASON))

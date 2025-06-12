@@ -45,6 +45,8 @@ namespace RDMSharp
             if (this.Subdevice.IsBroadcast)
                 throw new NotSupportedException($"A SubDevice can't be Broadcast.");
 
+            RDMSharp.Instance.MessageReceivedEvent += Instance_MessageReceivedEvent;
+
 
             if (this.Subdevice == SubDevice.Root)
             {
@@ -60,13 +62,16 @@ namespace RDMSharp
                 performInitialize();
             }
         }
+
+        private async void Instance_MessageReceivedEvent(object sender, RDMMessage e)
+        {
+            await this.ReceiveRDMMessage(e);
+        }
+
         protected void performInitialize(RDMDeviceInfo deviceInfo=null)
         {
             if (this.IsInitialized)
                 return;
-
-            if (this.Subdevice.IsRoot)
-                asyncRDMRequestHelper = new AsyncRDMRequestHelper(sendRDMRequestMessage);
 
             initialize(deviceInfo);
             this.IsInitialized = true;
@@ -79,20 +84,12 @@ namespace RDMSharp
                 {
                     if (sd.Subdevice.IsRoot)
                         continue;
-                    sd.asyncRDMRequestHelper = this.asyncRDMRequestHelper;
                     sd.performInitialize();
                 }
         }
 
 
         #region SendReceive Pipeline
-        private async Task sendRDMRequestMessage(RDMMessage rdmMessage)
-        {
-            rdmMessage.DestUID = UID;
-            await SendRDMMessage(rdmMessage);
-        }
-        protected abstract Task SendRDMMessage(RDMMessage rdmMessage);
-
         protected async Task ReceiveRDMMessage(RDMMessage rdmMessage)
         {
             if (!this.Subdevice.IsRoot && !rdmMessage.SubDevice.IsBroadcast)
@@ -118,8 +115,6 @@ namespace RDMSharp
 
                 if (sds != null)
                     await sds.OnReceiveRDMMessage(rdmMessage);
-                else
-                    this.asyncRDMRequestHelper.ReceiveMessage(rdmMessage);
 
             }
             catch (Exception e)
@@ -148,7 +143,9 @@ namespace RDMSharp
             if (IsDisposing || IsDisposed)
                 return;
             IsDisposing = true;
-            asyncRDMRequestHelper.Dispose();
+
+            RDMSharp.Instance.MessageReceivedEvent -= Instance_MessageReceivedEvent;
+
             try
             {
                 OnDispose();

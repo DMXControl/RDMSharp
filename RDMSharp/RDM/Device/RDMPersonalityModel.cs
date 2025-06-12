@@ -43,23 +43,21 @@ namespace RDMSharp
         public IReadOnlyDictionary<ushort, Slot> Slots => slots.AsReadOnly();
 
 
-        private RDMPersonalityModel(UID uid, SubDevice sudevice, Func<RDMMessage, Task> sendRdmFunktion)
+        private RDMPersonalityModel(UID uid, SubDevice sudevice)
         {
-            asyncRDMRequestHelper = new AsyncRDMRequestHelper(sendRdmFunktion);
-
             SubDevice = sudevice;
             ManufacturerID = uid.ManufacturerID;
             Manufacturer = (EManufacturer)uid.ManufacturerID;
         }
-        internal RDMPersonalityModel(UID uid, SubDevice sudevice, ushort deviceModelID, uint softwareVersionID, byte personalityID, Func<RDMMessage, Task> sendRdmFunktion)
-            : this(uid, sudevice, sendRdmFunktion)
+        internal RDMPersonalityModel(UID uid, SubDevice sudevice, ushort deviceModelID, uint softwareVersionID, byte personalityID)
+            : this(uid, sudevice)
         {
             DeviceModelID = deviceModelID;
             SoftwareVersionID = softwareVersionID;
             PersonalityID = personalityID;
         }
-        internal RDMPersonalityModel(UID uid, SubDevice sudevice, ushort majorPersonalityID, ushort minorPersonalityID, Func<RDMMessage, Task> sendRdmFunktion)
-            : this(uid, sudevice, sendRdmFunktion)
+        internal RDMPersonalityModel(UID uid, SubDevice sudevice, ushort majorPersonalityID, ushort minorPersonalityID)
+            : this(uid, sudevice)
         {
             MajorPersonalityID = majorPersonalityID;
             MinorPersonalityID = minorPersonalityID;
@@ -95,16 +93,6 @@ namespace RDMSharp
                 }
                 return slot1;
             }
-        }
-
-        internal AsyncRDMRequestHelper GetAsyncRDMRequestHelper()
-        {
-            return asyncRDMRequestHelper;
-        }
-        internal void DisposeAsyncRDMRequestHelper()
-        {
-            asyncRDMRequestHelper?.Dispose();
-            asyncRDMRequestHelper = null;
         }
 
         public bool IsModelOf(UID uid, ushort deviceModelID, uint softwareVersionID, byte personalityID)

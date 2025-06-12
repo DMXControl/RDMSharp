@@ -16,6 +16,7 @@ namespace RDMSharpTests.RDM.Devices
         [TearDown]
         public void Teardown()
         {
+            GlobalTestSetup.ImitateRealConditions = false;
             foreach (IDisposable m in mockDevices)
                 m.Dispose();
 
@@ -53,8 +54,9 @@ namespace RDMSharpTests.RDM.Devices
             ArgumentNullException.ThrowIfNull(mockDiscoveryTool);
             ArgumentNullException.ThrowIfNull(expected);
 
-            foreach (var m in mockDevices)
-                m.ImitateRealConditions = true;
+            GlobalTestSetup.ImitateRealConditions = true;
+            //foreach (var m in mockDevices)
+            //    m.ImitateRealConditions = true;
             var progress = new DiscoveryProgress();
             ulong messageCount = 0;
             progress.ProgressChanged += (o, e) =>

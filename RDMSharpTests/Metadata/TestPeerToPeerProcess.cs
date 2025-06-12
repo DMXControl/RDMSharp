@@ -5,7 +5,7 @@ namespace RDMSharpTests.Metadata
     public class TestPeerToPeerProcess
     {
 
-        [Test]
+        [Test, MaxTime(6000)]
         public async Task Test_Get_DMX_START_ADDRESS()
         {
             var command = ERDM_Command.GET_COMMAND;
@@ -25,13 +25,7 @@ namespace RDMSharpTests.Metadata
 
             try
             {
-                await Task.WhenAny(
-                    peerToPeerProcess.Run(helper),
-                    Task.Run(async () =>
-                    {
-                        while (peerToPeerProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Running)
-                            await Task.Delay(100);
-                    }));
+                await peerToPeerProcess.Run(helper);
 
                 Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTreeBranch)));
                 Assert.That(peerToPeerProcess.ResponsePayloadObject.Children[0].Value, Is.EqualTo(DMX_ADDRESS));
@@ -67,7 +61,7 @@ namespace RDMSharpTests.Metadata
         }
 
 
-        [Test]
+        [Test, MaxTime(6000)]
         public async Task Test_Get_PROXIED_DEVICES()
         {
             var command = ERDM_Command.GET_COMMAND;
@@ -93,13 +87,7 @@ namespace RDMSharpTests.Metadata
 
             try
             {
-                await Task.WhenAny(
-                    peerToPeerProcess.Run(helper),
-                    Task.Run(async () =>
-                    {
-                        while (peerToPeerProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Running)
-                            await Task.Delay(100);
-                    }));
+                await peerToPeerProcess.Run(helper);
 
                 Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTreeBranch)));
                 Assert.That(peerToPeerProcess.ResponsePayloadObject.Children[0].Children, Is.EqualTo(children));
@@ -136,7 +124,7 @@ namespace RDMSharpTests.Metadata
                 helper?.ReceiveMessage(response);
             }
         }
-        [Test]
+        [Test, MaxTime(6000)]
         public async Task Test_Get_LAMP_STRIKES()
         {
             var command = ERDM_Command.GET_COMMAND;
@@ -159,16 +147,7 @@ namespace RDMSharpTests.Metadata
             {
                 helper = new AsyncRDMRequestHelper(sendMessage);
 
-                await Task.WhenAny(
-                    peerToPeerProcess.Run(helper),
-                    Task.Run(async () =>
-                    {
-                        Assert.ThrowsAsync(typeof(ArgumentNullException), async () => await peerToPeerProcess.Run(null));
-                        while (peerToPeerProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Running)
-                            await Task.Delay(100);
-
-                        Assert.DoesNotThrowAsync(async () => await peerToPeerProcess.Run(helper));
-                    }));
+                await peerToPeerProcess.Run(helper);
 
                 Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTreeBranch)));
                 Assert.That(peerToPeerProcess.ResponsePayloadObject.Children[0].Value, Is.EqualTo(LAMP_STRIKES));

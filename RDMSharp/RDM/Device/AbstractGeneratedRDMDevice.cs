@@ -708,7 +708,7 @@ namespace RDMSharp
             if ((rdmMessage.DestUID.IsBroadcast || rdmMessage.DestUID == UID) && !rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
             {
                 if (rdmMessage.SubDevice.IsBroadcast || rdmMessage.SubDevice == this.Subdevice)
-                    await SendRDMMessage(processRequestMessage(rdmMessage));
+                    await RDMSharp.Instance.SendMessage(processRequestMessage(rdmMessage));
             }
         }
 

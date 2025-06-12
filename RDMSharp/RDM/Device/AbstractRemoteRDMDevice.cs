@@ -207,7 +207,6 @@ namespace RDMSharp
             {
                 if (sd.Subdevice.IsRoot)
                     continue;
-                sd.asyncRDMRequestHelper = this.asyncRDMRequestHelper;
                 sd.performInitialize(dict[sd.Subdevice]);
             }
         }
@@ -329,7 +328,7 @@ namespace RDMSharp
         {
             if (deviceModel != null)
                 return;
-            deviceModel = RDMDeviceModel.getDeviceModel(UID, Subdevice, DeviceInfo, new Func<RDMMessage, Task>(SendRDMMessage));
+            deviceModel = RDMDeviceModel.getDeviceModel(UID, Subdevice, DeviceInfo, new Func<RDMMessage, Task>(RDMSharp.Instance.SendMessage));
             if (!deviceModel.IsInitialized)
             {
                 deviceModel.Initialized += DeviceModel_Initialized;
@@ -425,10 +424,6 @@ namespace RDMSharp
             }
             return false;
         }
-        private async Task<RequestResult> requestParameter(RDMMessage rdmMessage)
-        {
-            return await asyncRDMRequestHelper.RequestMessage(rdmMessage);
-        }
 
         protected sealed override async Task OnReceiveRDMMessage(RDMMessage rdmMessage)
         {
@@ -448,8 +443,8 @@ namespace RDMSharp
 
             LastSeen = DateTime.UtcNow;
 
-            if (asyncRDMRequestHelper?.ReceiveMessage(rdmMessage) ?? false)
-                return;
+            //if (asyncRDMRequestHelper?.ReceiveMessage(rdmMessage) ?? false)
+            //    return;
 
             if ((rdmMessage.NackReason?.Length ?? 0) != 0)
                 if (this.deviceModel?.handleNACKReason(rdmMessage) == false)
