@@ -3,7 +3,7 @@ namespace RDMSharpTests.Devices.Mock
 {
     internal sealed class MockDevice : AbstractMockDevice
     {
-        public MockDevice(UID uid, bool imitateRealConditions) : base(uid, _imitateRealConditions:imitateRealConditions)
+        public MockDevice(UID uid) : base(uid)
         {
         }
 

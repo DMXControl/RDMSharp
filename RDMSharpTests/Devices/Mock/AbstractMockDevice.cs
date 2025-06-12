@@ -2,7 +2,7 @@
 {
     internal abstract class AbstractMockDevice : AbstractRemoteRDMDevice
     {
-        public AbstractMockDevice(UID uid, SubDevice? subDevice = null, bool _imitateRealConditions = false) : base(uid, subDevice)
+        public AbstractMockDevice(UID uid, SubDevice? subDevice = null) : base(uid, subDevice)
         {
         }
         protected sealed override void onDispose()
@@ -23,7 +23,7 @@
 
     internal abstract class AbstractMockSubDevice : AbstractMockDevice, IRDMRemoteSubDevice
     {
-        protected AbstractMockSubDevice(UID uid, SubDevice subDevice, bool _imitateRealConditions = false) : base(uid, subDevice, _imitateRealConditions)
+        protected AbstractMockSubDevice(UID uid, SubDevice subDevice) : base(uid, subDevice)
         {
         }
         protected sealed override AbstractMockSubDevice createSubDevice(UID uid, SubDevice subDevice)

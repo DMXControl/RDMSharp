@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace RDMSharp
 {
@@ -54,27 +55,27 @@ namespace RDMSharp
                 if (this.subDevices.Distinct().Count() != this.subDevices.Count)
                     throw new InvalidOperationException($"The SubDevices of {this.UID} are not unique.");
 
-                performInitialize();
+                _ = performInitialize();
             }
         }
 
-        protected void performInitialize(RDMDeviceInfo deviceInfo=null)
+        protected async Task performInitialize(RDMDeviceInfo deviceInfo=null)
         {
             if (this.IsInitialized)
                 return;
 
-            initialize(deviceInfo);
+            await initialize(deviceInfo);
             this.IsInitialized = true;
         }
 
-        protected virtual void initialize(RDMDeviceInfo deviceInfo = null)
+        protected virtual async Task initialize(RDMDeviceInfo deviceInfo = null)
         {
             if (this.Subdevice.IsRoot)
                 foreach (AbstractRDMDevice sd in this.subDevices)
                 {
                     if (sd.Subdevice.IsRoot)
                         continue;
-                    sd.performInitialize();
+                    await sd.performInitialize();
                 }
         }
 

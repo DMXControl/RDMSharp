@@ -150,10 +150,10 @@ namespace RDMSharp
             if (subDevice.HasValue && subDevice.Value.IsBroadcast)
                 throw new NotSupportedException("A SubDevice can't be Broadcast.");
         }
-        protected override async void initialize(RDMDeviceInfo deviceInfo = null)
+        protected override async Task initialize(RDMDeviceInfo deviceInfo = null)
         {
             Logger?.LogDebug($"Remote RDM Device {UID} SubDevice: {Subdevice} initializing.");
-            base.initialize(deviceInfo);
+            await base.initialize(deviceInfo);
             GlobalTimers.Instance.PresentUpdateTimerElapsed += Instance_PresentUpdateTimerElapsed;
             ParameterValueAdded += AbstractRDMDevice_ParameterValueAdded;
             ParameterValueChanged += AbstractRDMDevice_ParameterValueChanged;

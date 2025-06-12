@@ -15,7 +15,7 @@ namespace RDMSharpTests.RDM.Devices
             GlobalTimers.Instance.InternalAllTimersToTestSpeed();
             var uid = new UID(0x9fef, 1);
             generated = new MockGeneratedDeviceWithSubDeviceMaster1(uid, SUBDEVICE_COUNT);
-            remote = new MockDevice(uid, false);
+            remote = new MockDevice(uid);
         }
         [TearDown]
         public void TearDown()
@@ -37,9 +37,11 @@ namespace RDMSharpTests.RDM.Devices
 
             Assert.That(generated.DeviceInfo.SubDeviceCount, Is.EqualTo(SUBDEVICE_COUNT));
             Assert.That(generated.SubDevices.Count, Is.EqualTo(SUBDEVICE_COUNT + 1));
+            Assert.That(generated.DeviceInfo.Dmx512StartAddress, Is.EqualTo(1));
 
             Assert.That(remote.DeviceInfo.SubDeviceCount, Is.EqualTo(SUBDEVICE_COUNT));
             Assert.That(remote.SubDevices.Count, Is.EqualTo(SUBDEVICE_COUNT + 1));
+            Assert.That(remote.DeviceInfo.Dmx512StartAddress, Is.EqualTo(1));
 
             Assert.That(subDeviceIDs_remote, Is.EquivalentTo(subDeviceIDs_generated));
 
@@ -48,7 +50,10 @@ namespace RDMSharpTests.RDM.Devices
 
             foreach(AbstractGeneratedRDMDevice gen in generated.SubDevices)
             {
-                await PerformTests((AbstractRemoteRDMDevice)remote.SubDevices.First(sd => sd.Subdevice == gen.Subdevice), gen);
+                var rem = (AbstractRemoteRDMDevice)remote.SubDevices.First(sd => sd.Subdevice == gen.Subdevice);
+                Assert.That(rem.DeviceInfo.Dmx512StartAddress, Is.EqualTo(1));
+                Assert.That(gen.DeviceInfo.Dmx512StartAddress, Is.EqualTo(1));
+                await PerformTests(rem, gen);
             }
 
         }

@@ -13,7 +13,7 @@ namespace RDMSharpTests.RDM.Devices
             GlobalTimers.Instance.InternalAllTimersToTestSpeed();
             var uid = new UID((ushort)random.Next(), (uint)random.Next());
             generated = new MockGeneratedDevice1(uid);
-            remote = new MockDevice(uid, false);
+            remote = new MockDevice(uid);
         }
         [TearDown]
         public void TearDown()

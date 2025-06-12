@@ -722,7 +722,7 @@ namespace RDMSharp
                 }
 
                 AbstractGeneratedRDMDevice sds = null;
-                if (e.Request.SubDevice.IsRoot)
+                if (e.Request.SubDevice == this.Subdevice)
                     sds = this;
                 else
                     sds = this.SubDevices?.OfType<AbstractGeneratedRDMDevice>().FirstOrDefault(sd => sd.Subdevice == e.Request.SubDevice);
