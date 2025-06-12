@@ -17,7 +17,7 @@ namespace RDMSharp
         public readonly UID ControllerUID;
         public readonly Func<RDMMessage, Task> SendMessage;
         public readonly AsyncRDMRequestHelper AsyncRDMRequestHelper;
-        public event EventHandler<RDMMessage>? MessageReceivedEvent;
+        public event EventHandler<RDMMessage>? ResponseReceivedEvent;
 
         private RDMSharp(UID controllerUID, Func<RDMMessage, Task> sendMessage)
         {
@@ -32,10 +32,15 @@ namespace RDMSharp
                 await SendMessage.Invoke(rdmMessage);
             });
         }
-        public void MessageReceived(RDMMessage rdmMessage)
+        public void ResponseReceived(RDMMessage rdmMessage)
         {
             if (!AsyncRDMRequestHelper.ReceiveMessage(rdmMessage))
-                MessageReceivedEvent?.InvokeFailSafe(this, rdmMessage);
+                ResponseReceivedEvent?.InvokeFailSafe(this, rdmMessage);
+        }
+        public bool RequestReceived(RDMMessage request, out RDMMessage response)
+        {
+            response = null;
+            return false;
         }
 
         public static void Initialize(UID controllerUID, Func<RDMMessage, Task> sendMethode)
