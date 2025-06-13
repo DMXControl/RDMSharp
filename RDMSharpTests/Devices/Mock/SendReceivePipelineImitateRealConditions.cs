@@ -28,17 +28,11 @@ namespace RDMSharpTests.Devices.Mock
                     {
                         await semaphoreSlim2.WaitAsync();
                         var newData = rdmMessage.BuildMessage();
-                        var oldData = data;
-                        var combined = new byte[Math.Max(newData.Length, oldData?.Length ?? 0)];
-                        for (int i = 0; i < combined.Length; i++)
+                        for (int i = 0; i < Math.Min(newData.Length, data.Length); i++)
                         {
                             byte n = (byte)(newData.Length > i ? newData[i] : 0);
-#pragma warning disable CS8602 // Dereferenzierung eines möglichen Nullverweises.
-                            byte o = (byte)((oldData?.Length ?? 0) > i ? oldData[i] : 0);
-#pragma warning restore CS8602 // Dereferenzierung eines möglichen Nullverweises.
-                            combined[i] = (byte)(n | o);
+                            data[i] |= n;
                         }
-                        data = combined;
                         semaphoreSlim2.Release();
                     }));
                 }
@@ -46,7 +40,7 @@ namespace RDMSharpTests.Devices.Mock
                 if (semaphoreSlim.CurrentCount == 1)
                 {
                     await semaphoreSlim.WaitAsync();
-                    await Task.Delay(3);
+                    await Task.Delay(GlobalTimers.Instance.DiscoveryTimeout);
                     while (queue.TryDequeue(out Task? waitOnMee)) // wait for all other MockDevices to put their Data on the Line, in real World this would be the time is not nessecary to wait for the other devices because they all act simultan but in the Test-Environment it needs time to itterate throu all Devices
                         if (waitOnMee != null)
                             await waitOnMee;
