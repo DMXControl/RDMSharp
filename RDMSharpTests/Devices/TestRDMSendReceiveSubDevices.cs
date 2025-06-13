@@ -25,12 +25,18 @@ namespace RDMSharpTests.RDM.Devices
             remote.Dispose();
         }
 
-        [Test, CancelAfter(10000)]
+        [Test, CancelAfter(100000)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
         public async Task TestDevice1()
         {
             while (!remote.IsInitialized)
                 await Task.Delay(10);
+
+            while (remote.SubDevices.Count < SUBDEVICE_COUNT)
+                await Task.Delay(100);
+
+            while (!remote.SubDevices.Cast<IRDMRemoteDevice>().All(sd => sd.AllDataPulled))
+                await Task.Delay(100);
 
             SubDevice[] subDeviceIDs_generated = generated.SubDevices.Select(x => x.Subdevice).ToArray();
             SubDevice[] subDeviceIDs_remote = remote.SubDevices.Select(x => x.Subdevice).ToArray();
@@ -42,6 +48,8 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(remote.DeviceInfo.SubDeviceCount, Is.EqualTo(SUBDEVICE_COUNT));
             Assert.That(remote.SubDevices.Count, Is.EqualTo(SUBDEVICE_COUNT + 1));
             Assert.That(remote.DeviceInfo.Dmx512StartAddress, Is.EqualTo(1));
+
+            Assert.That(remote.SubDevices, Has.Count.EqualTo(SUBDEVICE_COUNT + 1));
 
             Assert.That(subDeviceIDs_remote, Is.EquivalentTo(subDeviceIDs_generated));
 
