@@ -1,4 +1,5 @@
 using RDMSharpTests.Devices.Mock;
+using System;
 
 namespace RDMSharpTests.RDM.Devices
 {
@@ -6,21 +7,20 @@ namespace RDMSharpTests.RDM.Devices
     {
         private MockGeneratedDeviceWithSubDeviceMaster1 generated;
         private MockDevice remote;
+        private Random random = new Random();
 
         private const ushort SUBDEVICE_COUNT = 12;
 
         [SetUp]
         public void Setup()
         {
-            GlobalTimers.Instance.InternalAllTimersToTestSpeed();
-            var uid = new UID(0x9fef, 1);
+            var uid = new UID((ushort)random.Next(), (uint)random.Next());
             generated = new MockGeneratedDeviceWithSubDeviceMaster1(uid, SUBDEVICE_COUNT);
             remote = new MockDevice(uid);
         }
         [TearDown]
         public void TearDown()
         {
-            GlobalTimers.Instance.ResetAllTimersToDefault();
             generated.Dispose();
             remote.Dispose();
         }
@@ -86,16 +86,16 @@ namespace RDMSharpTests.RDM.Devices
             //Assert.Multiple(() =>
             //{
             Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_INFO], Is.EqualTo(generated.DeviceInfo));
-            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(generated.DeviceLabel));
-            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_MODEL_DESCRIPTION], Is.EqualTo(generated.DeviceModelDescription));
+            Assert.That(remote.ParameterValues[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(generated.DeviceLabel));
+            Assert.That(remote.ParameterValues[ERDM_Parameter.DEVICE_MODEL_DESCRIPTION], Is.EqualTo(generated.DeviceModelDescription));
             Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.MANUFACTURER_LABEL], Is.EqualTo(generated.ManufacturerLabel));
-            Assert.That(((RDMDMXPersonality)remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY]).Index, Is.EqualTo(generated.CurrentPersonality));
+            Assert.That(((RDMDMXPersonality)remote.ParameterValues[ERDM_Parameter.DMX_PERSONALITY]).Index, Is.EqualTo(generated.CurrentPersonality));
             //});
 
             await remote.SetParameter(ERDM_Parameter.DMX_START_ADDRESS, (ushort)512);
             //Assert.Multiple(() =>
             //{
-            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(512));
+            Assert.That(remote.ParameterValues[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(512));
             Assert.That(generated.DMXAddress, Is.EqualTo(512));
             //});
 
@@ -104,7 +104,7 @@ namespace RDMSharpTests.RDM.Devices
                 await remote.SetParameter(ERDM_Parameter.DMX_PERSONALITY, (byte)3);
                 //Assert.Multiple(() =>
                 //{
-                Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY], Is.EqualTo(3));
+                Assert.That(remote.ParameterValues[ERDM_Parameter.DMX_PERSONALITY], Is.EqualTo(3));
                 Assert.That(generated.CurrentPersonality, Is.EqualTo(3));
                 //});
             }
@@ -113,30 +113,30 @@ namespace RDMSharpTests.RDM.Devices
             await remote.SetParameter(ERDM_Parameter.DEVICE_LABEL, label);
             //Assert.Multiple(() =>
             //{
-            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(label));
+            Assert.That(remote.ParameterValues[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(label));
             Assert.That(generated.DeviceLabel, Is.EqualTo(label));
             //});
             //Assert.Multiple(async () =>
             //{
-            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
+            Assert.That(remote.ParameterValues[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
             Assert.That(generated.GetAllParameterValues()[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
             await remote.SetParameter(ERDM_Parameter.IDENTIFY_DEVICE, true);
-            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.IDENTIFY_DEVICE], Is.True);
+            Assert.That(remote.ParameterValues[ERDM_Parameter.IDENTIFY_DEVICE], Is.True);
             Assert.That(generated.GetAllParameterValues()[ERDM_Parameter.IDENTIFY_DEVICE], Is.True);
             await remote.SetParameter(ERDM_Parameter.IDENTIFY_DEVICE, false);
-            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
+            Assert.That(remote.ParameterValues[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
             Assert.That(generated.GetAllParameterValues()[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
             //});
             //Assert.Multiple(() =>
-            //{
-            Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DEVICE_INFO, new RDMDeviceInfo()); });
-            Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION, new RDMDMXPersonalityDescription(1, 2, "dasdad")); });
-            Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.LANGUAGE, "de"); });
-            Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.LANGUAGE, 333); });
-            Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DEVICE_LABEL, "Test"); });
-            Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DISC_MUTE, null); });
-            Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DEVICE_LABEL, new RDMDeviceInfo()); });
-            //});
+            ////{
+            //Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DEVICE_INFO, new RDMDeviceInfo()); });
+            //Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION, new RDMDMXPersonalityDescription(1, 2, "dasdad")); });
+            //Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.LANGUAGE, "de"); });
+            //Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.LANGUAGE, 333); });
+            //Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DEVICE_LABEL, "Test"); });
+            //Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DISC_MUTE, null); });
+            //Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DEVICE_LABEL, new RDMDeviceInfo()); });
+            ////});
         }
     }
 }

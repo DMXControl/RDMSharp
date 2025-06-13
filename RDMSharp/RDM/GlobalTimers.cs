@@ -151,24 +151,51 @@ namespace RDMSharp
         internal void InternalAllTimersToTestSpeed()
         {
             ResetAllTimersToDefault();
-            QueuedUpdateTime = 100;
-            NonQueuedUpdateTime = 200;
+            QueuedUpdateTime = 30;
+            NonQueuedUpdateTime = 30;
             UpdateDelayBetweenRequests = 0;
             UpdateDelayBetweenQueuedUpdateRequests = 0;
             UpdateDelayBetweenNonQueuedUpdateRequests = 0;
             PresentLostTime = 10000;
 
-            ParameterUpdateTimerInterval = 100;
+            ParameterUpdateTimerInterval = 15;
             PresentUpdateTimerInterval = 1000;
         }
 
         private void ParameterUpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            parameterUpdateTimerElapsed?.InvokeFailSafe(sender, EventArgs.Empty);
+            // Parallelisierung: Alle Handler parallel ausführen, falls mehrere abonniert sind
+            var handlers = parameterUpdateTimerElapsed?.GetInvocationList();
+            if (handlers != null)
+            {
+                System.Threading.Tasks.Parallel.ForEach(handlers, handler =>
+                {
+                    try
+                    {
+                        ((EventHandler)handler)?.Invoke(sender, EventArgs.Empty);
+                    }
+                    catch
+                    {
+                    }
+                });
+            }
         }
         private void PresentUpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            presentUpdateTimerElapsed?.InvokeFailSafe(sender, EventArgs.Empty);
+            var handlers = presentUpdateTimerElapsed?.GetInvocationList();
+            if (handlers != null)
+            {
+                System.Threading.Tasks.Parallel.ForEach(handlers, handler =>
+                {
+                    try
+                    {
+                        ((EventHandler)handler)?.Invoke(sender, EventArgs.Empty);
+                    }
+                    catch
+                    {
+                    }
+                });
+            }
         }
     }
 }

@@ -10,7 +10,6 @@ namespace RDMSharpTests.RDM.Devices
         [SetUp]
         public void Setup()
         {
-            GlobalTimers.Instance.InternalAllTimersToTestSpeed();
             var uid = new UID((ushort)random.Next(), (uint)random.Next());
             generated = new MockGeneratedDevice1(uid);
             remote = new MockDevice(uid);
@@ -18,7 +17,6 @@ namespace RDMSharpTests.RDM.Devices
         [TearDown]
         public void TearDown()
         {
-            GlobalTimers.Instance.ResetAllTimersToDefault();
             generated?.Dispose();
             generated = null;
             remote?.Dispose();
@@ -219,10 +217,6 @@ namespace RDMSharpTests.RDM.Devices
                 Assert.That(sensorsRemote, Has.Count.EqualTo(sensorsGenerated.Count));
                 Assert.That(sensorsRemote, Is.EqualTo(sensorsGenerated));
             });
-
-            GlobalTimers.Instance.QueuedUpdateTime = 100;
-            GlobalTimers.Instance.NonQueuedUpdateTime = 100;
-            GlobalTimers.Instance.ParameterUpdateTimerInterval = 100;
 
             await Task.Delay(100);
 
@@ -447,8 +441,6 @@ namespace RDMSharpTests.RDM.Devices
         [Test, Order(4), CancelAfter(10000)]
         public async Task TestDevice1QueuedUpdates()
         {
-            GlobalTimers.Instance.QueuedUpdateTime = 100;
-            GlobalTimers.Instance.ParameterUpdateTimerInterval = 100;
             var parameterValuesRemote = remote!.GetAllParameterValues();
             var parameterValuesGenerated = generated!.GetAllParameterValues();
             Assert.That(parameterValuesRemote[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);

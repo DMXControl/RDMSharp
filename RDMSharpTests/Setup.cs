@@ -17,6 +17,7 @@ namespace RDMSharpTests
         [OneTimeSetUp]
         public void GlobalSetUp()
         {
+            GlobalTimers.Instance.InternalAllTimersToTestSpeed();
             RDMSharp.RDMSharp.Initialize(new UID(), async (rdmMessage) =>
             {
                 await SendRDMMessage(rdmMessage);

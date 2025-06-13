@@ -2,7 +2,7 @@
 {
     internal abstract class MockGeneratedDeviceWithSubDevice1 : AbstractMockGeneratedDevice
     {
-        public override EManufacturer ManufacturerID => (EManufacturer)0x9fef;
+        public override EManufacturer ManufacturerID => (EManufacturer)UID.ManufacturerID;
         public override ushort DeviceModelID => 50;
         public override ERDM_ProductCategoryCoarse ProductCategoryCoarse => ERDM_ProductCategoryCoarse.DIMMER;
         public override ERDM_ProductCategoryFine ProductCategoryFine => ERDM_ProductCategoryFine.DIMMER_CS_LED;

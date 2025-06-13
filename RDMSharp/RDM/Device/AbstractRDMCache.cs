@@ -202,7 +202,14 @@ namespace RDMSharp
                 if (ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Finished)
                 {
                     if (ptpProcess.ResponsePayloadObject.IsEmpty)
+                    {
                         updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), dataTreeBranch);
+                        if (this.ParameterValues.TryGetValue(parameterBag.PID, out object cacheValue))
+                        {
+                            if (value != cacheValue)
+                                throw new Exception($"Failed to set parameter {parameterBag.PID} with value {value}, cache value is {cacheValue}");
+                        }
+                    }
                     else if (!ptpProcess.ResponsePayloadObject.IsUnset)
                         updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), ptpProcess.ResponsePayloadObject);
                 }

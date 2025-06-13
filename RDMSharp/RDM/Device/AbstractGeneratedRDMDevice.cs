@@ -943,8 +943,9 @@ namespace RDMSharp
                 {
                     bool success = false;
                     //Handle set Request
-                    if (parameterValues.TryGetValue(rdmMessage.Parameter, out object comparisonValue) && (comparisonValue is ConcurrentDictionary<object, object> || parameterValues.TryUpdate(rdmMessage.Parameter, rdmMessage.Value, comparisonValue)))
+                    if (parameterValues.TryGetValue(rdmMessage.Parameter, out object comparisonValue))
                     {
+                        parameterValues.AddOrUpdate(rdmMessage.Parameter, (_) => rdmMessage.Value, (_,_) => rdmMessage.Value);                        
                         success = true;
                         object responseValue = rdmMessage.Value;
                         if (comparisonValue is ConcurrentDictionary<object, object> dict)
