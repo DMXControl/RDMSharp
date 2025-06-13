@@ -14,9 +14,9 @@
             if (!rdmMessage.SourceUID.IsValidDeviceUID)
                 rdmMessage.SourceUID = new UID(0x1fff, 0x44444444);
 
-#if DEBUG
-            Console.WriteLine(rdmMessage);
-#endif
+//#if DEBUG
+//            Console.WriteLine(rdmMessage);
+//#endif
 
             RDMMessageReceived?.InvokeFailSafe(null, new Tuple<long, RDMMessage>(identifyer, rdmMessage));
         }
