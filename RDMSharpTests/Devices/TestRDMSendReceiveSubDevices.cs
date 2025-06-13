@@ -61,6 +61,10 @@ namespace RDMSharpTests.RDM.Devices
         {
             var parameterValuesRemote = remote.GetAllParameterValues();
             var parameterValuesGenerated = generated.GetAllParameterValues();
+
+
+            Console.WriteLine($"SD: [{generated.Subdevice.ID}] Generated: {String.Join(", ", parameterValuesGenerated.OrderBy(p => p.Key).Select(x => $"{x.Key}"))}");
+            Console.WriteLine($"SD: [{remote.Subdevice.ID   }] Remote:    {String.Join(", ", parameterValuesRemote.OrderBy(p => p.Key).Select(x => $"{x.Key}"))}");
             //Assert.Multiple(() =>
             //{
             Assert.That(parameterValuesGenerated.Keys, Is.EquivalentTo(parameterValuesRemote.Keys));
