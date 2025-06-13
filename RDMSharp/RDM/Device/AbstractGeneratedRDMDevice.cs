@@ -19,7 +19,8 @@ namespace RDMSharp
         public abstract bool SupportStatus { get; }
         public virtual bool SupportRealTimeClock { get; }
         #region DeviceInfoStuff
-        public ERDM_Parameter[] Parameters { get; private set; }
+        private HashSet<ERDM_Parameter> _parameters;
+        public IReadOnlySet<ERDM_Parameter> Parameters { get => _parameters; }
         public abstract EManufacturer ManufacturerID { get; }
         public abstract ushort DeviceModelID { get; }
         public abstract ERDM_ProductCategoryCoarse ProductCategoryCoarse { get; }
@@ -227,7 +228,11 @@ namespace RDMSharp
             RDMSharp.Instance.RequestReceivedEvent += Instance_RequestReceivedEvent;
 
             #region Parameters
-            var _params = parameters?.ToList() ?? new List<ERDM_Parameter>();
+            var _params = new HashSet<ERDM_Parameter>();
+            if (parameters != null && parameters.Length != 0)
+                foreach (var p in parameters)
+                    _params.Add(p);
+
             if (SupportQueued)
                 _params.Add(ERDM_Parameter.QUEUED_MESSAGE);
             if (SupportStatus)
@@ -258,10 +263,10 @@ namespace RDMSharp
                 _params.Add(ERDM_Parameter.DEFAULT_SLOT_VALUE);
             }
 
-            Parameters = _params.Distinct().ToArray();
+            _parameters = _params;
             if (SupportRealTimeClock)
                 trySetParameter(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(DateTime.Now));
-            trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters);
+            trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters.ToArray());
             trySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, Identify);
             #endregion
 
@@ -341,17 +346,7 @@ namespace RDMSharp
             #endregion
 
             updateDeviceInfo();
-            orderSupportedParameters();
             _initialized = true;
-        }
-
-        private void orderSupportedParameters()
-        {
-            var queued = Parameters.Where(p => p == ERDM_Parameter.QUEUED_MESSAGE).ToArray();
-            var others = Parameters.Where(p => p != ERDM_Parameter.QUEUED_MESSAGE)
-                                   .OrderBy(p => (ushort)p)
-                                   .ToArray();
-            Parameters = others.Concat(queued).ToArray();
         }
 
         private void updateDeviceInfo()
@@ -467,10 +462,10 @@ namespace RDMSharp
             var oldParameters = Parameters;
             if (!this.sensors.IsEmpty)
             {
-                List<ERDM_Parameter> _params = Parameters.ToList();
+                HashSet<ERDM_Parameter> _params = Parameters.ToHashSet();
                 _params.Add(ERDM_Parameter.SENSOR_DEFINITION);
                 _params.Add(ERDM_Parameter.SENSOR_VALUE);
-                Parameters = _params.Distinct().ToArray();
+                _parameters = _params;
             }
             else if (
                 Parameters.Contains(ERDM_Parameter.SENSOR_DEFINITION) ||
@@ -479,33 +474,31 @@ namespace RDMSharp
                 Parameters.Contains(ERDM_Parameter.SENSOR_TYPE_CUSTOM) ||
                 Parameters.Contains(ERDM_Parameter.SENSOR_UNIT_CUSTOM))
             {
-                List<ERDM_Parameter> _params = Parameters.ToList();
-                _params.RemoveAll(p =>
+                HashSet<ERDM_Parameter> _params = Parameters.ToHashSet();
+                _params.RemoveWhere(p =>
                     p == ERDM_Parameter.SENSOR_DEFINITION ||
                     p == ERDM_Parameter.SENSOR_VALUE ||
                     p == ERDM_Parameter.RECORD_SENSORS ||
                     p == ERDM_Parameter.SENSOR_TYPE_CUSTOM ||
                     p == ERDM_Parameter.SENSOR_UNIT_CUSTOM);
-                Parameters = _params.Distinct().ToArray();
+                _parameters = _params;
             }
 
             if (sensors.Values.Any(s => s.RecordedValueSupported) && !Parameters.Contains(ERDM_Parameter.RECORD_SENSORS))
             {
-                List<ERDM_Parameter> _params = Parameters.ToList();
-                _params.Insert(_params.IndexOf(ERDM_Parameter.SENSOR_VALUE) + 1, ERDM_Parameter.RECORD_SENSORS);
-                Parameters = _params.Distinct().ToArray();
+                HashSet<ERDM_Parameter> _params = Parameters.ToHashSet();
+                _params.Add(ERDM_Parameter.RECORD_SENSORS);
+                _parameters = _params;
             }
             else if (!sensors.Values.Any(s => s.RecordedValueSupported) && Parameters.Contains(ERDM_Parameter.RECORD_SENSORS))
             {
-                List<ERDM_Parameter> _params = Parameters.ToList();
-                _params.RemoveAll(sensors => sensors == ERDM_Parameter.RECORD_SENSORS);
-                Parameters = _params.Distinct().ToArray();
+                HashSet<ERDM_Parameter> _params = Parameters.ToHashSet();
+                _params.RemoveWhere(sensors => sensors == ERDM_Parameter.RECORD_SENSORS);
+                _parameters = _params;
             }
 
             if (!Parameters.SequenceEqual(oldParameters))
-                trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters);
-
-            orderSupportedParameters();
+                trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters.ToArray());
         }
 
         private void Sensor_PropertyChanged(object sender, PropertyChangedEventArgs e)

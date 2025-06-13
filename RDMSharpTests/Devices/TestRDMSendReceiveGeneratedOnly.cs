@@ -43,7 +43,7 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SUPPORTED_PARAMETERS));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.Parameters.Length * 2));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.Parameters.Count * 2));
             Assert.That(response.Value, Is.TypeOf(typeof(ERDM_Parameter[])));
             var parametersRemote = ((ERDM_Parameter[])response.Value).OrderBy(p => p).ToArray();
             var parametersGenerated = generated.Parameters.OrderBy(p => p).ToArray();
