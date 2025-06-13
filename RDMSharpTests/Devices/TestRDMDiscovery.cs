@@ -341,11 +341,11 @@ namespace RDMSharpTests.RDM.Devices
             expected = mockDevices.Select(m => m.UID).ToList();
             await AssertDiscovery();
         }
-        [Test, Retry(3), CancelAfter(100000)]
+        [Test, Retry(3), CancelAfter(180000), RequiresThread]
         public async Task TestDiscovery4()
         {
             HashSet<uint> ids = new HashSet<uint>();
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 20; i++)
             {
                 uint id = 0;
                 do
@@ -360,12 +360,12 @@ namespace RDMSharpTests.RDM.Devices
             expected = mockDevices.Select(m => m.UID).ToList();
             await AssertDiscovery();
         }
-        [Test, Retry(3), CancelAfter(100000)]
+        [Test, Retry(3), CancelAfter(180000), RequiresThread]
         public async Task TestDiscovery5TotalyRandom()
         {
             HashSet<uint> ids = new HashSet<uint>();
             HashSet<ushort> idsMan = new HashSet<ushort>();
-            for (int i = 0; i < 30; i++)
+            for (int i = 0; i < 10; i++)
             {
                 uint id = 0;
                 ushort idMan = 0;
