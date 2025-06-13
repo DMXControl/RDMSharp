@@ -2,6 +2,7 @@ using RDMSharpTests.Devices.Mock;
 
 namespace RDMSharpTests.RDM.Devices
 {
+    [SingleThreaded]
     public class TestRDMDiscovery
     {
         private static readonly Random random = new Random();
@@ -341,7 +342,7 @@ namespace RDMSharpTests.RDM.Devices
             expected = mockDevices.Select(m => m.UID).ToList();
             await AssertDiscovery();
         }
-        [Test, Retry(3), CancelAfter(180000), RequiresThread]
+        [Test, Retry(3), CancelAfter(180000)]
         public async Task TestDiscovery4()
         {
             HashSet<uint> ids = new HashSet<uint>();
@@ -360,7 +361,7 @@ namespace RDMSharpTests.RDM.Devices
             expected = mockDevices.Select(m => m.UID).ToList();
             await AssertDiscovery();
         }
-        [Test, Retry(3), CancelAfter(180000), RequiresThread]
+        [Test, Retry(3), CancelAfter(180000)]
         public async Task TestDiscovery5TotalyRandom()
         {
             HashSet<uint> ids = new HashSet<uint>();
