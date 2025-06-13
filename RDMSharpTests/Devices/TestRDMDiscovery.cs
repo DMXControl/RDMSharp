@@ -12,6 +12,9 @@ namespace RDMSharpTests.RDM.Devices
         [SetUp]
         public void Setup()
         {
+            if (GlobalTestSetup.IsRunningOnGitHubActions())
+                Assert.Ignore("This test is not supported on GitHub Actions due to the long execution time.");
+
             GlobalTestSetup.ImitateRealConditions = true;
             mockDiscoveryTool = new MockDiscoveryTool();
         }

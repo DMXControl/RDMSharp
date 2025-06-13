@@ -79,5 +79,9 @@ namespace RDMSharpTests
             // Wird einmal nach allen Tests ausgeführt
             Console.WriteLine("Global TearDown läuft");
         }
+        public static bool IsRunningOnGitHubActions()
+        {
+            return Environment.GetEnvironmentVariable("GITHUB_ACTIONS") == "true";
+        }
     }
 }
