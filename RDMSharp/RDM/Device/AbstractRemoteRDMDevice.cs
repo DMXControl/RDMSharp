@@ -288,6 +288,9 @@ namespace RDMSharp
 
         private async Task updateParameters()
         {
+            if (QueuedSupported && deviceModel.KnownNotSupportedParameters.Contains(ERDM_Parameter.QUEUED_MESSAGE))
+                QueuedSupported = false;
+
             if (QueuedSupported && !deviceModel.KnownNotSupportedParameters.Contains(ERDM_Parameter.QUEUED_MESSAGE))
             {
                 if (DateTime.UtcNow - lastSendQueuedMessage < TimeSpan.FromMilliseconds(GlobalTimers.Instance.QueuedUpdateTime))
@@ -302,11 +305,7 @@ namespace RDMSharp
                         lastSendQueuedMessage = DateTime.UtcNow;
                         mc = await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice, ERDM_Status.ADVISORY);
                         await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenQueuedUpdateRequests);
-                        if (deviceModel.KnownNotSupportedParameters.Contains(ERDM_Parameter.QUEUED_MESSAGE))
-                        {
-                            QueuedSupported = false;
-                            break;
-                        }
+                        
                     }
                     while (mc != 0);
                     return;
@@ -431,8 +430,13 @@ namespace RDMSharp
         protected sealed override async Task OnResponseMessage(RDMMessage rdmMessage)
         {
             LastSeen = DateTime.UtcNow;
+
+            if (rdmMessage?.ResponseType == ERDM_ResponseType.NACK_REASON)
+                this.deviceModel?.handleNACKReason(rdmMessage);
+
             await base.OnResponseMessage(rdmMessage);
         }
+
         public sealed override IReadOnlyDictionary<ERDM_Parameter, object> GetAllParameterValues()
         {
             if (this.DeviceModel != null)

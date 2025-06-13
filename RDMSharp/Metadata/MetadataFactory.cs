@@ -12,6 +12,7 @@ using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("RDMSharpTests")]
 
@@ -58,7 +59,13 @@ namespace RDMSharp.Metadata
             var schemaList = GetMetadataSchemaVersions();
             ConcurrentDictionary<string, JsonSchema> versionSchemas = new ConcurrentDictionary<string, JsonSchema>();
 
-            foreach (var mv in metadataVersionList.Values.Where(_mv => !_mv.IsSchema))
+            var nonSchemaVersions = metadataVersionList.Values.Where(_mv => !_mv.IsSchema).ToList();
+
+            ParallelOptions parallelOptions = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = Environment.ProcessorCount, // Optional: Set the maximum degree of parallelism
+            };
+            Parallel.ForEach(nonSchemaVersions, parallelOptions, mv =>
             {
                 var schema = schemaList.First(s => s.Version.Equals(mv.Version));
                 if (!versionSchemas.TryGetValue(schema.Version, out JsonSchema jsonSchema))
@@ -71,12 +78,18 @@ namespace RDMSharp.Metadata
                 if (result.IsValid)
                 {
                     MetadataJSONObjectDefine jsonDefine = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(metadataBag.Content);
-                    if (!metadataVersionDefinesBagDictionary.ContainsKey(schema))
-                        metadataVersionDefinesBagDictionary.TryAdd(schema, new List<MetadataJSONObjectDefine>());
-
-                    metadataVersionDefinesBagDictionary[schema].Add(jsonDefine);
+                    metadataVersionDefinesBagDictionary.AddOrUpdate(schema,
+                        _ => new List<MetadataJSONObjectDefine> { jsonDefine },
+                        (_, list) =>
+                        {
+                            lock (list)
+                            {
+                                list.Add(jsonDefine);
+                                return list;
+                            }
+                        });
                 }
-            }
+            });
         }
 
         public static IReadOnlyCollection<MetadataVersion> GetMetadataSchemaVersions()

@@ -89,6 +89,8 @@ namespace RDMSharp
                         (responseResult.Response is not null && responseResult.Response.ResponseType == ERDM_ResponseType.NACK_REASON))
                     {
                         State = EPeerToPeerProcessState.Failed;
+                        if (responseResult.Response is not null)
+                            ResponseMessage?.InvokeFailSafe(responseResult.Response);
                         return;
                     }
                     response = responseResult.Response;
@@ -110,6 +112,8 @@ namespace RDMSharp
                         if (Define != null)
                             ResponsePayloadObject = MetadataFactory.ParseDataToPayload(Define, commandResponse, bytes.ToArray());
                         State = EPeerToPeerProcessState.Finished;
+
+                        ResponseMessage?.InvokeFailSafe(responseResult.Response);
                         return;
                     }
                     if (response.ResponseType == ERDM_ResponseType.ACK_OVERFLOW)
@@ -125,18 +129,6 @@ namespace RDMSharp
                 Logger?.LogError(e);
                 this.Exception = e;
                 State = EPeerToPeerProcessState.Failed;
-            }
-            finally
-            {
-                if (response is not null && ResponseMessage is not null)
-                    try
-                    {
-                        ResponseMessage(response);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger?.LogError(ex, "Error in ResponseMessage callback");
-                    }
             }
         }
     }

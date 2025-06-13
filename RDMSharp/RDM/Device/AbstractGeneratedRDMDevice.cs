@@ -783,14 +783,17 @@ namespace RDMSharp
                                 ParameterData = new DiscMuteUnmuteResponse().ToPayloadData()
                             };
                             return rdmMessage.DestUID != UID.Broadcast ? response : null;
-                        case ERDM_Parameter.DISC_UNIQUE_BRANCH when !DiscoveryMuted && rdmMessage.Value is DiscUniqueBranchRequest discUniqueBranchRequest:
+                        case ERDM_Parameter.DISC_UNIQUE_BRANCH when rdmMessage.Value is DiscUniqueBranchRequest discUniqueBranchRequest:
                             if (UID >= discUniqueBranchRequest.StartUid && UID <= discUniqueBranchRequest.EndUid)
                             {
+                                if (DiscoveryMuted)
+                                    return null;
                                 response = new RDMMessage
                                 {
                                     Parameter = ERDM_Parameter.DISC_UNIQUE_BRANCH,
                                     Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE,
-                                    SourceUID = UID
+                                    SourceUID = UID,
+                                    DestUID = rdmMessage.SourceUID,
                                 };
                                 return response;
                             }

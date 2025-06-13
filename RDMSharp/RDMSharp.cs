@@ -40,22 +40,30 @@ namespace RDMSharp
         }
         public bool RequestReceived(RDMMessage request, out RDMMessage response)
         {
-
+            RDMMessage _response = null;
             var e = new RequestReceivedEventArgs(request);
-            foreach (Delegate handler in RequestReceivedEvent?.GetInvocationList() ?? Array.Empty<Delegate>())
+            var handlers = RequestReceivedEvent?.GetInvocationList() ?? Array.Empty<Delegate>();
+
+            // Parallel ausführen, aber Reihenfolge der Responses beachten
+            ParallelOptions parallelOptions = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = Environment.ProcessorCount // Optional: Setze die maximale Parallelität
+            };
+            Parallel.ForEach(handlers, parallelOptions, (handler, state) =>
             {
                 handler.InvokeFailSafe(this, e);
                 if (e.Response is not null)
                 {
                     if (request.Command != ERDM_Command.DISCOVERY_COMMAND || request.DestUID.IsBroadcast)
                     {
-                        response = e.Response;
-                        return true;
+                        _response = e.Response;
+                        state.Stop(); // Beende Parallel.ForEach, wenn eine Response gefunden wurde
                     }
                 }
-            }
-            response = null;
-            return false;
+            });
+
+            response = _response;
+            return response is not null;
         }
 
         public static void Initialize(UID controllerUID, Func<RDMMessage, Task> sendMethode)
