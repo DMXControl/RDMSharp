@@ -143,7 +143,10 @@ namespace RDMSharp
                     response = bag?.Response;
                     if (response != null)
                         break;
-                    await Task.Delay(5, _cts.Token);
+                    if (request.Command != ERDM_Command.DISCOVERY_COMMAND)
+                        await Task.Delay(5, _cts.Token);
+                    else
+                        await Task.Delay(GlobalTimers.Instance.DiscoveryTimeout, _cts.Token);
                     if (request.Command == ERDM_Command.NONE)
                     {
                         throw new Exception("Command is not set");

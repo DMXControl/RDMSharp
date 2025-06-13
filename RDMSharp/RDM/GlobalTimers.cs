@@ -23,6 +23,8 @@ namespace RDMSharp
         public const int DefaultUpdateDelayBetweenNonQueuedUpdateRequests = 200; // 200 milliseconds
         public const int DefaultPresentLostTime = 15000; // 15 seconds
 
+        public const int DefaultDiscoveryTimeout = 5; // 5 milliseconds
+
         public const int DefaultParameterUpdateTimerInterval = 10000; // 10 seconds
         public const int DefaultPresentUpdateTimerInterval = 500; // 0.5 seconds
         public int QueuedUpdateTime { get; set; } = DefaultQueuedUpdateTime;
@@ -31,6 +33,8 @@ namespace RDMSharp
         public int UpdateDelayBetweenQueuedUpdateRequests { get; set; } = DefaultUpdateDelayBetweenQueuedUpdateRequests;
         public int UpdateDelayBetweenNonQueuedUpdateRequests { get; set; } = DefaultUpdateDelayBetweenNonQueuedUpdateRequests;
         public int PresentLostTime { get; set; } = DefaultPresentLostTime;
+
+        public int DiscoveryTimeout { get; set; } = DefaultDiscoveryTimeout;
 
         private int parameterUpdateTimerInterval = DefaultParameterUpdateTimerInterval;
         public int ParameterUpdateTimerInterval
@@ -145,6 +149,8 @@ namespace RDMSharp
             UpdateDelayBetweenNonQueuedUpdateRequests = DefaultUpdateDelayBetweenNonQueuedUpdateRequests;
             PresentLostTime = DefaultPresentLostTime;
 
+            DiscoveryTimeout = DefaultDiscoveryTimeout;
+
             ParameterUpdateTimerInterval = DefaultParameterUpdateTimerInterval;
             PresentUpdateTimerInterval = DefaultPresentUpdateTimerInterval;
         }
@@ -157,6 +163,8 @@ namespace RDMSharp
             UpdateDelayBetweenQueuedUpdateRequests = 0;
             UpdateDelayBetweenNonQueuedUpdateRequests = 0;
             PresentLostTime = 10000;
+
+            DiscoveryTimeout = 15;
 
             ParameterUpdateTimerInterval = 15;
             PresentUpdateTimerInterval = 1000;
