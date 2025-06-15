@@ -169,17 +169,17 @@ namespace RDMSharp.Metadata
                         oneOfType = new OneOfTypes(new StringType(name, displayName, null, null, "string", null, null, 0, parameterDescription.PDLSize, null, null, true));
                         break;
                     case ERDM_DataType.UNSIGNED_BYTE:
-                        oneOfType = new OneOfTypes(new IntegerType<byte>(name, displayName, null, null, EIntegerType.UInt8, labeledIntegerTypes, labeledIntegerTypes != null, new Range<byte>[] { new Range<byte>((byte)parameterDescription.MinValidValue, (byte)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), null));
+                        oneOfType = new OneOfTypes(new IntegerType<byte>(name, displayName, null, null, EIntegerType.UInt8, labeledIntegerTypes, labeledIntegerTypes != null, new Range<byte>[] { new Range<byte>((byte)parameterDescription.MinValidValue, (byte)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1),1));
                         break;
                     case ERDM_DataType.SIGNED_BYTE:
-                        oneOfType = new OneOfTypes(new IntegerType<sbyte>(name, displayName, null, null, EIntegerType.Int8, labeledIntegerTypes, labeledIntegerTypes != null, new Range<sbyte>[] { new Range<sbyte>((sbyte)parameterDescription.MinValidValue, (sbyte)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), null));
+                        oneOfType = new OneOfTypes(new IntegerType<sbyte>(name, displayName, null, null, EIntegerType.Int8, labeledIntegerTypes, labeledIntegerTypes != null, new Range<sbyte>[] { new Range<sbyte>((sbyte)parameterDescription.MinValidValue, (sbyte)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), 1));
                         break;
 
                     case ERDM_DataType.UNSIGNED_WORD:
-                        oneOfType = new OneOfTypes(new IntegerType<ushort>(name, displayName, null, null, EIntegerType.UInt16, labeledIntegerTypes, labeledIntegerTypes != null, new Range<ushort>[] { new Range<ushort>((ushort)parameterDescription.MinValidValue, (ushort)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), null));
+                        oneOfType = new OneOfTypes(new IntegerType<ushort>(name, displayName, null, null, EIntegerType.UInt16, labeledIntegerTypes, labeledIntegerTypes != null, new Range<ushort>[] { new Range<ushort>((ushort)parameterDescription.MinValidValue, (ushort)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), 1));
                         break;
                     case ERDM_DataType.SIGNED_WORD:
-                        oneOfType = new OneOfTypes(new IntegerType<short>(name, displayName, null, null, EIntegerType.Int16, labeledIntegerTypes, labeledIntegerTypes != null, new Range<short>[] { new Range<short>((short)parameterDescription.MinValidValue, (short)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), null));
+                        oneOfType = new OneOfTypes(new IntegerType<short>(name, displayName, null, null, EIntegerType.Int16, labeledIntegerTypes, labeledIntegerTypes != null, new Range<short>[] { new Range<short>((short)parameterDescription.MinValidValue, (short)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), 1));
                         break;
                     default:
                         break;
@@ -233,8 +233,14 @@ namespace RDMSharp.Metadata
                 foreach (var part in parts)
                 {
                     string[] labelAndValue = part.Split('=');
-                    if (labelAndValue.Length == 2 && int.TryParse(labelAndValue[0], out int value))
-                        labeledIntegerTypes.Add(new LabeledIntegerType(labelAndValue[1], value));
+                    int value = 0;
+                    if (labelAndValue.Length == 2)
+                    {
+                        if (int.TryParse(labelAndValue[0], out value))
+                            labeledIntegerTypes.Add(new LabeledIntegerType(labelAndValue[1], value));
+                        else if (int.TryParse(labelAndValue[1], out value))
+                            labeledIntegerTypes.Add(new LabeledIntegerType(labelAndValue[0], value));
+                    }
                 }
             }
             if (labeledIntegerTypes.Count == 0)
