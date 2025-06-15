@@ -7,7 +7,7 @@ namespace RDMSharp
 {
     [DataTreeObject(ERDM_Parameter.REAL_TIME_CLOCK, Command.ECommandDublicate.GetResponse)]
     [DataTreeObject(ERDM_Parameter.REAL_TIME_CLOCK, Command.ECommandDublicate.SetRequest)]
-    public class RDMRealTimeClock : AbstractRDMPayloadObject
+    public class RDMRealTimeClock : AbstractRDMPayloadObject, IComparable
     {
         [DataTreeObjectConstructor]
         public RDMRealTimeClock(
@@ -100,6 +100,15 @@ namespace RDMSharp
             data.AddRange(Tools.ValueToData(this.Minute));
             data.AddRange(Tools.ValueToData(this.Second));
             return data.ToArray();
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj is RDMRealTimeClock rtc)
+            {
+                return this.Date.CompareTo(rtc.Date);
+            }
+            throw new ArgumentException("Object is not a RDMRealTimeClock", nameof(obj));
         }
     }
 }
