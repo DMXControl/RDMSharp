@@ -184,6 +184,8 @@ namespace RDMSharp
         {
             if (DeviceInfo.SubDeviceCount == 0)
                 return;
+            if (!this.Subdevice.IsRoot)
+                return;
 
             ushort foundSubDevices = 0;
             ushort currentID = 0;
