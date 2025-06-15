@@ -143,6 +143,38 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             return ObjectType ?? ReferenceType?.ReferencedObject;
         }
 
+        public bool TryGetLabeledIntegerTypes(out LabeledIntegerType[] labeledIntegerTypes)
+        {
+            labeledIntegerTypes = null;
+            if (IntegerType_UInt8 is not null)
+                labeledIntegerTypes = IntegerType_UInt8.Labels;
+            else if (IntegerType_Int8 is not null)
+                labeledIntegerTypes = IntegerType_Int8.Labels;
+            else if (IntegerType_UInt16 is not null)
+                labeledIntegerTypes = IntegerType_UInt16.Labels;
+            else if (IntegerType_Int16 is not null)
+                labeledIntegerTypes = IntegerType_Int16.Labels;
+            else if (IntegerType_UInt32 is not null)
+                labeledIntegerTypes = IntegerType_UInt32.Labels;
+            else if (IntegerType_Int32 is not null)
+                labeledIntegerTypes = IntegerType_Int32.Labels;
+            else if (IntegerType_UInt64 is not null)
+                labeledIntegerTypes = IntegerType_UInt64.Labels;
+            else if (IntegerType_Int64 is not null)
+                labeledIntegerTypes = IntegerType_Int64.Labels;
+
+#if NET7_0_OR_GREATER
+            else if (IntegerType_UInt128 is not null)
+                labeledIntegerTypes = IntegerType_UInt128.Labels;
+            else if (IntegerType_Int128 is not null)
+                labeledIntegerTypes = IntegerType_Int128.Labels;
+            else
+                labeledIntegerTypes = null;
+#endif
+
+            return labeledIntegerTypes is not null;
+        }
+
         public override string ToString()
         {
             return getObjectType()?.ToString();

@@ -1,4 +1,5 @@
 ﻿using RDMSharp.Metadata.JSON.Converter;
+using RDMSharp.Metadata.JSON.OneOfTypes;
 using RDMSharp.RDM;
 using System;
 using System.Collections.Generic;
@@ -80,6 +81,19 @@ namespace RDMSharp.Metadata.JSON
                 return names.ToArray();
             }
             throw new NotImplementedException();
+        }
+        public bool TryGetLabeledIntegerTypes(out LabeledIntegerType[] labeledIntegerTypes)
+        {
+            labeledIntegerTypes = null;
+            if (EnumValue.HasValue)
+                return false;
+            if (SingleField.HasValue)
+                return SingleField.Value.TryGetLabeledIntegerTypes(out labeledIntegerTypes);
+            if (ListOfFields != null)
+                foreach (var field in ListOfFields)
+                    if (field.TryGetLabeledIntegerTypes(out labeledIntegerTypes))
+                        return true;
+            return false;
         }
         public override string ToString()
         {
