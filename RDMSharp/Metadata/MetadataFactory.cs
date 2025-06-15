@@ -156,13 +156,15 @@ namespace RDMSharp.Metadata
                     setResponseSubdeviceRange = new SubdevicesForResponses[] { new SubdevicesForResponses(SubdevicesForResponses.ESubdevicesForResponses.Root) };
                 }
             }
+
+            string name = parameterDescription.Description;
+            string displayName = getDisplayName(parameterDescription);
+
             if (parameterDescription.CommandClass.HasFlag(ERDM_CommandClass.GET))
             {
                 getCommandRequest = new Command();
                 OneOfTypes? oneOfType = null;
-                string name = parameterDescription.Description;
-                string displayName = null;
-                LabeledIntegerType[] labeledIntegerTypes = null;
+                LabeledIntegerType[] labeledIntegerTypes = getLabeledIntegerTypes(parameterDescription);
                 switch (parameterDescription.DataType)
                 {
                     case ERDM_DataType.ASCII:
@@ -173,6 +175,15 @@ namespace RDMSharp.Metadata
                         break;
                     case ERDM_DataType.SIGNED_BYTE:
                         oneOfType = new OneOfTypes(new IntegerType<sbyte>(name, displayName, null, null, EIntegerType.Int8, labeledIntegerTypes, labeledIntegerTypes != null, new Range<sbyte>[] { new Range<sbyte>((sbyte)parameterDescription.MinValidValue, (sbyte)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), null));
+                        break;
+
+                    case ERDM_DataType.UNSIGNED_WORD:
+                        oneOfType = new OneOfTypes(new IntegerType<ushort>(name, displayName, null, null, EIntegerType.UInt16, labeledIntegerTypes, labeledIntegerTypes != null, new Range<ushort>[] { new Range<ushort>((ushort)parameterDescription.MinValidValue, (ushort)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), null));
+                        break;
+                    case ERDM_DataType.SIGNED_WORD:
+                        oneOfType = new OneOfTypes(new IntegerType<short>(name, displayName, null, null, EIntegerType.Int16, labeledIntegerTypes, labeledIntegerTypes != null, new Range<short>[] { new Range<short>((short)parameterDescription.MinValidValue, (short)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), null));
+                        break;
+                    default:
                         break;
                 }
                 if (oneOfType.HasValue)
@@ -187,7 +198,7 @@ namespace RDMSharp.Metadata
             }
             MetadataJSONObjectDefine define = new MetadataJSONObjectDefine(
                 parameterDescription.Description,
-                null,
+                displayName,
                 null,
                 uid.ManufacturerID,
                 deviceInfo.DeviceModelId,
@@ -204,6 +215,33 @@ namespace RDMSharp.Metadata
                 setCommandResponse);
 
             parameterBagDefineCache.TryAdd(new ParameterBag((ERDM_Parameter)define.PID, define.ManufacturerID, define.DeviceModelID, define.SoftwareVersionID), define);
+        }
+        private static string getDisplayName(RDMParameterDescription parameterDescription)
+        {
+            if(parameterDescription.Description.Contains(' ') && parameterDescription.Description.Contains('='))
+            {
+                string[] parts = parameterDescription.Description.Split(' ');
+                string result = string.Join(' ', parts.TakeWhile(p => !p.Contains('=')));
+                return result;
+            }
+            return null;
+        }
+        private static LabeledIntegerType[] getLabeledIntegerTypes(RDMParameterDescription parameterDescription)
+        {
+            List<LabeledIntegerType> labeledIntegerTypes = new List<LabeledIntegerType>();
+            if (parameterDescription.Description.Contains(' ') && parameterDescription.Description.Contains('='))
+            {
+                var parts = parameterDescription.Description.Split(' ').Where(p => p.Contains('='));
+                foreach (var part in parts)
+                {
+                    string[] labelAndValue = part.Split('=');
+                    if (labelAndValue.Length == 2 && int.TryParse(labelAndValue[0], out int value))
+                        labeledIntegerTypes.Add(new LabeledIntegerType(labelAndValue[1], value));
+                }
+            }
+            if (labeledIntegerTypes.Count == 0)
+                return null;
+            return labeledIntegerTypes.ToArray();
         }
         private static MetadataJSONObjectDefine getDefine(ParameterBag parameter)
         {

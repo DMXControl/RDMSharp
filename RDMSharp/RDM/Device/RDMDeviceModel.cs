@@ -193,6 +193,8 @@ namespace RDMSharp
 
                 if (DeviceInfo.Dmx512CurrentPersonality.HasValue) // Remote Device not send DMX_PERSONALITY Parameter but uses it!
                     supportedParameters.TryAdd(ERDM_Parameter.DMX_PERSONALITY, true);
+                if (!this.supportedParameters.ContainsKey(ERDM_Parameter.IDENTIFY_DEVICE))
+                    this.supportedParameters.TryAdd(ERDM_Parameter.IDENTIFY_DEVICE, true);
             }
             await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
         }

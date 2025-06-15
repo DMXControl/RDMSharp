@@ -178,7 +178,7 @@ namespace RDMSharp
             ptpProcess.ResponseMessage = OnResponseMessage;
             await ptpProcess?.Run();
         }
-        protected async Task requestSetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
+        protected async Task<bool> requestSetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
         {
             PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.SET_COMMAND, uid, subDevice, parameterBag);
             await runPeerToPeerProcess(ptpProcess);
@@ -186,9 +186,11 @@ namespace RDMSharp
             {
                 updateParameterValuesDependeciePropertyBag(parameterBag.PID, ptpProcess.ResponsePayloadObject);
                 updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(parameterBag.PID), ptpProcess.ResponsePayloadObject);
+                return ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Finished;
             }
+            return false;
         }
-        protected async Task requestSetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice, object value)
+        protected async Task<bool> requestSetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice, object value)
         {
             define.GetCommand(Metadata.JSON.Command.ECommandDublicate.SetRequest, out var cmd);
             var req = cmd.Value.GetRequiredProperties();
@@ -212,8 +214,10 @@ namespace RDMSharp
                     }
                     else if (!ptpProcess.ResponsePayloadObject.IsUnset)
                         updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), ptpProcess.ResponsePayloadObject);
+                    return true;
                 }
             }
+            return false;
         }
 
         protected async Task<byte> requestGetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)

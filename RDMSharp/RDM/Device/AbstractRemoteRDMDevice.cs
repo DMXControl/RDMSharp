@@ -415,9 +415,9 @@ namespace RDMSharp
                 if (define.SetRequest.HasValue)
                 {
                     if (define.SetRequest.Value.GetIsEmpty())
-                        await requestSetParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
+                        return await requestSetParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
                     else
-                        await requestSetParameterWithPayload(parameterBag, define, UID, Subdevice, value);
+                        return await requestSetParameterWithPayload(parameterBag, define, UID, Subdevice, value);
                 }
             }
             catch (Exception e)
