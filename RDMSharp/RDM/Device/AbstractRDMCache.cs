@@ -71,6 +71,11 @@ namespace RDMSharp
 
         }
 
+        protected void InvokeParameterValueAdded(ParameterValueAddedEventArgs e)
+        {
+            this.ParameterValueAdded?.InvokeFailSafe(this, e);
+        }
+
 
         protected void updateParameterValuesDependeciePropertyBag(ERDM_Parameter parameter, DataTreeBranch dataTreeBranch)
         {

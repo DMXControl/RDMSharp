@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata;
@@ -108,7 +109,6 @@ namespace RDMSharp
 
         private DateTime lastSendQueuedMessage;
 
-        private SemaphoreSlim presentSemaphoreSlim = new SemaphoreSlim(1);
         private bool present;
         public bool Present
         {
@@ -170,6 +170,7 @@ namespace RDMSharp
         private async void DeviceModel_Initialized(object sender, EventArgs e)
         {
             deviceModel.Initialized -= DeviceModel_Initialized;
+            deviceModel.ParameterValueAdded -= DeviceModel_ParameterValueAdded;
             await collectParameters();
         }
         private async Task collectParameters()
@@ -288,41 +289,88 @@ namespace RDMSharp
             }
         }
 
+        private SemaphoreSlim updateSenaphoreSlim = new SemaphoreSlim(1);
         private async Task updateParameters()
         {
             if (QueuedSupported && deviceModel.KnownNotSupportedParameters.Contains(ERDM_Parameter.QUEUED_MESSAGE))
                 QueuedSupported = false;
 
-            if (QueuedSupported && !deviceModel.KnownNotSupportedParameters.Contains(ERDM_Parameter.QUEUED_MESSAGE))
+            if (updateSenaphoreSlim.CurrentCount == 0)
+                return;
+
+            await updateSenaphoreSlim.WaitAsync();
+            try
             {
-                if (DateTime.UtcNow - lastSendQueuedMessage < TimeSpan.FromMilliseconds(GlobalTimers.Instance.QueuedUpdateTime))
-                    return;
-                ParameterBag parameterBag = new ParameterBag(ERDM_Parameter.QUEUED_MESSAGE, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
-                var define = MetadataFactory.GetDefine(parameterBag);
-                if (define.GetRequest.HasValue)
+                if (QueuedSupported && !deviceModel.KnownNotSupportedParameters.Contains(ERDM_Parameter.QUEUED_MESSAGE))
                 {
-                    byte mc = 0;
-                    do
+                    if (DateTime.UtcNow - lastSendQueuedMessage < TimeSpan.FromMilliseconds(GlobalTimers.Instance.QueuedUpdateTime))
+                        return;
+                    ParameterBag parameterBag = new ParameterBag(ERDM_Parameter.QUEUED_MESSAGE, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
+                    var define = MetadataFactory.GetDefine(parameterBag);
+                    if (define.GetRequest.HasValue)
                     {
-                        lastSendQueuedMessage = DateTime.UtcNow;
-                        mc = await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice, ERDM_Status.ADVISORY);
-                        await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenQueuedUpdateRequests);
-                        
+                        byte mc = 0;
+                        do
+                        {
+                            var cts = new CancellationTokenSource();
+                            cts.CancelAfter(TimeSpan.FromMilliseconds(GlobalTimers.Instance.ParameterUpdateTimerInterval));
+                            var task = Task.Run(async () =>
+                            {
+                                lastSendQueuedMessage = DateTime.UtcNow;
+
+                                Stopwatch sw = new Stopwatch();
+                                sw?.Restart();
+                                mc = await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice, ERDM_Status.ADVISORY);
+                                sw?.Stop();
+                                Logger?.LogTrace($"Queued Parameter update took {sw.ElapsedMilliseconds}ms for {mc} messages.");
+                            }, cts.Token);
+                            await task;
+
+                            if (task.IsCompletedSuccessfully)
+                                await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenQueuedUpdateRequests);
+                            else
+                            {
+                                Logger?.LogTrace(task.Exception, $"Queue Parameter update failed: {task.Exception?.Message}");
+                                return;
+                            }
+
+                        }
+                        while (mc != 0);
+                        return;
                     }
-                    while (mc != 0);
-                    return;
+                }
+                while (ParameterUpdatedBag.TryPeek(out ParameterUpdatedBag bag))
+                {
+                    if (DateTime.UtcNow - bag.Timestamp < TimeSpan.FromMilliseconds(GlobalTimers.Instance.NonQueuedUpdateTime))
+                        return;
+
+                    var cts = new CancellationTokenSource();
+                    cts.CancelAfter(TimeSpan.FromMilliseconds(GlobalTimers.Instance.ParameterUpdateTimerInterval));
+                    var task = Task.Run(async () =>
+                    {
+                        Stopwatch sw = new Stopwatch();
+                        sw?.Restart();
+                        await requestParameter(bag.Parameter, bag.Index);
+                        sw?.Stop();
+                        Logger?.LogTrace($"Parameter update for {bag.Parameter} with index {bag.Index} took {sw.ElapsedMilliseconds}ms");
+
+                        UpdateParameterUpdatedBag(bag.Parameter, bag.Index);
+                    }, cts.Token);
+                    await task;
+
+                    if (task.IsCompletedSuccessfully)
+                        await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenNonQueuedUpdateRequests);
+                    else
+                        Logger?.LogTrace(task.Exception, $"Parameter update for {bag.Parameter} with index {bag.Index} failed: {task.Exception?.Message}");
                 }
             }
-            while (ParameterUpdatedBag.TryPeek(out ParameterUpdatedBag bag))
+            catch (Exception ex)
             {
-                if (DateTime.UtcNow - bag.Timestamp < TimeSpan.FromMilliseconds(GlobalTimers.Instance.NonQueuedUpdateTime))
-                    return;
-
-                await requestParameter(bag.Parameter, bag.Index);
-
-                UpdateParameterUpdatedBag(bag.Parameter, bag.Index);
-
-                await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenNonQueuedUpdateRequests);
+                Logger?.LogError(ex);
+            }
+            finally
+            {
+                updateSenaphoreSlim.Release();
             }
         }
 
@@ -335,11 +383,29 @@ namespace RDMSharp
             if (!deviceModel.IsInitialized)
             {
                 deviceModel.Initialized += DeviceModel_Initialized;
-                await deviceModel.Initialize();
+                deviceModel.ParameterValueAdded += DeviceModel_ParameterValueAdded;
+                if (!deviceModel.IsInitializing)
+                    await deviceModel.Initialize();
+                else
+                    InvkoeDeviceModelParameterValueAdded();
             }
             else
+            {
+                InvkoeDeviceModelParameterValueAdded();
                 await collectParameters();
+            }
+            void InvkoeDeviceModelParameterValueAdded()
+            {
+                foreach (var item in this.deviceModel.ParameterValues)
+                    base.InvokeParameterValueAdded(new ParameterValueAddedEventArgs(item.Key, item.Value));
+            }
         }
+
+        private void DeviceModel_ParameterValueAdded(object sender, ParameterValueAddedEventArgs e)
+        {
+            base.InvokeParameterValueAdded(e);
+        }
+
         private async Task collectAllParametersOnRoot()
         {
             await requestParameters();

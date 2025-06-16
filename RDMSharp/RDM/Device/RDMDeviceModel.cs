@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RDMSharp
@@ -72,9 +73,21 @@ namespace RDMSharp
         public new bool IsDisposed { get; private set; }
 
         public bool IsInitialized { get; private set; } = false;
+        public bool IsInitializing { get; private set; } = false;
 
         public event EventHandler Initialized;
         public event PropertyChangedEventHandler PropertyChanged;
+        public new event EventHandler<ParameterValueAddedEventArgs> ParameterValueAdded
+        {
+            add
+            {
+                base.ParameterValueAdded += value;
+            }
+            remove
+            {
+                base.ParameterValueAdded -= value;
+            }
+        }
 
         public readonly ushort ManufacturerID;
         public readonly EManufacturer Manufacturer;
@@ -156,16 +169,29 @@ namespace RDMSharp
             this.ParameterValueAdded += RDMDeviceModel_ParameterValueAdded;
         }
 
+        private SemaphoreSlim initializeSemaphoreSlim = new SemaphoreSlim(1);
         internal async Task Initialize()
         {
             if (IsInitialized)
                 return;
+            if (initializeSemaphoreSlim.CurrentCount == 0)
+                return;
+            IsInitializing = true;
 
-            await requestSupportedParameters();
-            await requestBlueprintParameters();
-            await requestPersonalityBlueprintParameters();
+            await initializeSemaphoreSlim.WaitAsync();
+            try
+            {
+                await requestSupportedParameters();
+                await requestBlueprintParameters();
+                await requestPersonalityBlueprintParameters();
 
-            IsInitialized = true;
+                IsInitialized = true;
+            }
+            finally
+            {
+                initializeSemaphoreSlim.Release();
+                IsInitializing = false;
+            }
             Initialized?.Invoke(this, EventArgs.Empty);
         }
 

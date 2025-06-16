@@ -17,10 +17,10 @@ namespace RDMSharp
         }
 
         public const int DefaultQueuedUpdateTime = 4000; // 4 seconds
-        public const int DefaultNonQueuedUpdateTime = 4000; // 4 seconds
+        public const int DefaultNonQueuedUpdateTime = 10000; // 10 seconds
         public const int DefaultUpdateDelayBetweenRequests = 50; // 50 milliseconds
         public const int DefaultUpdateDelayBetweenQueuedUpdateRequests = 200; // 200 milliseconds
-        public const int DefaultUpdateDelayBetweenNonQueuedUpdateRequests = 200; // 200 milliseconds
+        public const int DefaultUpdateDelayBetweenNonQueuedUpdateRequests = 500; // 500 milliseconds
         public const int DefaultPresentLostTime = 15000; // 15 seconds
 
         public const int DefaultDiscoveryTimeout = 5; // 5 milliseconds
