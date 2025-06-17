@@ -87,10 +87,14 @@ namespace RDMSharp
                 suffixIndex++;
             }
 
+            number = Math.Round(number, 2);
+            if (number == 0)
+                return "0";
+
             string prefix = prefixes[prefixIndex];
             string suffix = suffixes[suffixIndex];
 
-            return $"{number}{prefix}{suffix}";
+            return $"{number:0.##}{prefix}{suffix}";
         }
 
         public static string GetFormatedSensorValue(in uint value, in ERDM_UnitPrefix prefix, in ERDM_SensorUnit unit)
