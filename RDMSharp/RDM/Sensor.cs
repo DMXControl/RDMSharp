@@ -234,7 +234,7 @@ namespace RDMSharp
             LowestHighestValueSupported = lowestHighestValueSupported;
             RecordedValueSupported = recordedValueSupported;
         }
-        internal protected Sensor(in byte sensorId,
+        public Sensor(in byte sensorId,
             in short initValue,
             in ERDM_SensorType type,
             in ERDM_SensorUnit unit,
