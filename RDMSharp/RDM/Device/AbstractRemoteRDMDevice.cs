@@ -29,7 +29,7 @@ namespace RDMSharp
 
         private readonly ConcurrentDictionary<byte, Sensor> sensors = new ConcurrentDictionary<byte, Sensor>();
         public sealed override IReadOnlyDictionary<byte, Sensor> Sensors { get { return sensors.AsReadOnly(); } }
-        public sealed override IReadOnlyDictionary<ushort, Slot> Slots { get { return PersonalityModel.Slots; } }
+        public sealed override IReadOnlyDictionary<ushort, Slot> Slots { get { return PersonalityModel?.Slots; } }
 
 
         private readonly ConcurrentDictionary<int, RDMStatusMessage> statusMessages = new ConcurrentDictionary<int, RDMStatusMessage>();
