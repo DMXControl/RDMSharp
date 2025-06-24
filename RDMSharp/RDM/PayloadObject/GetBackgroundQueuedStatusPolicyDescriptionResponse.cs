@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace RDMSharp
 {
     [DataTreeObject(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY_DESCRIPTION, Command.ECommandDublicate.GetResponse)]
-    public class GetBackgroundQueuedStatusPolicyDescriptionResponse : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
+    public class GetBackgroundQueuedStatusPolicyDescriptionResponse : AbstractRDMPayloadObject, IRDMPayloadObjectIndex, IRDMPayloadObjectOneOfDescription
     {
         [DataTreeObjectConstructor]
         public GetBackgroundQueuedStatusPolicyDescriptionResponse(

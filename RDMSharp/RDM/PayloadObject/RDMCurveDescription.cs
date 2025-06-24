@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace RDMSharp
 {
     [DataTreeObject(ERDM_Parameter.CURVE_DESCRIPTION, Command.ECommandDublicate.GetResponse)]
-    public class RDMCurveDescription : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
+    public class RDMCurveDescription : AbstractRDMPayloadObject, IRDMPayloadObjectIndex, IRDMPayloadObjectOneOfDescription
     {
         [DataTreeObjectConstructor]
         public RDMCurveDescription(
