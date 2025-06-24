@@ -11,13 +11,16 @@ namespace RDMSharp
         [DataTreeObjectConstructor]
         public RDMModulationFrequency(
             [DataTreeObjectParameter("setting")] byte modulationFrequencyId = 1,
-            [DataTreeObjectParameter("uint8")] byte modulationFrequencys = 0)
+            [DataTreeObjectParameter("setting_count")] byte modulationFrequencys = 0)
         {
             this.ModulationFrequencyId = modulationFrequencyId;
             this.ModulationFrequencys = modulationFrequencys;
         }
 
+        [DataTreeObjectProperty("setting", 0)]
         public byte ModulationFrequencyId { get; private set; }
+
+        [DataTreeObjectProperty("setting_count", 1)]
         public byte ModulationFrequencys { get; private set; }
 
         public override Type IndexType => typeof(byte);

@@ -17,7 +17,10 @@ namespace RDMSharp
             this.BaseDMX512Address = baseDMX512Address;
         }
 
+        [DataTreeObjectProperty("total_subdevice_footprint", 0)]
         public ushort TotalSubDeviceFootprint { get; private set; }
+
+        [DataTreeObjectProperty("base_dmx_address", 1)]
         public ushort BaseDMX512Address { get; private set; }
         public const int PDL = 4;
 

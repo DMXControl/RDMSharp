@@ -17,8 +17,8 @@ namespace RDMSharp
             short dataValue2 = 0)
         {
             this.SubDeviceId = subDeviceId;
-            this.StatusType = statusType;
-            this.StatusMessage = statusMessage;
+            this.EStatusType = statusType;
+            this.EStatusMessage = statusMessage;
             this.DataValue1 = dataValue1;
             this.DataValue2 = dataValue2;
         }
@@ -34,18 +34,44 @@ namespace RDMSharp
         {
         }
 
+        [DataTreeObjectProperty("subdevice_id", 0)]
         public ushort SubDeviceId { get; private set; }
-
-        public ERDM_Status StatusType { get; private set; }
-        public ERDM_StatusMessage StatusMessage { get; private set; }
+        public ERDM_Status EStatusType
+        {
+            get
+            {
+                return (ERDM_Status)StatusType;
+            }
+            private set
+            {
+                StatusType = (byte)value;
+            }
+        }
+        [DataTreeObjectProperty("status_type", 1)]
+        public byte StatusType { get; private set; }
+        public ERDM_StatusMessage EStatusMessage
+        {
+            get
+            {
+                return (ERDM_StatusMessage)StatusMessage;
+            }
+            private set
+            {
+                StatusMessage = (ushort)value;
+            }
+        }
+        [DataTreeObjectProperty("status_message_id", 2)]
+        public ushort StatusMessage { get; private set; }
+        [DataTreeObjectProperty("data_value_1", 3)]
         public short DataValue1 { get; private set; }
+        [DataTreeObjectProperty("data_value_2", 4)]
         public short DataValue2 { get; private set; }
         public const int PDL = 9;
-        public string FormatedString => StatusMessage.GetStatusMessage(DataValue1, DataValue2);
+        public string FormatedString => EStatusMessage.GetStatusMessage(DataValue1, DataValue2);
 
         internal void Clear()
         {
-            StatusType |= ERDM_Status.CLEARED;
+            EStatusType |= ERDM_Status.CLEARED;
         }
 
         public override string ToString()
@@ -53,8 +79,8 @@ namespace RDMSharp
             StringBuilder b = new StringBuilder();
             b.AppendLine("RDMStatusMessage");
             b.AppendLine($"SubDeviceId:   {SubDeviceId}");
-            b.AppendLine($"StatusType: {StatusType}");
-            b.AppendLine($"StatusMessage:   {StatusMessage}");
+            b.AppendLine($"StatusType: {EStatusType}");
+            b.AppendLine($"StatusMessage:   {EStatusMessage}");
             b.AppendLine($"DataValue1:   {DataValue1}");
             b.AppendLine($"DataValue2:   {DataValue2}");
             b.AppendLine($"FormatedString:   {FormatedString}");
@@ -84,8 +110,8 @@ namespace RDMSharp
         {
             List<byte> data = new List<byte>();
             data.AddRange(Tools.ValueToData(this.SubDeviceId));
-            data.AddRange(Tools.ValueToData(this.StatusType));
-            data.AddRange(Tools.ValueToData(this.StatusMessage));
+            data.AddRange(Tools.ValueToData(this.EStatusType));
+            data.AddRange(Tools.ValueToData(this.EStatusMessage));
             data.AddRange(Tools.ValueToData(this.DataValue1));
             data.AddRange(Tools.ValueToData(this.DataValue2));
             return data.ToArray();
@@ -96,8 +122,8 @@ namespace RDMSharp
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
             return this.SubDeviceId == other.SubDeviceId &&
-                   this.StatusType == other.StatusType &&
-                   this.StatusMessage == other.StatusMessage &&
+                   this.EStatusType == other.EStatusType &&
+                   this.EStatusMessage == other.EStatusMessage &&
                    this.DataValue1 == other.DataValue1 &&
                    this.DataValue2 == other.DataValue2;
         }

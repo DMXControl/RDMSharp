@@ -16,7 +16,9 @@ namespace RDMSharp
             this.LockStateId = lockStateId;
         }
 
+        [DataTreeObjectProperty("pin_code", 0)]
         public ushort PinCode { get; private set; }
+        [DataTreeObjectProperty("state", 1)]
         public byte LockStateId { get; private set; }
         public const int PDL = 3;
 

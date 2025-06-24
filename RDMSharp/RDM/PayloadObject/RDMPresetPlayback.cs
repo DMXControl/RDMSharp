@@ -19,7 +19,9 @@ namespace RDMSharp
         }
 
         public ERDM_PresetPlayback EMode { get { return (ERDM_PresetPlayback)this.Mode; } }
+        [DataTreeObjectProperty("mode", 0)]
         public ushort Mode { get; private set; }
+        [DataTreeObjectProperty("level", 1)]
         public byte Level { get; private set; }
         public const int PDL = 3;
 

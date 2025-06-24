@@ -17,7 +17,9 @@ namespace RDMSharp
             this.Label = label;
         }
 
+        [DataTreeObjectProperty("sensor_unit", 0)]
         public byte Id { get; private set; }
+        [DataTreeObjectProperty("label", 1)]
         public string Label { get; private set; }
 
         public object MinIndex => (byte)0x80;

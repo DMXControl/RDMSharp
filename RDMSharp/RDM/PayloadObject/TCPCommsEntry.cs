@@ -32,9 +32,13 @@ namespace RDMSharp
             this.UnhealthyTCPEvents = unhealthyTCPEvents;
         }
 
+        [DataTreeObjectProperty("scopeString", 0)]
         public string ScopeString { get; private set; }
+        [DataTreeObjectProperty("brokerAddress", 1)]
         public IPAddress BrokerAdress { get; private set; }
+        [DataTreeObjectProperty("brokerPort", 2)]
         public ushort BrokerPort { get; private set; }
+        [DataTreeObjectProperty("unhealthyTCPEvents", 3)]
         public ushort UnhealthyTCPEvents { get; private set; }
 
         public const int PDL = 0x57;

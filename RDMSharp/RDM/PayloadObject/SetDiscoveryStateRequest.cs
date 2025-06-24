@@ -8,8 +8,8 @@ namespace RDMSharp
     public class SetDiscoveryStateRequest : AbstractRDMPayloadObject
     {
         public SetDiscoveryStateRequest(
-            [DataTreeObjectParameter("endpoint_id")] ushort endpointId = default,
-            [DataTreeObjectParameter("state")] ERDM_DiscoveryState discoveryState = default)
+            ushort endpointId = default,
+            ERDM_DiscoveryState discoveryState = default)
         {
             this.EndpointId = endpointId;
             this.DiscoveryState = discoveryState;
@@ -22,7 +22,9 @@ namespace RDMSharp
         {
         }
 
+        [DataTreeObjectProperty("endpoint_id", 0)]
         public ushort EndpointId { get; private set; }
+        [DataTreeObjectProperty("state", 1)]
         public ERDM_DiscoveryState DiscoveryState { get; private set; }
         public const int PDL = 0x03;
 

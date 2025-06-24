@@ -23,7 +23,10 @@ namespace RDMSharp
             this.Description = description;
         }
 
+        [DataTreeObjectProperty("curve", 0)]
         public byte CurveId { get; private set; }
+
+        [DataTreeObjectProperty("description", 1)]
         public string Description { get; private set; }
 
         public object MinIndex => (byte)1;

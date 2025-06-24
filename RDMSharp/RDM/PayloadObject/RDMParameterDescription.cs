@@ -57,15 +57,25 @@ namespace RDMSharp
         {
         }
 
+        [DataTreeObjectProperty("pid", 0)]
         public ushort ParameterId { get; private set; }
+        [DataTreeObjectProperty("pdl", 1)]
         public byte PDLSize { get; private set; }
+        [DataTreeObjectProperty("data_type", 2)]
         public ERDM_DataType DataType { get; private set; }
+        [DataTreeObjectProperty("command_class", 3)]
         public ERDM_CommandClass CommandClass { get; private set; }
+        [DataTreeObjectProperty("unit", 5)]
         public ERDM_SensorUnit Unit { get; private set; }
+        [DataTreeObjectProperty("unit_prefix", 6)]
         public ERDM_UnitPrefix Prefix { get; private set; }
+        [DataTreeObjectProperty("min_valid_value", 7)]
         public uint MinValidValue { get; private set; }
+        [DataTreeObjectProperty("max_valid_value", 8)]
         public uint MaxValidValue { get; private set; }
+        [DataTreeObjectProperty("default_value", 9)]
         public uint DefaultValue { get; private set; }
+        [DataTreeObjectProperty("description", 10)]
         public string Description { get; private set; }
         public const int PDL_MIN = 20;
         public const int PDL_MAX = PDL_MIN + 32;

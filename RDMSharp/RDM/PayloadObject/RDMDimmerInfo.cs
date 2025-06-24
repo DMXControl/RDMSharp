@@ -31,12 +31,19 @@ namespace RDMSharp
             this.MinimumLevelSplitLevelsSupported = minimumLevelSplitLevelsSupported;
         }
 
+        [DataTreeObjectProperty("min_level_lower_limit", 0)]
         public ushort MinimumLevelLowerLimit { get; private set; }
+        [DataTreeObjectProperty("min_level_upper_limit", 1)]
         public ushort MinimumLevelUpperLimit { get; private set; }
+        [DataTreeObjectProperty("max_level_lower_limit", 2)]
         public ushort MaximumLevelLowerLimit { get; private set; }
+        [DataTreeObjectProperty("max_level_upper_limit", 3)]
         public ushort MaximumLevelUpperLimit { get; private set; }
+        [DataTreeObjectProperty("curve_count", 4)]
         public byte NumberOfSupportedCurves { get; private set; }
+        [DataTreeObjectProperty("levels_resolution_bits", 5)]
         public byte LevelsResolution { get; private set; }
+        [DataTreeObjectProperty("min_level_split_levels_supported", 6)]
         public bool MinimumLevelSplitLevelsSupported { get; private set; }
         public const int PDL = 11;
 

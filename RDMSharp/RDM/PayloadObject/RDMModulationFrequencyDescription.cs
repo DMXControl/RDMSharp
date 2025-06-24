@@ -27,8 +27,13 @@ namespace RDMSharp
             this.Description = description;
         }
 
+        [DataTreeObjectProperty("setting", 0)]
         public byte ModulationFrequencyId { get; private set; }
+
+        [DataTreeObjectProperty("frequency", 1)]
         public uint? Frequency { get; private set; }
+
+        [DataTreeObjectProperty("description", 2)]
         public string Description { get; private set; }
 
         public object MinIndex => (byte)1;

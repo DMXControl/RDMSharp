@@ -1217,10 +1217,10 @@ namespace RDMSharp
                 if (statusCode == ERDM_Status.GET_LAST_MESSAGE)
                     throw new NotSupportedException($"The StatusCode: {statusCode}, not supported in this Method.");
 
-                if (statusMessage.StatusType == ERDM_Status.GET_LAST_MESSAGE)
-                    throw new NotSupportedException($"The StatusCode: {statusMessage.StatusType}, not supported in this Method.");
+                if (statusMessage.EStatusType == ERDM_Status.GET_LAST_MESSAGE)
+                    throw new NotSupportedException($"The StatusCode: {statusMessage.EStatusType}, not supported in this Method.");
 
-                var statusType = statusMessage.StatusType & ~ERDM_Status.CLEARED;
+                var statusType = statusMessage.EStatusType & ~ERDM_Status.CLEARED;
 
                 return statusType >= statusCode;
             }

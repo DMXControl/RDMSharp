@@ -17,7 +17,9 @@ namespace RDMSharp
             this.TimingId = timingId;
         }
 
+        [DataTreeObjectProperty("endpoint_id", 0)]
         public ushort EndpointId { get; private set; }
+        [DataTreeObjectProperty("setting", 1)]
         public byte TimingId { get; private set; }
         public byte Timings { get; private set; }
         public const int PDL = 3;

@@ -258,6 +258,9 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             if (!string.Equals(dataTree.Name, this.Name))
                 throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
 
+            if(dataTree.Value is null)
+                throw new ArithmeticException("Value can't be Null");
+
             var rawValue = convertFormatedValueToRaw<T>(dataTree.Value);
             if (Ranges != null)
             {

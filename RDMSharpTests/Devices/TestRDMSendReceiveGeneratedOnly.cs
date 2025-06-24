@@ -1324,7 +1324,7 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(18));
             statusMessages = (RDMStatusMessage[])response.Value;
-            Assert.That(statusMessages[0].StatusType, Is.EqualTo(ERDM_Status.ERROR_CLEARED));
+            Assert.That(statusMessages[0].EStatusType, Is.EqualTo(ERDM_Status.ERROR_CLEARED));
             for (int i = 0; i < 2; i++)
                 Assert.That(statusMessages[i], Is.EqualTo(generated.StatusMessages[i]));
             #endregion

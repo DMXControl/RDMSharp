@@ -17,7 +17,9 @@ namespace RDMSharp
             this.JSON = json;
         }
 
+        [DataTreeObjectProperty("pid", 0)]
         public ERDM_Parameter ParameterId { get; private set; }
+        [DataTreeObjectProperty("json", 1)]
         public string JSON { get; private set; }
 
         public object Index => ParameterId;

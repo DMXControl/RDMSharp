@@ -21,7 +21,7 @@ namespace RDMSharp
             this.UpFadeTime = upFadeTime;
             this.DownFadeTime = downFadeTime;
             this.WaitTime = waitTime;
-            this.Programmed = programmed;
+            this.EProgrammed = programmed;
         }
 
         [DataTreeObjectConstructor]
@@ -35,20 +35,26 @@ namespace RDMSharp
         {
         }
 
+        [DataTreeObjectProperty("scene_num", 0)]
         public ushort SceneId { get; private set; }
         /// <summary>
         ///  Tenths of a second
-        /// </summary>r
+        /// </summary>
+        [DataTreeObjectProperty("up_fade_time", 1)]
         public ushort UpFadeTime { get; private set; }
         /// <summary>
         ///  Tenths of a second
-        /// </summary>r
+        /// </summary>
+        [DataTreeObjectProperty("down_fade_time", 2)]
         public ushort DownFadeTime { get; private set; }
         /// <summary>
         ///  Tenths of a second
-        /// </summary>r
+        /// </summary>
+        [DataTreeObjectProperty("wait_time", 3)]
         public ushort WaitTime { get; private set; }
-        public ERDM_PresetProgrammed Programmed { get; private set; }
+        public ERDM_PresetProgrammed EProgrammed { get { return (ERDM_PresetProgrammed)Programmed; } private set { Programmed = (byte)value; } }
+        [DataTreeObjectProperty("programmed", 4)]
+        public byte Programmed { get; private set; }
 
         public const int PDL = 0x09;
 
@@ -60,7 +66,7 @@ namespace RDMSharp
             b.AppendLine($"UpFadeTime:   {UpFadeTime / 10.0}s");
             b.AppendLine($"DownFadeTime: {DownFadeTime / 10.0}s");
             b.AppendLine($"WaitTime:     {WaitTime / 10.0}s");
-            b.AppendLine($"Programmed:   {Programmed}");
+            b.AppendLine($"Programmed:   {EProgrammed}");
 
             return b.ToString();
         }
@@ -91,7 +97,7 @@ namespace RDMSharp
             data.AddRange(Tools.ValueToData(this.UpFadeTime));
             data.AddRange(Tools.ValueToData(this.DownFadeTime));
             data.AddRange(Tools.ValueToData(this.WaitTime));
-            data.AddRange(Tools.ValueToData(this.Programmed));
+            data.AddRange(Tools.ValueToData(this.EProgrammed));
             return data.ToArray();
         }
     }

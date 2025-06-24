@@ -20,8 +20,11 @@ namespace RDMSharp
             this.OnBelowMinimum = onBelowMinimum;
         }
 
+        [DataTreeObjectProperty("min_level_increasing", 0)]
         public ushort MinimumLevelIncrease { get; private set; }
+        [DataTreeObjectProperty("min_level_decreasing", 1)]
         public ushort MinimumLevelDecrease { get; private set; }
+        [DataTreeObjectProperty("on_below_min", 2)]
         public bool OnBelowMinimum { get; private set; }
         public const int PDL = 5;
 

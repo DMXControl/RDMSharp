@@ -14,7 +14,7 @@ namespace RDMSharp
         [DataTreeObjectConstructor]
         public RDMDMX_xxxx_Mode(
             [DataTreeObjectParameter("scene_num")] ushort scene = 0,
-            [DataTreeObjectParameter(ERDM_Parameter.DMX_FAIL_MODE, "loss_of_signal_delay_time"), DataTreeObjectParameter(ERDM_Parameter.DMX_STARTUP_MODE, "startup_delay_time")] ushort delay = 0,
+            [DataTreeObjectParameter(ERDM_Parameter.DMX_FAIL_MODE, "loss_of_signal_delay_time"),DataTreeObjectParameter(ERDM_Parameter.DMX_STARTUP_MODE, "startup_delay_time")] ushort delay = 0,
             [DataTreeObjectParameter("hold_time")] ushort holdTime = 0,
             [DataTreeObjectParameter("level")] byte level = 0)
         {
@@ -24,9 +24,17 @@ namespace RDMSharp
             this.Level = level;
         }
 
+        [DataTreeObjectProperty("scene_num", 0)]
         public ushort Scene { get; private set; }
+
+        [DataTreeObjectProperty(ERDM_Parameter.DMX_FAIL_MODE, "loss_of_signal_delay_time", 1)]
+        [DataTreeObjectProperty(ERDM_Parameter.DMX_STARTUP_MODE, "startup_delay_time", 1)]
         public ushort Delay { get; private set; }
+
+        [DataTreeObjectProperty("hold_time", 2)]
         public ushort HoldTime { get; private set; }
+
+        [DataTreeObjectProperty("level", 3)]
         public byte Level { get; private set; }
         public const int PDL = 7;
 

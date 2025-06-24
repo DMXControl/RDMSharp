@@ -17,7 +17,9 @@ namespace RDMSharp
             this.ListChange = listChange;
         }
 
+        [DataTreeObjectProperty("device_count", 0)]
         public ushort DeviceCount { get; private set; }
+        [DataTreeObjectProperty("list_change", 1)]
         public bool ListChange { get; private set; }
         public const int PDL = 3;
 

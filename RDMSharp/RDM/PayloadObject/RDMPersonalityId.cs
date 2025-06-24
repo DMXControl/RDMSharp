@@ -19,8 +19,11 @@ namespace RDMSharp
             this.MinorPersonalityId = minorPersonalityId;
         }
 
+        [DataTreeObjectProperty("personality", 0)]
         public byte PersonalityId { get; private set; }
+        [DataTreeObjectProperty("major_id", 1)]
         public ushort MajorPersonalityId { get; private set; }
+        [DataTreeObjectProperty("minor_id", 2)]
         public ushort MinorPersonalityId { get; private set; }
 
         public object MinIndex => (byte)1;

@@ -16,7 +16,9 @@ namespace RDMSharp
             this.CurrentPinCode = currentPinCode;
         }
 
+        [DataTreeObjectProperty("new_pin_code", 0)]
         public ushort NewPinCode { get; private set; }
+        [DataTreeObjectProperty("current_pin_code", 1)]
         public ushort CurrentPinCode { get; private set; }
         public const int PDL = 4;
 

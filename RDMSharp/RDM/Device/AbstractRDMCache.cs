@@ -256,7 +256,7 @@ namespace RDMSharp
 
                     IComparable dependecyValue = (IComparable)parameterValuesDependeciePropertyBag.FirstOrDefault(bag => bag.Key.Parameter == parameterBag.PID && bag.Key.Command == Metadata.JSON.Command.ECommandDublicate.GetRequest && string.Equals(bag.Key.Name, name)).Value;
 
-                    if (i == null)
+                    if (i == null && dependecyValue != null)
                     {
                         i = intType.GetMinimum();
                         object max = intType.GetMaximum();

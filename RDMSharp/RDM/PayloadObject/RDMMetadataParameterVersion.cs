@@ -17,7 +17,9 @@ namespace RDMSharp
             this.Version = version;
         }
 
+        [DataTreeObjectProperty("pid", 0)]
         public ERDM_Parameter ParameterId { get; private set; }
+        [DataTreeObjectProperty("version", 1)]
         public ushort Version { get; private set; }
 
         public object Index => ParameterId;

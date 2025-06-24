@@ -17,7 +17,9 @@ namespace RDMSharp
             this.ResponseTimes = responseTimes;
         }
 
+        [DataTreeObjectProperty("setting", 0)]
         public byte CurrentResponseTimeId { get; private set; }
+        [DataTreeObjectProperty("setting_count", 1)]
         public byte ResponseTimes { get; private set; }
 
         public override Type IndexType => typeof(byte);

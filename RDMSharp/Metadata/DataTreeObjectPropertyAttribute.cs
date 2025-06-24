@@ -19,4 +19,9 @@ public class DataTreeObjectPropertyAttribute : Attribute
     {
         Parameter = parameter;
     }
+
+    public override string ToString()
+    {
+        return $"{Parameter} -> {Name}";
+    }
 }

@@ -17,7 +17,10 @@ namespace RDMSharp
             this.Curves = curves;
         }
 
+        [DataTreeObjectProperty("curve", 0)]
         public byte CurrentCurveId { get; private set; }
+
+        [DataTreeObjectProperty("curve_count", 1)]
         public byte Curves { get; private set; }
 
         public override Type IndexType => typeof(byte);

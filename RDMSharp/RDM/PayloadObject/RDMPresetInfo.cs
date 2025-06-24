@@ -51,60 +51,79 @@ namespace RDMSharp
             this.MaximumStartupDelayHoldSupported = maximumStartupDelayHoldSupported;
         }
 
+        [DataTreeObjectProperty("level_field_supported", 0)]
         public bool LevelFieldSupported { get; private set; }
+        [DataTreeObjectProperty("preset_sequence_supported", 1)]
         public bool PresetSequenceSupported { get; private set; }
+        [DataTreeObjectProperty("split_times_supported", 2)]
         public bool SplitTimesSupported { get; private set; }
+        [DataTreeObjectProperty("dmx_fail_infinite_delay_time_supported", 3)]
         public bool DMX512FailInfiniteDelayTimeSupported { get; private set; }
+        [DataTreeObjectProperty("dmx_fail_infinite_hold_time_supported", 4)]
         public bool DMX512FailInfiniteHoldTimeSupported { get; private set; }
+        [DataTreeObjectProperty("startup_infinite_hold_time_supported", 5)]
         public bool StartupInfiniteHoldTimeSupported { get; private set; }
+        [DataTreeObjectProperty("max_scene_number", 6)]
         public ushort MaximumSceneNumber { get; private set; }
         /// <summary>
         ///  Tenths of a second
         /// </summary>
+        [DataTreeObjectProperty("preset_min_fade_time", 7)]
         public ushort MinimumPresetFadeTimeSupported { get; private set; }
         /// <summary>
         ///  Tenths of a second
         /// </summary>
+        [DataTreeObjectProperty("preset_max_fade_time", 8)]
         public ushort MaximumPresetFadeTimeSupported { get; private set; }
         /// <summary>
         ///  Tenths of a second
         /// </summary>
+        [DataTreeObjectProperty("preset_min_wait_time", 9)]
         public ushort MinimumPresetWaitTimeSupported { get; private set; }
         /// <summary>
         ///  Tenths of a second
         /// </summary>
+        [DataTreeObjectProperty("preset_max_wait_time", 10)]
         public ushort MaximumPresetWaitTimeSupported { get; private set; }
         /// <summary>
         ///  Tenths of a second
         /// </summary>
+        [DataTreeObjectProperty("dmx_fail_min_delay_time", 11)]
         public ushort? MinimumDMX512FailDelayTimeSupported { get; private set; }
         /// <summary>
         ///  Tenths of a second
         /// </summary>
+        [DataTreeObjectProperty("dmx_fail_max_delay_time", 12)]
         public ushort? MaximumDMX512FailDelayTimeSupported { get; private set; }
         /// <summary>
         ///  Tenths of a second
         /// </summary>
+        [DataTreeObjectProperty("dmx_fail_min_hold_time", 13)]
         public ushort? MinimumDMX512FailDelayHoldSupported { get; private set; }
         /// <summary>
         ///  Tenths of a second
         /// </summary>
+        [DataTreeObjectProperty("dmx_fail_max_hold_time", 14)]
         public ushort? MaximumDMX512FailDelayHoldSupported { get; private set; }
         /// <summary>
         ///  Tenths of a second
         /// </summary>
+        [DataTreeObjectProperty("startup_min_delay_time", 15)]
         public ushort? MinimumStartupDelayTimeSupported { get; private set; }
         /// <summary>
         ///  Tenths of a second
         /// </summary>
+        [DataTreeObjectProperty("startup_max_delay_time", 16)]
         public ushort? MaximumStartupDelayTimeSupported { get; private set; }
         /// <summary>
         ///  Tenths of a second
         /// </summary>
+        [DataTreeObjectProperty("startup_min_hold_time", 17)]
         public ushort? MinimumStartupDelayHoldSupported { get; private set; }
         /// <summary>
         ///  Tenths of a second
-        /// </summary>r
+        /// </summary>
+        [DataTreeObjectProperty("startup_max_hold_time", 18)]
         public ushort? MaximumStartupDelayHoldSupported { get; private set; }
 
         public const int PDL = 0x20;
