@@ -295,6 +295,8 @@ namespace RDMSharp.Metadata
                 if (parameter.DeviceModelID != null)
                 {
                     possibleDefines = possibleDefines.Where(d => d.DeviceModelID == parameter.DeviceModelID).ToList();
+                    if (possibleDefines.Count == 0)
+                        return define;
                     if (possibleDefines.Count == 1)
                         define = possibleDefines[0];
                     else if (possibleDefines.Count > 1)
