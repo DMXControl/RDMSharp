@@ -338,7 +338,14 @@ namespace RDMSharp
         private void RDMDeviceModel_ParameterValueAdded(object sender, ParameterValueAddedEventArgs e)
         {
             if (e.Parameter == ERDM_Parameter.PARAMETER_DESCRIPTION)
-                MetadataFactory.AddDefineFromParameterDescription(this.CurrentUsedUID, this.CurrentUsedSubDevice, this.DeviceInfo, e.Value as RDMParameterDescription);
+            {
+                if (e.Value is not RDMParameterDescription pd)
+                    return;
+
+                var define = MetadataFactory.GetDefine(new ParameterBag((ERDM_Parameter)pd.ParameterId, this.CurrentUsedUID.ManufacturerID, this.DeviceInfo.DeviceModelId, this.DeviceInfo.SoftwareVersionId));
+                if (define is null)
+                    MetadataFactory.AddDefineFromParameterDescription(this.CurrentUsedUID, this.CurrentUsedSubDevice, this.DeviceInfo, pd);
+            }
         }
 
         public new void Dispose()

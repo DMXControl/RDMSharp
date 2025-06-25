@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("RDMSharpTests")]
@@ -13,7 +14,7 @@ namespace RDMSharp.Metadata
         public readonly string Name;
         public readonly string Content;
         public readonly bool IsSchema;
-        public MetadataBag(MetadataVersion metadataVersion) : this(metadataVersion.Version, metadataVersion.Name, metadataVersion.IsSchema, getContent(metadataVersion.Path), metadataVersion.Path)
+        public MetadataBag(MetadataVersion metadataVersion) : this(metadataVersion.Version, metadataVersion.Name, metadataVersion.IsSchema, getContent(metadataVersion.Path, metadataVersion.Assembly), metadataVersion.Path)
         {
         }
         public MetadataBag(string version, string name, bool isSchema, string content, string path)
@@ -24,12 +25,11 @@ namespace RDMSharp.Metadata
             Path = path;
             Content = content;
         }
-        internal static string getContent(string path)
+        internal static string getContent(string path, Assembly assembly)
         {
             if (string.IsNullOrWhiteSpace(path))
                 throw new ArgumentNullException(nameof(path));
 
-            var assembly = typeof(MetadataFactory).Assembly;
             using Stream stream = assembly.GetManifestResourceStream(path);
             using StreamReader reader = new StreamReader(stream);
             return reader.ReadToEnd();

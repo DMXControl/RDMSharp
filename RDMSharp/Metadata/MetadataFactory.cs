@@ -24,7 +24,12 @@ namespace RDMSharp.Metadata
         private static ConcurrentDictionary<string, MetadataVersion> metadataVersionList;
         private static ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>> metadataVersionDefinesBagDictionary;
         private static ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine> parameterBagDefineCache;
+        private static List<Assembly> resourceProvider = new List<Assembly>() { typeof(MetadataFactory).Assembly };
 
+        public static void AddResourceProvider(Assembly assembly)
+        {
+            resourceProvider.Add(assembly);
+        }
         public static IReadOnlyDictionary<string, MetadataVersion> MetadataVersionList
         {
             get
@@ -32,17 +37,26 @@ namespace RDMSharp.Metadata
                 if (metadataVersionList == null)
                 {
                     metadataVersionList = new ConcurrentDictionary<string, MetadataVersion>();
-                    var metaDataVersions = GetResources().Select(r => new MetadataVersion(r));
-                    foreach (var mv in metaDataVersions)
-                        metadataVersionList.TryAdd(mv.Path, mv);
+                    foreach (Assembly assembly in resourceProvider)
+                    {
+                        try
+                        {
+                            var metaDataVersions = GetResources(assembly).Select(r => new MetadataVersion(r, assembly));
+                            foreach (var mv in metaDataVersions)
+                                metadataVersionList.TryAdd(mv.Path, mv);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger?.LogError(e);
+                        }
+                    }
                 }
                 return metadataVersionList.AsReadOnly();
             }
         }
-        public static string[] GetResources()
+        public static IReadOnlyCollection<string> GetResources(Assembly assembly)
         {
-            var assembly = typeof(MetadataFactory).Assembly;
-            return assembly.GetManifestResourceNames();
+            return assembly.GetManifestResourceNames().Where(p => p.EndsWith(JSON_ENDING)).ToList().AsReadOnly();
         }
         private static void fillDefaultMetadataVersionList()
         {
@@ -50,9 +64,19 @@ namespace RDMSharp.Metadata
                 return;
 
             metadataVersionDefinesBagDictionary = new ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>>();
-            var metaDataVersions = GetResources().Select(r => new MetadataVersion(r));
-            foreach (var mv in metaDataVersions)
-                metadataVersionList.TryAdd(mv.Path, mv);
+            foreach (Assembly assembly in resourceProvider)
+            {
+                try
+                {
+                    var metaDataVersions = GetResources(assembly).Select(r => new MetadataVersion(r, assembly));
+                    foreach (var mv in metaDataVersions)
+                        metadataVersionList.TryAdd(mv.Path, mv);
+                }
+                catch (Exception e)
+                {
+                    Logger?.LogError(e);
+                }
+            }
 
             var schemaList = GetMetadataSchemaVersions();
             ConcurrentDictionary<string, JsonSchema> versionSchemas = new ConcurrentDictionary<string, JsonSchema>();
@@ -65,27 +89,36 @@ namespace RDMSharp.Metadata
             };
             Parallel.ForEach(nonSchemaVersions, parallelOptions, mv =>
             {
-                var schema = schemaList.First(s => s.Version.Equals(mv.Version));
-                if (!versionSchemas.TryGetValue(schema.Version, out JsonSchema jsonSchema))
+                try
                 {
-                    jsonSchema = JsonSchema.FromText(new MetadataBag(schema).Content);
-                    versionSchemas.TryAdd(schema.Version, jsonSchema);
-                }
-                MetadataBag metadataBag = new MetadataBag(mv);
-                var result = jsonSchema.Evaluate(JsonNode.Parse(metadataBag.Content));
-                if (result.IsValid)
-                {
-                    MetadataJSONObjectDefine jsonDefine = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(metadataBag.Content);
-                    metadataVersionDefinesBagDictionary.AddOrUpdate(schema,
-                        _ => new List<MetadataJSONObjectDefine> { jsonDefine },
-                        (_, list) =>
-                        {
-                            lock (list)
+                    var schema = schemaList.First(s => s.Version.Equals(mv.Version));
+                    if (!versionSchemas.TryGetValue(schema.Version, out JsonSchema jsonSchema))
+                    {
+                        jsonSchema = JsonSchema.FromText(new MetadataBag(schema).Content);
+                        versionSchemas.TryAdd(schema.Version, jsonSchema);
+                    }
+                    MetadataBag metadataBag = new MetadataBag(mv);
+                    var result = jsonSchema.Evaluate(JsonNode.Parse(metadataBag.Content));
+                    if (result.IsValid)
+                    {
+                        MetadataJSONObjectDefine jsonDefine = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(metadataBag.Content);
+                        metadataVersionDefinesBagDictionary.AddOrUpdate(schema,
+                            _ => new List<MetadataJSONObjectDefine> { jsonDefine },
+                            (_, list) =>
                             {
-                                list.Add(jsonDefine);
-                                return list;
-                            }
-                        });
+                                lock (list)
+                                {
+                                    list.Add(jsonDefine);
+                                    return list;
+                                }
+                            });
+                    }
+                    else
+                        throw new Exception($"Schema Invalid for {mv.Name}");
+                }
+                catch (Exception e)
+                {
+                    Logger?.LogError($"Exception while Deserialize {mv.Name}", e);
                 }
             });
         }

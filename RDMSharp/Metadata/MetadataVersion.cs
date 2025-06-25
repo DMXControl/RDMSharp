@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
@@ -12,15 +13,17 @@ namespace RDMSharp.Metadata
         public readonly string Path;
         public readonly string Name;
         public readonly bool IsSchema;
-        public MetadataVersion(string path) : this(getVersion(path), getName(path), getIsSchema(path), path)
+        public readonly Assembly Assembly;
+        public MetadataVersion(string path, Assembly assembly) : this(getVersion(path), getName(path), getIsSchema(path), path, assembly)
         {
         }
-        public MetadataVersion(string version, string name, bool isSchema, string path)
+        public MetadataVersion(string version, string name, bool isSchema, string path, Assembly assembly)
         {
             Version = version;
             Path = path;
             Name = name;
             IsSchema = isSchema;
+            Assembly = assembly;
         }
         internal static string getVersion(string path)
         {
