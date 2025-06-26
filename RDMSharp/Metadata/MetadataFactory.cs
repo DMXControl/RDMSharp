@@ -41,7 +41,8 @@ namespace RDMSharp.Metadata
                     {
                         try
                         {
-                            var metaDataVersions = GetResources(assembly).Select(r => new MetadataVersion(r, assembly));
+                            var resoures = GetResources(assembly);
+                            var metaDataVersions = resoures.Select(r => new MetadataVersion(r, assembly));
                             foreach (var mv in metaDataVersions)
                                 metadataVersionList.TryAdd(mv.Path, mv);
                         }

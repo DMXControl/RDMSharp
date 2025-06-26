@@ -16,7 +16,8 @@ namespace RDMSharpTests.Metadata.JSON
         {
             List<MetadataJSONObjectDefineTestSubject> instances = new List<MetadataJSONObjectDefineTestSubject>();
             List<MetadataVersion> metadataVersionList = new List<MetadataVersion>();
-            metadataVersionList.AddRange(MetadataFactory.GetResources().Select(r => new MetadataVersion(r)));
+            Assembly assembly = typeof(MetadataFactory).Assembly;
+            metadataVersionList.AddRange(MetadataFactory.GetResources(assembly).Select(r => new MetadataVersion(r, assembly)));
             var schemaList = MetadataFactory.GetMetadataSchemaVersions();
             ConcurrentDictionary<string, MetadataBag> versionSchemas = new ConcurrentDictionary<string, MetadataBag>();
 
@@ -30,7 +31,8 @@ namespace RDMSharpTests.Metadata.JSON
                 }
                 instances.Add(new MetadataJSONObjectDefineTestSubject(schema, new MetadataBag(mv)));
             }
-            foreach (var mv in GetResources().Select(r => new MetadataVersion(r)))
+            assembly = Assembly.GetExecutingAssembly();
+            foreach (var mv in GetResources().Select(r => new MetadataVersion(r, assembly)))
             {
                 var _schema = schemaList.First(s => s.Version.Equals(mv.Version));
                 if (!versionSchemas.TryGetValue(_schema.Version, out MetadataBag schema))

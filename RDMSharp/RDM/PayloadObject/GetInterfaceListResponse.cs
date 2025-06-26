@@ -25,8 +25,9 @@ namespace RDMSharp
             StringBuilder b = new StringBuilder();
             b.AppendLine("GetInterfaceListResponse");
             b.AppendLine($"Interfaces:");
-            foreach (InterfaceDescriptor _interface in Interfaces)
-                b.AppendLine(_interface.ToString());
+            if (Interfaces is not null)
+                foreach (InterfaceDescriptor _interface in Interfaces)
+                    b.AppendLine(_interface.ToString());
 
             return b.ToString();
         }

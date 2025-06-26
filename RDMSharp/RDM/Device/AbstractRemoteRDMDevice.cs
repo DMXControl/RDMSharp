@@ -273,10 +273,13 @@ namespace RDMSharp
             var define = MetadataFactory.GetDefine(parameterBag);
             if(define == null)
             {
-                var pd = this.deviceModel.ParameterValues[ERDM_Parameter.PARAMETER_DESCRIPTION] as ConcurrentDictionary<object,object>;
-                if(pd.TryGetValue((ushort)parameter, out var desc) && desc is RDMParameterDescription pDesc)
+                ConcurrentDictionary<object, object> pd = null;
+                if(this.deviceModel.ParameterValues.TryGetValue(ERDM_Parameter.PARAMETER_DESCRIPTION, out var obj))
+                    pd=obj as ConcurrentDictionary<object,object>;
+
+                if ((pd?.TryGetValue((ushort)parameter, out var desc) ?? false) && desc is RDMParameterDescription pDesc)
                 {
-                    if(pDesc.CommandClass.HasFlag( ERDM_CommandClass.GET))
+                    if (pDesc.CommandClass.HasFlag(ERDM_CommandClass.GET))
                         await requestGetParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
                 }
             }

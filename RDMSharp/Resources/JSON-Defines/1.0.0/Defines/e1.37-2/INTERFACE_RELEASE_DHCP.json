@@ -2,7 +2,7 @@
   "name": "INTERFACE_RELEASE_DHCP",
   "notes": "E1.37-2",
   "manufacturer_id": 0,
-  "pid": 1780,
+  "pid": 1800,
   "version": 1,
   "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
   "set_request": [

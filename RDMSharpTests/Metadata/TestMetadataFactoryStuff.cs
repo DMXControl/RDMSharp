@@ -29,7 +29,7 @@ namespace RDMSharpTests.Metadata
         [Test]
         public void TestMetadataVersion()
         {
-            var mv = new MetadataVersion("RDMSharp.Resources.JSON_Defines._1._0._0.Defines.e1._20.BOOT_SOFTWARE_VERSION_ID.json");
+            var mv = new MetadataVersion("RDMSharp.Resources.JSON_Defines._1._0._0.Defines.e1._20.BOOT_SOFTWARE_VERSION_ID.json", typeof(MetadataFactory).Assembly);
             testString(mv.ToString());
             Assert.Multiple(() =>
             {
@@ -50,7 +50,7 @@ namespace RDMSharpTests.Metadata
         {
             var bag = new MetadataBag("1.0.2", "NAME.json", false, "content", "Path");
             testString(bag.ToString());
-            Assert.Throws(typeof(ArgumentNullException), () => MetadataBag.getContent(null));
+            Assert.Throws(typeof(ArgumentNullException), () => MetadataBag.getContent(null, typeof(MetadataFactory).Assembly));
         }
         static void testString(string str)
         {
