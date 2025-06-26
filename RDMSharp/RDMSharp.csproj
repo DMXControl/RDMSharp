@@ -45,5 +45,8 @@
 	<ItemGroup>
 		<EmbeddedResource Include="Resources\JSON-Defines\**\*.*" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Resources\JSON-Defines\1.0.0\Defines\e1.33\" />
+	</ItemGroup>
 	<ProjectExtensions><VisualStudio><UserProperties resources_4json-defines_41_10_10_4schema_1json__JsonSchema="https://json-stat.org/format/schema/2.0/" /></VisualStudio></ProjectExtensions>
 </Project>

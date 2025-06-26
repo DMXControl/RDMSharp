@@ -25,6 +25,28 @@ namespace RDMSharpTests.Metadata
         //    foreach (var define in defines)
         //        testString(define.ToString());
         //}
+        [Test]
+        public void TestMetadataFactoryESTAParameterHaseDefine()
+        {
+            var parameters = Enum.GetValues<ERDM_Parameter>().Where(p => (ushort)p >= 30).ToList().AsReadOnly();
+            Assert.Multiple(() =>
+            {
+                foreach (var parameter in parameters)
+                {
+                    switch (parameter)
+                    {
+                        case ERDM_Parameter.COMPONENT_SCOPE:
+                        case ERDM_Parameter.SEARCH_DOMAIN:
+                        case ERDM_Parameter.TCP_COMMS_STATUS:
+                        case ERDM_Parameter.BROKER_STATUS:
+                            Assert.Warn("Implement E1.33 Defines!!!");
+                            continue;
+                    }
+                    var define = MetadataFactory.GetDefine(new ParameterBag(parameter));
+                    Assert.That(define, Is.Not.Null, $"Parameter: {parameter} has no matchig Define");
+                }
+            });
+        }
 
         [Test]
         public void TestMetadataVersion()
