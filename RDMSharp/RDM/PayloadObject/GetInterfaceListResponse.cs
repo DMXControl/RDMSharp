@@ -16,6 +16,7 @@ namespace RDMSharp
             this.Interfaces = interfaces;
         }
 
+        [DataTreeObjectProperty("interfaces", 0)]
         public InterfaceDescriptor[] Interfaces { get; private set; }
         public const int PDL_MIN = 0;
         public const int PDL_MAX = 0xE6;

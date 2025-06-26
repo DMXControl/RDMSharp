@@ -15,8 +15,9 @@ namespace RDMSharp
             this.SetAllowed = setAllowed;
             this.BrokerStatus = brokerStatus;
         }
-
+        [DataTreeObjectProperty("setAllowed", 0)]
         public bool SetAllowed { get; private set; }
+        [DataTreeObjectProperty("brokerStatus", 1)]
         public ERDM_BrokerStatus BrokerStatus { get; private set; }
         public const int PDL = 0x02;
 

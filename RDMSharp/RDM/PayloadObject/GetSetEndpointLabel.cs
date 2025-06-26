@@ -24,7 +24,9 @@ namespace RDMSharp
             this.EndpointLabel = endpointLabel;
         }
 
+        [DataTreeObjectProperty("endpoint_id", 0)]
         public ushort EndpointId { get; private set; }
+        [DataTreeObjectProperty("label", 1)]
         public string EndpointLabel { get; private set; }
         public const int PDL_MIN = 0x02;
         public const int PDL_MAX = PDL_MIN + 32;

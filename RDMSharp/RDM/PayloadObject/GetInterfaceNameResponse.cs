@@ -23,7 +23,9 @@ namespace RDMSharp
             this.Label = label;
         }
 
+        [DataTreeObjectProperty("id", 0)]
         public uint InterfaceId { get; private set; }
+        [DataTreeObjectProperty("label", 1)]
         public string Label { get; private set; }
         public const int PDL_MIN = 4;
         public const int PDL_MAX = PDL_MIN + 32;

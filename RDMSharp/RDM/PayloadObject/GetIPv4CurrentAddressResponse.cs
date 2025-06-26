@@ -33,9 +33,13 @@ namespace RDMSharp
         {
         }
 
+        [DataTreeObjectProperty("id", 0)]
         public uint InterfaceId { get; private set; }
-        public IPAddress IPAddress { get; private set; }
+        [DataTreeObjectProperty("address", 1)]
+        public IPv4Address IPAddress { get; private set; }
+        [DataTreeObjectProperty("netmask", 2)]
         public byte Netmask { get; private set; }
+        [DataTreeObjectProperty("dhcp_status", 3)]
         public ERDM_DHCPStatusMode DHCPStatus { get; private set; }
         public const int PDL = 0x0A;
 

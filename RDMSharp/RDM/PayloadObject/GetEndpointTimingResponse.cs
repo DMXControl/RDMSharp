@@ -19,8 +19,11 @@ namespace RDMSharp
             this.Timings = timings;
         }
 
+        [DataTreeObjectProperty("endpoint_id", 0)]
         public ushort EndpointId { get; private set; }
+        [DataTreeObjectProperty("setting", 1)]
         public byte TimingId { get; private set; }
+        [DataTreeObjectProperty("setting_count", 2)]
         public byte Timings { get; private set; }
 
         public override Type IndexType => typeof(byte);

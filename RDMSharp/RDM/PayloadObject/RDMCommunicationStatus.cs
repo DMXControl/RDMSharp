@@ -19,7 +19,7 @@ namespace RDMSharp
             this.ChecksumFail = checksumFail;
         }
 
-        [DataTreeObjectProperty("scopeString", 0)]
+        [DataTreeObjectProperty("short_message", 0)]
         public ushort ShortMessage { get; private set; }
         [DataTreeObjectProperty("length_mismatch", 1)]
         public ushort LengthMismatch { get; private set; }

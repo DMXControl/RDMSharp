@@ -17,7 +17,9 @@ namespace RDMSharp
             this.IPAddress = ipAddress;
         }
 
+        [DataTreeObjectProperty("index", 0)]
         public byte NameServerIndex { get; private set; }
+        [DataTreeObjectProperty("address", 1)]
         public IPv4Address IPAddress { get; private set; }
         public const int PDL = 0x05;
 

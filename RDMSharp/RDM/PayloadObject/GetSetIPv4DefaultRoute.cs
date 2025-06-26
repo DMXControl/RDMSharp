@@ -17,7 +17,9 @@ namespace RDMSharp
             this.IPAddress = ipAddress;
         }
 
+        [DataTreeObjectProperty("id", 0)]
         public uint InterfaceId { get; private set; }
+        [DataTreeObjectProperty("default_route", 1)]
         public IPv4Address IPAddress { get; private set; }
         public const int PDL = 0x08;
 

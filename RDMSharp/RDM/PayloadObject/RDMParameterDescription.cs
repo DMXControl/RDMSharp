@@ -1,5 +1,6 @@
 ﻿using RDMSharp.Metadata;
 using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -26,6 +27,9 @@ namespace RDMSharp
             this.PDLSize = pdlSize;
             this.DataType = dataType;
             this.CommandClass = commandClass;
+#pragma warning disable CS0612
+            this.Type = type;
+#pragma warning restore CS0612
             this.Unit = unit;
             this.Prefix = prefix;
             this.MinValidValue = minValidValue;
@@ -65,6 +69,9 @@ namespace RDMSharp
         public ERDM_DataType DataType { get; private set; }
         [DataTreeObjectProperty("command_class", 3)]
         public ERDM_CommandClass CommandClass { get; private set; }
+
+        [DataTreeObjectProperty("type", 4), Obsolete]
+        public byte Type { get; private set; } //Obsolete
         [DataTreeObjectProperty("unit", 5)]
         public ERDM_SensorUnit Unit { get; private set; }
         [DataTreeObjectProperty("unit_prefix", 6)]

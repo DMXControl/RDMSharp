@@ -15,12 +15,12 @@ namespace RDMSharp
     {
         [DataTreeObjectConstructor]
         public GetSetComponentScope(
-            [DataTreeObjectParameter("scopeSlot")] ushort scopeSlot = default,
-            [DataTreeObjectParameter("scopeSlot")] string scopeString = default,
-            [DataTreeObjectParameter("scopeSlot")] ERDM_StaticConfig staticConfigType = default,
-            [DataTreeObjectParameter("scopeSlot")] IPAddress staticBrokerIPv4 = default,
-            [DataTreeObjectParameter("scopeSlot")] IPAddress staticBrokerIPv6 = default,
-            [DataTreeObjectParameter("scopeSlot")] ushort staticBrokerPort = default)
+            [DataTreeObjectParameter("scope_slot")] ushort scopeSlot = default,
+            [DataTreeObjectParameter("scope_string")] string scopeString = default,
+            [DataTreeObjectParameter("static_config_type")] ERDM_StaticConfig staticConfigType = default,
+            [DataTreeObjectParameter("static_broker_ipv4")] IPAddress staticBrokerIPv4 = default,
+            [DataTreeObjectParameter("static_broker_ipv6")] IPAddress staticBrokerIPv6 = default,
+            [DataTreeObjectParameter("static_broker_port")] ushort staticBrokerPort = default)
         {
 
             if (string.IsNullOrWhiteSpace(scopeString))
@@ -76,11 +76,17 @@ namespace RDMSharp
             return ERDM_StaticConfig.NO;
         }
 
+        [DataTreeObjectProperty("scope_slot", 0)]
         public ushort ScopeSlot { get; private set; }
+        [DataTreeObjectProperty("scope_string", 1)]
         public string ScopeString { get; private set; }
+        [DataTreeObjectProperty("static_config_type", 3)]
         public ERDM_StaticConfig StaticConfigType { get; private set; }
+        [DataTreeObjectProperty("static_broker_ipv4", 4)]
         public IPv4Address StaticBrokerIPv4 { get; private set; }
+        [DataTreeObjectProperty("static_broker_ipv6", 5)]
         public IPAddress StaticBrokerIPv6 { get; private set; }
+        [DataTreeObjectProperty("static_broker_port", 6)]
         public ushort StaticBrokerPort { get; private set; }
 
         public const int PDL = 0x54;

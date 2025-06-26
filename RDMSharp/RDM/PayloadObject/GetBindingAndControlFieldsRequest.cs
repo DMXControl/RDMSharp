@@ -16,7 +16,9 @@ namespace RDMSharp
             this.UID = uid;
         }
 
+        [DataTreeObjectProperty("endpoint_id", 0)]
         public ushort EndpointId { get; private set; }
+        [DataTreeObjectProperty("uid", 1)]
         public UID UID { get; private set; }
         public const int PDL = 0x08;
 

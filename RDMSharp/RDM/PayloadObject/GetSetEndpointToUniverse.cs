@@ -17,7 +17,9 @@ namespace RDMSharp
             this.Universe = universe;
         }
 
+        [DataTreeObjectProperty("endpoint_id", 0)]
         public ushort EndpointId { get; private set; }
+        [DataTreeObjectProperty("universe", 1)]
         public ushort Universe { get; private set; }
         public const int PDL = 0x04;
 

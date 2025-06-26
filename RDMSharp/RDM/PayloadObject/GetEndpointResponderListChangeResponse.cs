@@ -16,7 +16,9 @@ namespace RDMSharp
             this.ListChangeNumber = listChangeNumber;
         }
 
+        [DataTreeObjectProperty("endpoint_id", 0)]
         public ushort EndpointId { get; private set; }
+        [DataTreeObjectProperty("list_change_number", 1)]
         public uint ListChangeNumber { get; private set; }
         public const int PDL = 0x06;
 

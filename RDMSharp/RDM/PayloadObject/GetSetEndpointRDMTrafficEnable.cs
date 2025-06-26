@@ -17,7 +17,9 @@ namespace RDMSharp
             this.RDMTrafficEnabled = rdmTrafficEnabled;
         }
 
+        [DataTreeObjectProperty("endpoint_id", 0)]
         public ushort EndpointId { get; private set; }
+        [DataTreeObjectProperty("rdm_enabled", 1)]
         public bool RDMTrafficEnabled { get; private set; }
         public const int PDL = 0x03;
 

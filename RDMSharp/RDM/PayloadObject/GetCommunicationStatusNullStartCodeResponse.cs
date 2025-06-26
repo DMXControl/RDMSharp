@@ -52,11 +52,32 @@ namespace RDMSharp
                 NumberOfPacketsWithAnError = numberOfPacketsWithAnError;
         }
 
+        [DataTreeObjectProperty("supported", 0)]
+        public bool[] Supported
+        {
+            get
+            {
+                return new bool[] {
+                    AdditiveChecksumOfMostRecentPacket is not null,
+                    PacketCount is not null,
+                    MostRecentSlotCount is not null,
+                    MinimumSlotCount is not null,
+                    MaximumSlotCount is not null,
+                    NumberOfPacketsWithAnError is not null
+                };
+            }
+        }
+        [DataTreeObjectProperty("additive_checksum", 1)]
         public uint? AdditiveChecksumOfMostRecentPacket { get; private set; }
+        [DataTreeObjectProperty("packet_count", 2)]
         public uint? PacketCount { get; private set; }
+        [DataTreeObjectProperty("most_recent_slot_count", 3)]
         public ushort? MostRecentSlotCount { get; private set; }
+        [DataTreeObjectProperty("min_slot_count", 4)]
         public ushort? MinimumSlotCount { get; private set; }
+        [DataTreeObjectProperty("max_slot_count", 5)]
         public ushort? MaximumSlotCount { get; private set; }
+        [DataTreeObjectProperty("error_count", 6)]
         public uint? NumberOfPacketsWithAnError { get; private set; }
         public const int PDL = 0x13;
 

@@ -19,7 +19,9 @@ namespace RDMSharp
             this.Enabled = enabled;
         }
 
+        [DataTreeObjectProperty("id", 0)]
         public uint InterfaceId { get; private set; }
+        [DataTreeObjectProperty("mode", 1)]
         public bool Enabled { get; private set; }
         public const int PDL = 5;
 

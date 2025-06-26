@@ -19,8 +19,11 @@ namespace RDMSharp
             SubDevicePersonalityRequested = subDevicePersonalityRequested;
         }
 
+        [DataTreeObjectProperty("root_personality", 0)]
         public byte RootPersonality { get; private set; }
+        [DataTreeObjectProperty("subdevice", 1)]
         public ushort SubDeviceRequested { get; private set; }
+        [DataTreeObjectProperty("subdevice_personality", 2)]
         public byte SubDevicePersonalityRequested { get; private set; }
         public const int PDL = 4;
 

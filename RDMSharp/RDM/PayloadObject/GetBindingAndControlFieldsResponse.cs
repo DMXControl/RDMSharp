@@ -19,10 +19,13 @@ namespace RDMSharp
             this.ControlField = controlField;
             this.BindingUID = bindingUID;
         }
-
+        [DataTreeObjectProperty("endpoint_id", 0)]
         public ushort EndpointId { get; private set; }
+        [DataTreeObjectProperty("uid", 1)]
         public UID UID { get; private set; }
+        [DataTreeObjectProperty("control", 2)]
         public ushort ControlField { get; private set; }
+        [DataTreeObjectProperty("binding_uid", 3)]
         public UID BindingUID { get; private set; }
         public const int PDL = 0x10;
 

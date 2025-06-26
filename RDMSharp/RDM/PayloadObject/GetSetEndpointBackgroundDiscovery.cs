@@ -17,7 +17,9 @@ namespace RDMSharp
             this.BackgroundDiscovery = backgroundDiscovery;
         }
 
+        [DataTreeObjectProperty("endpoint_id", 0)]
         public ushort EndpointId { get; private set; }
+        [DataTreeObjectProperty("enabled", 1)]
         public bool BackgroundDiscovery { get; private set; }
         public const int PDL = 0x03;
 

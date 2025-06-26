@@ -24,7 +24,9 @@ namespace RDMSharp
         {
         }
 
+        [DataTreeObjectProperty("endpoint_id", 0)]
         public ushort EndpointId { get; private set; }
+        [DataTreeObjectProperty("mode", 1)]
         public ERDM_EndpointMode EndpointMode { get; private set; }
         public const int PDL = 0x03;
 

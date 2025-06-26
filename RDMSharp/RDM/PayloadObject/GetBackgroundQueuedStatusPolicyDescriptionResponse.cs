@@ -24,7 +24,9 @@ namespace RDMSharp
         }
 
         public ERDM_PolicyType Policy { get { return (ERDM_PolicyType)PolicyId; } }
+        [DataTreeObjectProperty("policy", 0)]
         public byte PolicyId { get; private set; }
+        [DataTreeObjectProperty("description", 1)]
         public string Description { get; private set; }
 
         public object MinIndex => (byte)1;

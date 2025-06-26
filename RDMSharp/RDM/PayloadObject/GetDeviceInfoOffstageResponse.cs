@@ -54,9 +54,35 @@ namespace RDMSharp
         {
         }
 
+        [DataTreeObjectProperty("root_personality", 0)]
         public byte RootPersonality { get; private set; }
+        [DataTreeObjectProperty("subdevice", 1)]
         public ushort SubDeviceRequested { get; private set; }
+        [DataTreeObjectProperty("subdevice_personality", 2)]
         public byte SubDevicePersonalityRequested { get; private set; }
+
+        [DataTreeObjectProperty("protocol_major", 3)]
+        public byte RdmProtocolVersionMajor { get => DeviceInfo.RdmProtocolVersionMajor; }
+        [DataTreeObjectProperty("protocol_minor", 4)]
+        public byte RdmProtocolVersionMinor { get => DeviceInfo.RdmProtocolVersionMinor; }
+        [DataTreeObjectProperty("device_model_id", 5)]
+        public ushort DeviceModelId { get => DeviceInfo.DeviceModelId; }
+        [DataTreeObjectProperty("product_category", 6)]
+        public ushort ProductCategory { get => DeviceInfo.ProductCategory; }
+        [DataTreeObjectProperty("software_version_id", 7)]
+        public uint SoftwareVersionId { get => DeviceInfo.SoftwareVersionId; }
+        [DataTreeObjectProperty("dmx_footprint", 8)]
+        public ushort? Dmx512Footprint { get => DeviceInfo.Dmx512Footprint; }
+        [DataTreeObjectProperty("current_personality", 9)]
+        public byte? Dmx512CurrentPersonality { get => DeviceInfo.Dmx512CurrentPersonality; }
+        [DataTreeObjectProperty("personality_count", 10)]
+        public byte Dmx512NumberOfPersonalities { get => DeviceInfo.Dmx512NumberOfPersonalities; }
+        [DataTreeObjectProperty("dmx_start_address", 11)]
+        public ushort? Dmx512StartAddress { get => DeviceInfo.Dmx512StartAddress; }
+        [DataTreeObjectProperty("sub_device_count", 12)]
+        public ushort SubDeviceCount { get => DeviceInfo.SubDeviceCount; }
+        [DataTreeObjectProperty("sensor_count", 13)]
+        public byte SensorCount { get => DeviceInfo.SensorCount; }
         public RDMDeviceInfo DeviceInfo { get; private set; }
         public const int PDL = 4 + RDMDeviceInfo.PDL;
 

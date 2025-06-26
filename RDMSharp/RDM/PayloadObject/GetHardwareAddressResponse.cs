@@ -16,7 +16,9 @@ namespace RDMSharp
             this.HardwareAddress = hardwareAddress;
         }
 
+        [DataTreeObjectProperty("id", 0)]
         public uint InterfaceId { get; private set; }
+        [DataTreeObjectProperty("address", 1)]
         public MACAddress HardwareAddress { get; private set; }
         public const int PDL = 0x0A;
 

@@ -25,7 +25,9 @@ namespace RDMSharp
         /// Number is an unsigned 32-bit field which shall roll over from 0xFFFFFFFF to 0. Upon start-up
         /// (due to power-on reset, start of software, etc) this field shall be initialized to 0.
         /// </summary>
+        [DataTreeObjectProperty("list_change_number", 0)]
         public uint ListChangedNumber { get; private set; }
+        [DataTreeObjectProperty("endpoints", 1)]
         public EndpointDescriptor[] Endpoints { get; private set; }
         public const int PDL_MIN = 0x07;
         public const int PDL_MAX = 0xE5;

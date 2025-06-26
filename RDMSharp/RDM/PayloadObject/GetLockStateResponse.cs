@@ -17,7 +17,9 @@ namespace RDMSharp
             this.LockStates = lockStates;
         }
 
+        [DataTreeObjectProperty("state", 0)]
         public byte CurrentLockStateId { get; private set; }
+        [DataTreeObjectProperty("state_count", 1)]
         public byte LockStates { get; private set; }
 
         public override Type IndexType => typeof(byte);

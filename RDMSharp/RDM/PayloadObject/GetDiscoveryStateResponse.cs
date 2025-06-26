@@ -26,8 +26,11 @@ namespace RDMSharp
         {
         }
 
+        [DataTreeObjectProperty("endpoint_id", 0)]
         public ushort EndpointId { get; private set; }
+        [DataTreeObjectProperty("device_count", 1)]
         public ushort DeviceCount { get; private set; }
+        [DataTreeObjectProperty("state", 2)]
         public ERDM_DiscoveryState DiscoveryState { get; private set; }
         public const int PDL = 0x05;
 

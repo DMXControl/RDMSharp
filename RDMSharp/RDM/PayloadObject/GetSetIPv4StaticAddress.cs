@@ -23,8 +23,11 @@ namespace RDMSharp
             this.Netmask = netmask;
         }
 
+        [DataTreeObjectProperty("id", 0)]
         public uint InterfaceId { get; private set; }
+        [DataTreeObjectProperty("address", 1)]
         public IPv4Address IPAddress { get; private set; }
+        [DataTreeObjectProperty("netmask", 2)]
         public byte Netmask { get; private set; }
         public const int PDL = 0x09;
 

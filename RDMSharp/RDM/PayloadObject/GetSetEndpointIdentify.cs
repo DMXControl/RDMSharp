@@ -17,7 +17,9 @@ namespace RDMSharp
             this.IdentifyState = identifyState;
         }
 
+        [DataTreeObjectProperty("endpoint_id", 0)]
         public ushort EndpointId { get; private set; }
+        [DataTreeObjectProperty("identify_state", 1)]
         public bool IdentifyState { get; private set; }
         public const int PDL = 0x03;
 
