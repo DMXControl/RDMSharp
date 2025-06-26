@@ -220,7 +220,7 @@ namespace RDMSharp
                 if (DeviceInfo.Dmx512CurrentPersonality.HasValue) // Remote Device not send DMX_PERSONALITY Parameter but uses it!
                     supportedParameters.TryAdd(ERDM_Parameter.DMX_PERSONALITY, true);
 
-                if (!this.supportedParameters.ContainsKey(ERDM_Parameter.PARAMETER_DESCRIPTION) && this.supportedParameters.Any(p=> ((ushort)p.Key) >= 0x8000 && ((ushort)p.Key) >= 0xFFDF)) // Remote Device not send PARAMETER_DESCRIPTION Parameter but has Manufacture speific Parameters it!
+                if (!this.supportedParameters.ContainsKey(ERDM_Parameter.PARAMETER_DESCRIPTION) && this.supportedParameters.Any(p=> ((ushort)p.Key) >= 0x8000 && ((ushort)p.Key) <= 0xFFDF)) // Remote Device not send PARAMETER_DESCRIPTION Parameter but has Manufacture speific Parameters it!
                     this.supportedParameters.TryAdd(ERDM_Parameter.PARAMETER_DESCRIPTION, true);
 
                 if (!this.supportedParameters.ContainsKey(ERDM_Parameter.IDENTIFY_DEVICE)) //Test it if the device supports Identify Device Parameter, if not it will be labled as not supported later on
