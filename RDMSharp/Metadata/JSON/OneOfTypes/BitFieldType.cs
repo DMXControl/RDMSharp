@@ -83,7 +83,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         {
             return $"{Name} [ {string.Join("; ", Bits.Select(b => b.ToString()))} ]";
         }
-        public override byte[] ParsePayloadToData(DataTree dataTree)
+        public override IEnumerable<byte[]> ParsePayloadToData(DataTree dataTree)
         {
             if (!string.Equals(dataTree.Name, this.Name))
                 throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
@@ -107,8 +107,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
                 data[bit.Index] = value;
             }
-
-            return Tools.ValueToData(data);
+            return Tools.EncaseData(Tools.ValueToData(data));
         }
         public override DataTree ParseDataToPayload(ref byte[] data)
         {

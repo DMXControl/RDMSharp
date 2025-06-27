@@ -49,7 +49,7 @@ namespace RDMSharpTests.Metadata.JSON
         {
             var dataTree = new DataTree(booleanType.Name, 0, value);
             var data = new byte[0];
-            Assert.DoesNotThrow(() => data = booleanType.ParsePayloadToData(dataTree), message!);
+            Assert.DoesNotThrow(() => data = booleanType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray(), message!);
             Assert.That(data, Is.EqualTo(expectedData), message);
 
             byte[] cloneData = new byte[data.Length];
@@ -66,8 +66,8 @@ namespace RDMSharpTests.Metadata.JSON
             Assert.That(parsedDataTree.Issues, Is.Not.Null);
             Assert.That(parsedDataTree.Value, Is.Not.Null);
 
-            Assert.Throws(typeof(ArithmeticException), () => data = booleanType.ParsePayloadToData(new DataTree("Different Name", dataTree.Index, dataTree.Value)), message!);
-            Assert.Throws(typeof(ArithmeticException), () => data = booleanType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, 234)), message!);
+            Assert.Throws(typeof(ArithmeticException), () => data = booleanType.ParsePayloadToData(new DataTree("Different Name", dataTree.Index, dataTree.Value)).SelectMany(en => en).ToArray(), message!);
+            Assert.Throws(typeof(ArithmeticException), () => data = booleanType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, 234)).SelectMany(en => en).ToArray(), message!);
         }
     }
 }

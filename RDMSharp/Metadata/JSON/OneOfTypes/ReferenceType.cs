@@ -1,5 +1,6 @@
 ﻿using RDMSharp.RDM;
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
@@ -55,7 +56,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         {
             return ReferencedObject?.GetDataLength() ?? new PDL();
         }
-        public byte[] ParsePayloadToData(DataTree dataTree)
+        public IEnumerable<byte[]> ParsePayloadToData(DataTree dataTree)
         {
             return ReferencedObject.ParsePayloadToData(dataTree);
         }

@@ -48,7 +48,7 @@ namespace RDMSharpTests.Metadata.JSON
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "uid", null, null);
             Assert.That(bytesType.GetDataLength().Value, Is.EqualTo(6));
             var uid = new UID(0x4646, 0x12345678);
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, uid));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, uid)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 0x46, 0x46, 0x12, 0x34, 0x56, 0x78 }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
@@ -64,7 +64,7 @@ namespace RDMSharpTests.Metadata.JSON
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "uid[]", null, null);
             Assert.That(bytesType.GetDataLength().MinLength, Is.EqualTo(0));
             var uidArray = new UID[0];
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, uidArray));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, uidArray)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[0]));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
@@ -76,7 +76,7 @@ namespace RDMSharpTests.Metadata.JSON
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "uid[]", null, null);
             Assert.That(bytesType.GetDataLength().MinLength, Is.EqualTo(0));
             var uidArray = new UID[] { new UID(0x4646, 0x12345678) , new UID(0x4646, 0x12345678) };
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, uidArray));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, uidArray)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 0x46, 0x46, 0x12, 0x34, 0x56, 0x78, 0x46, 0x46, 0x12, 0x34, 0x56, 0x78 }));
             var corrupData = new List<byte>();
             corrupData.AddRange(data);
@@ -100,7 +100,7 @@ namespace RDMSharpTests.Metadata.JSON
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "ipv4", null, null);
             Assert.That(bytesType.GetDataLength().Value, Is.EqualTo(4));
             var ipv4 = new IPv4Address(192,168,178,254);
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, ipv4));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, ipv4)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 192, 168, 178, 254 }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
@@ -116,7 +116,7 @@ namespace RDMSharpTests.Metadata.JSON
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "ipv6", null, null);
             Assert.That(bytesType.GetDataLength().Value, Is.EqualTo(16));
             var ipv6 = IPv6Address.LocalHost;
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, ipv6));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, ipv6)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
@@ -132,7 +132,7 @@ namespace RDMSharpTests.Metadata.JSON
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "mac-address", null, null);
             Assert.That(bytesType.GetDataLength().Value, Is.EqualTo(6));
             var mac = new MACAddress(new byte[] { 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC });
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, mac));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, mac)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
@@ -151,7 +151,7 @@ namespace RDMSharpTests.Metadata.JSON
                 var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", formate, null, null);
                 Assert.That(bytesType.GetDataLength().Value, Is.EqualTo(16));
                 var guid = new Guid(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 });
-                var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, guid));
+                var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, guid)).SelectMany(en => en).ToArray();
                 Assert.That(data, Is.EqualTo(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }));
                 var dataTree = bytesType.ParseDataToPayload(ref data);
                 Assert.That(data, Has.Length.EqualTo(0));
@@ -168,7 +168,7 @@ namespace RDMSharpTests.Metadata.JSON
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "double", null, null);
             Assert.That(bytesType.GetDataLength().Value, Is.EqualTo(8));
             var _double = 0.252536d;
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, _double));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, _double)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 142, 2, 68, 193, 140, 41, 208, 63 }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
@@ -184,7 +184,7 @@ namespace RDMSharpTests.Metadata.JSON
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "float", null, null);
             Assert.That(bytesType.GetDataLength().Value, Is.EqualTo(4));
             var _float = 0.252536f;
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, _float));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, _float)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 102, 76, 129, 62 }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
@@ -200,7 +200,7 @@ namespace RDMSharpTests.Metadata.JSON
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "pid", null, null);
             Assert.That(bytesType.GetDataLength().Value, Is.EqualTo(2));
             var pid = ERDM_Parameter.CURVE;
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, pid));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, pid)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 0x03, 0x043 }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
@@ -215,7 +215,7 @@ namespace RDMSharpTests.Metadata.JSON
         {
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "ascii", null, null);
             var ascii = "This is ASCII";
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, ascii));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, ascii)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 84, 104, 105, 115, 32, 105, 115, 32, 65, 83, 67, 73, 73 }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
@@ -229,7 +229,7 @@ namespace RDMSharpTests.Metadata.JSON
         {
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "utf8", null, null);
             var utf8 = "äöüß€!";
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, utf8));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, utf8)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 195, 164, 195, 182, 195, 188, 195, 159, 226, 130, 172, 33 }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
@@ -243,7 +243,7 @@ namespace RDMSharpTests.Metadata.JSON
         {
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "utf32", null, null);
             var utf32 = "😊🚀🌍💡📚✈️";
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, utf32));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, utf32)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 10, 246, 1, 0, 128, 246, 1, 0, 13, 243, 1, 0, 161, 244, 1, 0, 218, 244, 1, 0, 8, 39, 0, 0, 15, 254, 0, 0 }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
@@ -257,7 +257,7 @@ namespace RDMSharpTests.Metadata.JSON
         {
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "unicode", null, null);
             var unicode = "ÄÖÜß😊";
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, unicode));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, unicode)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 196, 0, 214, 0, 220, 0, 223, 0, 61, 216, 10, 222 }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
@@ -271,7 +271,7 @@ namespace RDMSharpTests.Metadata.JSON
         {
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "big_edian_unicode", null, null);
             var big_edian_unicode = "ÄÖÜß😊";
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, big_edian_unicode));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, big_edian_unicode)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 0, 196, 0, 214, 0, 220, 0, 223, 216, 61, 222, 10 }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
@@ -285,7 +285,7 @@ namespace RDMSharpTests.Metadata.JSON
         {
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "latin1", null, null);
             var latin1 = "Café"; ;
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, latin1));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, latin1)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 67, 97, 102, 233 }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
@@ -299,7 +299,7 @@ namespace RDMSharpTests.Metadata.JSON
         {
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", null, null, null);
             var utf8 = "äöüß€!";
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, utf8));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, utf8)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 195, 164, 195, 182, 195, 188, 195, 159, 226, 130, 172, 33 }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
@@ -311,7 +311,7 @@ namespace RDMSharpTests.Metadata.JSON
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "utf8[]", null, null);
             var utf8 = "äöüß€!";
             var array = new string[] { utf8, utf8 };
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, array));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, array)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 195, 164, 195, 182, 195, 188, 195, 159, 226, 130, 172, 33, 0, 195, 164, 195, 182, 195, 188, 195, 159, 226, 130, 172, 33, 0 }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
@@ -322,7 +322,7 @@ namespace RDMSharpTests.Metadata.JSON
         {
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", null, null, null);
             var bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
-            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, bytes));
+            var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, bytes)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(bytes));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));

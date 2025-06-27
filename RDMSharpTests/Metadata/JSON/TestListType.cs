@@ -73,14 +73,14 @@ namespace RDMSharpTests.Metadata.JSON
         {
             var listType = new ListType("NAME", "DISPLAY_NAME", "NOTES", null, "list", new OneOfTypes(new IntegerType<byte>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt8, null, null, null, null, null, null)), 1, 5);
             var dataTree = new DataTree(listType.Name, 0, children: new DataTree[] { new DataTree("NAME", 0, (byte)11), new DataTree("NAME", 1, (byte)22), new DataTree("NAME", 2, (byte)33) });
-            var data = listType.ParsePayloadToData(dataTree);
+            var data = listType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 11, 22, 33 }));
 
             var dataTreeResult = listType.ParseDataToPayload(ref data);
             Assert.That(dataTreeResult, Is.EqualTo(dataTree));
 
             listType = new ListType("NAME", "DISPLAY_NAME", "NOTES", null, "list", new OneOfTypes(new IntegerType<byte>("NAME", "DISPLAY_NAME", "NOTES", null, EIntegerType.UInt8, null, null, null, null, null, null)), 3, 3);
-            data = listType.ParsePayloadToData(dataTree);
+            data = listType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 11, 22, 33 }));
 
             dataTreeResult = listType.ParseDataToPayload(ref data);

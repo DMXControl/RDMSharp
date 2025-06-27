@@ -82,7 +82,11 @@ namespace RDMSharp
                 return;
             }
             if (e.Value is RDMSlotDescription slotDescription)
-                getOrCreate(Convert.ToUInt16(e.Index)).UpdateSlotDescription(slotDescription);
+            {
+                var slot = getOrCreate(Convert.ToUInt16(e.Index));
+                if (slot.SlotId == slotDescription.SlotId)
+                    slot.UpdateSlotDescription(slotDescription);
+            }
 
             Slot getOrCreate(ushort id)
             {

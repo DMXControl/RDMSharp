@@ -31,7 +31,7 @@ namespace RDMSharpTests.Metadata.JSON
             Assert.That(referenceType.GetDataLength().Value, Is.EqualTo(6));
             Assert.That(referenceType.ReferencedObject, Is.Not.Null);
             var uid = new UID(0x4646, 0x12345678);
-            var data = referenceType.ParsePayloadToData(new DataTree(referenceType.ReferencedObject.Name, 0, uid));
+            var data = referenceType.ParsePayloadToData(new DataTree(referenceType.ReferencedObject.Name, 0, uid)).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 0x46, 0x46, 0x12, 0x34, 0x56, 0x78 }));
             var dataTree = referenceType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));

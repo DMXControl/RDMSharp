@@ -27,7 +27,7 @@ namespace RDMSharpTests.Metadata.JSON
         {            
             var pdEnvelopeType = new PD_EnvelopeType("NAME", "DISPLAY_NAME", "NOTES", null, "pdEnvelope", 2);
             var dataTree = new DataTree(pdEnvelopeType.Name, 0, null);
-            var data = pdEnvelopeType.ParsePayloadToData(dataTree);
+            var data = pdEnvelopeType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { }));
 
             var dataTreeResult = pdEnvelopeType.ParseDataToPayload(ref data);

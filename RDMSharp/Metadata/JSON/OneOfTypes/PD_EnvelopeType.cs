@@ -1,5 +1,6 @@
 ﻿using RDMSharp.RDM;
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
@@ -68,9 +69,9 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             return new PDL();
         }
 
-        public override byte[] ParsePayloadToData(DataTree dataTree)
+        public override IEnumerable<byte[]> ParsePayloadToData(DataTree dataTree)
         {
-            return new byte[0];
+            return Tools.EncaseData(new byte[0]);
         }
 
         public override DataTree ParseDataToPayload(ref byte[] data)

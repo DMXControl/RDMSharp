@@ -119,7 +119,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
             return new PDL((uint)(MinLength ?? 1), (uint)(MaxLength ?? PDL.MAX_LENGTH));
         }
-        public override byte[] ParsePayloadToData(DataTree dataTree)
+        public override IEnumerable<byte[]> ParsePayloadToData(DataTree dataTree)
         {
             if (!string.Equals(dataTree.Name, this.Name))
                 throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
@@ -135,10 +135,10 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                     if (value is string)
                         bytes.Add(0); //Null-Delimiter
                 }
-                return bytes.ToArray();
+                return Tools.EncaseData(bytes.ToArray());
             }
             else
-                return parseData(Format, dataTree.Value);
+                return Tools.EncaseData(parseData(Format, dataTree.Value));
 
             byte[] parseData(string format, object value)
             {

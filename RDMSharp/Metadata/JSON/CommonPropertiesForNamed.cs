@@ -1,4 +1,5 @@
 ﻿using RDMSharp.RDM;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON
@@ -22,7 +23,7 @@ namespace RDMSharp.Metadata.JSON
 
         public abstract PDL GetDataLength();
 
-        public abstract byte[] ParsePayloadToData(DataTree dataTree);
+        public abstract IEnumerable<byte[]> ParsePayloadToData(DataTree dataTree);
         public abstract DataTree ParseDataToPayload(ref byte[] data);
 
         public override string ToString()

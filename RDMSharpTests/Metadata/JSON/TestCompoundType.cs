@@ -41,7 +41,7 @@ namespace RDMSharpTests.Metadata.JSON
             var compoundType = new CompoundType("NAME", "DISPLAY_NAME", "NOTES", null, "compound", oneOf);
 
             DataTree dataTree = new DataTree(compoundType.Name, 0, new DataTree[] { new DataTree(oneOf[0].ObjectType.Name, 0, (byte)33), new DataTree(oneOf[1].ObjectType.Name, 1, (sbyte)-22) });
-            byte[] data = compoundType.ParsePayloadToData(dataTree);
+            byte[] data = compoundType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 33, 234 }));
 
             DataTree dataTreeResult = compoundType.ParseDataToPayload(ref data);

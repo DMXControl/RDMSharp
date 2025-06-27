@@ -62,7 +62,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
         {
             return new PDL(Subtypes.Select(s => s.GetDataLength()).ToArray());
         }
-        public override byte[] ParsePayloadToData(DataTree dataTree)
+        public override IEnumerable<byte[]> ParsePayloadToData(DataTree dataTree)
         {
             if (!string.Equals(dataTree.Name, this.Name))
                 throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
@@ -76,12 +76,12 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 if (Subtypes[i].IsEmpty())
                     throw new ArithmeticException($"The given Object from {nameof(Subtypes)}[{i}] is Empty");
 
-                data.AddRange(Subtypes[i].ParsePayloadToData(dataTree.Children[i]));
+                data.AddRange(Subtypes[i].ParsePayloadToData(dataTree.Children[i]).SelectMany(en=>en));
             }
 
             validateDataLength(data.Count);
 
-            return data.ToArray();
+            return Tools.EncaseData(data.ToArray());
         }
         public override DataTree ParseDataToPayload(ref byte[] data)
         {

@@ -271,7 +271,7 @@ namespace RDMSharpTests.Metadata.JSON
                     var data = new byte[pdl];
                     var dataTree = integerType.ParseDataToPayload(ref data);
                     Assert.That(dataTree.Value, Is.EqualTo(0));
-                    var parsedData = integerType.ParsePayloadToData(dataTree);
+                    var parsedData = integerType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
                     data = new byte[pdl];
                     Assert.That(parsedData, Is.EqualTo(data));
 
@@ -279,7 +279,7 @@ namespace RDMSharpTests.Metadata.JSON
                     data[data.Length - 1] = 1;
                     dataTree = integerType.ParseDataToPayload(ref data);
                     Assert.That(dataTree.Value, Is.EqualTo(1024));
-                    parsedData = integerType.ParsePayloadToData(dataTree);
+                    parsedData = integerType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
                     data = new byte[pdl];
                     data[data.Length - 1] = 1;
                     Assert.That(parsedData, Is.EqualTo(data));
@@ -288,7 +288,7 @@ namespace RDMSharpTests.Metadata.JSON
                     data[data.Length - 1] = 100;
                     dataTree = integerType.ParseDataToPayload(ref data);
                     Assert.That(dataTree.Value, Is.EqualTo(102400));
-                    parsedData = integerType.ParsePayloadToData(dataTree);
+                    parsedData = integerType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
                     data = new byte[pdl];
                     data[data.Length - 1] = 100;
                     Assert.That(parsedData, Is.EqualTo(data));
@@ -326,7 +326,7 @@ namespace RDMSharpTests.Metadata.JSON
                     var data = new byte[pdl];
                     var dataTree = integerType.ParseDataToPayload(ref data);
                     Assert.That(dataTree.Value, Is.EqualTo(0), message);
-                    var parsedData = integerType.ParsePayloadToData(dataTree);
+                    var parsedData = integerType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
                     data = new byte[pdl];
                     Assert.That(parsedData, Is.EqualTo(data), message);
 
@@ -334,7 +334,7 @@ namespace RDMSharpTests.Metadata.JSON
                     data[data.Length - 1] = 1;
                     dataTree = integerType.ParseDataToPayload(ref data);
                     Assert.That(dataTree.Value, Is.EqualTo(-1024), message);
-                    parsedData = integerType.ParsePayloadToData(dataTree);
+                    parsedData = integerType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
                     data = new byte[pdl];
                     data[data.Length - 1] = 1;
                     Assert.That(parsedData, Is.EqualTo(data), message);
@@ -343,7 +343,7 @@ namespace RDMSharpTests.Metadata.JSON
                     data[data.Length - 1] = 100;
                     dataTree = integerType.ParseDataToPayload(ref data);
                     Assert.That(dataTree.Value, Is.EqualTo(-102400), message);
-                    parsedData = integerType.ParsePayloadToData(dataTree);
+                    parsedData = integerType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
                     data = new byte[pdl];
                     data[data.Length - 1] = 100;
                     Assert.That(parsedData, Is.EqualTo(data), message);
@@ -380,7 +380,7 @@ namespace RDMSharpTests.Metadata.JSON
                     var data = new byte[pdl];
                     var dataTree = integerType.ParseDataToPayload(ref data);
                     Assert.That(dataTree.Value, Is.EqualTo(0));
-                    var parsedData = integerType.ParsePayloadToData(dataTree);
+                    var parsedData = integerType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
                     data = new byte[pdl];
                     Assert.That(parsedData, Is.EqualTo(data));
 
@@ -388,7 +388,7 @@ namespace RDMSharpTests.Metadata.JSON
                     data[data.Length - 1] = 1;
                     dataTree = integerType.ParseDataToPayload(ref data);
                     Assert.That(dataTree.Value, Is.EqualTo(0.0001));
-                    parsedData = integerType.ParsePayloadToData(dataTree);
+                    parsedData = integerType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
                     data = new byte[pdl];
                     data[data.Length - 1] = 1;
                     Assert.That(parsedData, Is.EqualTo(data));
@@ -397,7 +397,7 @@ namespace RDMSharpTests.Metadata.JSON
                     data[data.Length - 1] = 100;
                     dataTree = integerType.ParseDataToPayload(ref data);
                     Assert.That(dataTree.Value, Is.EqualTo(0.01));
-                    parsedData = integerType.ParsePayloadToData(dataTree);
+                    parsedData = integerType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
                     data = new byte[pdl];
                     data[data.Length - 1] = 100;
                     Assert.That(parsedData, Is.EqualTo(data));
@@ -409,7 +409,7 @@ namespace RDMSharpTests.Metadata.JSON
         {
             var dataTree = new DataTree(integerType.Name, 0, value);
             var data = new byte[0];
-            Assert.DoesNotThrow(() => data = integerType.ParsePayloadToData(dataTree), message!);
+            Assert.DoesNotThrow(() => data = integerType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray(), message!);
             Assert.That(data, Is.EqualTo(expectedData), message);
 
             byte[] cloneData = new byte[data.Length];
@@ -426,7 +426,7 @@ namespace RDMSharpTests.Metadata.JSON
             Assert.That(parsedDataTree.Issues, Is.Not.Null);
             Assert.That(parsedDataTree.Value, Is.Not.Null);
 
-            Assert.Throws(typeof(ArithmeticException), () => data = integerType.ParsePayloadToData(new DataTree("Different Name", dataTree.Index, dataTree.Value)), message!);
+            Assert.Throws(typeof(ArithmeticException), () => data = integerType.ParsePayloadToData(new DataTree("Different Name", dataTree.Index, dataTree.Value)).SelectMany(en => en).ToArray(), message!);
         }
     }
 }

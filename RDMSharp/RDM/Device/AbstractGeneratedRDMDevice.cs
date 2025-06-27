@@ -45,6 +45,8 @@ namespace RDMSharp
         private RDMDeviceInfo deviceInfo;
         public sealed override RDMDeviceInfo DeviceInfo { get { return deviceInfo; } }
 
+        private ConcurrentDictionary<UID, OverflowCacheBag> overflowCacheBags = new ConcurrentDictionary<UID, OverflowCacheBag>();
+
         private ushort dmxAddress { get; set; }
         public ushort? DMXAddress
         {
@@ -406,17 +408,19 @@ namespace RDMSharp
             var _sensors = Sensors.Values.ToArray();
             if (_sensors.Length >= byte.MaxValue)
                 throw new ArgumentOutOfRangeException($"There to many {Sensors}! Maximum is {byte.MaxValue - 1}");
+            if (_sensors.Length > 0)
+            {
+                if (_sensors.Min(s => s.SensorId) != 0)
+                    throw new ArgumentOutOfRangeException($"The first Sensor should have the ID: 0, but is({_sensors.Min(s => s.SensorId)})");
+                if (_sensors.Max(s => s.SensorId) + 1 != _sensors.Length)
+                    throw new ArgumentOutOfRangeException($"The last Sensor should have the ID: {_sensors.Max(s => s.SensorId) + 1}, but is({_sensors.Max(s => s.SensorId)})");
 
-            if (_sensors.Min(s => s.SensorId) != 0)
-                throw new ArgumentOutOfRangeException($"The first Sensor should have the ID: 0, but is({_sensors.Min(s => s.SensorId)})");
-            if (_sensors.Max(s => s.SensorId) + 1 != _sensors.Length)
-                throw new ArgumentOutOfRangeException($"The last Sensor should have the ID: {_sensors.Max(s => s.SensorId) + 1}, but is({_sensors.Max(s => s.SensorId)})");
+                if (_sensors.Select(s => s.SensorId).Distinct().Count() != _sensors.Length)
+                    throw new ArgumentOutOfRangeException($"Some Sensor-IDs are used more then onse");
 
-            if (_sensors.Select(s => s.SensorId).Distinct().Count() != _sensors.Length)
-                throw new ArgumentOutOfRangeException($"Some Sensor-IDs are used more then onse");
-
-            setParameterValue(ERDM_Parameter.SENSOR_DEFINITION, sensorDef);
-            setParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue);
+                setParameterValue(ERDM_Parameter.SENSOR_DEFINITION, sensorDef);
+                setParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue);
+            }
 
             updateSupportedParametersOnAddRemoveSensors();
             updateDeviceInfo();
@@ -588,7 +592,7 @@ namespace RDMSharp
                         throw new NotSupportedException($"The Protocoll not allow to set the Parameter: {parameter}");
                     else
                     {
-                        byte[] data = MetadataFactory.ParsePayloadToData(define, Metadata.JSON.Command.ECommandDublicate.SetRequest, DataTreeBranch.FromObject(value, null, parameterBag, ERDM_Command.SET_COMMAND));
+                        byte[] data = MetadataFactory.ParsePayloadToData(define, Metadata.JSON.Command.ECommandDublicate.SetRequest, DataTreeBranch.FromObject(value, null, parameterBag, ERDM_Command.SET_COMMAND)).First();
                         var obj = MetadataFactory.ParseDataToPayload(define, Metadata.JSON.Command.ECommandDublicate.SetRequest, data);
                         if (!object.Equals(value, obj))
                             return false;
@@ -905,6 +909,24 @@ namespace RDMSharp
                         response = new RDMMessage(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
                         goto FAIL;
                     }
+                    if(overflowCacheBags.TryGetValue(rdmMessage.SourceUID, out OverflowCacheBag overflowCache))
+                    {
+                        if (!overflowCache.Timeouted && overflowCache.Cache.TryDequeue(out byte[] data))
+                        {
+                            response = new RDMMessage
+                            {
+                                Parameter = parameter,
+                                Command = ERDM_Command.GET_COMMAND_RESPONSE,
+                                MessageCounter = messageCounter,
+                                ParameterData = data,
+                            };
+                            if (!overflowCache.Cache.TryPeek(out _))
+                                overflowCacheBags.Remove(rdmMessage.SourceUID, out _);
+                            else
+                                response.PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK_OVERFLOW;
+                            goto FAIL;
+                        }
+                    }
                     var dataTreeBranch = DataTreeBranch.FromObject(responseValue, requestValue, parameterBag, ERDM_Command.GET_COMMAND_RESPONSE);
                     try
                     {
@@ -912,13 +934,22 @@ namespace RDMSharp
                         {
                             var data = MetadataFactory.GetResponseMessageData(parameterBag, dataTreeBranch);
                             if (data != null)
+                            {
+                                byte[] pData = null;
+                                if (data.Count() !=1)
+                                {
+                                    overflowCacheBags.AddOrUpdate(rdmMessage.SourceUID, (uid) => new OverflowCacheBag(rdmMessage.Parameter, data.ToList()), (uid, o) => new OverflowCacheBag(rdmMessage.Parameter, data.ToList()));
+                                    pData = overflowCacheBags[rdmMessage.SourceUID].Cache.Dequeue();
+                                }
                                 response = new RDMMessage
                                 {
                                     Parameter = parameter,
                                     Command = ERDM_Command.GET_COMMAND_RESPONSE,
                                     MessageCounter = messageCounter,
-                                    ParameterData = data,
+                                    ParameterData = pData ?? data.First(),
+                                    PortID_or_Responsetype = pData is null ? (byte)ERDM_ResponseType.ACK : (byte)ERDM_ResponseType.ACK_OVERFLOW
                                 };
+                            }
                             if (rdmMessage.Parameter == ERDM_Parameter.QUEUED_MESSAGE)
                                 controllerCache.SetLastSendQueuedOrStatusRDMMessageResponse(response);
                             controllerCache.SetLastSendRDMMessageResponse(response);
@@ -977,7 +1008,7 @@ namespace RDMSharp
                                     {
                                         Parameter = rdmMessage.Parameter,
                                         Command = ERDM_Command.SET_COMMAND_RESPONSE,
-                                        ParameterData = data,
+                                        ParameterData = data.First(),
                                     };
                             }
                             else
@@ -1247,6 +1278,29 @@ namespace RDMSharp
             }
         }
         protected abstract void onDispose();
+
+        private class OverflowCacheBag
+        {
+            public readonly ERDM_Parameter Parameter;
+            public readonly DateTime CreationTime;
+            public readonly Queue<byte[]> Cache = new Queue<byte[]>();
+
+            public bool Timeouted
+            {
+                get
+                {
+                    return (DateTime.UtcNow - CreationTime).TotalSeconds > 5;
+                }
+            }
+
+            public OverflowCacheBag(ERDM_Parameter parameter, IReadOnlyCollection<byte[]> cache)
+            {
+                Parameter = parameter;
+                CreationTime = DateTime.UtcNow;
+                foreach (var c in cache)
+                    Cache.Enqueue(c);
+            }
+        }
 
         private class ControllerCommunicationCache
         {

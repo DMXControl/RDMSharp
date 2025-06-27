@@ -146,6 +146,12 @@ namespace RDMSharp
                            .ToList();
         }
 
+        public static IEnumerable<byte[]> EncaseData(byte[] data)
+        {
+            List<byte[]> enumerable = new List<byte[]>();
+            enumerable.Add(data);
+            return enumerable.AsReadOnly();
+        }
         public static byte[] ValueToData(params bool[] bits)
         {
             return ValueToData(bits, trim: 0);

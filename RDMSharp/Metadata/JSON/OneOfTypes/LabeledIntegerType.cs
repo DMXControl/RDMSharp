@@ -1,5 +1,6 @@
 ﻿using RDMSharp.RDM;
 using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace RDMSharp.Metadata.JSON.OneOfTypes
@@ -55,7 +56,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             throw new NotSupportedException();
         }
 
-        public override byte[] ParsePayloadToData(DataTree dataTree)
+        public override IEnumerable<byte[]> ParsePayloadToData(DataTree dataTree)
         {
             throw new NotSupportedException();
         }

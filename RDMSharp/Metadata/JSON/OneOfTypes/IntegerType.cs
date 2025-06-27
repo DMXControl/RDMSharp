@@ -253,7 +253,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             throw new NotImplementedException();
         }
 
-        public override byte[] ParsePayloadToData(DataTree dataTree)
+        public override IEnumerable<byte[]> ParsePayloadToData(DataTree dataTree)
         {
             if (!string.Equals(dataTree.Name, this.Name))
                 throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
@@ -269,7 +269,7 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
             }
             var data = Tools.ValueToData(rawValue);
 
-            return data;
+            return Tools.EncaseData(data);
         }
         public override DataTree ParseDataToPayload(ref byte[] data)
         {

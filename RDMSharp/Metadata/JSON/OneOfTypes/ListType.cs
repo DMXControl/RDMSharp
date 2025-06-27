@@ -1,5 +1,6 @@
 ﻿using RDMSharp.RDM;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
@@ -107,16 +108,16 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
             return new PDL(min, max);
         }
-        public override byte[] ParsePayloadToData(DataTree dataTree)
+        public override IEnumerable<byte[]> ParsePayloadToData(DataTree dataTree)
         {
             if (!string.Equals(dataTree.Name, this.Name))
                 throw new ArithmeticException($"The given Name from {nameof(dataTree.Name)}({dataTree.Name}) not match this Name({this.Name})");
 
-            List<byte> data = new List<byte>();
+            List<byte[]> data = new List<byte[]>();
             for (int i = 0; i < dataTree.Children.Length; i++)
                 data.AddRange(ItemType.ParsePayloadToData(dataTree.Children[i]));
 
-            validateDataLength(data.Count);
+            validateDataLength(data.SelectMany(en=>en).Count());
 
             return data.ToArray();
         }

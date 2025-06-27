@@ -70,7 +70,7 @@ namespace RDMSharpTests.Metadata.JSON
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, null, 5, true);
             string str = "qwert";
             DataTree dataTree = new DataTree("NAME", 0, str);
-            byte[] data = stringType.ParsePayloadToData(dataTree);
+            byte[] data = stringType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 113, 119, 101, 114, 116 }));
             DataTree reverseDataTree = stringType.ParseDataToPayload(ref data);
             Assert.Multiple(() =>
@@ -86,7 +86,7 @@ namespace RDMSharpTests.Metadata.JSON
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, "string", null, null, null, null, minBytes: 8, maxBytes: 8, null);
             string str = "ÄÜÖß";
             DataTree dataTree = new DataTree("NAME", 0, str);
-            byte[] data = stringType.ParsePayloadToData(dataTree);
+            byte[] data = stringType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 195, 132, 195, 156, 195, 150, 195, 159 }));
             DataTree reverseDataTree = stringType.ParseDataToPayload(ref data);
             Assert.Multiple(() =>
@@ -102,7 +102,7 @@ namespace RDMSharpTests.Metadata.JSON
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, "string", null, null, 4, 6, null, null, null);
             string str = "ÄÜÖß";
             DataTree dataTree = new DataTree("NAME", 0, str);
-            byte[] data = stringType.ParsePayloadToData(dataTree);
+            byte[] data = stringType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 195, 132, 195, 156, 195, 150, 195, 159 }));
             DataTree reverseDataTree = stringType.ParseDataToPayload(ref data);
             Assert.Multiple(() =>
@@ -118,7 +118,7 @@ namespace RDMSharpTests.Metadata.JSON
             var stringType = new StringType("NAME", "DISPLAY_NAME", "NOTES", null, "string", null, null, 4, 6, 4, 8, null);
             string str = "ÄUÖS";
             DataTree dataTree = new DataTree("NAME", 0, str);
-            byte[] data = stringType.ParsePayloadToData(dataTree);
+            byte[] data = stringType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 195, 132, 85, 195, 150, 83 }));
             DataTree reverseDataTree = stringType.ParseDataToPayload(ref data);
             Assert.Multiple(() =>

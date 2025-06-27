@@ -2,6 +2,7 @@
 using RDMSharp.Metadata;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using static RDMSharp.Metadata.JSON.Command;
 
@@ -70,7 +71,7 @@ namespace RDMSharp
 
                 byte[] parameterData = null;
                 if (Define != null)
-                    parameterData = MetadataFactory.ParsePayloadToData(Define, commandRequest, RequestPayloadObject);
+                    parameterData = MetadataFactory.ParsePayloadToData(Define, commandRequest, RequestPayloadObject).First();
                 request = new RDMMessage()
                 {
                     Command = Command,

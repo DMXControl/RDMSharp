@@ -5,6 +5,7 @@ using RDMSharp.Metadata.JSON.OneOfTypes;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -324,26 +325,47 @@ namespace RDMSharp.Metadata
             return null;
         }
 
-        internal static byte[] ParsePayloadToData(MetadataJSONObjectDefine define, Command.ECommandDublicate commandType, DataTreeBranch payload)
+        internal static IEnumerable<byte[]> ParsePayloadToData(MetadataJSONObjectDefine define, Command.ECommandDublicate commandType, DataTreeBranch payload)
         {
             define.GetCommand(commandType, out Command? _command);
             if (_command is not Command command)
                 throw new InvalidOperationException();
-
+            List<byte[]> result = new List<byte[]>();
             if (command.GetIsEmpty())
-                return new byte[0];
+            {
+                result.Add(new byte[0]);
+                return result.AsReadOnly();
+            }
 
             if (command.SingleField.HasValue && payload.Children.SingleOrDefault() is DataTree dataTree)
-                return command.SingleField.Value.ParsePayloadToData(dataTree);
-
+            {
+                result.AddRange(command.SingleField.Value.ParsePayloadToData(dataTree));
+                return result.AsReadOnly();
+            }
             if (command.ListOfFields.Length != 0 && payload.Children is DataTree[] dataTreeArray)
             {
                 if (dataTreeArray.Length != command.ListOfFields.Length)
                     throw new IndexOutOfRangeException();
+
                 List<byte> data = new List<byte>();
                 for (int i = 0; i < command.ListOfFields.Length; i++)
-                    data.AddRange(command.ListOfFields[i].ParsePayloadToData(dataTreeArray[i]));
-                return data.ToArray();
+                {
+                    var newData = command.ListOfFields[i].ParsePayloadToData(dataTreeArray[i]);
+                    foreach(var nData in newData)
+                    {
+                        if (data.Count + nData.Length > 231)
+                        {
+                            result.Add(data.ToArray());
+                            data.Clear();
+                        }
+                        data.AddRange(nData);
+                    }
+                    //data.AddRange(newData.SelectMany(en=>en).ToArray());
+                }
+
+                if (data.Count != 0)
+                    result.Add(data.ToArray());
+                return result.AsReadOnly();
             }
 
             throw new ArithmeticException();
@@ -376,19 +398,19 @@ namespace RDMSharp.Metadata
 
             throw new ArithmeticException();
         }
-        internal static byte[] GetRequestMessageData(ParameterBag parameter, DataTreeBranch payloadData)
+        internal static IEnumerable<byte[]> GetRequestMessageData(ParameterBag parameter, DataTreeBranch payloadData)
         {
             return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicate.GetRequest, payloadData);
         }
-        internal static byte[] GetResponseMessageData(ParameterBag parameter, DataTreeBranch payloadData)
+        internal static IEnumerable<byte[]> GetResponseMessageData(ParameterBag parameter, DataTreeBranch payloadData)
         {
             return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicate.GetResponse, payloadData);
         }
-        internal static byte[] SetRequestMessageData(ParameterBag parameter, DataTreeBranch payloadData)
+        internal static IEnumerable<byte[]> SetRequestMessageData(ParameterBag parameter, DataTreeBranch payloadData)
         {
             return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicate.SetRequest, payloadData);
         }
-        internal static byte[] SetResponseMessageData(ParameterBag parameter, DataTreeBranch payloadData)
+        internal static IEnumerable<byte[]> SetResponseMessageData(ParameterBag parameter, DataTreeBranch payloadData)
         {
             return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicate.SetResponse, payloadData);
         }

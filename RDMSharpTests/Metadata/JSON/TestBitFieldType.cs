@@ -47,7 +47,7 @@ namespace RDMSharpTests.Metadata.JSON
                 Assert.That(dataTree.Value, Is.Null);
                 Assert.That(dataTree.Children, Is.Not.Null);
                 var data = new byte[0];
-                Assert.DoesNotThrow(() => data = bitFieldType.ParsePayloadToData(dataTree), message!);
+                Assert.DoesNotThrow(() => data = bitFieldType.ParsePayloadToData(dataTree).SelectMany(en=>en).ToArray(), message!);
                 Assert.That(data, Is.EqualTo(expectedData), message);
 
                 byte[] clonaData = new byte[data.Length];
@@ -66,24 +66,24 @@ namespace RDMSharpTests.Metadata.JSON
                 Assert.That(parsedDataTree.Value, Is.Null);
                 Assert.That(parsedDataTree.Children, Is.Not.Null);
 
-                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree("Different Name", dataTree.Index, children: dataTree.Children)), message!);
-                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, children: dataTree.Children?.Take(2).ToArray())), message!);
+                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree("Different Name", dataTree.Index, children: dataTree.Children)).SelectMany(en => en).ToArray(), message!);
+                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, children: dataTree.Children?.Take(2).ToArray())).SelectMany(en => en).ToArray(), message!);
                 
                 var children = dataTree.Children!.ToArray();
                 children[1] = new DataTree("Other Name", children[1].Index, children[1].Value);
-                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, children: children)), message!);
+                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, children: children)).SelectMany(en => en).ToArray(), message!);
 
                 children = dataTree.Children!.ToArray();
                 children[1] = new DataTree(children[1].Name, 3, children[1].Value);
-                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, children: children)), message!);
+                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, children: children)).SelectMany(en => en).ToArray(), message!);
                 
                 children = dataTree.Children!.ToArray();
                 children[1] = new DataTree(children[1].Name, 0, children[1].Value);
-                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, children: children)), message!);
+                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, children: children)).SelectMany(en => en).ToArray(), message!);
 
                 children = dataTree.Children!.ToArray();
                 children[1] = new DataTree(children[1].Name, children[1].Index, 3);
-                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, children: children)), message!);
+                Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, children: children)).SelectMany(en => en).ToArray(), message!);
             });
         }
     }
