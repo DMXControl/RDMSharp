@@ -95,6 +95,19 @@ namespace RDMSharp.Metadata.JSON
                         return true;
             return false;
         }
+        public bool TryGetLabeledBooleanTypes(out LabeledBooleanType[] labeledBooleanTypes)
+        {
+            labeledBooleanTypes = null;
+            if (EnumValue.HasValue)
+                return false;
+            if (SingleField.HasValue)
+                return SingleField.Value.TryGetLabeledBooleanTypes(out labeledBooleanTypes);
+            if (ListOfFields != null)
+                foreach (var field in ListOfFields)
+                    if (field.TryGetLabeledBooleanTypes(out labeledBooleanTypes))
+                        return true;
+            return false;
+        }
         public override string ToString()
         {
             if (EnumValue.HasValue)

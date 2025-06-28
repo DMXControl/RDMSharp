@@ -175,6 +175,13 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
             return labeledIntegerTypes is not null;
         }
+        public bool TryGetLabeledBooleanTypes(out LabeledBooleanType[] labeledBooleanTypes)
+        {
+            labeledBooleanTypes = null;
+            if (BooleanType is not null)
+                labeledBooleanTypes =  BooleanType.Labels;
+            return labeledBooleanTypes is not null;
+        }
 
         public override string ToString()
         {
