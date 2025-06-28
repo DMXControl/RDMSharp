@@ -111,6 +111,14 @@ namespace RDMSharp
                 {
                     try
                     {
+                        if(o2.GetType() != valueToStore.GetType())
+                        {
+                            if(o2 is IRDMPayloadObjectOneOf oneOf)
+                            {
+                                oneOf = (IRDMPayloadObjectOneOf)Activator.CreateInstance(oneOf.GetType(), valueToStore, oneOf.Count);
+                                valueToStore = oneOf;
+                            }
+                        }
                         return valueToStore;
                     }
                     finally
@@ -208,7 +216,7 @@ namespace RDMSharp
                     throw new Exception($"Failed to set parameter {parameterBag.PID} with value {value}");
                 if (ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Finished)
                 {
-                    if (ptpProcess.ResponsePayloadObject.IsEmpty)
+                    if (ptpProcess.ResponsePayloadObject.IsEmpty && define.GetResponse.HasValue)
                     {
                         updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), dataTreeBranch);
                         if (this.ParameterValues.TryGetValue(parameterBag.PID, out object cacheValue))
@@ -217,7 +225,7 @@ namespace RDMSharp
                                 throw new Exception($"Failed to set parameter {parameterBag.PID} with value {value}, cache value is {cacheValue}");
                         }
                     }
-                    else if (!ptpProcess.ResponsePayloadObject.IsUnset)
+                    else if (!ptpProcess.ResponsePayloadObject.IsUnset && define.GetResponse.HasValue)
                         updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), ptpProcess.ResponsePayloadObject);
                     return true;
                 }

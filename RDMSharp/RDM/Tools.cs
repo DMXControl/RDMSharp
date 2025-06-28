@@ -133,6 +133,8 @@ namespace RDMSharp
         {
             var type = value.GetType();
             var name = Enum.GetName(type, value);
+            if (string.IsNullOrWhiteSpace(name))
+                return null;
             return type.GetField(name) // I prefer to get attributes this way
                 .GetCustomAttributes(false)
                 .OfType<TAttribute>()
