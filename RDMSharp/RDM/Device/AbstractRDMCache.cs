@@ -268,7 +268,8 @@ namespace RDMSharp
                     {
                         if(dependecyValue == null)
                         {
-
+                            Logger?.LogDebug($"No {nameof(dependecyValue)} found for {parameterBag.PID}");
+                            dependecyValue= (IComparable)intType.GetMinimum();
                         }
                         if (dependecyValue != null)
                         {
