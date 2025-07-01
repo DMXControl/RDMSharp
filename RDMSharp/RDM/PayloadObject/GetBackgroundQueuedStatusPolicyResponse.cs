@@ -20,6 +20,7 @@ namespace RDMSharp
         public ERDM_PolicyType Policy { get { return (ERDM_PolicyType)PolicyId; } }
         [DataTreeObjectProperty("policy_setting", 0)]
         public byte PolicyId { get; private set; }
+        [DataTreeObjectDependecieProperty("policy", ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY_DESCRIPTION, Command.ECommandDublicate.GetRequest)]
         [DataTreeObjectProperty("policy_setting_count", 1)]
         public byte Policies { get; private set; }
 

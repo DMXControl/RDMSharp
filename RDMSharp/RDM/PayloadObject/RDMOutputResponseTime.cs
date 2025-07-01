@@ -17,9 +17,9 @@ namespace RDMSharp
             this.ResponseTimes = responseTimes;
         }
 
-        [DataTreeObjectDependecieProperty("setting", ERDM_Parameter.OUTPUT_RESPONSE_TIME_DESCRIPTION, Command.ECommandDublicate.GetRequest)]
         [DataTreeObjectProperty("setting", 0)]
         public byte CurrentResponseTimeId { get; private set; }
+        [DataTreeObjectDependecieProperty("setting", ERDM_Parameter.OUTPUT_RESPONSE_TIME_DESCRIPTION, Command.ECommandDublicate.GetRequest)]
         [DataTreeObjectProperty("setting_count", 1)]
         public byte ResponseTimes { get; private set; }
 

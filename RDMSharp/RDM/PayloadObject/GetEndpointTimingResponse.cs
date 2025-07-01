@@ -23,6 +23,8 @@ namespace RDMSharp
         public ushort EndpointId { get; private set; }
         [DataTreeObjectProperty("setting", 1)]
         public byte TimingId { get; private set; }
+        [DataTreeObjectDependecieProperty("setting", ERDM_Parameter.ENDPOINT_TIMING, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("setting", ERDM_Parameter.ENDPOINT_TIMING_DESCRIPTION, Command.ECommandDublicate.GetRequest)]
         [DataTreeObjectProperty("setting_count", 2)]
         public byte Timings { get; private set; }
 

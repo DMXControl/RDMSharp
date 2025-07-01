@@ -19,6 +19,8 @@ namespace RDMSharp
 
         [DataTreeObjectProperty("state", 0)]
         public byte CurrentLockStateId { get; private set; }
+
+        [DataTreeObjectDependecieProperty("state", ERDM_Parameter.LOCK_STATE_DESCRIPTION, Command.ECommandDublicate.GetRequest)]
         [DataTreeObjectProperty("state_count", 1)]
         public byte LockStates { get; private set; }
 

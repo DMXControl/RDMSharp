@@ -19,6 +19,7 @@ namespace RDMSharp
 
         [DataTreeObjectProperty("personality", 0)]
         public byte CurrentPersonality { get; private set; }
+        [DataTreeObjectDependecieProperty("personality", ERDM_Parameter.OUTPUT_RESPONSE_TIME_DESCRIPTION, Command.ECommandDublicate.GetRequest)]
 
         [DataTreeObjectProperty("personality_count", 1)]
         public byte OfPersonalities { get; private set; }
