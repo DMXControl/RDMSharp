@@ -1,139 +1,452 @@
 {
   "name": "SENSOR_DEFINITION",
+  "displayName": "Sensor Description",
   "manufacturer_id": 0,
   "pid": 512,
   "version": 1,
   "get_request_subdevice_range": [ "root", "subdevices" ],
   "get_request": [
-    { "name": "sensor", "type": "uint8" }
+    {
+      "name": "sensor",
+      "type": "uint8"
+    }
   ],
   "get_response": [
-    { "name": "sensor", "type": "uint8" },
+    {
+      "name": "sensor",
+      "type": "uint8"
+    },
     {
       "name": "type",
       "type": "uint8",
       "labels": [
-        { "name": "TEMPERATURE", "value": 0 },
-        { "name": "VOLTAGE", "value": 1 },
-        { "name": "CURRENT", "value": 2 },
-        { "name": "FREQUENCY", "value": 3 },
-        { "name": "RESISTANCE", "value": 4 },
-        { "name": "POWER", "value": 5 },
-        { "name": "MASS", "value": 6 },
-        { "name": "LENGTH", "value": 7 },
-        { "name": "AREA", "value": 8 },
-        { "name": "VOLUME", "value": 9 },
-        { "name": "DENSITY", "value": 10 },
-        { "name": "VELOCITY", "value": 11 },
-        { "name": "ACCELERATION", "value": 12 },
-        { "name": "FORCE", "value": 13 },
-        { "name": "ENERGY", "value": 14 },
-        { "name": "PRESSURE", "value": 15 },
-        { "name": "TIME", "value": 16 },
-        { "name": "ANGLE", "value": 17 },
-        { "name": "POSITION_X", "value": 18 },
-        { "name": "POSITION_Y", "value": 19 },
-        { "name": "POSITION_Z", "value": 20 },
-        { "name": "ANGULAR_VELOCTY", "value": 21 },
-        { "name": "LUMINOUS_INTENSITY", "value": 22 },
-        { "name": "LUMINOUS_FLUX", "value": 23 },
-        { "name": "ILLUMINANCE", "value": 24 },
-        { "name": "CHROMINANCE_RED", "value": 25 },
-        { "name": "CHROMINANCE_GREEN", "value": 26 },
-        { "name": "CHROMINANCE_BLUE", "value": 27 },
-        { "name": "CONTACTS", "value": 28 },
-        { "name": "MEMORY", "value": 29 },
-        { "name": "ITEMS", "value": 30 },
-        { "name": "HUMIDITY", "value": 31 },
-        { "name": "COUNTER_16BIT", "value": 32 },
-        { "name": "RPM", "value": 33 },
-        { "name": "CPU_LOAD", "value": 34 },
-        { "name": "BANDWIDTH_TOTAL", "value": 35 },
-        { "name": "BANDWIDTH_USED", "value": 36 },
-        { "name": "GAS_CONCENTRATION", "value": 37 },
-        { "name": "CO2_LEVEL", "value": 38 },
-        { "name": "SOUND_PRESSURE_LEVEL", "value": 39 },
-        { "name": "OTHER", "value": 127 }
+        {
+          "name": "TEMPERATURE",
+          "value": 0
+        },
+        {
+          "name": "VOLTAGE",
+          "value": 1
+        },
+        {
+          "name": "CURRENT",
+          "value": 2
+        },
+        {
+          "name": "FREQUENCY",
+          "value": 3
+        },
+        {
+          "name": "RESISTANCE",
+          "value": 4
+        },
+        {
+          "name": "POWER",
+          "value": 5
+        },
+        {
+          "name": "MASS",
+          "value": 6
+        },
+        {
+          "name": "LENGTH",
+          "value": 7
+        },
+        {
+          "name": "AREA",
+          "value": 8
+        },
+        {
+          "name": "VOLUME",
+          "value": 9
+        },
+        {
+          "name": "DENSITY",
+          "value": 10
+        },
+        {
+          "name": "VELOCITY",
+          "value": 11
+        },
+        {
+          "name": "ACCELERATION",
+          "value": 12
+        },
+        {
+          "name": "FORCE",
+          "value": 13
+        },
+        {
+          "name": "ENERGY",
+          "value": 14
+        },
+        {
+          "name": "PRESSURE",
+          "value": 15
+        },
+        {
+          "name": "TIME",
+          "value": 16
+        },
+        {
+          "name": "ANGLE",
+          "value": 17
+        },
+        {
+          "name": "POSITION_X",
+          "value": 18
+        },
+        {
+          "name": "POSITION_Y",
+          "value": 19
+        },
+        {
+          "name": "POSITION_Z",
+          "value": 20
+        },
+        {
+          "name": "ANGULAR_VELOCTY",
+          "value": 21
+        },
+        {
+          "name": "LUMINOUS_INTENSITY",
+          "value": 22
+        },
+        {
+          "name": "LUMINOUS_FLUX",
+          "value": 23
+        },
+        {
+          "name": "ILLUMINANCE",
+          "value": 24
+        },
+        {
+          "name": "CHROMINANCE_RED",
+          "value": 25
+        },
+        {
+          "name": "CHROMINANCE_GREEN",
+          "value": 26
+        },
+        {
+          "name": "CHROMINANCE_BLUE",
+          "value": 27
+        },
+        {
+          "name": "CONTACTS",
+          "value": 28
+        },
+        {
+          "name": "MEMORY",
+          "value": 29
+        },
+        {
+          "name": "ITEMS",
+          "value": 30
+        },
+        {
+          "name": "HUMIDITY",
+          "value": 31
+        },
+        {
+          "name": "COUNTER_16BIT",
+          "value": 32
+        },
+        {
+          "name": "RPM",
+          "value": 33
+        },
+        {
+          "name": "CPU_LOAD",
+          "value": 34
+        },
+        {
+          "name": "BANDWIDTH_TOTAL",
+          "value": 35
+        },
+        {
+          "name": "BANDWIDTH_USED",
+          "value": 36
+        },
+        {
+          "name": "GAS_CONCENTRATION",
+          "value": 37
+        },
+        {
+          "name": "CO2_LEVEL",
+          "value": 38
+        },
+        {
+          "name": "SOUND_PRESSURE_LEVEL",
+          "value": 39
+        },
+        {
+          "name": "OTHER",
+          "value": 127
+        }
       ]
     },
     {
       "name": "unit",
       "type": "uint8",
       "labels": [
-        { "name": "NONE", "value": 0 },
-        { "name": "CENTIGRADE", "value": 1 },
-        { "name": "VOLTS_DC", "value": 2 },
-        { "name": "VOLTS_AC_PEAK", "value": 3 },
-        { "name": "VOLTS_AC_RMS", "value": 4 },
-        { "name": "AMPERE_DC", "value": 5 },
-        { "name": "AMPERE_AC_PEAK", "value": 6 },
-        { "name": "AMPERE_AC_RMS", "value": 7 },
-        { "name": "HERTZ", "value": 8 },
-        { "name": "OHM", "value": 9 },
-        { "name": "WATT", "value": 10 },
-        { "name": "KILOGRAM", "value": 11 },
-        { "name": "METERS", "value": 12 },
-        { "name": "METERS_SQUARED", "value": 13 },
-        { "name": "METERS_CUBED", "value": 14 },
-        { "name": "KILOGRAMS_PER_METERS_CUBED", "value": 15 },
-        { "name": "METERS_PER_SECOND", "value": 16 },
-        { "name": "METERS_PER_SECOND_SQUARED", "value": 17 },
-        { "name": "NEWTON", "value": 18 },
-        { "name": "JOULE", "value": 19 },
-        { "name": "PASCAL", "value": 20 },
-        { "name": "SECOND", "value": 21 },
-        { "name": "DEGREE", "value": 22 },
-        { "name": "STERADIAN", "value": 23 },
-        { "name": "CANDELA", "value": 24 },
-        { "name": "LUMEN", "value": 25 },
-        { "name": "LUX", "value": 26 },
-        { "name": "IRE", "value": 27 },
-        { "name": "BYTE", "value": 28 },
-        { "name": "DECIBEL", "value": 29 },
-        { "name": "DECIBEL_VOLT", "value": 30 },
-        { "name": "DECIBEL_WATT", "value": 31 },
-        { "name": "DECIBEL_METER", "value": 32 },
-        { "name": "PERCENT", "value": 33 }
+        {
+          "name": "NONE",
+          "value": 0
+        },
+        {
+          "name": "CENTIGRADE",
+          "value": 1
+        },
+        {
+          "name": "VOLTS_DC",
+          "value": 2
+        },
+        {
+          "name": "VOLTS_AC_PEAK",
+          "value": 3
+        },
+        {
+          "name": "VOLTS_AC_RMS",
+          "value": 4
+        },
+        {
+          "name": "AMPERE_DC",
+          "value": 5
+        },
+        {
+          "name": "AMPERE_AC_PEAK",
+          "value": 6
+        },
+        {
+          "name": "AMPERE_AC_RMS",
+          "value": 7
+        },
+        {
+          "name": "HERTZ",
+          "value": 8
+        },
+        {
+          "name": "OHM",
+          "value": 9
+        },
+        {
+          "name": "WATT",
+          "value": 10
+        },
+        {
+          "name": "KILOGRAM",
+          "value": 11
+        },
+        {
+          "name": "METERS",
+          "value": 12
+        },
+        {
+          "name": "METERS_SQUARED",
+          "value": 13
+        },
+        {
+          "name": "METERS_CUBED",
+          "value": 14
+        },
+        {
+          "name": "KILOGRAMS_PER_METERS_CUBED",
+          "value": 15
+        },
+        {
+          "name": "METERS_PER_SECOND",
+          "value": 16
+        },
+        {
+          "name": "METERS_PER_SECOND_SQUARED",
+          "value": 17
+        },
+        {
+          "name": "NEWTON",
+          "value": 18
+        },
+        {
+          "name": "JOULE",
+          "value": 19
+        },
+        {
+          "name": "PASCAL",
+          "value": 20
+        },
+        {
+          "name": "SECOND",
+          "value": 21
+        },
+        {
+          "name": "DEGREE",
+          "value": 22
+        },
+        {
+          "name": "STERADIAN",
+          "value": 23
+        },
+        {
+          "name": "CANDELA",
+          "value": 24
+        },
+        {
+          "name": "LUMEN",
+          "value": 25
+        },
+        {
+          "name": "LUX",
+          "value": 26
+        },
+        {
+          "name": "IRE",
+          "value": 27
+        },
+        {
+          "name": "BYTE",
+          "value": 28
+        },
+        {
+          "name": "DECIBEL",
+          "value": 29
+        },
+        {
+          "name": "DECIBEL_VOLT",
+          "value": 30
+        },
+        {
+          "name": "DECIBEL_WATT",
+          "value": 31
+        },
+        {
+          "name": "DECIBEL_METER",
+          "value": 32
+        },
+        {
+          "name": "PERCENT",
+          "value": 33
+        }
       ]
     },
     {
       "name": "unit_prefix",
       "type": "uint8",
       "labels": [
-        { "name": "NONE", "value": 0 },
-        { "name": "DECI", "value": 1 },
-        { "name": "CENTI", "value": 2 },
-        { "name": "MILLI", "value": 3 },
-        { "name": "MICRO", "value": 4 },
-        { "name": "NANO", "value": 5 },
-        { "name": "PICO", "value": 6 },
-        { "name": "FEMTO", "value": 7 },
-        { "name": "ATTO", "value": 8 },
-        { "name": "ZEPTO", "value": 9 },
-        { "name": "YOCTO", "value": 10 },
-        { "name": "DECA", "value": 17 },
-        { "name": "HEPTO", "value": 18 },
-        { "name": "KILO", "value": 19 },
-        { "name": "MEGA", "value": 20 },
-        { "name": "GIGA", "value": 21 },
-        { "name": "TERA", "value": 22 },
-        { "name": "PETA", "value": 23 },
-        { "name": "EXA", "value": 24 },
-        { "name": "ZETTA", "value": 25 },
-        { "name": "YOTTA", "value": 26 }
+        {
+          "name": "NONE",
+          "value": 0
+        },
+        {
+          "name": "DECI",
+          "value": 1
+        },
+        {
+          "name": "CENTI",
+          "value": 2
+        },
+        {
+          "name": "MILLI",
+          "value": 3
+        },
+        {
+          "name": "MICRO",
+          "value": 4
+        },
+        {
+          "name": "NANO",
+          "value": 5
+        },
+        {
+          "name": "PICO",
+          "value": 6
+        },
+        {
+          "name": "FEMTO",
+          "value": 7
+        },
+        {
+          "name": "ATTO",
+          "value": 8
+        },
+        {
+          "name": "ZEPTO",
+          "value": 9
+        },
+        {
+          "name": "YOCTO",
+          "value": 10
+        },
+        {
+          "name": "DECA",
+          "value": 17
+        },
+        {
+          "name": "HEPTO",
+          "value": 18
+        },
+        {
+          "name": "KILO",
+          "value": 19
+        },
+        {
+          "name": "MEGA",
+          "value": 20
+        },
+        {
+          "name": "GIGA",
+          "value": 21
+        },
+        {
+          "name": "TERA",
+          "value": 22
+        },
+        {
+          "name": "PETA",
+          "value": 23
+        },
+        {
+          "name": "EXA",
+          "value": 24
+        },
+        {
+          "name": "ZETTA",
+          "value": 25
+        },
+        {
+          "name": "YOTTA",
+          "value": 26
+        }
       ]
     },
-    { "name": "range_min_value", "type": "int16" },
-    { "name": "range_max_value", "type": "int16" },
-    { "name": "normal_min_value", "type": "int16" },
-    { "name": "normal_max_value", "type": "int16" },
+    {
+      "name": "range_min_value",
+      "type": "int16"
+    },
+    {
+      "name": "range_max_value",
+      "type": "int16"
+    },
+    {
+      "name": "normal_min_value",
+      "type": "int16"
+    },
+    {
+      "name": "normal_max_value",
+      "type": "int16"
+    },
     {
       "name": "recorded_value_support",
       "type": "bitField",
       "size": 8,
       "bits": [
-        { "name": "recorded_value_supported", "index": 0 },
-        { "name": "low_high_detected_values_supported", "index": 1 }
+        {
+          "name": "recorded_value_supported",
+          "index": 0
+        },
+        {
+          "name": "low_high_detected_values_supported",
+          "index": 1
+        }
       ]
     },
     {

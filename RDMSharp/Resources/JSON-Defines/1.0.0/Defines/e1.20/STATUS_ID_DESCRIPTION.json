@@ -1,11 +1,15 @@
 {
   "name": "STATUS_ID_DESCRIPTION",
+  "displayName": "Status ID Description",
   "manufacturer_id": 0,
   "pid": 49,
   "version": 1,
   "get_request_subdevice_range": [ "root" ],
   "get_request": [
-    { "name": "status_id", "type": "uint16" }
+    {
+      "name": "status_id",
+      "type": "uint16"
+    }
   ],
   "get_response": [
     {

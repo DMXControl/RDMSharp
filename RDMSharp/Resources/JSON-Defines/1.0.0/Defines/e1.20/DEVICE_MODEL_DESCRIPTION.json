@@ -1,5 +1,6 @@
 {
   "name": "DEVICE_MODEL_DESCRIPTION",
+  "displayName": "Device Model Description",
   "manufacturer_id": 0,
   "pid": 128,
   "version": 1,

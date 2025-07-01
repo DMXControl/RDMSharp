@@ -1,5 +1,6 @@
 {
   "name": "BOOT_SOFTWARE_VERSION_ID",
+  "displayName": "Boot Software Version ID",
   "manufacturer_id": 0,
   "pid": 193,
   "version": 1,

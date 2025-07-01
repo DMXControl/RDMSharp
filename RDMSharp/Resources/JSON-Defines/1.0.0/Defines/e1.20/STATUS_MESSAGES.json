@@ -1,5 +1,6 @@
 {
   "name": "STATUS_MESSAGES",
+  "displayName": "Status Messages",
   "manufacturer_id": 0,
   "pid": 48,
   "version": 1,
@@ -10,11 +11,26 @@
       "type": "uint8",
       "notes": "The requested Status Type isn't restricted in the spec.",
       "labels": [
-        { "name": "STATUS_NONE", "value": 0 },
-        { "name": "STATUS_GET_LAST_MESSAGE", "value": 1 },
-        { "name": "STATUS_ADVISORY", "value": 2 },
-        { "name": "STATUS_WARNING", "value": 3 },
-        { "name": "STATUS_ERROR", "value": 4 }
+        {
+          "name": "STATUS_NONE",
+          "value": 0
+        },
+        {
+          "name": "STATUS_GET_LAST_MESSAGE",
+          "value": 1
+        },
+        {
+          "name": "STATUS_ADVISORY",
+          "value": 2
+        },
+        {
+          "name": "STATUS_WARNING",
+          "value": 3
+        },
+        {
+          "name": "STATUS_ERROR",
+          "value": 4
+        }
       ]
     }
   ],
@@ -25,23 +41,53 @@
       "itemType": {
         "type": "compound",
         "subtypes": [
-          { "name": "subdevice_id", "type": "uint16" },
+          {
+            "name": "subdevice_id",
+            "type": "uint16"
+          },
           {
             "name": "status_type",
             "type": "uint8",
             "labels": [
-              { "name": "STATUS_ADVISORY", "value": 2 },
-              { "name": "STATUS_WARNING", "value": 3 },
-              { "name": "STATUS_ERROR", "value": 4 },
-              { "name": "STATUS_ADVISORY_CLEARED", "value": 18 },
-              { "name": "STATUS_WARNING_CLEARED", "value": 19 },
-              { "name": "STATUS_ERROR_CLEARED", "value": 20 }
+              {
+                "name": "STATUS_ADVISORY",
+                "value": 2
+              },
+              {
+                "name": "STATUS_WARNING",
+                "value": 3
+              },
+              {
+                "name": "STATUS_ERROR",
+                "value": 4
+              },
+              {
+                "name": "STATUS_ADVISORY_CLEARED",
+                "value": 18
+              },
+              {
+                "name": "STATUS_WARNING_CLEARED",
+                "value": 19
+              },
+              {
+                "name": "STATUS_ERROR_CLEARED",
+                "value": 20
+              }
             ],
             "restrictToLabeled": true
           },
-          { "name": "status_message_id", "type": "uint16" },
-          { "name": "data_value_1", "type": "int16" },
-          { "name": "data_value_2", "type": "int16" }
+          {
+            "name": "status_message_id",
+            "type": "uint16"
+          },
+          {
+            "name": "data_value_1",
+            "type": "int16"
+          },
+          {
+            "name": "data_value_2",
+            "type": "int16"
+          }
         ]
       }
     }

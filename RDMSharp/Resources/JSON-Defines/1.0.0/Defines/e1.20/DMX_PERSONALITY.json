@@ -1,5 +1,6 @@
 {
   "name": "DMX_PERSONALITY",
+  "displayName": "DMX Personality",
   "manufacturer_id": 0,
   "pid": 224,
   "version": 1,
@@ -10,10 +11,16 @@
       "name": "personality",
       "type": "uint8",
       "ranges": [
-        { "minimum": 1, "maximum": 255 }
+        {
+          "minimum": 1,
+          "maximum": 255
+        }
       ]
     },
-    { "name": "personality_count", "type": "uint8" }
+    {
+      "name": "personality_count",
+      "type": "uint8"
+    }
   ],
   "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
   "set_request": [

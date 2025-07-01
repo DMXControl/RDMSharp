@@ -1,5 +1,6 @@
 {
   "name": "POWER_STATE",
+  "displayName": "Power State",
   "manufacturer_id": 0,
   "pid": 4112,
   "version": 1,
@@ -10,10 +11,22 @@
       "name": "state",
       "type": "uint8",
       "labels": [
-        { "name": "FULL_OFF", "value": 0 },
-        { "name": "SHUTDOWN", "value": 1 },
-        { "name": "STANDBY", "value": 2 },
-        { "name": "NORMAL", "value": 255 }
+        {
+          "name": "FULL_OFF",
+          "value": 0
+        },
+        {
+          "name": "SHUTDOWN",
+          "value": 1
+        },
+        {
+          "name": "STANDBY",
+          "value": 2
+        },
+        {
+          "name": "NORMAL",
+          "value": 255
+        }
       ],
       "restrictToLabeled": true
     }

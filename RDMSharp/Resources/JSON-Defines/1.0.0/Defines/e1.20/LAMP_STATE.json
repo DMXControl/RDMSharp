@@ -1,5 +1,6 @@
 {
   "name": "LAMP_STATE",
+  "displayName": "Lamp State",
   "manufacturer_id": 0,
   "pid": 1027,
   "version": 1,
@@ -10,12 +11,30 @@
       "name": "state",
       "type": "uint8",
       "labels": [
-        { "name": "LAMP_OFF", "value": 0 },
-        { "name": "LAMP_ON", "value": 1 },
-        { "name": "LAMP_STRIKE", "value": 2 },
-        { "name": "LAMP_STANDBY", "value": 3 },
-        { "name": "LAMP_NOT_PRESENT", "value": 4 },
-        { "name": "LAMP_ERROR", "value": 127 }
+        {
+          "name": "LAMP_OFF",
+          "value": 0
+        },
+        {
+          "name": "LAMP_ON",
+          "value": 1
+        },
+        {
+          "name": "LAMP_STRIKE",
+          "value": 2
+        },
+        {
+          "name": "LAMP_STANDBY",
+          "value": 3
+        },
+        {
+          "name": "LAMP_NOT_PRESENT",
+          "value": 4
+        },
+        {
+          "name": "LAMP_ERROR",
+          "value": 127
+        }
       ]
     }
   ],

@@ -1,14 +1,24 @@
 {
   "name": "COMMS_STATUS",
+  "displayName": "Comms Status",
   "manufacturer_id": 0,
   "pid": 21,
   "version": 1,
   "get_request_subdevice_range": [ "root" ],
   "get_request": [],
   "get_response": [
-    { "name": "short_message", "type": "uint16" },
-    { "name": "length_mismatch", "type": "uint16" },
-    { "name": "checksum_fail", "type": "uint16" }
+    {
+      "name": "short_message",
+      "type": "uint16"
+    },
+    {
+      "name": "length_mismatch",
+      "type": "uint16"
+    },
+    {
+      "name": "checksum_fail",
+      "type": "uint16"
+    }
   ],
   "set_request_subdevice_range": [ "root" ],
   "set_request": [],

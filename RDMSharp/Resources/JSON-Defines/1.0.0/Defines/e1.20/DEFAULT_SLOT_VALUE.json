@@ -1,5 +1,6 @@
 {
   "name": "DEFAULT_SLOT_VALUE",
+  "displayName": "Default Slot Value",
   "manufacturer_id": 0,
   "pid": 290,
   "version": 1,
@@ -12,8 +13,14 @@
       "itemType": {
         "type": "compound",
         "subtypes": [
-          { "name": "id", "type": "uint16" },
-          { "name": "default_value", "type": "uint8" }
+          {
+            "name": "id",
+            "type": "uint16"
+          },
+          {
+            "name": "default_value",
+            "type": "uint8"
+          }
         ]
       }
     }

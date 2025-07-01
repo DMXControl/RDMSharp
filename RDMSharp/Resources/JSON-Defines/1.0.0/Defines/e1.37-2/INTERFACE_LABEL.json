@@ -1,5 +1,6 @@
 {
   "name": "INTERFACE_LABEL",
+  "displayName": "Interface Label",
   "notes": "E1.37-2",
   "manufacturer_id": 0,
   "pid": 1793,
@@ -10,7 +11,10 @@
       "name": "id",
       "type": "uint32",
       "ranges": [
-        { "minimum": 1, "maximum": 4294967040 }
+        {
+          "minimum": 1,
+          "maximum": 4294967040
+        }
       ]
     }
   ],
@@ -19,7 +23,10 @@
       "name": "id",
       "type": "uint32",
       "ranges": [
-        { "minimum": 1, "maximum": 4294967040 }
+        {
+          "minimum": 1,
+          "maximum": 4294967040
+        }
       ]
     },
     {

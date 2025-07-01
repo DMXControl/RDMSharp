@@ -1,12 +1,16 @@
 {
   "name": "LAMP_STRIKES",
+  "displayName": "Lamp Strikes",
   "manufacturer_id": 0,
   "pid": 1026,
   "version": 1,
   "get_request_subdevice_range": [ "root", "subdevices" ],
   "get_request": [],
   "get_response": [
-    { "name": "strikes", "type": "uint32" }
+    {
+      "name": "strikes",
+      "type": "uint32"
+    }
   ],
   "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
   "set_request": "get_response",

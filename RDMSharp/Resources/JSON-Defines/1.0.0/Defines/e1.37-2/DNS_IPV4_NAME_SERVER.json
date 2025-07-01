@@ -1,5 +1,6 @@
 {
   "name": "DNS_IPV4_NAME_SERVER",
+  "displayName": "DNS IPv4 Name Server",
   "notes": "E1.37-2",
   "manufacturer_id": 0,
   "pid": 1803,
@@ -10,7 +11,10 @@
       "name": "index",
       "type": "uint8",
       "ranges": [
-        { "minimum": 0,  "maximum": 2 }
+        {
+          "minimum": 0,
+          "maximum": 2
+        }
       ]
     }
   ],
@@ -19,7 +23,10 @@
       "name": "index",
       "type": "uint8",
       "ranges": [
-        { "minimum": 0,  "maximum": 2 }
+        {
+          "minimum": 0,
+          "maximum": 2
+        }
       ]
     },
     {

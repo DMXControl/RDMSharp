@@ -1,5 +1,6 @@
 {
   "name": "PROXIED_DEVICES",
+  "displayName": "Proxied Devices",
   "manufacturer_id": 0,
   "pid": 16,
   "version": 1,

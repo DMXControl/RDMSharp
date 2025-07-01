@@ -1,5 +1,6 @@
 {
   "name": "DEVICE_LABEL",
+  "displayName": "Device Label",
   "manufacturer_id": 0,
   "pid": 130,
   "version": 1,

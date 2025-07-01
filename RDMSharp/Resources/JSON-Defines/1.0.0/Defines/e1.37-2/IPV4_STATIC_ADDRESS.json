@@ -1,5 +1,6 @@
 {
   "name": "IPV4_STATIC_ADDRESS",
+  "displayName": "IPv4 Static Address",
   "notes": "E1.37-2",
   "manufacturer_id": 0,
   "pid": 1798,
@@ -10,7 +11,10 @@
       "name": "id",
       "type": "uint32",
       "ranges": [
-        { "minimum": 1, "maximum": 4294967040 }
+        {
+          "minimum": 1,
+          "maximum": 4294967040
+        }
       ]
     }
   ],
@@ -19,7 +23,10 @@
       "name": "id",
       "type": "uint32",
       "ranges": [
-        { "minimum": 1, "maximum": 4294967040 }
+        {
+          "minimum": 1,
+          "maximum": 4294967040
+        }
       ]
     },
     {
@@ -31,7 +38,10 @@
       "name": "netmask",
       "type": "uint8",
       "ranges": [
-        { "minimum": 0, "maximum": 32 }
+        {
+          "minimum": 0,
+          "maximum": 32
+        }
       ]
     }
   ],

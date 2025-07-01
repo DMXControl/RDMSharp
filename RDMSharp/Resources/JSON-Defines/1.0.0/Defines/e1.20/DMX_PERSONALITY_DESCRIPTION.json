@@ -1,5 +1,6 @@
 {
   "name": "DMX_PERSONALITY_DESCRIPTION",
+  "displayName": "DMX Personality Description",
   "manufacturer_id": 0,
   "pid": 225,
   "version": 1,
@@ -9,17 +10,26 @@
       "name": "personality",
       "type": "uint8",
       "ranges": [
-        { "minimum": 1, "maximum": 255 }
+        {
+          "minimum": 1,
+          "maximum": 255
+        }
       ]
     }
   ],
   "get_response": [
-    { "name": "personality", "type": "uint8" },
+    {
+      "name": "personality",
+      "type": "uint8"
+    },
     {
       "name": "dmx_slots_required",
       "type": "uint16",
       "ranges": [
-        { "minimum": 0, "maximum": 512 }
+        {
+          "minimum": 0,
+          "maximum": 512
+        }
       ]
     },
     {

@@ -1,5 +1,6 @@
 {
   "name": "CLEAR_STATUS_ID",
+  "displayName": "Clean Status ID",
   "manufacturer_id": 0,
   "pid": 50,
   "version": 1,

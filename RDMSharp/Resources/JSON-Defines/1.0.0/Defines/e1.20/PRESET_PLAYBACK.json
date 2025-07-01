@@ -1,5 +1,6 @@
 {
   "name": "PRESET_PLAYBACK",
+  "displayName": "Preset Playback",
   "manufacturer_id": 0,
   "pid": 4145,
   "version": 1,
@@ -10,11 +11,20 @@
       "name": "mode",
       "type": "uint16",
       "labels": [
-        { "name": "OFF", "value": 0 },
-        { "name": "ALL", "value": 65535 }
+        {
+          "name": "OFF",
+          "value": 0
+        },
+        {
+          "name": "ALL",
+          "value": 65535
+        }
       ]
     },
-    { "name": "level", "type": "uint8" }
+    {
+      "name": "level",
+      "type": "uint8"
+    }
   ],
   "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
   "set_request": "get_response",

@@ -1,5 +1,6 @@
 {
   "name": "DNS_HOSTNAME",
+  "displayName": "DNS Hostname",
   "notes": "E1.37-2. This the host-specific part (or \"label\") of an internet host; it is prepended to the domain name using a dot ('.') to create a fully qualified domain name (FQDN).",
   "manufacturer_id": 0,
   "pid": 1804,

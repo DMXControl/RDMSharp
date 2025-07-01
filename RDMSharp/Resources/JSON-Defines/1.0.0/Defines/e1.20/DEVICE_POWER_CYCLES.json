@@ -1,12 +1,16 @@
 {
   "name": "DEVICE_POWER_CYCLES",
+  "displayName": "Device Power Cycles",
   "manufacturer_id": 0,
   "pid": 1029,
   "version": 1,
   "get_request_subdevice_range": [ "root", "subdevices" ],
   "get_request": [],
   "get_response": [
-    { "name": "power_cycle_count", "type": "uint32" }
+    {
+      "name": "power_cycle_count",
+      "type": "uint32"
+    }
   ],
   "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
   "set_request": "get_response",

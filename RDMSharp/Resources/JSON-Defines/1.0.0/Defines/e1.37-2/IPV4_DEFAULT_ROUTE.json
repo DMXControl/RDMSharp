@@ -1,5 +1,6 @@
 {
   "name": "IPV4_DEFAULT_ROUTE",
+  "displayName": "IPv4 Default Route",
   "notes": "E1.37-2",
   "manufacturer_id": 0,
   "pid": 1802,
@@ -11,7 +12,10 @@
       "name": "id",
       "type": "uint32",
       "ranges": [
-        { "minimum": 1, "maximum": 4294967040 }
+        {
+          "minimum": 1,
+          "maximum": 4294967040
+        }
       ]
     },
     {

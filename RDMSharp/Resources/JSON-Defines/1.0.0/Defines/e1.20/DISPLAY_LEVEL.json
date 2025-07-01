@@ -1,5 +1,6 @@
 {
   "name": "DISPLAY_LEVEL",
+  "displayName": "Display Level",
   "manufacturer_id": 0,
   "pid": 1281,
   "version": 1,
@@ -10,8 +11,14 @@
       "name": "level",
       "type": "uint8",
       "labels": [
-        { "name": "Off", "value": 0 },
-        { "name": "Full", "value": 255 }
+        {
+          "name": "Off",
+          "value": 0
+        },
+        {
+          "name": "Full",
+          "value": 255
+        }
       ]
     }
   ],

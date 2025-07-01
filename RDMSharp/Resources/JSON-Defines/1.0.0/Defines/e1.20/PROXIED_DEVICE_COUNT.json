@@ -1,12 +1,19 @@
 {
   "name": "PROXIED_DEVICE_COUNT",
+  "displayName": "Proxied Devices Count",
   "manufacturer_id": 0,
   "pid": 17,
   "version": 1,
   "get_request_subdevice_range": [ "root" ],
   "get_request": [],
   "get_response": [
-    { "name": "device_count", "type": "uint16" },
-    { "name": "list_change", "type": "boolean" }
+    {
+      "name": "device_count",
+      "type": "uint16"
+    },
+    {
+      "name": "list_change",
+      "type": "boolean"
+    }
   ]
 }

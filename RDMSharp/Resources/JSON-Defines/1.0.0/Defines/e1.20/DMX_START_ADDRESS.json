@@ -1,5 +1,6 @@
 {
   "name": "DMX_START_ADDRESS",
+  "displayName": "DMX Start Address",
   "manufacturer_id": 0,
   "pid": 240,
   "version": 1,
@@ -10,11 +11,20 @@
       "name": "dmx_address",
       "type": "uint16",
       "ranges": [
-        { "minimum": 1, "maximum": 512 },
-        { "minimum": 65535, "maximum": 65535 }
+        {
+          "minimum": 1,
+          "maximum": 512
+        },
+        {
+          "minimum": 65535,
+          "maximum": 65535
+        }
       ],
       "labels": [
-        { "name": "No Footprint", "value": 65535 }
+        {
+          "name": "No Footprint",
+          "value": 65535
+        }
       ]
     }
   ],
@@ -24,7 +34,10 @@
       "name": "dmx_address",
       "type": "uint16",
       "ranges": [
-        { "minimum": 1, "maximum": 512 }
+        {
+          "minimum": 1,
+          "maximum": 512
+        }
       ]
     }
   ],

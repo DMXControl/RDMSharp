@@ -1,5 +1,6 @@
 {
   "name": "SUB_DEVICE_STATUS_REPORT_THRESHOLD",
+  "displayName": "Subdevice Status Report Threshold",
   "manufacturer_id": 0,
   "pid": 51,
   "version": 1,
@@ -11,10 +12,22 @@
       "type": "uint8",
       "notes": "The Status Type value is not restricted in the spec.",
       "labels": [
-        { "name": "STATUS_NONE", "value": 0 },
-        { "name": "STATUS_ADVISORY", "value": 2 },
-        { "name": "STATUS_WARNING", "value": 3 },
-        { "name": "STATUS_ERROR", "value": 4 }
+        {
+          "name": "STATUS_NONE",
+          "value": 0
+        },
+        {
+          "name": "STATUS_ADVISORY",
+          "value": 2
+        },
+        {
+          "name": "STATUS_WARNING",
+          "value": 3
+        },
+        {
+          "name": "STATUS_ERROR",
+          "value": 4
+        }
       ]
     }
   ],

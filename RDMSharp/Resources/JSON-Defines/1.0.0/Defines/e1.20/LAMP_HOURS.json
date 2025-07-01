@@ -1,12 +1,16 @@
 {
   "name": "LAMP_HOURS",
+  "displayName": "Lamp Hours",
   "manufacturer_id": 0,
   "pid": 1025,
   "version": 1,
   "get_request_subdevice_range": [ "root", "subdevices" ],
   "get_request": [],
   "get_response": [
-    { "name": "hours", "type": "uint32" }
+    {
+      "name": "hours",
+      "type": "uint32"
+    }
   ],
   "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
   "set_request": "get_response",

@@ -1,5 +1,6 @@
 {
   "name": "PAN_INVERT",
+  "displayName": "Pan Invert",
   "manufacturer_id": 0,
   "pid": 1536,
   "version": 1,
@@ -10,8 +11,14 @@
       "name": "setting",
       "type": "boolean",
       "labels": [
-        { "name": "Off", "value": false },
-        { "name": "On", "value": true }
+        {
+          "name": "Off",
+          "value": false
+        },
+        {
+          "name": "On",
+          "value": true
+        }
       ]
     }
   ],

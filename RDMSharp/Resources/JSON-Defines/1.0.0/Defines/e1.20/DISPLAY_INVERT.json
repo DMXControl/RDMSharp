@@ -1,5 +1,6 @@
 {
   "name": "DISPLAY_INVERT",
+  "displayName": "Display Invert",
   "manufacturer_id": 0,
   "pid": 1280,
   "version": 1,
@@ -10,9 +11,18 @@
       "name": "setting",
       "type": "uint8",
       "labels": [
-        { "name": "Off", "value": 0 },
-        { "name": "On", "value": 1 },
-        { "name": "Auto", "value": 2 }
+        {
+          "name": "Off",
+          "value": 0
+        },
+        {
+          "name": "On",
+          "value": 1
+        },
+        {
+          "name": "Auto",
+          "value": 2
+        }
       ],
       "restrictToLabeled": true
     }

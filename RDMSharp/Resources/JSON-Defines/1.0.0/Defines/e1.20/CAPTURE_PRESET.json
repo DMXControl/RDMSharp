@@ -1,5 +1,6 @@
 {
   "name": "CAPTURE_PRESET",
+  "displayName": "Capture Preset",
   "notes": "Either the first field or all four fields can be given.",
   "manufacturer_id": 0,
   "pid": 4144,

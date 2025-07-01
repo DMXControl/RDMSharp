@@ -1,5 +1,6 @@
 {
   "name": "LAMP_ON_MODE",
+  "displayName": "Lamp On Mode",
   "manufacturer_id": 0,
   "pid": 1028,
   "version": 1,
@@ -10,10 +11,22 @@
       "name": "mode",
       "type": "uint8",
       "labels": [
-        { "name": "OFF", "value": 0 },
-        { "name": "DMX", "value": 1 },
-        { "name": "ON", "value": 2 },
-        { "name": "AFTER_CAL", "value": 3 }
+        {
+          "name": "OFF",
+          "value": 0
+        },
+        {
+          "name": "DMX",
+          "value": 1
+        },
+        {
+          "name": "ON",
+          "value": 2
+        },
+        {
+          "name": "AFTER_CAL",
+          "value": 3
+        }
       ]
     }
   ],
