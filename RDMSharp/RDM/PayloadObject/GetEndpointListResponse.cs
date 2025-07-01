@@ -27,6 +27,18 @@ namespace RDMSharp
         /// </summary>
         [DataTreeObjectProperty("list_change_number", 0)]
         public uint ListChangedNumber { get; private set; }
+
+        [DataTreeObjectDependecieProperty("endpoint_id", nameof(EndpointDescriptor.EndpointId), ERDM_Parameter.IDENTIFY_ENDPOINT, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("endpoint_id", nameof(EndpointDescriptor.EndpointId), ERDM_Parameter.ENDPOINT_TO_UNIVERSE, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("endpoint_id", nameof(EndpointDescriptor.EndpointId), ERDM_Parameter.ENDPOINT_MODE, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("endpoint_id", nameof(EndpointDescriptor.EndpointId), ERDM_Parameter.ENDPOINT_LABEL, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("endpoint_id", nameof(EndpointDescriptor.EndpointId), ERDM_Parameter.RDM_TRAFFIC_ENABLE, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("endpoint_id", nameof(EndpointDescriptor.EndpointId), ERDM_Parameter.DISCOVERY_STATE, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("endpoint_id", nameof(EndpointDescriptor.EndpointId), ERDM_Parameter.BACKGROUND_DISCOVERY, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("endpoint_id", nameof(EndpointDescriptor.EndpointId), ERDM_Parameter.ENDPOINT_TIMING, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("endpoint_id", nameof(EndpointDescriptor.EndpointId), ERDM_Parameter.ENDPOINT_RESPONDERS, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("endpoint_id", nameof(EndpointDescriptor.EndpointId), ERDM_Parameter.ENDPOINT_RESPONDER_LIST_CHANGE, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("endpoint_id", nameof(EndpointDescriptor.EndpointId), ERDM_Parameter.BINDING_CONTROL_FIELDS, Command.ECommandDublicate.GetRequest)]
         [DataTreeObjectProperty("endpoints", 1)]
         public EndpointDescriptor[] Endpoints { get; private set; }
         public const int PDL_MIN = 0x07;

@@ -231,6 +231,9 @@ namespace RDMSharp
 
                 if (!this.supportedParameters.ContainsKey(ERDM_Parameter.FACTORY_DEFAULTS))//Test it if the device supports Factory Defaults Device Parameter, if not it will be labled as not supported later on
                     this.supportedParameters.TryAdd(ERDM_Parameter.FACTORY_DEFAULTS, true);
+
+                if(this.supportedParameters.Any(p=>((ushort)p.Key)>0x9000 && ((ushort)p.Key) <= 0x900D))
+                    this.supportedParameters.TryAdd(ERDM_Parameter.ENDPOINT_LIST, true);
             }
             await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
         }

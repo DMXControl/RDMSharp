@@ -264,45 +264,52 @@ namespace RDMSharp
                     var depBag = parameterValuesDependeciePropertyBag.FirstOrDefault(bag => bag.Key.Parameter == parameterBag.PID && bag.Key.Command == Metadata.JSON.Command.ECommandDublicate.GetRequest && string.Equals(bag.Key.Name, name));
                     IComparable dependecyValue = (IComparable)depBag.Value;
 
-                    if (i == null && dependecyValue != null)
+                    if (i == null)
                     {
-                        if (!dependecyValue.GetType().IsArray)
+                        if(dependecyValue == null)
                         {
-                            i = intType.GetMinimum();
-                            object max = intType.GetMaximum();
-                            object count = Convert.ChangeType(0, i.GetType());
-                            while (dependecyValue.CompareTo(count) > 0)
-                            {
-                                if (!intType.IsInRange(i))
-                                    continue;
 
-                                if (((IComparable)max).CompareTo(i) == -1)
-                                    return 0;
-
-                                DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
-                                PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
-                                await runPeerToPeerProcess(ptpProcess);
-                                if (!ptpProcess.ResponsePayloadObject.IsUnset)
-                                    updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, i), ptpProcess.ResponsePayloadObject);
-
-                                i = intType.IncrementJumpRange(i);
-                                count = intType.Increment(count);
-                            }
                         }
-                        else
+                        if (dependecyValue != null)
                         {
-                            foreach (var item in (Array)dependecyValue)
+                            if (!dependecyValue.GetType().IsArray)
                             {
-                                var type = item.GetType();
-                                i = type.GetProperty(depBag.Key.Property);
-                                DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
-                                PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
-                                await runPeerToPeerProcess(ptpProcess);
-                                if (!ptpProcess.ResponsePayloadObject.IsUnset)
-                                    updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, i), ptpProcess.ResponsePayloadObject);
+                                i = intType.GetMinimum();
+                                object max = intType.GetMaximum();
+                                object count = Convert.ChangeType(0, i.GetType());
+                                while (dependecyValue.CompareTo(count) > 0)
+                                {
+                                    if (!intType.IsInRange(i))
+                                        continue;
+
+                                    if (((IComparable)max).CompareTo(i) == -1)
+                                        return 0;
+
+                                    DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
+                                    PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
+                                    await runPeerToPeerProcess(ptpProcess);
+                                    if (!ptpProcess.ResponsePayloadObject.IsUnset)
+                                        updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, i), ptpProcess.ResponsePayloadObject);
+
+                                    i = intType.IncrementJumpRange(i);
+                                    count = intType.Increment(count);
+                                }
                             }
-                        }
+                            else
+                            {
+                                foreach (var item in (Array)dependecyValue)
+                                {
+                                    var type = item.GetType();
+                                    i = type.GetProperty(depBag.Key.Property);
+                                    DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
+                                    PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
+                                    await runPeerToPeerProcess(ptpProcess);
+                                    if (!ptpProcess.ResponsePayloadObject.IsUnset)
+                                        updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, i), ptpProcess.ResponsePayloadObject);
+                                }
+                            }
                             return 0;
+                        }
                     }
                     else
                     {

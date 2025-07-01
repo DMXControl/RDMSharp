@@ -17,6 +17,18 @@ namespace RDMSharp
         }
 
         [DataTreeObjectDependecieProperty("id", nameof(InterfaceDescriptor.InterfaceId), ERDM_Parameter.INTERFACE_LABEL, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("id", nameof(InterfaceDescriptor.InterfaceId), ERDM_Parameter.INTERFACE_HARDWARE_ADDRESS_TYPE, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("id", nameof(InterfaceDescriptor.InterfaceId), ERDM_Parameter.IPV4_DHCP_MODE, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("id", nameof(InterfaceDescriptor.InterfaceId), ERDM_Parameter.IPV4_DHCP_MODE, Command.ECommandDublicate.SetRequest)]
+        [DataTreeObjectDependecieProperty("id", nameof(InterfaceDescriptor.InterfaceId), ERDM_Parameter.IPV4_ZEROCONF_MODE, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("id", nameof(InterfaceDescriptor.InterfaceId), ERDM_Parameter.IPV4_ZEROCONF_MODE, Command.ECommandDublicate.SetRequest)]
+        [DataTreeObjectDependecieProperty("id", nameof(InterfaceDescriptor.InterfaceId), ERDM_Parameter.IPV4_CURRENT_ADDRESS, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("id", nameof(InterfaceDescriptor.InterfaceId), ERDM_Parameter.IPV4_CURRENT_ADDRESS, Command.ECommandDublicate.SetRequest)]
+        [DataTreeObjectDependecieProperty("id", nameof(InterfaceDescriptor.InterfaceId), ERDM_Parameter.IPV4_STATIC_ADDRESS, Command.ECommandDublicate.GetRequest)]
+        [DataTreeObjectDependecieProperty("id", nameof(InterfaceDescriptor.InterfaceId), ERDM_Parameter.IPV4_STATIC_ADDRESS, Command.ECommandDublicate.SetRequest)]
+        [DataTreeObjectDependecieProperty("id", nameof(InterfaceDescriptor.InterfaceId), ERDM_Parameter.INTERFACE_APPLY_CONFIGURATION, Command.ECommandDublicate.SetRequest)]
+        [DataTreeObjectDependecieProperty("id", nameof(InterfaceDescriptor.InterfaceId), ERDM_Parameter.INTERFACE_RENEW_DHCP, Command.ECommandDublicate.SetRequest)]
+        [DataTreeObjectDependecieProperty("id", nameof(InterfaceDescriptor.InterfaceId), ERDM_Parameter.INTERFACE_RELEASE_DHCP, Command.ECommandDublicate.SetRequest)]
         [DataTreeObjectProperty("interfaces", 0)]
         public InterfaceDescriptor[] Interfaces { get; private set; }
         public const int PDL_MIN = 0;
