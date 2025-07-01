@@ -45,6 +45,9 @@ namespace RDMSharp
             ERDM_Parameter.STATUS_ID_DESCRIPTION,
             ERDM_Parameter.LANGUAGE_CAPABILITIES,
             ERDM_Parameter.SOFTWARE_VERSION_LABEL,
+            ERDM_Parameter.LIST_INTERFACES,
+            ERDM_Parameter.INTERFACE_LABEL,
+
         };
 
         public static readonly ERDM_Parameter[] BLUEPRINT_MODEL_PERSONALITY_PARAMETERS = new ERDM_Parameter[]

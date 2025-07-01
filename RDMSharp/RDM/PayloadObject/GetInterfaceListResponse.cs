@@ -16,6 +16,7 @@ namespace RDMSharp
             this.Interfaces = interfaces;
         }
 
+        [DataTreeObjectDependecieProperty("id", nameof(InterfaceDescriptor.InterfaceId), ERDM_Parameter.INTERFACE_LABEL, Command.ECommandDublicate.GetRequest)]
         [DataTreeObjectProperty("interfaces", 0)]
         public InterfaceDescriptor[] Interfaces { get; private set; }
         public const int PDL_MIN = 0;

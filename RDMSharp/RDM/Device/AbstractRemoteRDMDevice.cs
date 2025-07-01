@@ -247,7 +247,7 @@ namespace RDMSharp
         }
         private async Task requestParameters()
         {
-            var parameters = this.DeviceModel?.SupportedNonBlueprintParameters;
+            var parameters = this.DeviceModel?.SupportedNonBlueprintParameters.OrderBy(p=>(ushort)p).ToList();
             if (parameters == null)
                 return;
 
@@ -269,26 +269,33 @@ namespace RDMSharp
         }
         private async Task requestParameter(ERDM_Parameter parameter, object payload = null)
         {
-            ParameterBag parameterBag = new ParameterBag(parameter, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
-            var define = MetadataFactory.GetDefine(parameterBag);
-            if(define == null)
+            try
             {
-                ConcurrentDictionary<object, object> pd = null;
-                if(this.deviceModel.ParameterValues.TryGetValue(ERDM_Parameter.PARAMETER_DESCRIPTION, out var obj))
-                    pd=obj as ConcurrentDictionary<object,object>;
-
-                if ((pd?.TryGetValue((ushort)parameter, out var desc) ?? false) && desc is RDMParameterDescription pDesc)
+                ParameterBag parameterBag = new ParameterBag(parameter, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
+                var define = MetadataFactory.GetDefine(parameterBag);
+                if (define == null)
                 {
-                    if (pDesc.CommandClass.HasFlag(ERDM_CommandClass.GET))
+                    ConcurrentDictionary<object, object> pd = null;
+                    if (this.deviceModel.ParameterValues.TryGetValue(ERDM_Parameter.PARAMETER_DESCRIPTION, out var obj))
+                        pd = obj as ConcurrentDictionary<object, object>;
+
+                    if ((pd?.TryGetValue((ushort)parameter, out var desc) ?? false) && desc is RDMParameterDescription pDesc)
+                    {
+                        if (pDesc.CommandClass.HasFlag(ERDM_CommandClass.GET))
+                            await requestGetParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
+                    }
+                }
+                if (define?.GetRequest.HasValue ?? false)
+                {
+                    if (define.GetRequest.Value.GetIsEmpty())
                         await requestGetParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
+                    else
+                        await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice, payload);
                 }
             }
-            if (define?.GetRequest.HasValue ?? false)
+            catch (Exception ex)
             {
-                if (define.GetRequest.Value.GetIsEmpty())
-                    await requestGetParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
-                else
-                    await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice, payload);
+                Logger?.LogError(ex);
             }
         }
 

@@ -11,11 +11,17 @@ public class DataTreeObjectDependeciePropertyAttribute : Attribute
     public readonly Command.ECommandDublicate Command;
     public readonly DataTreeObjectDependeciePropertyBag Bag;
 
-    public DataTreeObjectDependeciePropertyAttribute(string name, ERDM_Parameter parameter, Command.ECommandDublicate command)
+    public readonly string Property;
+
+    public DataTreeObjectDependeciePropertyAttribute(string name, ERDM_Parameter parameter, Command.ECommandDublicate command) : this(name, null, parameter, command)
+    {
+    }
+    public DataTreeObjectDependeciePropertyAttribute(string name, string property, ERDM_Parameter parameter, Command.ECommandDublicate command) : base()
     {
         Name = name;
         Parameter = parameter;
         Command = command;
-        Bag = new DataTreeObjectDependeciePropertyBag(name, parameter, command);
+        Property = property;
+        Bag = new DataTreeObjectDependeciePropertyBag(name, property, parameter, command);
     }
 }

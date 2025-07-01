@@ -20,6 +20,7 @@ namespace RDMSharp
         [DataTreeObjectProperty("setting", 0)]
         public byte ModulationFrequencyId { get; private set; }
 
+        [DataTreeObjectDependecieProperty("setting", ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION, Command.ECommandDublicate.GetRequest)]
         [DataTreeObjectProperty("setting_count", 1)]
         public byte ModulationFrequencys { get; private set; }
 

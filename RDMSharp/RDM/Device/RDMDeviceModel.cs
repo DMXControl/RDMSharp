@@ -237,7 +237,8 @@ namespace RDMSharp
 
         private async Task requestBlueprintParameters()
         {
-            foreach (ERDM_Parameter parameter in this.SupportedBlueprintParameters)
+            var parameters = this.SupportedBlueprintParameters.OrderBy(p => (ushort)p).ToList();
+            foreach (ERDM_Parameter parameter in parameters)
             {
                 ParameterBag parameterBag = new ParameterBag(parameter, ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
                 var define = MetadataFactory.GetDefine(parameterBag);

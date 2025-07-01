@@ -20,6 +20,7 @@ namespace RDMSharp
         [DataTreeObjectProperty("curve", 0)]
         public byte CurrentCurveId { get; private set; }
 
+        [DataTreeObjectDependecieProperty("curve", ERDM_Parameter.CURVE_DESCRIPTION, Command.ECommandDublicate.GetRequest)]
         [DataTreeObjectProperty("curve_count", 1)]
         public byte Curves { get; private set; }
 
