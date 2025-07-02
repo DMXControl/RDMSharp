@@ -30,7 +30,7 @@ namespace RDMSharp
 
         private ConcurrentDictionary<byte, RDMPersonalityModel> knownPersonalityModels = new ConcurrentDictionary<byte, RDMPersonalityModel>();
         public IReadOnlyCollection<RDMPersonalityModel> KnownPersonalityModels => knownPersonalityModels.Values.ToList();
-        internal async Task<RDMPersonalityModel> getPersonalityModel(IRDMRemoteDevice remoteRDMDevice, byte personalityId)
+        internal RDMPersonalityModel getPersonalityModel(IRDMRemoteDevice remoteRDMDevice, byte personalityId)
         {
             try
             {
@@ -44,21 +44,9 @@ namespace RDMSharp
                 if (kpm == null)
                 {
                     kpm = new RDMPersonalityModel(
-                        remoteRDMDevice.UID,
-                        remoteRDMDevice.Subdevice,
-                        remoteRDMDevice.DeviceInfo.DeviceModelId,
-                        remoteRDMDevice.DeviceInfo.SoftwareVersionId,
+                        remoteRDMDevice,
                         personalityId);
-                    if (knownPersonalityModels.TryAdd(kpm.PersonalityID, kpm))
-                    {
-                        AbstractRDMCache abstractRDMCache = remoteRDMDevice as AbstractRDMCache;
-                        currentUsedUID = remoteRDMDevice.UID;
-                        currentUsedSubDevice = remoteRDMDevice.Subdevice;
-                        DeviceInfo = remoteRDMDevice.DeviceInfo;
-                        var di = abstractRDMCache.parameterValuesDataTreeBranch.FirstOrDefault(d => d.Key.Parameter == ERDM_Parameter.DEVICE_INFO);
-                        updateParameterValuesDependeciePropertyBag(ERDM_Parameter.DEVICE_INFO, di.Value);
-                        await requestPersonalityBlueprintParameters(kpm);
-                    }
+                    knownPersonalityModels.TryAdd(kpm.PersonalityID, kpm);
                 }
                 return kpm;
             }
@@ -183,7 +171,7 @@ namespace RDMSharp
             {
                 await requestSupportedParameters();
                 await requestBlueprintParameters();
-                await requestPersonalityBlueprintParameters();
+                //await requestPersonalityBlueprintParameters();
 
                 IsInitialized = true;
             }
@@ -256,40 +244,6 @@ namespace RDMSharp
                         await requestGetParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
                 }
                 await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
-            }
-        }
-        private async Task requestPersonalityBlueprintParameters(RDMPersonalityModel personalityModel = null)
-        {
-            if (personalityModel == null)
-            {
-                personalityModel = new RDMPersonalityModel(
-                        currentUsedUID,
-                        currentUsedSubDevice,
-                        DeviceInfo.DeviceModelId,
-                        DeviceInfo.SoftwareVersionId,
-                        DeviceInfo.Dmx512CurrentPersonality.Value);
-                knownPersonalityModels.TryAdd(personalityModel.PersonalityID, personalityModel);
-            }
-            try
-            {
-                this.ParameterValueAdded += personalityModel.RDMDeviceModel_ParameterValueAdded;
-                foreach (ERDM_Parameter parameter in this.SupportedPersonalityBlueprintParameters)
-                {
-                    ParameterBag parameterBag = new ParameterBag(parameter, personalityModel.ManufacturerID, personalityModel.DeviceModelID, personalityModel.SoftwareVersionID);
-                    var define = MetadataFactory.GetDefine(parameterBag);
-                    if (define.GetRequest.HasValue)
-                    {
-                        if (define.GetRequest.Value.GetIsEmpty())
-                            await requestGetParameterWithEmptyPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
-                        else
-                            await requestGetParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
-                    }
-                    await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
-                }
-            }
-            finally
-            {
-                this.ParameterValueAdded -= personalityModel.RDMDeviceModel_ParameterValueAdded;
             }
         }
         #endregion

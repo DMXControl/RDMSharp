@@ -1,7 +1,11 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RDMSharp
 {
@@ -9,11 +13,14 @@ namespace RDMSharp
     {
         public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<Slot> SlotAdded;
+        public event EventHandler Initialized;
 
         public readonly ushort ManufacturerID;
         public readonly EManufacturer Manufacturer;
 
         public readonly ushort DeviceModelID;
+        public bool IsInitialized { get; private set; } = false;
+        public bool IsInitializing { get; private set; } = false;
 
         //Id given from PID DMX_PERSONALITY = 0x00E0 & DMX_PERSONALITY_DESCRIPTION E1.20
         public byte PersonalityID { get; private set; }
@@ -41,33 +48,95 @@ namespace RDMSharp
 
         private ConcurrentDictionary<ushort, Slot> slots = new ConcurrentDictionary<ushort, Slot>();
         public IReadOnlyDictionary<ushort, Slot> Slots => slots.AsReadOnly();
+        public readonly IReadOnlyCollection<ERDM_Parameter> SupportedPersonalityBlueprintParameters;
 
+        private UID currentUsedUid;
 
-        private RDMPersonalityModel(UID uid, SubDevice sudevice)
+        public string Description { get; private set; }
+        public ushort SlotCount { get; private set; }
+
+        internal RDMPersonalityModel(IRDMRemoteDevice remoteRDMDevice, byte personalityId)
         {
-            SubDevice = sudevice;
-            ManufacturerID = uid.ManufacturerID;
-            Manufacturer = (EManufacturer)uid.ManufacturerID;
+            currentUsedUid = remoteRDMDevice.UID;
+            SubDevice = remoteRDMDevice.Subdevice;
+            ManufacturerID = remoteRDMDevice.UID.ManufacturerID;
+            Manufacturer = (EManufacturer)ManufacturerID;
+            DeviceModelID = remoteRDMDevice.DeviceInfo.DeviceModelId;
+            SoftwareVersionID = remoteRDMDevice.DeviceInfo.SoftwareVersionId;
+            PersonalityID = personalityId;
+            this.ParameterValueAdded += RDMDeviceModel_ParameterValueAdded;
+            if (remoteRDMDevice is AbstractRemoteRDMDevice rd)
+            {
+                SupportedPersonalityBlueprintParameters = rd.DeviceModel.SupportedPersonalityBlueprintParameters;
+                if (remoteRDMDevice.ParameterValues.TryGetValue(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION, out object obj) && obj is ConcurrentDictionary<object, object> dict)
+                {
+                    if (dict.TryGetValue(personalityId, out object disc) && disc is RDMDMXPersonalityDescription personalityDescription)
+                    {
+                        this.Description = personalityDescription.Description;
+                        SlotCount = personalityDescription.Slots;
+                        var rpl=DataTreeBranch.FromObject(personalityDescription, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION);
+                        updateParameterValuesDependeciePropertyBag(ERDM_Parameter.SLOT_DESCRIPTION, rpl);
+                    }
+                }
+            }
+            _ = requestPersonalityBlueprintParameters();
         }
-        internal RDMPersonalityModel(UID uid, SubDevice sudevice, ushort deviceModelID, uint softwareVersionID, byte personalityID)
-            : this(uid, sudevice)
+        private SemaphoreSlim initializeSemaphoreSlim = new SemaphoreSlim(1);
+        internal async Task Initialize()
         {
-            DeviceModelID = deviceModelID;
-            SoftwareVersionID = softwareVersionID;
-            PersonalityID = personalityID;
+            if (IsInitialized)
+                return;
+            if (initializeSemaphoreSlim.CurrentCount == 0)
+                return;
+            IsInitializing = true;
+
+            await initializeSemaphoreSlim.WaitAsync();
+            try
+            {
+                await requestPersonalityBlueprintParameters();
+
+                IsInitialized = true;
+            }
+            finally
+            {
+                initializeSemaphoreSlim.Release();
+                IsInitializing = false;
+            }
+            Initialized?.Invoke(this, EventArgs.Empty);
         }
-        internal RDMPersonalityModel(UID uid, SubDevice sudevice, ushort majorPersonalityID, ushort minorPersonalityID)
-            : this(uid, sudevice)
+
+        internal async Task requestPersonalityBlueprintParameters()
         {
-            MajorPersonalityID = majorPersonalityID;
-            MinorPersonalityID = minorPersonalityID;
+            try
+            {
+                foreach (ERDM_Parameter parameter in this.SupportedPersonalityBlueprintParameters)
+                {
+                    ParameterBag parameterBag = new ParameterBag(parameter, this.ManufacturerID, this.DeviceModelID, this.SoftwareVersionID);
+                    var define = MetadataFactory.GetDefine(parameterBag);
+                    if (define.GetRequest.HasValue)
+                    {
+                        if (define.GetRequest.Value.GetIsEmpty())
+                            await requestGetParameterWithEmptyPayload(parameterBag, define, currentUsedUid, SubDevice);
+                        else
+                            await requestGetParameterWithPayload(parameterBag, define, currentUsedUid, SubDevice);
+                    }
+                    await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger?.LogError(ex);
+            }
         }
         internal void RDMDeviceModel_ParameterValueAdded(object sender, ParameterValueAddedEventArgs e)
         {
-            var cache = sender as AbstractRDMCache;
-            var bag = new ParameterDataCacheBag(e.Parameter, e.Index);
-            cache.parameterValuesDataTreeBranch.TryGetValue(bag, out var value);
-            updateParameterValuesDataTreeBranch(bag, value);
+            if (!Constants.BLUEPRINT_MODEL_PERSONALITY_PARAMETERS.Contains(e.Parameter))
+                return;
+
+            //var cache = sender as AbstractRDMCache;
+            //var bag = new ParameterDataCacheBag(e.Parameter, e.Index);
+            //cache.parameterValuesDataTreeBranch.TryGetValue(bag, out var value);
+            //updateParameterValuesDataTreeBranch(bag, value);
 
             if (e.Value is RDMSlotInfo[] slotInfos)
             {

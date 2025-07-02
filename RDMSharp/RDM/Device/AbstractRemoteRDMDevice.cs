@@ -424,7 +424,9 @@ namespace RDMSharp
             if (parameterValues.TryGetValue(ERDM_Parameter.DMX_PERSONALITY, out object value) && value is RDMDMXPersonality personality)
                 personalityId = personality.CurrentPersonality;
 
-            PersonalityModel = await DeviceModel.getPersonalityModel(this, personalityId ?? 0);
+            PersonalityModel = DeviceModel.getPersonalityModel(this, personalityId ?? 0);
+            if (!PersonalityModel.IsInitialized)
+                await PersonalityModel.Initialize();
         }
 
         private async void AbstractRDMDevice_ParameterValueAdded(object sender, ParameterValueAddedEventArgs e)
