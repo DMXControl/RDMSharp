@@ -35,6 +35,16 @@
         ITEMS = 0x1E,
         HUMIDITY = 0x1F,
         COUNTER_16BIT = 0x20,
+        #region E1.20-2025
+        CPU_LOAD = 0x21,
+        BANDWIDTH = 0x22,
+        CONCENTRATION = 0x23,
+        SOUND_PRESSURE_LEVEL = 0x24,
+        SOLID_ANGLE = 0x25,
+        LOG_RATIO = 0x26,
+        LOG_RATIO_VOLTS = 0x27,
+        LOG_RATIO_WATTS = 0x28,
+        #endregion
         OTHER = 0x7F
     }
 }

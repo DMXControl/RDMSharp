@@ -324,7 +324,11 @@ namespace RDMSharp
                     return false;
 
                 ERDM_ResponseType resp = ResponseType.Value;
-                return resp == ERDM_ResponseType.ACK || resp == ERDM_ResponseType.ACK_OVERFLOW || resp == ERDM_ResponseType.ACK_TIMER;
+                return
+                    resp == ERDM_ResponseType.ACK ||
+                    resp == ERDM_ResponseType.ACK_OVERFLOW ||
+                    resp == ERDM_ResponseType.ACK_TIMER ||
+                    resp == ERDM_ResponseType.ACK_TIMER_HI_RES;
             }
         }
 
@@ -390,6 +394,8 @@ namespace RDMSharp
                 {
                     if (this.ResponseType == ERDM_ResponseType.ACK_TIMER)
                         return valueCache = AcknowledgeTimer.FromPayloadData(this.ParameterData);
+                    if (this.ResponseType == ERDM_ResponseType.ACK_TIMER_HI_RES)
+                        return valueCache = AcknowledgeTimerHighRes.FromPayloadData(this.ParameterData);
                     if (this.Parameter == ERDM_Parameter.DISC_UNIQUE_BRANCH && this.Command == ERDM_Command.DISCOVERY_COMMAND)
                         return valueCache = DiscUniqueBranchRequest.FromPayloadData(this.ParameterData);
                     if (this.Parameter == ERDM_Parameter.DISC_MUTE && this.Command == ERDM_Command.DISCOVERY_COMMAND_RESPONSE)

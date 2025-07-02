@@ -200,20 +200,20 @@ namespace RDMSharp.Metadata
                 LabeledIntegerType[] labeledIntegerTypes = getLabeledIntegerTypes(parameterDescription);
                 switch (parameterDescription.DataType)
                 {
-                    case ERDM_DataType.ASCII:
+                    case ERDM_DataType.STRING:
                         oneOfType = new OneOfTypes(new StringType(name, displayName, null, null, "string", null, null, 0, parameterDescription.PDLSize, null, null, true));
                         break;
-                    case ERDM_DataType.UNSIGNED_BYTE:
+                    case ERDM_DataType.UINT8:
                         oneOfType = new OneOfTypes(new IntegerType<byte>(name, displayName, null, null, EIntegerType.UInt8, labeledIntegerTypes, labeledIntegerTypes != null, new Range<byte>[] { new Range<byte>((byte)parameterDescription.MinValidValue, (byte)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1),1));
                         break;
-                    case ERDM_DataType.SIGNED_BYTE:
+                    case ERDM_DataType.INT8:
                         oneOfType = new OneOfTypes(new IntegerType<sbyte>(name, displayName, null, null, EIntegerType.Int8, labeledIntegerTypes, labeledIntegerTypes != null, new Range<sbyte>[] { new Range<sbyte>((sbyte)parameterDescription.MinValidValue, (sbyte)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), 1));
                         break;
 
-                    case ERDM_DataType.UNSIGNED_WORD:
+                    case ERDM_DataType.UINT16:
                         oneOfType = new OneOfTypes(new IntegerType<ushort>(name, displayName, null, null, EIntegerType.UInt16, labeledIntegerTypes, labeledIntegerTypes != null, new Range<ushort>[] { new Range<ushort>((ushort)parameterDescription.MinValidValue, (ushort)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), 1));
                         break;
-                    case ERDM_DataType.SIGNED_WORD:
+                    case ERDM_DataType.INT16:
                         oneOfType = new OneOfTypes(new IntegerType<short>(name, displayName, null, null, EIntegerType.Int16, labeledIntegerTypes, labeledIntegerTypes != null, new Range<short>[] { new Range<short>((short)parameterDescription.MinValidValue, (short)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), 1));
                         break;
                     default:

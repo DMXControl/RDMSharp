@@ -95,7 +95,8 @@ namespace RDMSharp
                         return;
                     }
                     response = responseResult.Response;
-                    if (response.ResponseType == ERDM_ResponseType.ACK_TIMER && response.Value is AcknowledgeTimer timer)
+                    if ((response.ResponseType == ERDM_ResponseType.ACK_TIMER ||
+                        response.ResponseType == ERDM_ResponseType.ACK_TIMER_HI_RES) && response.Value is IAcknowledgeTimer timer)
                     {
                         await Task.Delay(timer.EstimidatedResponseTime);
                         request.Parameter = ERDM_Parameter.QUEUED_MESSAGE;

@@ -10,7 +10,7 @@ namespace RDMSharpTests.RDM.PayloadObject
         [Test]
         public void ToPayloadAndFromMessageTest()
         {
-            RDMParameterDescription parameterDescription = new RDMParameterDescription(32, 0, ERDM_DataType.SIGNED_WORD, ERDM_CommandClass.GET | ERDM_CommandClass.SET, 0, ERDM_SensorUnit.NEWTON, ERDM_UnitPrefix.KILO, 0, 5666669, 100, "Pseudo Parameter");
+            RDMParameterDescription parameterDescription = new RDMParameterDescription(32, 0, ERDM_DataType.INT16, ERDM_CommandClass.GET | ERDM_CommandClass.SET, 0, ERDM_SensorUnit.NEWTON, ERDM_UnitPrefix.KILO, 0, 5666669, 100, "Pseudo Parameter");
             byte[] data = parameterDescription.ToPayloadData();
 
             RDMMessage message = new RDMMessage()
@@ -49,10 +49,10 @@ namespace RDMSharpTests.RDM.PayloadObject
         [Test]
         public void SecoundConstructor()
         {
-            RDMParameterDescription parameterDescription = new RDMParameterDescription((ushort)ERDM_Parameter.MINIMUM_LEVEL, 2, ERDM_DataType.UNSIGNED_DWORD, ERDM_CommandClass.GET, 1, ERDM_SensorUnit.CANDELA, ERDM_UnitPrefix.TERRA, 2, 4, 5, "dadsad");
+            RDMParameterDescription parameterDescription = new RDMParameterDescription((ushort)ERDM_Parameter.MINIMUM_LEVEL, 2, ERDM_DataType.UINT32, ERDM_CommandClass.GET, 1, ERDM_SensorUnit.CANDELA, ERDM_UnitPrefix.TERRA, 2, 4, 5, "dadsad");
             Assert.That(parameterDescription.Description, Has.Length.EqualTo(6));
             Assert.That(parameterDescription.ParameterId, Is.EqualTo((ushort)ERDM_Parameter.MINIMUM_LEVEL));
-            Assert.That(parameterDescription.DataType, Is.EqualTo(ERDM_DataType.UNSIGNED_DWORD));
+            Assert.That(parameterDescription.DataType, Is.EqualTo(ERDM_DataType.UINT32));
             Assert.That(parameterDescription.CommandClass, Is.EqualTo(ERDM_CommandClass.GET));
         }
     }

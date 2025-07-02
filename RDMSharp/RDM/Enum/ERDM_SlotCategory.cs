@@ -52,11 +52,13 @@ namespace RDMSharp
         COLOR_HUE = 0x0216,
         [Description("Saturation")]
         COLOR_SATURATION = 0x0217,
-        [Description("CIE X Color Coordinate")]
+        [Description("Additive Color Mixer - UV")]
+        COLOR_ADD_UV = 0x0218,
+        [Description("CIE X Color Coordinate")] //Missing in E1.20-2025
         CIE_X = 0x0219,
-        [Description("CIE Y Color Coordinate")]
+        [Description("CIE Y Color Coordinate")] //Missing in E1.20-2025
         CIE_Y = 0x021A,
-        [Description("CCT Magenta-Green Adjustment")]
+        [Description("CCT Magenta-Green Adjustment")] //Missing in E1.20-2025
         MAGENTA_GREEN_CORRECTION = 0x021B,
         #endregion
 

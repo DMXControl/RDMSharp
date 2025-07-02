@@ -32,11 +32,25 @@ namespace RDMSharp
         CLEAR_STATUS_ID = 0x0032,
         [ParameterGroup("Status")]
         SUB_DEVICE_STATUS_REPORT_THRESHOLD = 0x0033,
+        [ParameterGroup("Status")]
+        QUEUED_MESSAGE_SENSOR_SUBSCRIBE = 0x0034, //E1.20-2025
 
         [ParameterGroup("Info")]
         SUPPORTED_PARAMETERS = 0x0050,
         [ParameterGroup("Info")]
         PARAMETER_DESCRIPTION = 0x0051,
+        [ParameterGroup("Info")]
+        SUPPORTED_PARAMETERS_ENHANCED = 0x0055, //E1.20-2025
+        [ParameterGroup("Info")]
+        CONTROLLER_FLAG_SUPPORT = 0x0056, //E1.20-2025
+        [ParameterGroup("Info")]
+        NACK_DESCRIPTION = 0x0057, //E1.20-2025
+        [ParameterGroup("Info")]
+        PACKED_PID_SUB = 0x0058, //E1.20-2025
+        [ParameterGroup("Info")]
+        PACKED_PID_INDEX = 0x0059, //E1.20-2025
+        [ParameterGroup("Info")]
+        ENUM_LABEL = 0x005A, //E1.20-2025
 
         [ParameterGroup("Info")]
         DEVICE_INFO = 0x0060,
@@ -117,6 +131,8 @@ namespace RDMSharp
         PERFORM_SELFTEST = 0x1020,
         [ParameterGroup("Control")]
         SELF_TEST_DESCRIPTION = 0x1021,
+        [ParameterGroup("Control")]
+        SELFTEST_ENHANCED = 0x1022, //E1.20-2025
         [ParameterGroup("Preset")]
         CAPTURE_PRESET = 0x1030,
         [ParameterGroup("Preset")]

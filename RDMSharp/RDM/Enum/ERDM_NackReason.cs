@@ -46,6 +46,22 @@ namespace RDMSharp
         [Description("The transport layer port provided is invalid")]
         INVALID_ENDPOINT_MODE = 0x000D,
         [Description("The transport layer port provided is invalid")]
-        UNKNOWN_UID = 0x000E
+        UNKNOWN_UID = 0x000E,
+        #region E1.20-2025
+        [Description("The addressed sub-device or sensor is absent.")]
+        NR_DEVICE_ABSENT = 0x0014,
+        [Description("The addressed sensor is out of range.")]
+        NR_SENSOR_OUT_OF_RANGE = 0x0015,
+        [Description("The sensor is faulty.")]
+        NR_SENSOR_FAULT = 0x0016,
+        [Description("The specified PID is not supported in packed messages.")]
+        NR_PACKING_NOT_SUPPORTED = 0x0017,
+        [Description("The responder encountered an error attempting to action an item in a packed list.")]
+        NR_ERROR_IN_PACKED_LIST_TRANSACTION = 0x0018,
+        [Description("The response to the proxy was lost.")]
+        NR_PROXY_DROP = 0x0019,
+        [Description("A SET to SUB_DEVICE_ALL_CALL failed.")]
+        NR_ALL_CALL_SET_FAIL = 0x0020,
+        #endregion
     }
 }

@@ -108,6 +108,10 @@ namespace RDMSharp
         BATTERY = 0x0A01,
         CONTROLLABLE_BREAKER = 0x0A02,
 
+        //Input Devices E1.20-2025
+        PRODUCT_DETAIL_INPUT = 0x0B00, //Generic input device
+        PRODUCT_DETAIL_SENSOR = 0x0B01, //Sensor input. Example: accelerometer
+
         //Manufacturer Specific Types 0x8000 - 0xDFFF
 
 

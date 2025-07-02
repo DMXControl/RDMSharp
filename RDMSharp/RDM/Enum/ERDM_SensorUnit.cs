@@ -61,7 +61,25 @@ namespace RDMSharp
         [SensorUnitAttribute("IRE")]
         IRE = 0x1B,
         [SensorUnitAttribute("B")]
-        BYTE = 0x1C
+        BYTE = 0x1C,
+        #region E1.20-2025
+        [SensorUnitAttribute("dB")]
+        DECIBEL = 0x1D,
+        [SensorUnitAttribute("dBV")]
+        DECIBEL_VOLT = 0x1E,
+        [SensorUnitAttribute("dBW")]
+        DECIBEL_WATT = 0x1F,
+        [SensorUnitAttribute("dBM")]
+        DECIBEL_METER = 0x20,
+        [SensorUnitAttribute("%")]
+        PERCENT = 0x21,
+        [SensorUnitAttribute("mol/m³")]
+        MOLES_PER_METER_CUBED = 0x22,
+        [SensorUnitAttribute("RPM")]
+        RPM = 0x23,
+        [SensorUnitAttribute("B/s")]
+        BYTES_PER_SECOND = 0x24,
+        #endregion
     }
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
     public class SensorUnitAttribute : Attribute

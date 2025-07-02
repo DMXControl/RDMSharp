@@ -74,7 +74,7 @@ namespace RDMSharpTests.RDM.Devices
             await remote.SetParameter(ERDM_Parameter.DMX_PERSONALITY, (byte)3);
             Assert.Multiple(() =>
             {
-                Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY], Is.EqualTo(3));
+                Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY], Is.EqualTo(new RDMDMXPersonality(3, 3)));
                 Assert.That(generated.CurrentPersonality, Is.EqualTo(3));
             });
 
