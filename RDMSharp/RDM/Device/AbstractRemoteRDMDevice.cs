@@ -3,11 +3,8 @@ using RDMSharp.Metadata;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
-using System.Reflection.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -423,14 +420,11 @@ namespace RDMSharp
 
         private async Task getPersonalityModelAndCollectAllParameters()
         {
-            if (personalityModel != null)
-                return;
-
             byte? personalityId = DeviceInfo.Dmx512CurrentPersonality.Value;
-            if (parameterValues.TryGetValue(ERDM_Parameter.DMX_PERSONALITY_ID, out object value) && value is RDMDMXPersonality personality)
+            if (parameterValues.TryGetValue(ERDM_Parameter.DMX_PERSONALITY, out object value) && value is RDMDMXPersonality personality)
                 personalityId = personality.CurrentPersonality;
 
-            personalityModel = await DeviceModel.getPersonalityModel(this);
+            PersonalityModel = await DeviceModel.getPersonalityModel(this, personalityId ?? 0);
         }
 
         private async void AbstractRDMDevice_ParameterValueAdded(object sender, ParameterValueAddedEventArgs e)
@@ -448,10 +442,17 @@ namespace RDMSharp
                     break;
             }
         }
-        private void AbstractRDMDevice_ParameterValueChanged(object sender, ParameterValueChangedEventArgs e)
+        private async void AbstractRDMDevice_ParameterValueChanged(object sender, ParameterValueChangedEventArgs e)
         {
             switch (e.Parameter)
             {
+                case ERDM_Parameter.DEVICE_INFO:
+                    if (this.PersonalityModel.PersonalityID != this.DeviceInfo.Dmx512CurrentPersonality)
+                        goto case ERDM_Parameter.DMX_PERSONALITY;
+                    break;
+                case ERDM_Parameter.DMX_PERSONALITY:
+                    await getPersonalityModelAndCollectAllParameters();
+                    break;
                 case ERDM_Parameter.SENSOR_VALUE when e.NewValue is RDMSensorValue sensorValue:
                     if (sensorValue.SensorId == byte.MaxValue) //Ignore Broadcast as in Spec.
                         break;

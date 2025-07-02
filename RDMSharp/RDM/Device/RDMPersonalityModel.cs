@@ -2,13 +2,13 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading.Tasks;
 
 namespace RDMSharp
 {
     public sealed class RDMPersonalityModel : AbstractRDMCache
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler<Slot> SlotAdded;
 
         public readonly ushort ManufacturerID;
         public readonly EManufacturer Manufacturer;
@@ -93,7 +93,8 @@ namespace RDMSharp
                 if (!slots.TryGetValue(id, out Slot slot1))
                 {
                     slot1 = new Slot(id);
-                    slots.TryAdd(id, slot1);
+                    if (slots.TryAdd(id, slot1))
+                        SlotAdded?.InvokeFailSafe(this, slot1);
                 }
                 return slot1;
             }

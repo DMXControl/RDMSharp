@@ -30,7 +30,7 @@ namespace RDMSharp
 
         private ConcurrentDictionary<byte, RDMPersonalityModel> knownPersonalityModels = new ConcurrentDictionary<byte, RDMPersonalityModel>();
         public IReadOnlyCollection<RDMPersonalityModel> KnownPersonalityModels => knownPersonalityModels.Values.ToList();
-        internal async Task<RDMPersonalityModel> getPersonalityModel(IRDMRemoteDevice remoteRDMDevice)
+        internal async Task<RDMPersonalityModel> getPersonalityModel(IRDMRemoteDevice remoteRDMDevice, byte personalityId)
         {
             try
             {
@@ -40,7 +40,7 @@ namespace RDMSharp
                     remoteRDMDevice.UID,
                     remoteRDMDevice.DeviceInfo.DeviceModelId,
                     remoteRDMDevice.DeviceInfo.SoftwareVersionId,
-                    remoteRDMDevice.DeviceInfo.Dmx512CurrentPersonality.Value));
+                    personalityId));
                 if (kpm == null)
                 {
                     kpm = new RDMPersonalityModel(
@@ -48,7 +48,7 @@ namespace RDMSharp
                         remoteRDMDevice.Subdevice,
                         remoteRDMDevice.DeviceInfo.DeviceModelId,
                         remoteRDMDevice.DeviceInfo.SoftwareVersionId,
-                        remoteRDMDevice.DeviceInfo.Dmx512CurrentPersonality.Value);
+                        personalityId);
                     if (knownPersonalityModels.TryAdd(kpm.PersonalityID, kpm))
                     {
                         AbstractRDMCache abstractRDMCache = remoteRDMDevice as AbstractRDMCache;
