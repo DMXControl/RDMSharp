@@ -52,6 +52,7 @@ namespace RDMSharpTests.Metadata
                     SourceUID = message.DestUID,
                     Parameter = message.Parameter,
                     SubDevice = message.SubDevice,
+                    TransactionCounter = message.TransactionCounter,
                     ParameterData = MetadataFactory.GetResponseMessageData(parameterBag, new DataTreeBranch(new DataTree[] { new DataTree("dmx_address", 0, DMX_ADDRESS) })).First()
                 };
 
@@ -116,6 +117,7 @@ namespace RDMSharpTests.Metadata
                     SourceUID = message.DestUID,
                     Parameter = message.Parameter,
                     SubDevice = message.SubDevice,
+                    TransactionCounter = message.TransactionCounter,
                     ParameterData = _parameterData,
                     PortID_or_Responsetype = parameterData.Length == 0 ? (byte)ERDM_ResponseType.ACK : (byte)ERDM_ResponseType.ACK_OVERFLOW
                 };
@@ -177,6 +179,7 @@ namespace RDMSharpTests.Metadata
                     SourceUID = message.DestUID,
                     Parameter = parameterBag.PID,
                     SubDevice = message.SubDevice,
+                    TransactionCounter= message.TransactionCounter,
                     ParameterData = count == 0 ? new AcknowledgeTimer(TimeSpan.FromSeconds(3)).ToPayloadData() : MetadataFactory.GetResponseMessageData(parameterBag, new DataTreeBranch(new DataTree[] { new DataTree("strikes", 0, LAMP_STRIKES) })).First(),
                     PortID_or_Responsetype = count == 0 ? (byte)ERDM_ResponseType.ACK_TIMER : (byte)ERDM_ResponseType.ACK
                 };
@@ -276,6 +279,7 @@ namespace RDMSharpTests.Metadata
                     SourceUID = message.DestUID,
                     Parameter = parameterBag.PID,
                     SubDevice = message.SubDevice,
+                    TransactionCounter = message.TransactionCounter,
                     ParameterData = count % 2 == 0 ? SLOT_INFO_1 : SLOT_INFO_2,
                     PortID_or_Responsetype = count % 2 == 0 ? (byte)ERDM_ResponseType.ACK_OVERFLOW : (byte)ERDM_ResponseType.ACK
                 };

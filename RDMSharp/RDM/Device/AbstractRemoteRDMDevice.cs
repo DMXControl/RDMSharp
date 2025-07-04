@@ -168,6 +168,7 @@ namespace RDMSharp
         {
             deviceModel.Initialized -= DeviceModel_Initialized;
             deviceModel.ParameterValueAdded -= DeviceModel_ParameterValueAdded;
+            await getPersonalityModelAndCollectAllParameters();
             await collectParameters();
         }
         private async Task collectParameters()
@@ -327,8 +328,15 @@ namespace RDMSharp
 
                                 Stopwatch sw = new Stopwatch();
                                 sw?.Restart();
-                                mc = await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice, ERDM_Status.ADVISORY);
+                                var result = await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice, ERDM_Status.ADVISORY);
+                                mc = result.MessageCounter;
                                 sw?.Stop();
+                                if (result.State == PeerToPeerProcess.EPeerToPeerProcessState.Failed)
+                                {
+                                    QueuedSupported = false;
+                                    Logger?.LogWarning($"Queued Parameter failed after {sw.ElapsedMilliseconds}ms, Queued seems not supported, and wil be disabled");
+                                    return;
+                                }
                                 Logger?.LogTrace($"Queued Parameter update took {sw.ElapsedMilliseconds}ms for {mc} messages.");
                             }, cts.Token);
                             await task;
@@ -434,7 +442,8 @@ namespace RDMSharp
             switch (e.Parameter)
             {
                 case ERDM_Parameter.DMX_PERSONALITY:
-                    await getPersonalityModelAndCollectAllParameters();
+                    if (DeviceModel.IsInitialized)
+                        await getPersonalityModelAndCollectAllParameters();
                     break;
                 case ERDM_Parameter.SENSOR_VALUE when e.Value is RDMSensorValue sensorValue:
                     var sensor = sensors.GetOrAdd(sensorValue.SensorId, (a) => new Sensor(a));
@@ -453,7 +462,8 @@ namespace RDMSharp
                         goto case ERDM_Parameter.DMX_PERSONALITY;
                     break;
                 case ERDM_Parameter.DMX_PERSONALITY:
-                    await getPersonalityModelAndCollectAllParameters();
+                    if (DeviceModel.IsInitialized)
+                        await getPersonalityModelAndCollectAllParameters();
                     break;
                 case ERDM_Parameter.SENSOR_VALUE when e.NewValue is RDMSensorValue sensorValue:
                     if (sensorValue.SensorId == byte.MaxValue) //Ignore Broadcast as in Spec.
@@ -520,9 +530,16 @@ namespace RDMSharp
 
         public sealed override IReadOnlyDictionary<ERDM_Parameter, object> GetAllParameterValues()
         {
-            if (this.DeviceModel != null)
-                return this.DeviceModel.ParameterValues
-                    .Concat(this.ParameterValues)
+
+            IReadOnlyDictionary<ERDM_Parameter, object> res = null;
+            if (this.DeviceModel is not null)
+                res = this.DeviceModel.ParameterValues;
+            if(this.PersonalityModel is not null)
+                res=res.Concat(this.PersonalityModel.ParameterValues)
+                    .ToLookup(x => x.Key, x => x.Value)
+                    .ToDictionary(x => x.Key, g => g.First()); ;
+            if (res is not null)
+                return res.Concat(this.ParameterValues)
                     .ToLookup(x => x.Key, x => x.Value)
                     .ToDictionary(x => x.Key, g => g.First());
             else

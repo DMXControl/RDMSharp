@@ -145,7 +145,7 @@ namespace RDMSharpTests
         {
             Task task = Task.Run(async () =>
             {
-                var result = await asyncRDMRequestHelper!.RequestMessage(request);
+                var result = await asyncRDMRequestHelper!.RequestMessage(request, false);
                 validate(request, result);
             });
             await Task.Delay(responseDelay); // Simulate some delay before the next task

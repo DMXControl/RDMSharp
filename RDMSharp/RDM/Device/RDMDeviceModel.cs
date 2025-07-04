@@ -139,7 +139,7 @@ namespace RDMSharp
         }
         public IReadOnlyCollection<ERDM_Parameter> SupportedNonBlueprintParameters
         {
-            get { return this.SupportedParameters.Except(SupportedBlueprintParameters).OrderBy(p => p).ToList().AsReadOnly(); }
+            get { return this.SupportedParameters.Except(SupportedBlueprintParameters).Except(SupportedPersonalityBlueprintParameters).OrderBy(p => p).ToList().AsReadOnly(); }
         }
 
         public IReadOnlyCollection<ERDM_Parameter> KnownNotSupportedParameters
@@ -231,6 +231,8 @@ namespace RDMSharp
             var parameters = this.SupportedBlueprintParameters.OrderBy(p => (ushort)p).ToList();
             foreach (ERDM_Parameter parameter in parameters)
             {
+                if (parameter == ERDM_Parameter.SUPPORTED_PARAMETERS)
+                    continue;
                 ParameterBag parameterBag = new ParameterBag(parameter, ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
                 var define = MetadataFactory.GetDefine(parameterBag);
                 if (define.GetRequest.HasValue)

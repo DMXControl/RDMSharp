@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 namespace RDMSharp
@@ -19,6 +20,8 @@ namespace RDMSharp
         public readonly AsyncRDMRequestHelper AsyncRDMRequestHelper;
         public event EventHandler<RDMMessage>? ResponseReceivedEvent;
         public event EventHandler<RequestReceivedEventArgs>? RequestReceivedEvent;
+
+        private readonly ConcurrentDictionary<UID, byte> transactionCounters = new ConcurrentDictionary<UID, byte>();
 
         private RDMSharp(UID controllerUID, Func<RDMMessage, Task> sendMessage)
         {
@@ -83,6 +86,20 @@ namespace RDMSharp
             {
                 Request = request ?? throw new ArgumentNullException(nameof(request), "Request can't be null.");
                 Response = null;
+            }
+        }
+        internal byte getTransactionCounter(UID uid)
+        {
+            if (transactionCounters.TryGetValue(uid, out byte tc))
+            {
+                tc++;
+                transactionCounters.AddOrUpdate(uid, (a) => tc, (b, c) => tc);
+                return tc;
+            }
+            else
+            {
+                transactionCounters.TryAdd(uid, 0);
+                return 0;
             }
         }
     }

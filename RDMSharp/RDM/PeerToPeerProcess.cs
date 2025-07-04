@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using RDMSharp.Metadata;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using static RDMSharp.Metadata.JSON.Command;
 
@@ -11,6 +13,7 @@ namespace RDMSharp
     public class PeerToPeerProcess
     {
         private static readonly ILogger Logger = Logging.CreateLogger<PeerToPeerProcess>();
+
         public enum EPeerToPeerProcessState
         {
             Waiting,
@@ -35,6 +38,7 @@ namespace RDMSharp
         public Func<RDMMessage, Task> BeforeSendMessage;
         public Func<RDMMessage, Task> ResponseMessage;
         public byte MessageCounter => response?.MessageCounter ?? 0;
+        private SemaphoreSlim SemaphoreSlim = new SemaphoreSlim(1);
         public PeerToPeerProcess(ERDM_Command command, UID uid, SubDevice subDevice, ParameterBag parameterBag, DataTreeBranch? payloadObject = null)
         {
             if (command != ERDM_Command.GET_COMMAND)
@@ -58,6 +62,9 @@ namespace RDMSharp
             asyncRDMRequestHelper ??= RDMSharp.Instance.AsyncRDMRequestHelper;
             if (State != EPeerToPeerProcessState.Waiting)
                 return;
+            if (SemaphoreSlim.CurrentCount == 0)
+                return;
+            await SemaphoreSlim.WaitAsync();
             State = EPeerToPeerProcessState.Running;
             try
             {
@@ -81,10 +88,15 @@ namespace RDMSharp
                     ParameterData = parameterData
                 };
                 List<byte> bytes = new List<byte>();
-                while (State == EPeerToPeerProcessState.Running)
+                bool done = false;
+                int counter = 0;
+                do
                 {
+                    counter++;
                     if (BeforeSendMessage != null)
                         await BeforeSendMessage(request);
+                    if (response?.ResponseType == ERDM_ResponseType.ACK)
+                        return;
                     var responseResult = await asyncRDMRequestHelper.RequestMessage(request);
                     if (!responseResult.Success ||
                         (responseResult.Response is not null && responseResult.Response.ResponseType == ERDM_ResponseType.NACK_REASON))
@@ -95,42 +107,86 @@ namespace RDMSharp
                         return;
                     }
                     response = responseResult.Response;
-                    if ((response.ResponseType == ERDM_ResponseType.ACK_TIMER ||
-                        response.ResponseType == ERDM_ResponseType.ACK_TIMER_HI_RES) && response.Value is IAcknowledgeTimer timer)
+                    switch (responseResult.Response.ResponseType)
                     {
-                        await Task.Delay(timer.EstimidatedResponseTime);
-                        request.Parameter = ERDM_Parameter.QUEUED_MESSAGE;
-                        //Send Message on next loop
-                        continue;
-                    }
-                    bytes.AddRange(response.ParameterData);
-                    if (response.ResponseType == ERDM_ResponseType.ACK)
-                    {
-                        if (request.Parameter == ERDM_Parameter.QUEUED_MESSAGE)
-                        {
-                            ParameterBag = new ParameterBag(response.Parameter, ParameterBag.ManufacturerID, ParameterBag.DeviceModelID, ParameterBag.SoftwareVersionID);
-                            Define = MetadataFactory.GetDefine(ParameterBag);
-                        }
-                        if (Define != null)
-                            ResponsePayloadObject = MetadataFactory.ParseDataToPayload(Define, commandResponse, bytes.ToArray());
-                        State = EPeerToPeerProcessState.Finished;
+                        case ERDM_ResponseType.ACK_TIMER:
+                        case ERDM_ResponseType.ACK_TIMER_HI_RES:
+                            if (response.Value is IAcknowledgeTimer timer)
+                            {
+                                await Task.Delay(timer.EstimidatedResponseTime);
+                                request.Parameter = ERDM_Parameter.QUEUED_MESSAGE;
+                                //Send Message on next loop
+                                continue;
+                            }
+                            break;
+                        case ERDM_ResponseType.ACK:
+                            bytes.AddRange(response.ParameterData);
+                            done = true;
+                            var _byteArray = bytes.ToArray();
+                            bytes.Clear();
+                            bytes = null;
+                            if (request.Parameter == ERDM_Parameter.QUEUED_MESSAGE)
+                            {
+                                ParameterBag = new ParameterBag(response.Parameter, ParameterBag.ManufacturerID, ParameterBag.DeviceModelID, ParameterBag.SoftwareVersionID);
+                                Define = MetadataFactory.GetDefine(ParameterBag);
+                            }
+                            if (Define != null)
+                                ResponsePayloadObject = MetadataFactory.ParseDataToPayload(Define, commandResponse, _byteArray);
+                            State = EPeerToPeerProcessState.Finished;
 
-                        ResponseMessage?.InvokeFailSafe(responseResult.Response);
-                        return;
+                            ResponseMessage?.InvokeFailSafe(responseResult.Response);
+                            return;
+                        case ERDM_ResponseType.ACK_OVERFLOW:
+                            bytes.AddRange(response.ParameterData);
+                            continue;
+
                     }
-                    if (response.ResponseType == ERDM_ResponseType.ACK_OVERFLOW)
-                    {
-                        //Do nothing else send another Request
-                        //Send Message on next loop
-                        continue;
-                    }
+                    //if ((response.ResponseType == ERDM_ResponseType.ACK_TIMER ||
+                    //    response.ResponseType == ERDM_ResponseType.ACK_TIMER_HI_RES) && response.Value is IAcknowledgeTimer timer)
+                    //{
+                    //    await Task.Delay(timer.EstimidatedResponseTime);
+                    //    request.Parameter = ERDM_Parameter.QUEUED_MESSAGE;
+                    //    //Send Message on next loop
+                    //    continue;
+                    //}
+                    //if (response.ResponseType == ERDM_ResponseType.ACK)
+                    //{
+                    //    bytes.AddRange(response.ParameterData);
+                    //    done = true;
+                    //    var _byteArray = bytes.ToArray();
+                    //    bytes.Clear();
+                    //    bytes = null;
+                    //    if (request.Parameter == ERDM_Parameter.QUEUED_MESSAGE)
+                    //    {
+                    //        ParameterBag = new ParameterBag(response.Parameter, ParameterBag.ManufacturerID, ParameterBag.DeviceModelID, ParameterBag.SoftwareVersionID);
+                    //        Define = MetadataFactory.GetDefine(ParameterBag);
+                    //    }
+                    //    if (Define != null)
+                    //        ResponsePayloadObject = MetadataFactory.ParseDataToPayload(Define, commandResponse, _byteArray);
+                    //    State = EPeerToPeerProcessState.Finished;
+
+                    //    ResponseMessage?.InvokeFailSafe(responseResult.Response);
+                    //    return;
+                    //}
+                    //if (response.ResponseType == ERDM_ResponseType.ACK_OVERFLOW)
+                    //{
+                    //    bytes.AddRange(response.ParameterData);
+                    //    //Do nothing else send another Request
+                    //    //Send Message on next loop
+                    //    continue;
+                    //}
                 }
+                while (!done && State == EPeerToPeerProcessState.Running);
             }
             catch (Exception e)
             {
                 Logger?.LogError(e);
                 this.Exception = e;
                 State = EPeerToPeerProcessState.Failed;
+            }
+            finally
+            {
+                SemaphoreSlim.Release();
             }
         }
     }

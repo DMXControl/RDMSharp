@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using static RDMSharp.PeerToPeerProcess;
 
 namespace RDMSharp
 {
@@ -152,7 +153,7 @@ namespace RDMSharp
                         bool changed = false;
                         try
                         {
-                            ConcurrentDictionary<object, object> dict = (ConcurrentDictionary<object, object>)cd;
+                            ConcurrentDictionary<object, object> dict = cd as ConcurrentDictionary<object, object> ?? new ConcurrentDictionary<object, object>();
                             dict.AddOrUpdate(bag.Index, valueToStore, (_, o2) =>
                             {
                                 if (o2 == valueToStore)
@@ -163,6 +164,11 @@ namespace RDMSharp
                                 return valueToStore;
                             });
                             return dict;
+                        }
+                        catch(Exception ex)
+                        {
+                            Logger?.LogError(ex);
+                            return null;
                         }
                         finally
                         {
@@ -252,7 +258,7 @@ namespace RDMSharp
             }
             return 0;
         }
-        protected async Task<byte> requestGetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice, object i=null)
+        protected async Task<RequestResult> requestGetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice, object i=null)
         {
             define.GetCommand(Metadata.JSON.Command.ECommandDublicate.GetRequest, out var cmd);
             var req = cmd.Value.GetRequiredProperties();
@@ -284,7 +290,7 @@ namespace RDMSharp
                                         continue;
 
                                     if (((IComparable)max).CompareTo(i) == -1)
-                                        return 0;
+                                        return new RequestResult(0);
 
                                     DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
                                     PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
@@ -309,7 +315,7 @@ namespace RDMSharp
                                         updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, i), ptpProcess.ResponsePayloadObject);
                                 }
                             }
-                            return 0;
+                            return new RequestResult(0);
                         }
                     }
                     else
@@ -319,7 +325,7 @@ namespace RDMSharp
                         await runPeerToPeerProcess(ptpProcess);
                         if (!ptpProcess.ResponsePayloadObject.IsUnset)
                             updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, parameterBag.PID == ERDM_Parameter.QUEUED_MESSAGE || parameterBag.PID == ERDM_Parameter.STATUS_MESSAGES ? null : i), ptpProcess.ResponsePayloadObject);
-                        return ptpProcess.MessageCounter;
+                        return new RequestResult(ptpProcess);
                     }
                 }
                 catch (Exception e)
@@ -327,7 +333,7 @@ namespace RDMSharp
                     Logger?.LogError(e, $"Failed to get parameter {parameterBag.PID} with Bag: {parameterBag}");
                 }
             }
-            return 0;
+            return new RequestResult(0);
         }
 
 
@@ -346,6 +352,25 @@ namespace RDMSharp
             this.parameterValuesDependeciePropertyBag = null;
             this.IsDisposed = true;
             this.IsDisposing = false;
+        }
+
+        public class RequestResult
+        {
+            public readonly byte MessageCounter;
+            public readonly EPeerToPeerProcessState State;
+
+            public RequestResult(PeerToPeerProcess peerToPeerProcess) : this(peerToPeerProcess.MessageCounter, peerToPeerProcess.State)
+            {
+            }
+            public RequestResult(byte messageCounter, EPeerToPeerProcessState state)
+            {
+                MessageCounter = messageCounter;
+                State = state;
+            }
+            public RequestResult(byte messageCounter)
+            {
+                MessageCounter = messageCounter;
+            }
         }
     }
 }

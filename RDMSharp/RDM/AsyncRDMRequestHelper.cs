@@ -114,10 +114,12 @@ namespace RDMSharp
         }
 
 
-        public async Task<RequestResult> RequestMessage(RDMMessage request)
+        public async Task<RequestResult> RequestMessage(RDMMessage request, bool setTransactionCounter=true)
         {
             try
             {
+                if (setTransactionCounter)
+                    request.TransactionCounter = RDMSharp.Instance.getTransactionCounter(request.DestUID);
                 int key = generateKey(request);
                 if (request.SubDevice.IsBroadcast)
                 {
@@ -165,7 +167,7 @@ namespace RDMSharp
                         break;
                     }
 
-                    if (count == 3000)
+                    if (count >= 900)
                     {
                         Logger?.LogTrace($"Timeout Request: {request?.ToString()} ElapsedTime: {bag?.ElapsedTime}");
                         return new RequestResult(request);

@@ -79,7 +79,6 @@ namespace RDMSharp
                     }
                 }
             }
-            _ = requestPersonalityBlueprintParameters();
         }
         private SemaphoreSlim initializeSemaphoreSlim = new SemaphoreSlim(1);
         internal async Task Initialize()
