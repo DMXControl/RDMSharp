@@ -19,7 +19,7 @@ namespace RDMSharp.Metadata
                 if (manufacturerID == 0)
                     throw new ArgumentNullException($"{nameof(pid)} in range 0x8000 -0xFFFF requires {nameof(manufacturerID)} != 0");
             }
-            else
+            else if (pid != ERDM_Parameter.QUEUED_MESSAGE)
             {
                 manufacturerID = 0;
                 deviceModelID = null;

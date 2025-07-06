@@ -193,41 +193,49 @@ namespace RDMSharp.Metadata
             string name = parameterDescription.Description;
             string displayName = getDisplayName(parameterDescription);
 
-            if (parameterDescription.CommandClass.HasFlag(ERDM_CommandClass.GET))
+            if (parameterDescription.CommandClass == ERDM_CommandClass.SET)
             {
-                getCommandRequest = new Command();
-                OneOfTypes? oneOfType = null;
-                LabeledIntegerType[] labeledIntegerTypes = getLabeledIntegerTypes(parameterDescription);
-                switch (parameterDescription.DataType)
-                {
-                    case ERDM_DataType.STRING:
-                        oneOfType = new OneOfTypes(new StringType(name, displayName, null, null, "string", null, null, 0, parameterDescription.PDLSize, null, null, true));
-                        break;
-                    case ERDM_DataType.UINT8:
-                        oneOfType = new OneOfTypes(new IntegerType<byte>(name, displayName, null, null, EIntegerType.UInt8, labeledIntegerTypes, labeledIntegerTypes != null, new Range<byte>[] { new Range<byte>((byte)parameterDescription.MinValidValue, (byte)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1),1));
-                        break;
-                    case ERDM_DataType.INT8:
-                        oneOfType = new OneOfTypes(new IntegerType<sbyte>(name, displayName, null, null, EIntegerType.Int8, labeledIntegerTypes, labeledIntegerTypes != null, new Range<sbyte>[] { new Range<sbyte>((sbyte)parameterDescription.MinValidValue, (sbyte)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), 1));
-                        break;
-
-                    case ERDM_DataType.UINT16:
-                        oneOfType = new OneOfTypes(new IntegerType<ushort>(name, displayName, null, null, EIntegerType.UInt16, labeledIntegerTypes, labeledIntegerTypes != null, new Range<ushort>[] { new Range<ushort>((ushort)parameterDescription.MinValidValue, (ushort)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), 1));
-                        break;
-                    case ERDM_DataType.INT16:
-                        oneOfType = new OneOfTypes(new IntegerType<short>(name, displayName, null, null, EIntegerType.Int16, labeledIntegerTypes, labeledIntegerTypes != null, new Range<short>[] { new Range<short>((short)parameterDescription.MinValidValue, (short)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), 1));
-                        break;
-                    default:
-                        break;
-                }
-                if (oneOfType.HasValue)
-                    getCommandResponse = new Command(oneOfType.Value);
-                else
-                    getCommandResponse = new Command();
-            }
-            if (parameterDescription.CommandClass.HasFlag(ERDM_CommandClass.SET))
-            {
-                setCommandRequest = new Command(Command.ECommandDublicate.GetResponse);
+                setCommandRequest = new Command();
                 setCommandResponse = new Command();
+            }
+            else
+            {
+                if (parameterDescription.CommandClass.HasFlag(ERDM_CommandClass.GET))
+                {
+                    getCommandRequest = new Command();
+                    OneOfTypes? oneOfType = null;
+                    LabeledIntegerType[] labeledIntegerTypes = getLabeledIntegerTypes(parameterDescription);
+                    switch (parameterDescription.DataType)
+                    {
+                        case ERDM_DataType.STRING:
+                            oneOfType = new OneOfTypes(new StringType(name, displayName, null, null, "string", null, null, 0, parameterDescription.PDLSize, null, null, true));
+                            break;
+                        case ERDM_DataType.UINT8:
+                            oneOfType = new OneOfTypes(new IntegerType<byte>(name, displayName, null, null, EIntegerType.UInt8, labeledIntegerTypes, labeledIntegerTypes != null, new Range<byte>[] { new Range<byte>((byte)parameterDescription.MinValidValue, (byte)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), 1));
+                            break;
+                        case ERDM_DataType.INT8:
+                            oneOfType = new OneOfTypes(new IntegerType<sbyte>(name, displayName, null, null, EIntegerType.Int8, labeledIntegerTypes, labeledIntegerTypes != null, new Range<sbyte>[] { new Range<sbyte>((sbyte)parameterDescription.MinValidValue, (sbyte)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), 1));
+                            break;
+
+                        case ERDM_DataType.UINT16:
+                            oneOfType = new OneOfTypes(new IntegerType<ushort>(name, displayName, null, null, EIntegerType.UInt16, labeledIntegerTypes, labeledIntegerTypes != null, new Range<ushort>[] { new Range<ushort>((ushort)parameterDescription.MinValidValue, (ushort)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), 1));
+                            break;
+                        case ERDM_DataType.INT16:
+                            oneOfType = new OneOfTypes(new IntegerType<short>(name, displayName, null, null, EIntegerType.Int16, labeledIntegerTypes, labeledIntegerTypes != null, new Range<short>[] { new Range<short>((short)parameterDescription.MinValidValue, (short)parameterDescription.MaxValidValue) }, parameterDescription.Unit, (int)Tools.GetNormalizedValue(parameterDescription.Prefix, 1), 1));
+                            break;
+                        default:
+                            break;
+                    }
+                    if (oneOfType.HasValue)
+                        getCommandResponse = new Command(oneOfType.Value);
+                    else
+                        getCommandResponse = new Command();
+                }
+                if (parameterDescription.CommandClass.HasFlag(ERDM_CommandClass.SET))
+                {
+                    setCommandRequest = new Command(Command.ECommandDublicate.GetResponse);
+                    setCommandResponse = new Command();
+                }
             }
             MetadataJSONObjectDefine define = new MetadataJSONObjectDefine(
                 parameterDescription.Description,
@@ -285,6 +293,8 @@ namespace RDMSharp.Metadata
         private static MetadataJSONObjectDefine getDefine(ParameterBag parameter)
         {
             var version = GetMetadataSchemaVersions().First();
+            if (parameter.PID == ERDM_Parameter.QUEUED_MESSAGE)
+                return metadataVersionDefinesBagDictionary[version].FirstOrDefault(d => d.PID == (ushort)parameter.PID);
 
             fillDefaultMetadataVersionList();
             var possibleDefines = metadataVersionDefinesBagDictionary[version].FindAll(d => d.PID == (ushort)parameter.PID && d.ManufacturerID == parameter.ManufacturerID);

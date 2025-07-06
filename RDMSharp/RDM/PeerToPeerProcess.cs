@@ -32,6 +32,7 @@ namespace RDMSharp
         public EPeerToPeerProcessState State { get; private set; } = EPeerToPeerProcessState.Waiting;
 
         public Exception Exception { get; private set; }
+        public ERDM_NackReason[] NackReason { get; private set; }
 
         private RDMMessage request = null;
         private RDMMessage response = null;
@@ -39,6 +40,7 @@ namespace RDMSharp
         public Func<RDMMessage, Task> ResponseMessage;
         public byte MessageCounter => response?.MessageCounter ?? 0;
         private SemaphoreSlim SemaphoreSlim = new SemaphoreSlim(1);
+
         public PeerToPeerProcess(ERDM_Command command, UID uid, SubDevice subDevice, ParameterBag parameterBag, DataTreeBranch? payloadObject = null)
         {
             if (command != ERDM_Command.GET_COMMAND)
@@ -102,6 +104,7 @@ namespace RDMSharp
                         (responseResult.Response is not null && responseResult.Response.ResponseType == ERDM_ResponseType.NACK_REASON))
                     {
                         State = EPeerToPeerProcessState.Failed;
+                        NackReason= responseResult.Response.NackReason;
                         if (responseResult.Response is not null)
                             ResponseMessage?.InvokeFailSafe(responseResult.Response);
                         return;

@@ -274,8 +274,15 @@ namespace RDMSharp
                     {
                         if(dependecyValue == null)
                         {
-                            Logger?.LogDebug($"No {nameof(dependecyValue)} found for {parameterBag.PID}");
-                            dependecyValue= (IComparable)intType.GetMinimum();
+                            switch (parameterBag.PID)
+                            {
+                                case ERDM_Parameter.STATUS_ID_DESCRIPTION:
+                                    break;
+                                default:
+                                    Logger?.LogDebug($"No {nameof(dependecyValue)} found for {parameterBag.PID}");
+                                    dependecyValue = (IComparable)intType.GetMaximum();
+                                    break;
+                            }
                         }
                         if (dependecyValue != null)
                         {
@@ -295,6 +302,8 @@ namespace RDMSharp
                                     DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
                                     PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
                                     await runPeerToPeerProcess(ptpProcess);
+                                    if (ptpProcess.State == EPeerToPeerProcessState.Failed && ptpProcess.NackReason.Contains(ERDM_NackReason.DATA_OUT_OF_RANGE))
+                                        return new RequestResult(ptpProcess);
                                     if (!ptpProcess.ResponsePayloadObject.IsUnset)
                                         updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, i), ptpProcess.ResponsePayloadObject);
 
@@ -358,9 +367,11 @@ namespace RDMSharp
         {
             public readonly byte MessageCounter;
             public readonly EPeerToPeerProcessState State;
+            public readonly Exception Exception;
 
             public RequestResult(PeerToPeerProcess peerToPeerProcess) : this(peerToPeerProcess.MessageCounter, peerToPeerProcess.State)
             {
+                Exception = peerToPeerProcess.Exception;
             }
             public RequestResult(byte messageCounter, EPeerToPeerProcessState state)
             {

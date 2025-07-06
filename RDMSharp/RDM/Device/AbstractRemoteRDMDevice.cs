@@ -333,7 +333,8 @@ namespace RDMSharp
                                 sw?.Stop();
                                 if (result.State == PeerToPeerProcess.EPeerToPeerProcessState.Failed)
                                 {
-                                    QueuedSupported = false;
+                                    if (sw.Elapsed.TotalSeconds > 3)
+                                        QueuedSupported = false;
                                     Logger?.LogWarning($"Queued Parameter failed after {sw.ElapsedMilliseconds}ms, Queued seems not supported, and wil be disabled");
                                     return;
                                 }
