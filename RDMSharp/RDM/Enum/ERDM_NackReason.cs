@@ -41,11 +41,11 @@ namespace RDMSharp
         [Description("The transport layer port provided is invalid.")]
         INVALID_PORT = 0x0013,
         //E1.37-7
-        [Description("The transport layer port provided is invalid")]
+        [Description("The specified endpoint is invalid.")]
         ENDPOINT_NUMBER_INVALID = 0x000C,
-        [Description("The transport layer port provided is invalid")]
+        [Description("The specified endpoint is in an invalid Endpoint Mode for the requested action.")]
         INVALID_ENDPOINT_MODE = 0x000D,
-        [Description("The transport layer port provided is invalid")]
+        [Description("The specified UID is not recognized.")]
         UNKNOWN_UID = 0x000E,
         #region E1.20-2025
         [Description("The addressed sub-device or sensor is absent.")]
