@@ -4,7 +4,7 @@ namespace RDMSharp.RDM.Device.Module
 {
     public sealed class DMX_StartAddressModule : AbstractModule
     {
-        private ushort? _dmxAddress;
+        private ushort _dmxAddress;
         public ushort? DMXAddress
         {
             get
@@ -25,7 +25,7 @@ namespace RDMSharp.RDM.Device.Module
                 if (value.Value > 512)
                     throw new ArgumentOutOfRangeException($"{DMXAddress} can't be greater then 512");
 
-                _dmxAddress = value;
+                _dmxAddress = value.Value;
                 if (ParentDevice is not null)
                     ParentDevice.setParameterValue(ERDM_Parameter.DMX_START_ADDRESS, value);
             }

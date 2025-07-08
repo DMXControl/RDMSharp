@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using static RDMSharp.RDMSharp;
@@ -43,7 +44,13 @@ namespace RDMSharp
             }
         }
         #endregion
-        public abstract GeneratedPersonality[] Personalities { get; }
+        public IReadOnlyCollection<GeneratedPersonality> Personalities
+        {
+            get
+            {
+                return dmxPersonalityModule?.Personalities ?? Array.Empty<GeneratedPersonality>();
+            }
+        }
 
         private readonly ConcurrentDictionary<byte, Sensor> sensors = new ConcurrentDictionary<byte, Sensor>();
         public sealed override IReadOnlyDictionary<byte, Sensor> Sensors { get { return sensors.AsReadOnly(); } }
@@ -65,6 +72,7 @@ namespace RDMSharp
         private readonly DeviceInfoModule deviceInfoModule;
         private readonly IdentifyDeviceModule identifyDeviceModule;
         private readonly DMX_StartAddressModule? dmxStartAddressModule;
+        private readonly DMX_PersonalityModule? dmxPersonalityModule;
 
         private readonly IReadOnlyCollection<IModule> _modules;
         public IReadOnlyCollection<IModule> Modules { get => _modules; }
@@ -82,45 +90,29 @@ namespace RDMSharp
             {
                 if (dmxStartAddressModule is null)
                     return;
-
-                if (dmxStartAddressModule.DMXAddress == value.Value)
+                if (dmxStartAddressModule.DMXAddress == value)
                     return;
 
-                dmxStartAddressModule.DMXAddress = value.Value;
+                dmxStartAddressModule.DMXAddress = value;
                 this.OnPropertyChanged(nameof(this.DMXAddress));
                 this.updateDeviceInfo();
             }
         }
 
-        private byte currentPersonality;
         public byte? CurrentPersonality
         {
             get
             {
-                if (!this.Parameters.Contains(ERDM_Parameter.DMX_PERSONALITY))
-                    return null;
-
-                return currentPersonality;
+                return dmxPersonalityModule.CurrentPersonality;
             }
             set
             {
-                if (!this.Parameters.Contains(ERDM_Parameter.DMX_PERSONALITY))
-                {
-                    currentPersonality = 0;
+                if (dmxPersonalityModule is null)
                     return;
-                }
-                if (!value.HasValue)
-                    throw new NullReferenceException($"{CurrentPersonality} can't be null if {ERDM_Parameter.DMX_PERSONALITY} is Supported");
-                if (value.Value == 0)
-                    throw new ArgumentOutOfRangeException($"{CurrentPersonality} can't 0 if {ERDM_Parameter.DMX_PERSONALITY} is Supported");
-
-                if (!this.Personalities.Any(p => p.ID == value.Value))
-                    throw new ArgumentOutOfRangeException($"No Personality found with ID: {value.Value}");
-
-                if (currentPersonality == value)
+                if (dmxPersonalityModule.CurrentPersonality == value)
                     return;
 
-                currentPersonality = value.Value;
+                dmxPersonalityModule.CurrentPersonality = value;
                 this.OnPropertyChanged(nameof(this.CurrentPersonality));
                 this.updateDeviceInfo();
             }
@@ -183,9 +175,12 @@ namespace RDMSharp
             moduleList.Add(deviceInfoModule);
             _modules = moduleList.AsReadOnly();
             dmxStartAddressModule = _modules.OfType<DMX_StartAddressModule>().FirstOrDefault();
+            dmxPersonalityModule = _modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
+            if(dmxPersonalityModule is not null)//Remove after Refactoring to Modules
+                dmxPersonalityModule.PropertyChanged += DmxPersonalityModule_PropertyChanged;
 
 
-            #region Parameters
+                #region Parameters
             var _params = new HashSet<ERDM_Parameter>();
             if (parameters != null && parameters.Length != 0)
                 foreach (var p in parameters)
@@ -204,10 +199,8 @@ namespace RDMSharp
             _params.Add(ERDM_Parameter.SOFTWARE_VERSION_LABEL);
             if (SupportDMXAddress)
                 _params.Add(ERDM_Parameter.DMX_START_ADDRESS);
-            if ((Personalities?.Length ?? 0) != 0)
+            if ((Personalities?.Count ?? 0) != 0)
             {
-                _params.Add(ERDM_Parameter.DMX_PERSONALITY);
-                _params.Add(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION);
                 _params.Add(ERDM_Parameter.SLOT_INFO);
                 _params.Add(ERDM_Parameter.SLOT_DESCRIPTION);
                 _params.Add(ERDM_Parameter.DEFAULT_SLOT_VALUE);
@@ -224,27 +217,6 @@ namespace RDMSharp
                     aModule.SetParentDevice(this);
 
             trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters.ToArray());
-
-
-            #endregion
-
-            #region Personalities
-            if (Personalities != null)
-            {
-                if (Personalities.Length >= byte.MaxValue)
-                    throw new ArgumentOutOfRangeException($"There to many {Personalities}! Maximum is {byte.MaxValue - 1}");
-
-                if (Personalities.Length != 0)
-                {
-                    var persDesc = new ConcurrentDictionary<object, object>();
-                    foreach (var gPers in Personalities)
-                        if (!persDesc.TryAdd(gPers.ID, (RDMDMXPersonalityDescription)gPers))
-                            throw new Exception($"{gPers.ID} already used as {nameof(gPers.ID)}");
-
-                    trySetParameter(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION, persDesc);
-                }
-                CurrentPersonality = 1;
-            }
             #endregion
 
             #region Sensors
@@ -263,6 +235,11 @@ namespace RDMSharp
             _initialized = true;
         }
 
+        private void DmxPersonalityModule_PropertyChanged(object sender, PropertyChangedEventArgs e)//Remove after Refactoring to Modules
+        {
+            OnPropertyChanged(e.PropertyName);
+        }
+
         private void updateDeviceInfo()
         {
             var info = new RDMDeviceInfo(1,
@@ -271,9 +248,9 @@ namespace RDMSharp
                                            ProductCategoryCoarse,
                                            ProductCategoryFine,
                                            SoftwareVersionID,
-                                           dmx512Footprint: Personalities.FirstOrDefault(p => p.ID == currentPersonality)?.SlotCount ?? 0,
-                                           dmx512CurrentPersonality: currentPersonality,
-                                           dmx512NumberOfPersonalities: (byte)(Personalities?.Length ?? 0),
+                                           dmx512Footprint: dmxPersonalityModule?.CurrentPersonalityFootprint ?? 0,
+                                           dmx512CurrentPersonality: dmxPersonalityModule?.CurrentPersonality ?? 0,
+                                           dmx512NumberOfPersonalities: dmxPersonalityModule?.PersonalitiesCount ?? 0,
                                            dmx512StartAddress: dmxStartAddressModule?.DMXAddress ?? ushort.MaxValue,
                                            subDeviceCount: (ushort)(SubDevices?.Where(sd => !sd.Subdevice.IsRoot).Count() ?? 0),
                                            sensorCount: (byte)(Sensors?.Count ?? 0));
@@ -528,13 +505,11 @@ namespace RDMSharp
                     trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID, this.DeviceInfo.SoftwareVersionId);
                     break;
                 case nameof(CurrentPersonality):
-                    trySetParameter(ERDM_Parameter.DMX_PERSONALITY, new RDMDMXPersonality(this.currentPersonality, (byte)(Personalities?.Length ?? 0)));
-
-                    var slots = Personalities.First(p => p.ID == this.currentPersonality).Slots.Count;
+                    var slots = Personalities.First(p => p.ID == this.CurrentPersonality).Slots.Count;
                     var slotInfos = new RDMSlotInfo[slots];
                     var slotDesc = new ConcurrentDictionary<object, object>();
                     var slotDefault = new RDMDefaultSlotValue[slots];
-                    foreach (var s in Personalities.First(p => p.ID == this.currentPersonality).Slots)
+                    foreach (var s in Personalities.First(p => p.ID == this.CurrentPersonality).Slots)
                     {
                         Slot slot = s.Value;
                         slotInfos[slot.SlotId] = new RDMSlotInfo(slot.SlotId, slot.Type, slot.Category);
@@ -873,6 +848,13 @@ namespace RDMSharp
                 {
                     bool success = false;
                     //Handle set Request
+                    var module = this.Modules.FirstOrDefault(m => m.IsHandlingParameter(rdmMessage.Parameter, rdmMessage.Command));
+                    if (module is not null)
+                    {
+                        response = module.HandleRequest(rdmMessage);
+                        if (response != null)
+                            goto FAIL;
+                    }
                     if (parameterValues.TryGetValue(rdmMessage.Parameter, out object comparisonValue))
                     {
                         parameterValues.AddOrUpdate(rdmMessage.Parameter, (_) =>
@@ -923,7 +905,6 @@ namespace RDMSharp
 
                         try
                         {
-                            updateParameterFromRemote(rdmMessage.Parameter, responseValue);
                             var parameterBag = new ParameterBag(rdmMessage.Parameter, UID.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
                             var dataTreeBranch = DataTreeBranch.FromObject(responseValue, rdmMessage.Value, parameterBag, ERDM_Command.SET_COMMAND_RESPONSE);
                             if (!dataTreeBranch.IsUnset)
@@ -1041,15 +1022,6 @@ namespace RDMSharp
             return base.GetAllParameterValues();
         }
 
-        private void updateParameterFromRemote(ERDM_Parameter parameter, object value)
-        {
-            switch (parameter)
-            {
-                case ERDM_Parameter.DMX_PERSONALITY:
-                    CurrentPersonality = (byte)value;
-                    break;
-            }
-        }
         private void updateParameterBag(ERDM_Parameter parameter, object index = null)
         {
             if (!IsInitialized || !_initialized)

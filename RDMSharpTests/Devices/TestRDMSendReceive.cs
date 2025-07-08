@@ -124,11 +124,11 @@ namespace RDMSharpTests.RDM.Devices
 
             Assert.Multiple(() =>
             {
-                Assert.That(slotIntensity, Is.EqualTo(generated!.Personalities[0].Slots[0]));
-                Assert.That(slotStrobe, Is.EqualTo(generated.Personalities[0].Slots[1]));
-                Assert.That(slotRed, Is.EqualTo(generated.Personalities[0].Slots[2]));
-                Assert.That(slotGreen, Is.EqualTo(generated.Personalities[0].Slots[3]));
-                Assert.That(slotBlue, Is.EqualTo(generated.Personalities[0].Slots[4]));
+                Assert.That(slotIntensity, Is.EqualTo(generated!.Personalities.ElementAt(0).Slots[0]));
+                Assert.That(slotStrobe, Is.EqualTo(generated.Personalities.ElementAt(0).Slots[1]));
+                Assert.That(slotRed, Is.EqualTo(generated.Personalities.ElementAt(0).Slots[2]));
+                Assert.That(slotGreen, Is.EqualTo(generated.Personalities.ElementAt(0).Slots[3]));
+                Assert.That(slotBlue, Is.EqualTo(generated.Personalities.ElementAt(0).Slots[4]));
 
                 Assert.That(slotIntensity, Is.Not.EqualTo(slotStrobe));
                 Assert.That(slotIntensity, Is.Not.EqualTo(slotRed));

@@ -51,7 +51,6 @@ namespace RDMSharpTests.Devices.Mock
             new MockSensorVolt3_3(3, 331),
             new MockSensorVolt5(4, 498) };
         }
-        public override GeneratedPersonality[] Personalities => PERSONALITYS;
 
         public override bool SupportQueued => true;
 
@@ -68,7 +67,8 @@ namespace RDMSharpTests.Devices.Mock
                 new DeviceModelDescriptionModule("Test Model Description"),
                 new SoftwareVersionModule(1234, $"Dummy Software"),
                 new BootSoftwareVersionModule(123, $"Dummy Bootloader Software"),
-                new DMX_StartAddressModule(1)};
+                new DMX_StartAddressModule(1),
+                new DMX_PersonalityModule(1,PERSONALITYS)};
         }
         protected sealed override void OnDispose()
         {

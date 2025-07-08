@@ -25,9 +25,9 @@ namespace RDMSharp.RDM.Device.Module
             this._name = name;
             this._supportedParameters = supportedParameters;
         }
-        public virtual RDMMessage? HandleRequest(RDMMessage message)
+        public RDMMessage? HandleRequest(RDMMessage message)
         {
-            if (!this.IsHandlingParameter(message.Parameter))
+            if (!this.IsHandlingParameter(message.Parameter, message.Command))
                 return null;
 
             ERDM_NackReason? nackReason = null;
@@ -52,7 +52,7 @@ namespace RDMSharp.RDM.Device.Module
             throw new System.NotImplementedException("This method should be overridden in derived classes to handle specific requests.");
         }
 
-        public virtual bool IsHandlingParameter(ERDM_Parameter parameter)
+        public virtual bool IsHandlingParameter(ERDM_Parameter parameter, ERDM_Command command)
         {
             return false;
         }

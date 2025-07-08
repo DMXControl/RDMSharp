@@ -329,7 +329,7 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
             Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.DATA_OUT_OF_RANGE }));
 
-            for (byte b = 0; b < generated.Personalities.Length; b++)
+            for (byte b = 0; b < generated.Personalities.Count; b++)
             {
                 request.ParameterData = new byte[] { (byte)(b + 1) };
                 response = generated.ProcessRequestMessage_Internal(request);
@@ -340,7 +340,7 @@ namespace RDMSharpTests.RDM.Devices
                 Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION));
                 Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
                 Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-                var pers = generated.Personalities[b];
+                var pers = generated.Personalities.ElementAt(b);
                 var expected = new RDMDMXPersonalityDescription(pers.ID, pers.SlotCount, pers.Description);
                 Assert.That(response.ParameterData, Has.Length.EqualTo(expected.ToPayloadData().Length));
                 Assert.That(response.Value, Is.EqualTo(expected));
@@ -371,7 +371,7 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DMX_PERSONALITY));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            var pers = generated.Personalities[0];
+            var pers = generated.Personalities.ElementAt(0);
             var expected = new RDMDMXPersonality(pers.ID, (byte)generated.Personalities.Count());
             Assert.That(response.ParameterData, Has.Length.EqualTo(expected.ToPayloadData().Length));
             Assert.That(response.Value, Is.EqualTo(expected));
@@ -392,7 +392,7 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DMX_PERSONALITY));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            pers = generated.Personalities[1];
+            pers = generated.Personalities.ElementAt(1);
             expected = new RDMDMXPersonality(pers.ID, (byte)generated.Personalities.Count());
             Assert.That(response.ParameterData, Has.Length.EqualTo(expected.ToPayloadData().Length));
             Assert.That(response.Value, Is.EqualTo(expected));
@@ -1561,11 +1561,11 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.MessageCounter, Is.EqualTo(10));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(40));
-            Assert.That(response.Value, Is.EqualTo(generated.Personalities[1].Slots.Select(s => new RDMSlotInfo(s.Value.SlotId, s.Value.Type, s.Value.Category))));
+            Assert.That(response.Value, Is.EqualTo(generated.Personalities.ElementAt(1).Slots.Select(s => new RDMSlotInfo(s.Value.SlotId, s.Value.Type, s.Value.Category))));
 
-            for (byte b = 0; b < generated.Personalities[1].SlotCount; b++)
+            for (byte b = 0; b < generated.Personalities.ElementAt(1).SlotCount; b++)
             {
-                var slot = generated.Personalities[1].Slots[b];
+                var slot = generated.Personalities.ElementAt(1).Slots[b];
                 response = generated.ProcessRequestMessage_Internal(request);
                 Assert.That(response, Is.Not.Null);
                 Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
@@ -1575,7 +1575,7 @@ namespace RDMSharpTests.RDM.Devices
                 Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
                 Assert.That(response.MessageCounter, Is.EqualTo(9 - b));
                 Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-                Assert.That(response.ParameterData, Has.Length.EqualTo(generated.Personalities[1].Slots[b].Description.Length + 2));
+                Assert.That(response.ParameterData, Has.Length.EqualTo(generated.Personalities.ElementAt(1).Slots[b].Description.Length + 2));
                 Assert.That(response.Value, Is.EqualTo(new RDMSlotDescription(slot.SlotId, slot.Description)));
             }
 
@@ -1588,8 +1588,8 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.MessageCounter, Is.EqualTo(1));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Has.Length.EqualTo(3 * generated.Personalities[1].Slots.Count));
-            Assert.That(response.Value, Is.EqualTo(generated.Personalities[1].Slots.Select(s => new RDMDefaultSlotValue(s.Value.SlotId, s.Value.DefaultValue))));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(3 * generated.Personalities.ElementAt(1).Slots.Count));
+            Assert.That(response.Value, Is.EqualTo(generated.Personalities.ElementAt(1).Slots.Select(s => new RDMDefaultSlotValue(s.Value.SlotId, s.Value.DefaultValue))));
 
             response = generated.ProcessRequestMessage_Internal(request);
             Assert.That(response, Is.Not.Null);

@@ -31,15 +31,16 @@ namespace RDMSharp.RDM.Device.Module
         {
             var softwareVersionModule = device.Modules.OfType<SoftwareVersionModule>().FirstOrDefault();
             var dmxStartAddressModule = device.Modules.OfType<DMX_StartAddressModule>().FirstOrDefault();
+            var dmxPersonalityModule = device.Modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
             this.DeviceInfo = new RDMDeviceInfo(1,
                                            0,
                                            device.DeviceModelID,
                                            device.ProductCategoryCoarse,
                                            device.ProductCategoryFine,
                                            softwareVersionModule?.SoftwareVersionId ?? 0,
-                                           dmx512Footprint: device.Personalities.FirstOrDefault(p => p.ID == device.CurrentPersonality)?.SlotCount ?? 0,
-                                           dmx512CurrentPersonality: device.CurrentPersonality.Value,
-                                           dmx512NumberOfPersonalities: (byte)(device.Personalities?.Length ?? 0),
+                                           dmx512Footprint: dmxPersonalityModule?.CurrentPersonalityFootprint ?? 0,
+                                           dmx512CurrentPersonality: dmxPersonalityModule?.CurrentPersonality ?? 0,
+                                           dmx512NumberOfPersonalities: dmxPersonalityModule?.PersonalitiesCount ?? 0,
                                            dmx512StartAddress: (dmxStartAddressModule.DMXAddress ?? ushort.MaxValue),
                                            subDeviceCount: (ushort)(device.SubDevices?.Where(sd => !sd.Subdevice.IsRoot).Count() ?? 0),
                                            sensorCount: (byte)(device.Sensors?.Count ?? 0));

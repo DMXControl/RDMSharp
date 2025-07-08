@@ -9,6 +9,6 @@ namespace RDMSharp.RDM.Device.Module
         IReadOnlyCollection<ERDM_Parameter> SupportedParameters { get; }
 
         RDMMessage? HandleRequest(RDMMessage message);
-        bool IsHandlingParameter(ERDM_Parameter parameter);
+        bool IsHandlingParameter(ERDM_Parameter parameter, ERDM_Command command);
     }
 }

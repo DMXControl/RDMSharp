@@ -60,7 +60,6 @@ namespace RDMSharpTests.Devices.Mock
         private static Sensor[] GetSensors() {
             return new Sensor[] {};
         }
-        public override GeneratedPersonality[] Personalities => PERSONALITYS;
 
         private static GeneratedPersonality PersonalityFromRawData(byte[] bytes)
         {
@@ -90,7 +89,8 @@ namespace RDMSharpTests.Devices.Mock
                 new DeviceModelDescriptionModule("Test Model Description"),
                 new SoftwareVersionModule(0x1234, $"Dummy Software"),
                 new BootSoftwareVersionModule(123, $"Dummy Bootloader Software"),
-                new DMX_StartAddressModule(1) };
+                new DMX_StartAddressModule(1),
+                new DMX_PersonalityModule(1,PERSONALITYS) };
         }
         protected sealed override void OnDispose()
         {

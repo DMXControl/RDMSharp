@@ -61,7 +61,7 @@ namespace RDMSharp.RDM.Device.Module
         {
             return null;
         }
-        public override bool IsHandlingParameter(ERDM_Parameter parameter)
+        public override bool IsHandlingParameter(ERDM_Parameter parameter, ERDM_Command command)
         {
             switch (parameter)
             {
@@ -70,7 +70,7 @@ namespace RDMSharp.RDM.Device.Module
                 case ERDM_Parameter.INTERFACE_APPLY_CONFIGURATION:
                     return true;
             }
-            return base.IsHandlingParameter(parameter);
+            return base.IsHandlingParameter(parameter, command);
         }
     }
 }
