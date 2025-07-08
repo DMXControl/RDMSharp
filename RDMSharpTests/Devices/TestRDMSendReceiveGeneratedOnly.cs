@@ -403,7 +403,9 @@ namespace RDMSharpTests.RDM.Devices
         {
             #region Test Basic
             Assert.That(generated, Is.Not.Null);
-            Assert.That(generated.ManufacturerLabel, Is.EqualTo("Dummy Manufacturer 9FFF"));
+            var manufacturerLabelModule = generated.Modules.OfType<ManufacturerLabelModule>().Single();
+            Assert.That(manufacturerLabelModule, Is.Not.Null);
+            Assert.That(manufacturerLabelModule.ManufacturerLabel, Is.EqualTo("Dummy Manufacturer 9FFF"));
             RDMMessage request = new RDMMessage()
             {
                 Command = ERDM_Command.GET_COMMAND,
@@ -421,8 +423,8 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.MANUFACTURER_LABEL));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.ManufacturerLabel.Length));
-            Assert.That(response.Value, Is.EqualTo(generated.ManufacturerLabel));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(manufacturerLabelModule.ManufacturerLabel.Length));
+            Assert.That(response.Value, Is.EqualTo(manufacturerLabelModule.ManufacturerLabel));
             #endregion
         }
         [Test, Order(16)]

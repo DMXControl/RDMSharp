@@ -82,7 +82,6 @@ namespace RDMSharp
                 this.updateDeviceInfo();
             }
         }
-        public readonly string ManufacturerLabel;
 
         private byte currentPersonality;
         public byte? CurrentPersonality
@@ -170,13 +169,13 @@ namespace RDMSharp
 
         private bool _initialized = false;
 
-        protected AbstractGeneratedRDMDevice(UID uid, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules = null) : this(uid, SubDevice.Root, parameters, manufacturer, sensors, subDevices, modules)
+        protected AbstractGeneratedRDMDevice(UID uid, ERDM_Parameter[] parameters, Sensor[] sensors = null, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules = null) : this(uid, SubDevice.Root, parameters, sensors, subDevices, modules)
         {
         }
-        protected AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null, IReadOnlyCollection<IModule> modules =null) : this(uid, subDevice, parameters, manufacturer, sensors, null, modules)
+        protected AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, Sensor[] sensors = null, IReadOnlyCollection<IModule> modules =null) : this(uid, subDevice, parameters, sensors, null, modules)
         {
         }
-        private AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules=null) : base(uid, subDevice, subDevices)
+        private AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, Sensor[] sensors = null, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules=null) : base(uid, subDevice, subDevices)
         {
             if (!((ushort)ManufacturerID).Equals(uid.ManufacturerID))
                 throw new Exception($"{uid.ManufacturerID} not match the {ManufacturerID}");
@@ -241,18 +240,6 @@ namespace RDMSharp
             trySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, Identify);
 
 
-            #endregion
-
-            #region ManufacturerLabel
-            string _manufacturer = Enum.GetName(typeof(EManufacturer), (EManufacturer)uid.ManufacturerID);
-
-            if (string.IsNullOrWhiteSpace(_manufacturer))
-                _manufacturer = manufacturer;
-            if (string.IsNullOrWhiteSpace(_manufacturer))
-                throw new ArgumentNullException($"{manufacturer} not set, needed in case the Manufacturer is not Part of {typeof(EManufacturer).Name}");
-
-            ManufacturerLabel = _manufacturer;
-            this.OnPropertyChanged(nameof(this.ManufacturerLabel));
             #endregion
 
             #region DeviceModelDescription
@@ -589,9 +576,6 @@ namespace RDMSharp
                     trySetParameter(ERDM_Parameter.SLOT_INFO, slotInfos);
                     trySetParameter(ERDM_Parameter.SLOT_DESCRIPTION, slotDesc);
                     trySetParameter(ERDM_Parameter.DEFAULT_SLOT_VALUE, slotDefault);
-                    break;
-                case nameof(ManufacturerLabel):
-                    trySetParameter(ERDM_Parameter.MANUFACTURER_LABEL, this.ManufacturerLabel);
                     break;
                 case nameof(SoftwareVersionLabel):
                     trySetParameter(ERDM_Parameter.SOFTWARE_VERSION_LABEL, this.SoftwareVersionLabel);

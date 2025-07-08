@@ -12,22 +12,24 @@ namespace RDMSharpTests.Devices.Mock
         public override string DeviceModelDescription => "Test Model Description SubDevice";
         public override bool SupportDMXAddress => true;
 
-        protected MockGeneratedDeviceWithSubDevice1(UID uid, MockGeneratedDeviceWithSubDeviceSub1[]? subDevices = null, Sensor[]? sensors = null) : base(uid, new ERDM_Parameter[] { ERDM_Parameter.IDENTIFY_DEVICE }, "Dummy Manufacturer 9FEF", sensors, subDevices, GetModulesMaster())
+        protected MockGeneratedDeviceWithSubDevice1(UID uid, MockGeneratedDeviceWithSubDeviceSub1[]? subDevices = null, Sensor[]? sensors = null) : base(uid, new ERDM_Parameter[] { ERDM_Parameter.IDENTIFY_DEVICE }, sensors, subDevices, GetModulesMaster())
         {
         }
-        protected MockGeneratedDeviceWithSubDevice1(UID uid, SubDevice subDevice, Sensor[]? sensors = null) : base(uid, subDevice, new ERDM_Parameter[] { ERDM_Parameter.IDENTIFY_DEVICE }, "Dummy Manufacturer 9FEF", sensors, GetModulesSubDevice())
+        protected MockGeneratedDeviceWithSubDevice1(UID uid, SubDevice subDevice, Sensor[]? sensors = null) : base(uid, subDevice, new ERDM_Parameter[] { ERDM_Parameter.IDENTIFY_DEVICE }, sensors, GetModulesSubDevice())
         {
         }
         private static IReadOnlyCollection<IModule> GetModulesMaster()
         {
             return new IModule[] {
                 new DeviceLabelModule("Dummy Device Master"),
+                new ManufacturerLabelModule("Dummy Manufacturer 9FEF"),
                 new BootSoftwareVersionModule(12359,$"Dummy Software")};
         }
         private static IReadOnlyCollection<IModule> GetModulesSubDevice()
         {
             return new IModule[] {
                 new DeviceLabelModule("Dummy Device SubDevice"),
+                new ManufacturerLabelModule("Dummy Manufacturer 9FEF"),
                 new BootSoftwareVersionModule(12359,$"Dummy Software")};
         }
 

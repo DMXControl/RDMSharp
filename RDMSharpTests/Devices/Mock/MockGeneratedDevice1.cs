@@ -59,7 +59,7 @@ namespace RDMSharpTests.Devices.Mock
 
         public override bool SupportStatus => true;
         
-        public MockGeneratedDevice1(UID uid) : base(uid, SubDevice.Root, new ERDM_Parameter[] { }, "Dummy Manufacturer 9FFF", GetSensors(), GetModules())
+        public MockGeneratedDevice1(UID uid) : base(uid, SubDevice.Root, new ERDM_Parameter[] { }, GetSensors(), GetModules())
         {
             this.SoftwareVersionLabel = $"Dummy Software";
         }
@@ -67,6 +67,7 @@ namespace RDMSharpTests.Devices.Mock
         {
             return new IModule[] {
                 new DeviceLabelModule("Dummy Device 1"),
+                new ManufacturerLabelModule("Dummy Manufacturer 9FFF"),
                 new BootSoftwareVersionModule(123, $"Dummy Bootloader Software"),
                 new RealTimeClockModule(),};
         }
