@@ -1,3 +1,4 @@
+using RDMSharp.RDM.Device.Module;
 using RDMSharpTests.Devices.Mock;
 
 namespace RDMSharpTests.RDM.Devices
@@ -454,7 +455,9 @@ namespace RDMSharpTests.RDM.Devices
         {
             #region Test Basic
             Assert.That(generated, Is.Not.Null);
-            Assert.That(generated.ParameterValues[ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID], Is.EqualTo(4660));
+            var bootSoftwareVersionModule = generated.Modules.OfType<BootSoftwareVersionModule>().FirstOrDefault();
+            Assert.That(bootSoftwareVersionModule, Is.Not.Null);
+            Assert.That(bootSoftwareVersionModule.BootSoftwareVersionId, Is.EqualTo(4660));
             RDMMessage request = new RDMMessage()
             {
                 Command = ERDM_Command.GET_COMMAND,
@@ -473,7 +476,7 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(4));
-            Assert.That(response.Value, Is.EqualTo(generated.ParameterValues[ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID]));
+            Assert.That(response.Value, Is.EqualTo(bootSoftwareVersionModule.BootSoftwareVersionId));
             #endregion
         }
         [Test, Order(31)]
@@ -482,7 +485,9 @@ namespace RDMSharpTests.RDM.Devices
             const string BOOT_SOFTWARE_VERSION_LABEL = "Dummy Bootloader Software";
             #region Test Basic
             Assert.That(generated, Is.Not.Null);
-            Assert.That(generated.BootSoftwareVersionLabel, Is.EqualTo(BOOT_SOFTWARE_VERSION_LABEL));
+            var bootSoftwareVersionModule = generated.Modules.OfType<BootSoftwareVersionModule>().FirstOrDefault();
+            Assert.That(bootSoftwareVersionModule, Is.Not.Null);
+            Assert.That(bootSoftwareVersionModule.BootSoftwareVersionLabel, Is.EqualTo(BOOT_SOFTWARE_VERSION_LABEL));
             RDMMessage request = new RDMMessage()
             {
                 Command = ERDM_Command.GET_COMMAND,
@@ -505,8 +510,8 @@ namespace RDMSharpTests.RDM.Devices
             #endregion
 
             #region Test Label changed
-            generated.BootSoftwareVersionLabel = "Rem x Ram";
-            Assert.That(generated.BootSoftwareVersionLabel, Is.EqualTo("Rem x Ram"));
+            bootSoftwareVersionModule.BootSoftwareVersionLabel = "Rem x Ram";
+            Assert.That(bootSoftwareVersionModule.BootSoftwareVersionLabel, Is.EqualTo("Rem x Ram"));
             response = generated.ProcessRequestMessage_Internal(request);
             Assert.That(response, Is.Not.Null);
             Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
@@ -515,8 +520,8 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.BootSoftwareVersionLabel.Length));
-            Assert.That(response.Value, Is.EqualTo(generated.BootSoftwareVersionLabel));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(bootSoftwareVersionModule.BootSoftwareVersionLabel.Length));
+            Assert.That(response.Value, Is.EqualTo(bootSoftwareVersionModule.BootSoftwareVersionLabel));
             #endregion
         }
         [Test, Order(32)]

@@ -1,4 +1,5 @@
 ﻿using RDMSharp.Metadata;
+using RDMSharp.RDM.Device.Module;
 
 namespace RDMSharpTests.Devices.Mock
 {
@@ -80,11 +81,14 @@ namespace RDMSharpTests.Devices.Mock
 
         public override bool SupportStatus => true;
         
-        public MockGeneratedDevice_SlotOverflow(UID uid) : base(uid, SubDevice.Root, new ERDM_Parameter[] { ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL }, "Dummy Manufacturer 9FFF", GetSensors())
+        public MockGeneratedDevice_SlotOverflow(UID uid) : base(uid, SubDevice.Root, new ERDM_Parameter[] { }, "Dummy Manufacturer 9FFF", GetSensors(), GetModules())
         {
             this.DeviceLabel = "Dummy Device 1";
             this.SoftwareVersionLabel = $"Dummy Software";
-            this.BootSoftwareVersionLabel = $"Dummy Bootloader Software";
+        }
+        private static IReadOnlyCollection<IModule> GetModules()
+        {
+            return new IModule[] { new BootSoftwareVersionModule(123, $"Dummy Bootloader Software") };
         }
         protected sealed override void OnDispose()
         {

@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
 using RDMSharp.Metadata;
+using RDMSharp.RDM.Device.Module;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using static RDMSharp.RDMSharp;
@@ -46,6 +48,9 @@ namespace RDMSharp
         public sealed override RDMDeviceInfo DeviceInfo { get { return deviceInfo; } }
 
         private ConcurrentDictionary<UID, OverflowCacheBag> overflowCacheBags = new ConcurrentDictionary<UID, OverflowCacheBag>();
+
+        private readonly IReadOnlyCollection<IModule> _modules;
+        public IReadOnlyCollection<IModule> Modules { get => _modules; }
 
         private ushort dmxAddress { get; set; }
         public ushort? DMXAddress
@@ -180,23 +185,6 @@ namespace RDMSharp
             }
         }
 
-        private string bootSoftwareVersionLabel;
-        public string BootSoftwareVersionLabel
-        {
-            get
-            {
-                return bootSoftwareVersionLabel;
-            }
-            protected set
-            {
-                if (string.Equals(bootSoftwareVersionLabel, value))
-                    return;
-
-                bootSoftwareVersionLabel = value;
-                this.OnPropertyChanged(nameof(this.BootSoftwareVersionLabel));
-            }
-        }
-
         public DateTime realTimeClock;
         public DateTime RealTimeClock
         {
@@ -216,18 +204,22 @@ namespace RDMSharp
 
         private bool _initialized = false;
 
-        protected AbstractGeneratedRDMDevice(UID uid, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null, IRDMDevice[] subDevices = null) : this(uid, SubDevice.Root, parameters, manufacturer, sensors, subDevices)
+        protected AbstractGeneratedRDMDevice(UID uid, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules = null) : this(uid, SubDevice.Root, parameters, manufacturer, sensors, subDevices, modules)
         {
         }
-        protected AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null) : this(uid, subDevice, parameters, manufacturer, sensors, null)
+        protected AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null, IReadOnlyCollection<IModule> modules =null) : this(uid, subDevice, parameters, manufacturer, sensors, null, modules)
         {
         }
-        private AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null, IRDMDevice[] subDevices = null) : base(uid, subDevice, subDevices)
+        private AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules=null) : base(uid, subDevice, subDevices)
         {
             if (!((ushort)ManufacturerID).Equals(uid.ManufacturerID))
                 throw new Exception($"{uid.ManufacturerID} not match the {ManufacturerID}");
 
             RDMSharp.Instance.RequestReceivedEvent += Instance_RequestReceivedEvent;
+
+            if(modules is not null)
+                _modules = modules;
+
 
             #region Parameters
             var _params = new HashSet<ERDM_Parameter>();
@@ -265,11 +257,24 @@ namespace RDMSharp
                 _params.Add(ERDM_Parameter.DEFAULT_SLOT_VALUE);
             }
 
-            _parameters = _params;
+            if (modules is not null)
+                foreach (IModule module in modules)
+                    foreach (var parameter in module.SupportedParameters)
+                        _params.Add(parameter);
+
+                _parameters = _params;
+
+            if (modules is not null)
+                foreach (IModule module in modules)
+                    if (module is AbstractModule aModule)
+                        aModule.SetParentDevice(this);
+
             if (SupportRealTimeClock)
                 trySetParameter(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(DateTime.Now));
             trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters.ToArray());
             trySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, Identify);
+
+
             #endregion
 
             #region ManufacturerLabel
@@ -534,7 +539,7 @@ namespace RDMSharp
             }
         }
 
-        protected bool trySetParameter(ERDM_Parameter parameter, object value)
+        internal protected bool trySetParameter(ERDM_Parameter parameter, object value)
         {
             if (!this.Parameters.Contains(parameter))
                 throw new NotSupportedException($"The Parameter: {parameter}, is not Supported");
@@ -650,9 +655,6 @@ namespace RDMSharp
                     break;
                 case nameof(SoftwareVersionLabel):
                     trySetParameter(ERDM_Parameter.SOFTWARE_VERSION_LABEL, this.SoftwareVersionLabel);
-                    break;
-                case nameof(BootSoftwareVersionLabel):
-                    trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, this.BootSoftwareVersionLabel);
                     break;
                 case nameof(RealTimeClock):
                     trySetParameter(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(this.RealTimeClock));
@@ -909,7 +911,8 @@ namespace RDMSharp
                         response = new RDMMessage(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
                         goto FAIL;
                     }
-                    if(overflowCacheBags.TryGetValue(rdmMessage.SourceUID, out OverflowCacheBag overflowCache))
+                    //response = this.Modules.FirstOrDefault(m=>m.IsHandlingParameter(parameter))?.HandleRequest(rdmMessage);
+                    if (overflowCacheBags.TryGetValue(rdmMessage.SourceUID, out OverflowCacheBag overflowCache))
                     {
                         if (!overflowCache.Timeouted && overflowCache.Cache.TryDequeue(out byte[] data))
                         {

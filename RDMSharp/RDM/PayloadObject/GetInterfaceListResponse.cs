@@ -84,11 +84,17 @@ namespace RDMSharp
         public InterfaceDescriptor(uint interfaceId = 0, ushort hardwareType = 0)
         {
             this.InterfaceId = interfaceId;
-            this.HardwareType = hardwareType;
+            this._HardwareType = hardwareType;
+        }
+        public InterfaceDescriptor(uint interfaceId, EARP_HardwareTypes hardwareType)
+        {
+            this.InterfaceId = interfaceId;
+            this._HardwareType = (ushort)hardwareType;
         }
 
         public uint InterfaceId { get; private set; }
-        public ushort HardwareType { get; private set; }
+        public ushort _HardwareType { get; private set; }
+        public EARP_HardwareTypes HardwareType { get => (EARP_HardwareTypes)this._HardwareType; }
         public const int PDL = 6;
 
         public override string ToString()

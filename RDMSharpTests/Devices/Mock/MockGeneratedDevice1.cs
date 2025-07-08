@@ -1,4 +1,6 @@
-﻿namespace RDMSharpTests.Devices.Mock
+﻿using RDMSharp.RDM.Device.Module;
+
+namespace RDMSharpTests.Devices.Mock
 {
     internal class MockGeneratedDevice1 : AbstractMockGeneratedDevice
     {
@@ -57,11 +59,14 @@
 
         public override bool SupportStatus => true;
         
-        public MockGeneratedDevice1(UID uid) : base(uid, SubDevice.Root, new ERDM_Parameter[] { ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL }, "Dummy Manufacturer 9FFF", GetSensors())
+        public MockGeneratedDevice1(UID uid) : base(uid, SubDevice.Root, new ERDM_Parameter[] { }, "Dummy Manufacturer 9FFF", GetSensors(), GetModules())
         {
             this.DeviceLabel = "Dummy Device 1";
             this.SoftwareVersionLabel = $"Dummy Software";
-            this.BootSoftwareVersionLabel = $"Dummy Bootloader Software";
+        }
+        private static IReadOnlyCollection<IModule> GetModules()
+        {
+            return new IModule[] { new BootSoftwareVersionModule(123, $"Dummy Bootloader Software") };
         }
         protected sealed override void OnDispose()
         {
