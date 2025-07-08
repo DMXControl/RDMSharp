@@ -20,7 +20,7 @@ namespace RDMSharp.RDM.Device.Module
             internal set
             {
                 if (ParentDevice is not null)
-                    ParentDevice.trySetParameter(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(value.Value));
+                    ParentDevice.setParameterValue(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(value.Value));
             }
         }
         public RealTimeClockModule() : base(
@@ -38,6 +38,15 @@ namespace RDMSharp.RDM.Device.Module
         private void Instance_PresentUpdateTimerElapsed(object sender, EventArgs e)
         {
             this.RealTimeClock= DateTime.Now;
+        }
+        protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
+        {
+            switch (parameter)
+            {
+                case ERDM_Parameter.REAL_TIME_CLOCK:
+                    OnPropertyChanged(nameof(RealTimeClock));
+                    break;
+            }
         }
     }
 }

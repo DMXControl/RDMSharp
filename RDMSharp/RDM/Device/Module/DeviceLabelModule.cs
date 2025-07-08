@@ -18,7 +18,7 @@
             {
                 _deviceLabel = value;
                 if (ParentDevice is not null)
-                    ParentDevice.trySetParameter(ERDM_Parameter.DEVICE_LABEL, value);
+                    ParentDevice.setParameterValue(ERDM_Parameter.DEVICE_LABEL, value);
             }
         }
         public DeviceLabelModule(string deviceLabel) : base(
@@ -31,6 +31,15 @@
         protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
         {
             this.DeviceLabel = _deviceLabel;
+        }
+        protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
+        {
+            switch (parameter)
+            {
+                case ERDM_Parameter.DEVICE_LABEL:
+                    OnPropertyChanged(nameof(DeviceLabel));
+                    break;
+            }
         }
     }
 }

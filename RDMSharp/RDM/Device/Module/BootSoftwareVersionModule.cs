@@ -18,7 +18,7 @@
             internal set {
                 _bootSoftwareVersionId = value;
                 if (ParentDevice is not null)
-                    ParentDevice.trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID, value);
+                    ParentDevice.setParameterValue(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID, value);
             }
         }
         public string BootSoftwareVersionLabel
@@ -36,7 +36,7 @@
             {
                 _bootSoftwareVersionLabel = value;
                 if (ParentDevice is not null)
-                    ParentDevice.trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, value);
+                    ParentDevice.setParameterValue(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, value);
             }
         }
         public BootSoftwareVersionModule(uint bootSoftwareVersionId, string bootSoftwareVersionLabel) : base(
@@ -52,6 +52,19 @@
         {
             this.BootSoftwareVersionId = _bootSoftwareVersionId;
             this.BootSoftwareVersionLabel = _bootSoftwareVersionLabel;
+        }
+
+        protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
+        {
+            switch (parameter)
+            {
+                case ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID:
+                    OnPropertyChanged(nameof(BootSoftwareVersionId));
+                    break;
+                case ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL:
+                    OnPropertyChanged(nameof(BootSoftwareVersionLabel));
+                    break;
+            }
         }
     }
 }

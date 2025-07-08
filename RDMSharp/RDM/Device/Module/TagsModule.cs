@@ -17,6 +17,11 @@
             throw new System.NotImplementedException();
         }
 
+        protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
+        {
+            throw new System.NotImplementedException();
+        }
+
         //protected override RDMMessage handleRequest(RDMMessage message)
         //{
         //    return null;

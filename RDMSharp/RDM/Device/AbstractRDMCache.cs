@@ -23,8 +23,8 @@ namespace RDMSharp
         {
             get { return this.parameterValues?.AsReadOnly(); }
         }
-        protected event EventHandler<ParameterValueAddedEventArgs> ParameterValueAdded;
-        protected event EventHandler<ParameterValueChangedEventArgs> ParameterValueChanged;
+        internal protected event EventHandler<ParameterValueAddedEventArgs> ParameterValueAdded;
+        internal protected event EventHandler<ParameterValueChangedEventArgs> ParameterValueChanged;
         protected event EventHandler<ParameterRequestedEventArgs> ParameterRequested;
 
         public class ParameterValueAddedEventArgs : EventArgs
@@ -77,6 +77,10 @@ namespace RDMSharp
             this.ParameterValueAdded?.InvokeFailSafe(this, e);
         }
 
+        protected void InvokeParameterValueChanged(ParameterValueChangedEventArgs e)
+        {
+            this.ParameterValueChanged?.InvokeFailSafe(this, e);
+        }
 
         protected void updateParameterValuesDependeciePropertyBag(ERDM_Parameter parameter, DataTreeBranch dataTreeBranch)
         {

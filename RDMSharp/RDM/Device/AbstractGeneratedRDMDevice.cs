@@ -482,7 +482,7 @@ namespace RDMSharp
             }
         }
 
-        internal protected bool trySetParameter(ERDM_Parameter parameter, object value)
+        protected bool trySetParameter(ERDM_Parameter parameter, object value)
         {
             if (!this.Parameters.Contains(parameter))
                 throw new NotSupportedException($"The Parameter: {parameter}, is not Supported");
@@ -606,7 +606,7 @@ namespace RDMSharp
             setParameterValue(parameter, value);
             return true;
         }
-        private void setParameterValue(ERDM_Parameter parameter, object value, object index=null)
+        internal void setParameterValue(ERDM_Parameter parameter, object value, object index=null)
         {
             switch (parameter)
             {
@@ -621,11 +621,28 @@ namespace RDMSharp
                         parameterValues.TryRemove(parameter, out object oldValue);
                         return;
                     }
-                    parameterValues.AddOrUpdate(parameter, value, (o, p) =>
+                    parameterValues.AddOrUpdate(parameter, (_) =>
                     {
-                        if (object.Equals(p, value)&& value is not ConcurrentDictionary<object, object>)
-                            notNew = true;
-                        return value;
+                        try
+                        {
+                            return value;
+                        }
+                        finally
+                        {
+                            InvokeParameterValueAdded(new ParameterValueAddedEventArgs(parameter, value, index));
+                        }
+                    }, (o, p) =>
+                    {
+                        try
+                        {
+                            if (object.Equals(p, value) && value is not ConcurrentDictionary<object, object>)
+                                notNew = true;
+                            return value;
+                        }
+                        finally
+                        {
+                            InvokeParameterValueChanged(new ParameterValueChangedEventArgs(parameter, value, p, index));
+                        }
                     });
                     if (notNew)
                         return;
@@ -909,7 +926,27 @@ namespace RDMSharp
                     //Handle set Request
                     if (parameterValues.TryGetValue(rdmMessage.Parameter, out object comparisonValue))
                     {
-                        parameterValues.AddOrUpdate(rdmMessage.Parameter, (_) => rdmMessage.Value, (_,_) => rdmMessage.Value);                        
+                        parameterValues.AddOrUpdate(rdmMessage.Parameter, (_) =>
+                        {
+                            try
+                            {
+                                return rdmMessage.Value;
+                            }
+                            finally
+                            {
+                                InvokeParameterValueAdded(new ParameterValueAddedEventArgs(rdmMessage.Parameter, rdmMessage.Value));
+                            }
+                        }, (_, old) =>
+                        {
+                            try
+                            {
+                                return rdmMessage.Value;
+                            }
+                            finally
+                            {
+                                InvokeParameterValueChanged(new ParameterValueChangedEventArgs(rdmMessage.Parameter, rdmMessage.Value, old));
+                            }
+                        });                       
                         success = true;
                         object responseValue = rdmMessage.Value;
                         if (comparisonValue is ConcurrentDictionary<object, object> dict)

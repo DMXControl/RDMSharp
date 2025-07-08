@@ -30,7 +30,7 @@
             {
                 _softwareVersionLabel = value;
                 if (ParentDevice is not null)
-                    ParentDevice.trySetParameter(ERDM_Parameter.SOFTWARE_VERSION_LABEL, value);
+                    ParentDevice.setParameterValue(ERDM_Parameter.SOFTWARE_VERSION_LABEL, value);
             }
         }
         public SoftwareVersionModule(uint softwareVersionId, string softwareVersionLabel) : base(
@@ -45,6 +45,15 @@
         {
             this.SoftwareVersionId = _softwareVersionId;
             this.SoftwareVersionLabel = _softwareVersionLabel;
+        }
+        protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
+        {
+            switch (parameter)
+            {
+                case ERDM_Parameter.SOFTWARE_VERSION_LABEL:
+                    OnPropertyChanged(nameof(SoftwareVersionLabel));
+                    break;
+            }
         }
     }
 }
