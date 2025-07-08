@@ -19,17 +19,23 @@ namespace RDMSharp
         public sealed override bool IsGenerated => true;
         public abstract bool SupportQueued { get; }
         public abstract bool SupportStatus { get; }
-        public virtual bool SupportRealTimeClock { get; }
         #region DeviceInfoStuff
         private HashSet<ERDM_Parameter> _parameters;
-        public IReadOnlySet<ERDM_Parameter> Parameters { get => _parameters; }
+        public IReadOnlySet<ERDM_Parameter> Parameters { get => _parameters;
+            private set
+            {
+                if (_parameters == value)
+                    return;
+                _parameters = value.ToHashSet();
+                this.OnPropertyChanged();
+            }
+        }
         public abstract EManufacturer ManufacturerID { get; }
         public abstract ushort DeviceModelID { get; }
         public abstract ERDM_ProductCategoryCoarse ProductCategoryCoarse { get; }
         public abstract ERDM_ProductCategoryFine ProductCategoryFine { get; }
         public abstract uint SoftwareVersionID { get; }
         #endregion
-        public abstract string DeviceModelDescription { get; }
         public abstract GeneratedPersonality[] Personalities { get; }
 
         private readonly ConcurrentDictionary<byte, Sensor> sensors = new ConcurrentDictionary<byte, Sensor>();
@@ -48,6 +54,8 @@ namespace RDMSharp
         public sealed override RDMDeviceInfo DeviceInfo { get { return deviceInfo; } }
 
         private ConcurrentDictionary<UID, OverflowCacheBag> overflowCacheBags = new ConcurrentDictionary<UID, OverflowCacheBag>();
+
+        private readonly IdentifyDeviceModule identifyDeviceModule;
 
         private readonly IReadOnlyCollection<IModule> _modules;
         public IReadOnlyCollection<IModule> Modules { get => _modules; }
@@ -132,20 +140,19 @@ namespace RDMSharp
             }
         }
 
-        private bool identify;
         public bool Identify
         {
             get
             {
-                return identify;
+                return identifyDeviceModule.Identify;
             }
             set
             {
-                if (string.Equals(identify, value))
+                if (string.Equals(identifyDeviceModule.Identify, value))
                     return;
 
-                identify = value;
-                this.OnPropertyChanged(nameof(this.Identify));
+                identifyDeviceModule.Identify = value;
+                this.OnPropertyChanged();
             }
         }
 
@@ -175,15 +182,20 @@ namespace RDMSharp
         protected AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, Sensor[] sensors = null, IReadOnlyCollection<IModule> modules =null) : this(uid, subDevice, parameters, sensors, null, modules)
         {
         }
-        private AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, Sensor[] sensors = null, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules=null) : base(uid, subDevice, subDevices)
+        private AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, Sensor[] sensors = null, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules = null) : base(uid, subDevice, subDevices)
         {
             if (!((ushort)ManufacturerID).Equals(uid.ManufacturerID))
                 throw new Exception($"{uid.ManufacturerID} not match the {ManufacturerID}");
 
             RDMSharp.Instance.RequestReceivedEvent += Instance_RequestReceivedEvent;
 
+            List<IModule> moduleList = new List<IModule>();
+            identifyDeviceModule = new IdentifyDeviceModule();
+            moduleList.Add(identifyDeviceModule);
+
             if (modules is not null)
-                _modules = modules;
+                moduleList.AddRange(modules);
+            _modules = moduleList.AsReadOnly();
 
 
             #region Parameters
@@ -203,14 +215,6 @@ namespace RDMSharp
             _params.Add(ERDM_Parameter.DEVICE_INFO);
             _params.Add(ERDM_Parameter.SUPPORTED_PARAMETERS);
             _params.Add(ERDM_Parameter.SOFTWARE_VERSION_LABEL);
-            _params.Add(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID);
-            _params.Add(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL);
-            _params.Add(ERDM_Parameter.DEVICE_LABEL);
-            _params.Add(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION);
-            _params.Add(ERDM_Parameter.MANUFACTURER_LABEL);
-            _params.Add(ERDM_Parameter.IDENTIFY_DEVICE);
-            if (SupportRealTimeClock)
-                _params.Add(ERDM_Parameter.REAL_TIME_CLOCK);
             if (SupportDMXAddress)
                 _params.Add(ERDM_Parameter.DMX_START_ADDRESS);
             if ((Personalities?.Length ?? 0) != 0)
@@ -222,28 +226,19 @@ namespace RDMSharp
                 _params.Add(ERDM_Parameter.DEFAULT_SLOT_VALUE);
             }
 
-            if (modules is not null)
-                foreach (IModule module in modules)
-                    foreach (var parameter in module.SupportedParameters)
-                        _params.Add(parameter);
+            foreach (IModule module in _modules)
+                foreach (var parameter in module.SupportedParameters)
+                    _params.Add(parameter);
 
-                _parameters = _params;
+            Parameters = _params;
 
-            if (modules is not null)
-                foreach (IModule module in modules)
-                    if (module is AbstractModule aModule)
-                        aModule.SetParentDevice(this);
+            foreach (IModule module in _modules)
+                if (module is AbstractModule aModule)
+                    aModule.SetParentDevice(this);
 
-            if (SupportRealTimeClock)
-                trySetParameter(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(DateTime.Now));
             trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters.ToArray());
-            trySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, Identify);
 
 
-            #endregion
-
-            #region DeviceModelDescription
-            this.OnPropertyChanged(nameof(this.DeviceModelDescription));
             #endregion
 
             #region Personalities
@@ -404,7 +399,7 @@ namespace RDMSharp
                 HashSet<ERDM_Parameter> _params = Parameters.ToHashSet();
                 _params.Add(ERDM_Parameter.SENSOR_DEFINITION);
                 _params.Add(ERDM_Parameter.SENSOR_VALUE);
-                _parameters = _params;
+                Parameters = _params;
             }
             else if (
                 Parameters.Contains(ERDM_Parameter.SENSOR_DEFINITION) ||
@@ -420,20 +415,20 @@ namespace RDMSharp
                     p == ERDM_Parameter.RECORD_SENSORS ||
                     p == ERDM_Parameter.SENSOR_TYPE_CUSTOM ||
                     p == ERDM_Parameter.SENSOR_UNIT_CUSTOM);
-                _parameters = _params;
+                Parameters = _params;
             }
 
             if (sensors.Values.Any(s => s.RecordedValueSupported) && !Parameters.Contains(ERDM_Parameter.RECORD_SENSORS))
             {
                 HashSet<ERDM_Parameter> _params = Parameters.ToHashSet();
                 _params.Add(ERDM_Parameter.RECORD_SENSORS);
-                _parameters = _params;
+                Parameters = _params;
             }
             else if (!sensors.Values.Any(s => s.RecordedValueSupported) && Parameters.Contains(ERDM_Parameter.RECORD_SENSORS))
             {
                 HashSet<ERDM_Parameter> _params = Parameters.ToHashSet();
                 _params.RemoveWhere(sensors => sensors == ERDM_Parameter.RECORD_SENSORS);
-                _parameters = _params;
+                Parameters = _params;
             }
 
             if (!Parameters.SequenceEqual(oldParameters))
@@ -542,7 +537,7 @@ namespace RDMSharp
 
             return this.trySetParameter(parameter, value);
         }
-        protected sealed override void OnPropertyChanged(string property)
+        protected sealed override void OnPropertyChanged([CallerMemberName]string property=null)
         {
             switch (property)
             {
@@ -550,14 +545,8 @@ namespace RDMSharp
                     trySetParameter(ERDM_Parameter.DEVICE_INFO, this.DeviceInfo);
                     trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID, this.DeviceInfo.SoftwareVersionId);
                     break;
-                case nameof(DeviceModelDescription):
-                    trySetParameter(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION, this.DeviceModelDescription);
-                    break;
                 case nameof(DMXAddress):
                     trySetParameter(ERDM_Parameter.DMX_START_ADDRESS, this.DMXAddress);
-                    break;
-                case nameof(Identify):
-                    trySetParameter(ERDM_Parameter.IDENTIFY_DEVICE, this.Identify);
                     break;
                 case nameof(CurrentPersonality):
                     trySetParameter(ERDM_Parameter.DMX_PERSONALITY, new RDMDMXPersonality(this.currentPersonality, (byte)(Personalities?.Length ?? 0)));

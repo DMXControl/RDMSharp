@@ -16,7 +16,6 @@ namespace RDMSharpTests.Devices.Mock
         public override ERDM_ProductCategoryCoarse ProductCategoryCoarse => ERDM_ProductCategoryCoarse.CONTROL;
         public override ERDM_ProductCategoryFine ProductCategoryFine => ERDM_ProductCategoryFine.DATA_CONVERSION;
         public override uint SoftwareVersionID => 0x1234;
-        public override string DeviceModelDescription => "Test Model Description";
         public override bool SupportDMXAddress => true;
 
         private static byte[] SLOT_INFO_RAW = new byte[] {
@@ -90,6 +89,7 @@ namespace RDMSharpTests.Devices.Mock
             return new IModule[] {
                 new DeviceLabelModule("Dummy Device 1"),
                 new ManufacturerLabelModule("Dummy Manufacturer 9FFF"),
+                new DeviceModelDescriptionModule("Test Model Description"),
                 new BootSoftwareVersionModule(123, $"Dummy Bootloader Software") };
         }
         protected sealed override void OnDispose()

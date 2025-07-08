@@ -98,12 +98,13 @@ namespace RDMSharpTests.RDM.Devices
 
             var deviceLabelModule = generated.Modules.OfType<DeviceLabelModule>().Single();
             var manufacturerLabelModule = generated.Modules.OfType<ManufacturerLabelModule>().Single();
+            var deviceModelDescriptionModule = generated.Modules.OfType<DeviceModelDescriptionModule>().Single();
 
             //Assert.Multiple(() =>
             //{
             Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_INFO], Is.EqualTo(generated.DeviceInfo));
             Assert.That(remote.ParameterValues[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(deviceLabelModule.DeviceLabel));
-            Assert.That(remote.ParameterValues[ERDM_Parameter.DEVICE_MODEL_DESCRIPTION], Is.EqualTo(generated.DeviceModelDescription));
+            Assert.That(remote.ParameterValues[ERDM_Parameter.DEVICE_MODEL_DESCRIPTION], Is.EqualTo(deviceModelDescriptionModule.DeviceModelDescription));
             Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.MANUFACTURER_LABEL], Is.EqualTo(manufacturerLabelModule.ManufacturerLabel));
             Assert.That(((RDMDMXPersonality)remote.ParameterValues[ERDM_Parameter.DMX_PERSONALITY]).Index, Is.EqualTo(generated.CurrentPersonality));
             //});

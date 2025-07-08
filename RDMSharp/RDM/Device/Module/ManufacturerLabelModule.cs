@@ -1,6 +1,4 @@
-﻿using org.dmxc.wkdt.Light.RDM;
-using System;
-using System.Security.Cryptography;
+﻿using System;
 
 namespace RDMSharp.RDM.Device.Module
 {

@@ -264,7 +264,7 @@ namespace RDMSharpTests.RDM.Devices
         {
             #region Test Basic
             Assert.That(generated, Is.Not.Null);
-            var deviceLabelModule = generated.Modules.OfType<DeviceLabelModule>().FirstOrDefault();
+            var deviceLabelModule = generated.Modules.OfType<DeviceLabelModule>().Single();
             Assert.That(deviceLabelModule, Is.Not.Null);
             Assert.That(deviceLabelModule.DeviceLabel, Is.EqualTo("Dummy Device 1"));
             RDMMessage request = new RDMMessage()
@@ -432,7 +432,9 @@ namespace RDMSharpTests.RDM.Devices
         {
             #region Test Basic
             Assert.That(generated, Is.Not.Null);
-            Assert.That(generated.DeviceModelDescription, Is.EqualTo("Test Model Description"));
+            var deviceModelDescriptionModule = generated.Modules.OfType<DeviceModelDescriptionModule>().Single();
+            Assert.That(deviceModelDescriptionModule, Is.Not.Null);
+            Assert.That(deviceModelDescriptionModule.DeviceModelDescription, Is.EqualTo("Test Model Description"));
             RDMMessage request = new RDMMessage()
             {
                 Command = ERDM_Command.GET_COMMAND,
@@ -450,8 +452,8 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.DeviceModelDescription.Length));
-            Assert.That(response.Value, Is.EqualTo(generated.DeviceModelDescription));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(deviceModelDescriptionModule.DeviceModelDescription.Length));
+            Assert.That(response.Value, Is.EqualTo(deviceModelDescriptionModule.DeviceModelDescription));
             #endregion
         }
         [Test, Order(30)]
@@ -459,7 +461,7 @@ namespace RDMSharpTests.RDM.Devices
         {
             #region Test Basic
             Assert.That(generated, Is.Not.Null);
-            var bootSoftwareVersionModule = generated.Modules.OfType<BootSoftwareVersionModule>().FirstOrDefault();
+            var bootSoftwareVersionModule = generated.Modules.OfType<BootSoftwareVersionModule>().Single();
             Assert.That(bootSoftwareVersionModule, Is.Not.Null);
             Assert.That(bootSoftwareVersionModule.BootSoftwareVersionId, Is.EqualTo(4660));
             RDMMessage request = new RDMMessage()
@@ -489,7 +491,7 @@ namespace RDMSharpTests.RDM.Devices
             const string BOOT_SOFTWARE_VERSION_LABEL = "Dummy Bootloader Software";
             #region Test Basic
             Assert.That(generated, Is.Not.Null);
-            var bootSoftwareVersionModule = generated.Modules.OfType<BootSoftwareVersionModule>().FirstOrDefault();
+            var bootSoftwareVersionModule = generated.Modules.OfType<BootSoftwareVersionModule>().Single();
             Assert.That(bootSoftwareVersionModule, Is.Not.Null);
             Assert.That(bootSoftwareVersionModule.BootSoftwareVersionLabel, Is.EqualTo(BOOT_SOFTWARE_VERSION_LABEL));
             RDMMessage request = new RDMMessage()
@@ -1704,11 +1706,9 @@ namespace RDMSharpTests.RDM.Devices
         }
         class RealTimeMockDevice : MockGeneratedDevice1
         {
-            public RealTimeMockDevice(UID uid) : base(uid)
+            public RealTimeMockDevice(UID uid) : base(uid, new IModule[] { new RealTimeClockModule() })
             {
             }
-
-            public override bool SupportRealTimeClock => true;
         }
     }
 }
