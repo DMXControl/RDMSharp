@@ -5,19 +5,6 @@ namespace RDMSharpTests.Devices.Mock
     internal abstract class AbstractMockGeneratedDevice : AbstractGeneratedRDMDevice
     {
 
-
-        public new string SoftwareVersionLabel
-        {
-            get
-            {
-                return base.SoftwareVersionLabel;
-            }
-            internal set
-            {
-                base.SoftwareVersionLabel = value;
-            }
-        }
-
         public AbstractMockGeneratedDevice(UID uid, ERDM_Parameter[] parameters, Sensor[]? sensors = null, IRDMDevice[]? subDevices = null, IReadOnlyCollection<IModule> mudules = null) : base(uid, parameters, sensors: sensors, subDevices: subDevices, modules: mudules)
         {
         }

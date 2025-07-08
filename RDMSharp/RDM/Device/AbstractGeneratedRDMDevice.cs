@@ -34,7 +34,14 @@ namespace RDMSharp
         public abstract ushort DeviceModelID { get; }
         public abstract ERDM_ProductCategoryCoarse ProductCategoryCoarse { get; }
         public abstract ERDM_ProductCategoryFine ProductCategoryFine { get; }
-        public abstract uint SoftwareVersionID { get; }
+        public uint SoftwareVersionID
+        {
+            get
+            {
+                var softwareVersionModule = this.Modules.OfType<SoftwareVersionModule>().FirstOrDefault();
+                return softwareVersionModule?.SoftwareVersionId ?? 0;
+            }
+        }
         #endregion
         public abstract GeneratedPersonality[] Personalities { get; }
 
@@ -55,37 +62,31 @@ namespace RDMSharp
 
         private ConcurrentDictionary<UID, OverflowCacheBag> overflowCacheBags = new ConcurrentDictionary<UID, OverflowCacheBag>();
 
+        private readonly DeviceInfoModule deviceInfoModule;
         private readonly IdentifyDeviceModule identifyDeviceModule;
+        private readonly DMX_StartAddressModule? dmxStartAddressModule;
 
         private readonly IReadOnlyCollection<IModule> _modules;
         public IReadOnlyCollection<IModule> Modules { get => _modules; }
 
-        private ushort dmxAddress { get; set; }
         public ushort? DMXAddress
         {
             get
             {
-                if (!this.Parameters.Contains(ERDM_Parameter.DMX_START_ADDRESS))
+                if (dmxStartAddressModule is null)
                     return null;
 
-                return dmxAddress;
+                return dmxStartAddressModule.DMXAddress;
             }
             set
             {
-                if (!this.Parameters.Contains(ERDM_Parameter.DMX_START_ADDRESS))
-                {
-                    dmxAddress = 0;
-                    return;
-                }
-                if (!value.HasValue)
-                    throw new NullReferenceException($"{DMXAddress} can't be null if {ERDM_Parameter.DMX_START_ADDRESS} is Supported");
-                if (value.Value == 0)
-                    throw new ArgumentOutOfRangeException($"{DMXAddress} can't 0 if {ERDM_Parameter.DMX_START_ADDRESS} is Supported");
-
-                if (dmxAddress == value.Value)
+                if (dmxStartAddressModule is null)
                     return;
 
-                dmxAddress = value.Value;
+                if (dmxStartAddressModule.DMXAddress == value.Value)
+                    return;
+
+                dmxStartAddressModule.DMXAddress = value.Value;
                 this.OnPropertyChanged(nameof(this.DMXAddress));
                 this.updateDeviceInfo();
             }
@@ -156,24 +157,6 @@ namespace RDMSharp
             }
         }
 
-
-        private string softwareVersionLabel;
-        public string SoftwareVersionLabel
-        {
-            get
-            {
-                return softwareVersionLabel;
-            }
-            protected set
-            {
-                if (string.Equals(softwareVersionLabel, value))
-                    return;
-
-                softwareVersionLabel = value;
-                this.OnPropertyChanged(nameof(this.SoftwareVersionLabel));
-            }
-        }
-
         private bool _initialized = false;
 
         protected AbstractGeneratedRDMDevice(UID uid, ERDM_Parameter[] parameters, Sensor[] sensors = null, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules = null) : this(uid, SubDevice.Root, parameters, sensors, subDevices, modules)
@@ -195,7 +178,11 @@ namespace RDMSharp
 
             if (modules is not null)
                 moduleList.AddRange(modules);
+
+            deviceInfoModule = new DeviceInfoModule();
+            moduleList.Add(deviceInfoModule);
             _modules = moduleList.AsReadOnly();
+            dmxStartAddressModule = _modules.OfType<DMX_StartAddressModule>().FirstOrDefault();
 
 
             #region Parameters
@@ -272,11 +259,6 @@ namespace RDMSharp
                 trySetParameter(ERDM_Parameter.STATUS_MESSAGES, new RDMStatusMessage[0]);
             #endregion
 
-            #region DMX-Address
-            if (Parameters.Contains(ERDM_Parameter.DMX_START_ADDRESS))
-                DMXAddress = 1;
-            #endregion
-
             updateDeviceInfo();
             _initialized = true;
         }
@@ -292,8 +274,8 @@ namespace RDMSharp
                                            dmx512Footprint: Personalities.FirstOrDefault(p => p.ID == currentPersonality)?.SlotCount ?? 0,
                                            dmx512CurrentPersonality: currentPersonality,
                                            dmx512NumberOfPersonalities: (byte)(Personalities?.Length ?? 0),
-                                           dmx512StartAddress: dmxAddress,
-                                           subDeviceCount: (ushort)(SubDevices?.Where(sd=>!sd.Subdevice.IsRoot).Count() ?? 0),
+                                           dmx512StartAddress: dmxStartAddressModule?.DMXAddress ?? ushort.MaxValue,
+                                           subDeviceCount: (ushort)(SubDevices?.Where(sd => !sd.Subdevice.IsRoot).Count() ?? 0),
                                            sensorCount: (byte)(Sensors?.Count ?? 0));
             updateDeviceInfo(info);
         }
@@ -545,9 +527,6 @@ namespace RDMSharp
                     trySetParameter(ERDM_Parameter.DEVICE_INFO, this.DeviceInfo);
                     trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID, this.DeviceInfo.SoftwareVersionId);
                     break;
-                case nameof(DMXAddress):
-                    trySetParameter(ERDM_Parameter.DMX_START_ADDRESS, this.DMXAddress);
-                    break;
                 case nameof(CurrentPersonality):
                     trySetParameter(ERDM_Parameter.DMX_PERSONALITY, new RDMDMXPersonality(this.currentPersonality, (byte)(Personalities?.Length ?? 0)));
 
@@ -565,9 +544,6 @@ namespace RDMSharp
                     trySetParameter(ERDM_Parameter.SLOT_INFO, slotInfos);
                     trySetParameter(ERDM_Parameter.SLOT_DESCRIPTION, slotDesc);
                     trySetParameter(ERDM_Parameter.DEFAULT_SLOT_VALUE, slotDefault);
-                    break;
-                case nameof(SoftwareVersionLabel):
-                    trySetParameter(ERDM_Parameter.SOFTWARE_VERSION_LABEL, this.SoftwareVersionLabel);
                     break;
             }
             base.OnPropertyChanged(property);
@@ -1069,14 +1045,8 @@ namespace RDMSharp
         {
             switch (parameter)
             {
-                case ERDM_Parameter.DMX_START_ADDRESS:
-                    DMXAddress = (ushort)value;
-                    break;
                 case ERDM_Parameter.DMX_PERSONALITY:
                     CurrentPersonality = (byte)value;
-                    break;
-                case ERDM_Parameter.IDENTIFY_DEVICE:
-                    Identify = (bool)value;
                     break;
             }
         }
