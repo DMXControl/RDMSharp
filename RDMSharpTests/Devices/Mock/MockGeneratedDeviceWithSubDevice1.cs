@@ -1,4 +1,6 @@
-﻿namespace RDMSharpTests.Devices.Mock
+﻿using RDMSharp.RDM.Device.Module;
+
+namespace RDMSharpTests.Devices.Mock
 {
     internal abstract class MockGeneratedDeviceWithSubDevice1 : AbstractMockGeneratedDevice
     {
@@ -10,22 +12,26 @@
         public override string DeviceModelDescription => "Test Model Description SubDevice";
         public override bool SupportDMXAddress => true;
 
-        protected MockGeneratedDeviceWithSubDevice1(UID uid, MockGeneratedDeviceWithSubDeviceSub1[]? subDevices = null, Sensor[]? sensors = null) : base(uid, new ERDM_Parameter[] { ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL }, "Dummy Manufacturer 9FEF", sensors, subDevices)
+        protected MockGeneratedDeviceWithSubDevice1(UID uid, MockGeneratedDeviceWithSubDeviceSub1[]? subDevices = null, Sensor[]? sensors = null) : base(uid, new ERDM_Parameter[] { ERDM_Parameter.IDENTIFY_DEVICE }, "Dummy Manufacturer 9FEF", sensors, subDevices, GetModulesMaster())
         {
-            this.DeviceLabel = "Dummy Device Master";
-            this.setInitParameters();
         }
-        protected MockGeneratedDeviceWithSubDevice1(UID uid, SubDevice subDevice, Sensor[]? sensors = null) : base(uid, subDevice, new ERDM_Parameter[] { ERDM_Parameter.IDENTIFY_DEVICE, ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL }, "Dummy Manufacturer 9FEF", sensors)
+        protected MockGeneratedDeviceWithSubDevice1(UID uid, SubDevice subDevice, Sensor[]? sensors = null) : base(uid, subDevice, new ERDM_Parameter[] { ERDM_Parameter.IDENTIFY_DEVICE }, "Dummy Manufacturer 9FEF", sensors, GetModulesSubDevice())
         {
-            this.DeviceLabel = "Dummy Device SubDevice";
-            this.setInitParameters();
         }
-        private void setInitParameters()
+        private static IReadOnlyCollection<IModule> GetModulesMaster()
         {
-            this.trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, $"Dummy Software");
+            return new IModule[] {
+                new DeviceLabelModule("Dummy Device Master"),
+                new BootSoftwareVersionModule(12359,$"Dummy Software")};
+        }
+        private static IReadOnlyCollection<IModule> GetModulesSubDevice()
+        {
+            return new IModule[] {
+                new DeviceLabelModule("Dummy Device SubDevice"),
+                new BootSoftwareVersionModule(12359,$"Dummy Software")};
         }
 
-        
+
 
         protected sealed override void OnDispose()
         {

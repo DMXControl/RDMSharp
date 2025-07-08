@@ -83,12 +83,13 @@ namespace RDMSharpTests.Devices.Mock
         
         public MockGeneratedDevice_SlotOverflow(UID uid) : base(uid, SubDevice.Root, new ERDM_Parameter[] { }, "Dummy Manufacturer 9FFF", GetSensors(), GetModules())
         {
-            this.DeviceLabel = "Dummy Device 1";
             this.SoftwareVersionLabel = $"Dummy Software";
         }
         private static IReadOnlyCollection<IModule> GetModules()
         {
-            return new IModule[] { new BootSoftwareVersionModule(123, $"Dummy Bootloader Software") };
+            return new IModule[] {
+                new DeviceLabelModule("Dummy Device 1"),
+                new BootSoftwareVersionModule(123, $"Dummy Bootloader Software") };
         }
         protected sealed override void OnDispose()
         {

@@ -1,3 +1,4 @@
+using RDMSharp.RDM.Device.Module;
 using RDMSharpTests.Devices.Mock;
 using System;
 
@@ -95,10 +96,12 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(parameterValuesRemote, Has.Count.EqualTo(parameterValuesGenerated.Count));
             //});
 
+            var deviceLabelModule = generated.Modules.OfType<DeviceLabelModule>().Single();
+
             //Assert.Multiple(() =>
             //{
             Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_INFO], Is.EqualTo(generated.DeviceInfo));
-            Assert.That(remote.ParameterValues[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(generated.DeviceLabel));
+            Assert.That(remote.ParameterValues[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(deviceLabelModule.DeviceLabel));
             Assert.That(remote.ParameterValues[ERDM_Parameter.DEVICE_MODEL_DESCRIPTION], Is.EqualTo(generated.DeviceModelDescription));
             Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.MANUFACTURER_LABEL], Is.EqualTo(generated.ManufacturerLabel));
             Assert.That(((RDMDMXPersonality)remote.ParameterValues[ERDM_Parameter.DMX_PERSONALITY]).Index, Is.EqualTo(generated.CurrentPersonality));
@@ -126,7 +129,7 @@ namespace RDMSharpTests.RDM.Devices
             //Assert.Multiple(() =>
             //{
             Assert.That(remote.ParameterValues[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(label));
-            Assert.That(generated.DeviceLabel, Is.EqualTo(label));
+            Assert.That(deviceLabelModule.DeviceLabel, Is.EqualTo(label));
             //});
             //Assert.Multiple(async () =>
             //{

@@ -264,7 +264,9 @@ namespace RDMSharpTests.RDM.Devices
         {
             #region Test Basic
             Assert.That(generated, Is.Not.Null);
-            Assert.That(generated.DeviceLabel, Is.EqualTo("Dummy Device 1"));
+            var deviceLabelModule = generated.Modules.OfType<DeviceLabelModule>().FirstOrDefault();
+            Assert.That(deviceLabelModule, Is.Not.Null);
+            Assert.That(deviceLabelModule.DeviceLabel, Is.EqualTo("Dummy Device 1"));
             RDMMessage request = new RDMMessage()
             {
                 Command = ERDM_Command.GET_COMMAND,
@@ -282,14 +284,14 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEVICE_LABEL));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.DeviceLabel.Length));
-            Assert.That(response.Value, Is.EqualTo(generated.DeviceLabel));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(deviceLabelModule.DeviceLabel.Length));
+            Assert.That(response.Value, Is.EqualTo(deviceLabelModule.DeviceLabel));
             #endregion
 
             #region Test Label changed
-            Assert.That(generated.DeviceLabel, Is.EqualTo("Dummy Device 1"));
-            generated.DeviceLabel = "Rem x Ram";
-            Assert.That(generated.DeviceLabel, Is.EqualTo("Rem x Ram"));
+            Assert.That(deviceLabelModule.DeviceLabel, Is.EqualTo("Dummy Device 1"));
+            deviceLabelModule.DeviceLabel = "Rem x Ram";
+            Assert.That(deviceLabelModule.DeviceLabel, Is.EqualTo("Rem x Ram"));
             response = generated.ProcessRequestMessage_Internal(request);
             Assert.That(response, Is.Not.Null);
             Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
@@ -298,8 +300,8 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEVICE_LABEL));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.DeviceLabel.Length));
-            Assert.That(response.Value, Is.EqualTo(generated.DeviceLabel));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(deviceLabelModule.DeviceLabel.Length));
+            Assert.That(response.Value, Is.EqualTo(deviceLabelModule.DeviceLabel));
             #endregion
         }
         [Test, Order(10)]
@@ -1482,9 +1484,11 @@ namespace RDMSharpTests.RDM.Devices
             #endregion
 
             #region Test set DeviceLabel (single value changed)
-            Assert.That(generated.DeviceLabel, Is.EqualTo("Dummy Device 1"));
-            generated.DeviceLabel = "Test Device Queued Message 1";
-            Assert.That(generated.DeviceLabel, Is.EqualTo("Test Device Queued Message 1"));
+            var deviceLabelModule = generated.Modules.OfType<DeviceLabelModule>().FirstOrDefault();
+            Assert.That(deviceLabelModule, Is.Not.Null);
+            Assert.That(deviceLabelModule.DeviceLabel, Is.EqualTo("Dummy Device 1"));
+            deviceLabelModule.DeviceLabel = "Test Device Queued Message 1";
+            Assert.That(deviceLabelModule.DeviceLabel, Is.EqualTo("Test Device Queued Message 1"));
 
             response = generated.ProcessRequestMessage_Internal(request);
             Assert.That(response, Is.Not.Null);
@@ -1495,13 +1499,13 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.MessageCounter, Is.EqualTo(0));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.DeviceLabel.Length));
-            Assert.That(response.Value, Is.EqualTo(generated.DeviceLabel));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(deviceLabelModule.DeviceLabel.Length));
+            Assert.That(response.Value, Is.EqualTo(deviceLabelModule.DeviceLabel));
             #endregion
 
             #region Test set Multiple Parameter at once
-            generated.DeviceLabel = "GG";
-            Assert.That(generated.DeviceLabel, Is.EqualTo("GG"));
+            deviceLabelModule.DeviceLabel = "GG";
+            Assert.That(deviceLabelModule.DeviceLabel, Is.EqualTo("GG"));
             generated.SetParameter(ERDM_Parameter.IDENTIFY_DEVICE, true);
             generated.CurrentPersonality = 2;
 
@@ -1514,8 +1518,8 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.MessageCounter, Is.EqualTo(13));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.DeviceLabel.Length));
-            Assert.That(response.Value, Is.EqualTo(generated.DeviceLabel));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(deviceLabelModule.DeviceLabel.Length));
+            Assert.That(response.Value, Is.EqualTo(deviceLabelModule.DeviceLabel));
 
             response = generated.ProcessRequestMessage_Internal(request);
             Assert.That(response, Is.Not.Null);
@@ -1663,7 +1667,10 @@ namespace RDMSharpTests.RDM.Devices
             #region Test Basic
             Assert.That(generated, Is.Not.Null);
             await Task.Delay(1000);
-            Assert.That(generated.RealTimeClock.Minute, Is.EqualTo(DateTime.Now.Minute));
+            var realTimeClockModule = generated.Modules.OfType<RealTimeClockModule>().FirstOrDefault();
+            Assert.That(realTimeClockModule, Is.Not.Null);
+            Assert.That(realTimeClockModule.RealTimeClock, Is.Not.Null);
+            Assert.That(realTimeClockModule.RealTimeClock.Value.Minute, Is.EqualTo(DateTime.Now.Minute));
             RDMMessage request = new RDMMessage()
             {
                 Command = ERDM_Command.GET_COMMAND,
@@ -1683,7 +1690,7 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(7));
             Assert.That(response.Value, Is.TypeOf(typeof(RDMRealTimeClock)));
-            var timeGen = new RDMRealTimeClock(generated.RealTimeClock);
+            var timeGen = new RDMRealTimeClock(realTimeClockModule.RealTimeClock.Value);
             var timeRem = (RDMRealTimeClock)response.Value;
             Assert.That(timeRem.Year, Is.EqualTo(timeGen.Year));
             Assert.That(timeRem.Month, Is.EqualTo(timeGen.Month));

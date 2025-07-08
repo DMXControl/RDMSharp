@@ -84,23 +84,6 @@ namespace RDMSharp
         }
         public readonly string ManufacturerLabel;
 
-        private string deviceLabel;
-        public string DeviceLabel
-        {
-            get
-            {
-                return deviceLabel;
-            }
-            set
-            {
-                if (string.Equals(deviceLabel, value))
-                    return;
-
-                deviceLabel = value;
-                this.OnPropertyChanged(nameof(this.DeviceLabel));
-            }
-        }
-
         private byte currentPersonality;
         public byte? CurrentPersonality
         {
@@ -185,23 +168,6 @@ namespace RDMSharp
             }
         }
 
-        public DateTime realTimeClock;
-        public DateTime RealTimeClock
-        {
-            get
-            {
-                return realTimeClock;
-            }
-            private set
-            {
-                if (DateTime.Equals(realTimeClock, value))
-                    return;
-
-                realTimeClock = value;
-                this.OnPropertyChanged(nameof(this.RealTimeClock));
-            }
-        }
-
         private bool _initialized = false;
 
         protected AbstractGeneratedRDMDevice(UID uid, ERDM_Parameter[] parameters, string manufacturer = null, Sensor[] sensors = null, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules = null) : this(uid, SubDevice.Root, parameters, manufacturer, sensors, subDevices, modules)
@@ -217,7 +183,7 @@ namespace RDMSharp
 
             RDMSharp.Instance.RequestReceivedEvent += Instance_RequestReceivedEvent;
 
-            if(modules is not null)
+            if (modules is not null)
                 _modules = modules;
 
 
@@ -293,10 +259,6 @@ namespace RDMSharp
             this.OnPropertyChanged(nameof(this.DeviceModelDescription));
             #endregion
 
-            #region DeviceLabel
-            this.DeviceLabel = this.DeviceModelDescription;
-            #endregion
-
             #region Personalities
             if (Personalities != null)
             {
@@ -331,25 +293,6 @@ namespace RDMSharp
             #region DMX-Address
             if (Parameters.Contains(ERDM_Parameter.DMX_START_ADDRESS))
                 DMXAddress = 1;
-            #endregion
-
-            #region RealTimeClock
-            if (Parameters.Contains(ERDM_Parameter.REAL_TIME_CLOCK))
-                Task.Run(async () =>
-                {
-                    
-                    while (true)
-                    {
-                        double last = 0;
-                        await Task.Delay(100);
-                        var dateTime = DateTime.UtcNow.TimeOfDay.TotalSeconds;
-                        if (Math.Abs(dateTime - last) > 1)
-                        {
-                            last = dateTime;
-                            RealTimeClock = DateTime.Now;
-                        }
-                    }
-                });
             #endregion
 
             updateDeviceInfo();
@@ -647,17 +590,11 @@ namespace RDMSharp
                     trySetParameter(ERDM_Parameter.SLOT_DESCRIPTION, slotDesc);
                     trySetParameter(ERDM_Parameter.DEFAULT_SLOT_VALUE, slotDefault);
                     break;
-                case nameof(DeviceLabel):
-                    trySetParameter(ERDM_Parameter.DEVICE_LABEL, this.DeviceLabel);
-                    break;
                 case nameof(ManufacturerLabel):
                     trySetParameter(ERDM_Parameter.MANUFACTURER_LABEL, this.ManufacturerLabel);
                     break;
                 case nameof(SoftwareVersionLabel):
                     trySetParameter(ERDM_Parameter.SOFTWARE_VERSION_LABEL, this.SoftwareVersionLabel);
-                    break;
-                case nameof(RealTimeClock):
-                    trySetParameter(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(this.RealTimeClock));
                     break;
             }
             base.OnPropertyChanged(property);
@@ -1127,9 +1064,6 @@ namespace RDMSharp
                     break;
                 case ERDM_Parameter.DMX_PERSONALITY:
                     CurrentPersonality = (byte)value;
-                    break;
-                case ERDM_Parameter.DEVICE_LABEL:
-                    DeviceLabel = (string)value;
                     break;
                 case ERDM_Parameter.IDENTIFY_DEVICE:
                     Identify = (bool)value;
