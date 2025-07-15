@@ -9,10 +9,10 @@ namespace RDMSharpTests.Devices.Mock
         public override ERDM_ProductCategoryCoarse ProductCategoryCoarse => ERDM_ProductCategoryCoarse.DIMMER;
         public override ERDM_ProductCategoryFine ProductCategoryFine => ERDM_ProductCategoryFine.DIMMER_CS_LED;
 
-        protected MockGeneratedDeviceWithSubDevice1(UID uid, MockGeneratedDeviceWithSubDeviceSub1[]? subDevices = null, IReadOnlyCollection<IModule> modules=null) : base(uid, new ERDM_Parameter[] { }, subDevices, modules)
+        protected MockGeneratedDeviceWithSubDevice1(UID uid, MockGeneratedDeviceWithSubDeviceSub1[]? subDevices = null, IReadOnlyCollection<IModule> modules=null) : base(uid, subDevices, modules)
         {
         }
-        protected MockGeneratedDeviceWithSubDevice1(UID uid, SubDevice subDevice, IReadOnlyCollection<IModule> modules=null) : base(uid, subDevice, new ERDM_Parameter[] {  }, modules)
+        protected MockGeneratedDeviceWithSubDevice1(UID uid, SubDevice subDevice, IReadOnlyCollection<IModule> modules=null) : base(uid, subDevice, modules)
         {
         }
 

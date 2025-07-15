@@ -5,10 +5,10 @@ namespace RDMSharpTests.Devices.Mock
     internal abstract class AbstractMockGeneratedDevice : AbstractGeneratedRDMDevice
     {
 
-        public AbstractMockGeneratedDevice(UID uid, ERDM_Parameter[] parameters, IRDMDevice[]? subDevices = null, IReadOnlyCollection<IModule> mudules = null) : base(uid, parameters, subDevices: subDevices, modules: mudules)
+        public AbstractMockGeneratedDevice(UID uid, IRDMDevice[]? subDevices = null, IReadOnlyCollection<IModule> mudules = null) : base(uid, subDevices: subDevices, modules: mudules)
         {
         }
-        public AbstractMockGeneratedDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, IReadOnlyCollection<IModule> mudules = null) : base(uid, subDevice, parameters, modules: mudules)
+        public AbstractMockGeneratedDevice(UID uid, SubDevice subDevice, IReadOnlyCollection<IModule> mudules = null) : base(uid, subDevice, modules: mudules)
         {
         }
         internal RDMMessage? ProcessRequestMessage_Internal(RDMMessage request)

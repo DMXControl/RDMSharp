@@ -53,7 +53,7 @@ namespace RDMSharpTests.Devices.Mock
 
         public override bool SupportQueued => true;
 
-        public MockGeneratedDevice1(UID uid, IReadOnlyCollection<IModule> modules = null) : base(uid, SubDevice.Root, new ERDM_Parameter[] { }, GetModules().Concat(modules ?? Array.Empty<IModule>()).ToList().AsReadOnly())
+        public MockGeneratedDevice1(UID uid, IReadOnlyCollection<IModule> modules = null) : base(uid, SubDevice.Root, GetModules().Concat(modules ?? Array.Empty<IModule>()).ToList().AsReadOnly())
         {
         }
         private static IReadOnlyCollection<IModule> GetModules()

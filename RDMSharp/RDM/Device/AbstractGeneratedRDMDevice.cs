@@ -140,13 +140,13 @@ namespace RDMSharp
 
         private bool _initialized = false;
 
-        protected AbstractGeneratedRDMDevice(UID uid, ERDM_Parameter[] parameters, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules = null) : this(uid, SubDevice.Root, parameters, subDevices, modules)
+        protected AbstractGeneratedRDMDevice(UID uid, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules = null) : this(uid, SubDevice.Root, subDevices, modules)
         {
         }
-        protected AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, IReadOnlyCollection<IModule> modules =null) : this(uid, subDevice, parameters, null, modules)
+        protected AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, IReadOnlyCollection<IModule> modules =null) : this(uid, subDevice, null, modules)
         {
         }
-        private AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules = null) : base(uid, subDevice, subDevices)
+        private AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules = null) : base(uid, subDevice, subDevices)
         {
             if (!((ushort)ManufacturerID).Equals(uid.ManufacturerID))
                 throw new Exception($"{uid.ManufacturerID} not match the {ManufacturerID}");
@@ -171,12 +171,7 @@ namespace RDMSharp
             if (dmxPersonalityModule is not null)//Remove after Refactoring to Modules
                 dmxPersonalityModule.PropertyChanged += DmxPersonalityModule_PropertyChanged;
 
-
-                #region Parameters
             var _params = new HashSet<ERDM_Parameter>();
-            if (parameters != null && parameters.Length != 0)
-                foreach (var p in parameters)
-                    _params.Add(p);
 
             if (SupportQueued)
                 _params.Add(ERDM_Parameter.QUEUED_MESSAGE);
@@ -194,7 +189,6 @@ namespace RDMSharp
                     aModule.SetParentDevice(this);
 
             trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters.ToArray());
-            #endregion
 
             _initialized = true;
         }

@@ -71,7 +71,7 @@ namespace RDMSharpTests.Devices.Mock
 
         public override bool SupportQueued => true;
         
-        public MockGeneratedDevice_SlotOverflow(UID uid) : base(uid, SubDevice.Root, new ERDM_Parameter[] { }, GetModules())
+        public MockGeneratedDevice_SlotOverflow(UID uid) : base(uid, SubDevice.Root, GetModules())
         {
         }
         private static IReadOnlyCollection<IModule> GetModules()
