@@ -48,7 +48,8 @@ namespace RDMSharpTests.Devices.Mock
                 new SoftwareVersionModule(0x3234, $"Dummy Software"),
                 new BootSoftwareVersionModule(12359,$"Dummy Software"),
                 new DMX_StartAddressModule(1),
-                new DMX_PersonalityModule(1,PERSONALITYS)};
+                new DMX_PersonalityModule(1,PERSONALITYS),
+                new SlotsModule()};
         }
 
         private static MockGeneratedDeviceWithSubDeviceSub1[] getSubDevices(UID uid, ushort count)
@@ -92,7 +93,8 @@ namespace RDMSharpTests.Devices.Mock
                 new SoftwareVersionModule(0x3234, $"Dummy Software"),
                 new BootSoftwareVersionModule(12359,$"Dummy Software"),
                 new DMX_StartAddressModule(1),
-                new DMX_PersonalityModule(1,PERSONALITYS)};
+                new DMX_PersonalityModule(1,PERSONALITYS),
+                new SlotsModule()};
         }
         private static SubDevice getSubDevice(ushort subDeviceID)
         {

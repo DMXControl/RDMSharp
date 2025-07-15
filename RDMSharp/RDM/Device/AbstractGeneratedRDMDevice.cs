@@ -57,7 +57,7 @@ namespace RDMSharp
         private ConcurrentDictionary<object, object> sensorDef;
         private ConcurrentDictionary<object, object> sensorValue;
 
-        public sealed override IReadOnlyDictionary<ushort, Slot> Slots { get { return CurrentPersonality.HasValue ? Personalities?.FirstOrDefault(p => p.ID.Equals(CurrentPersonality.Value))?.Slots : null; } }
+        public sealed override IReadOnlyDictionary<ushort, Slot> Slots { get { return slotsModule?.Slots; } }
 
         private ConcurrentDictionary<int, RDMStatusMessage> statusMessages = new ConcurrentDictionary<int, RDMStatusMessage>();
         public sealed override IReadOnlyDictionary<int, RDMStatusMessage> StatusMessages { get { return statusMessages.AsReadOnly(); } }
@@ -73,6 +73,7 @@ namespace RDMSharp
         private readonly IdentifyDeviceModule identifyDeviceModule;
         private readonly DMX_StartAddressModule? dmxStartAddressModule;
         private readonly DMX_PersonalityModule? dmxPersonalityModule;
+        private readonly SlotsModule? slotsModule;
 
         private readonly IReadOnlyCollection<IModule> _modules;
         public IReadOnlyCollection<IModule> Modules { get => _modules; }
@@ -176,7 +177,8 @@ namespace RDMSharp
             _modules = moduleList.AsReadOnly();
             dmxStartAddressModule = _modules.OfType<DMX_StartAddressModule>().FirstOrDefault();
             dmxPersonalityModule = _modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
-            if(dmxPersonalityModule is not null)//Remove after Refactoring to Modules
+            slotsModule = _modules.OfType<SlotsModule>().FirstOrDefault();
+            if (dmxPersonalityModule is not null)//Remove after Refactoring to Modules
                 dmxPersonalityModule.PropertyChanged += DmxPersonalityModule_PropertyChanged;
 
 
@@ -199,12 +201,12 @@ namespace RDMSharp
             _params.Add(ERDM_Parameter.SOFTWARE_VERSION_LABEL);
             if (SupportDMXAddress)
                 _params.Add(ERDM_Parameter.DMX_START_ADDRESS);
-            if ((Personalities?.Count ?? 0) != 0)
-            {
-                _params.Add(ERDM_Parameter.SLOT_INFO);
-                _params.Add(ERDM_Parameter.SLOT_DESCRIPTION);
-                _params.Add(ERDM_Parameter.DEFAULT_SLOT_VALUE);
-            }
+            //if ((Personalities?.Count ?? 0) != 0)
+            //{
+            //    _params.Add(ERDM_Parameter.SLOT_INFO);
+            //    _params.Add(ERDM_Parameter.SLOT_DESCRIPTION);
+            //    _params.Add(ERDM_Parameter.DEFAULT_SLOT_VALUE);
+            //}
 
             foreach (IModule module in _modules)
                 foreach (var parameter in module.SupportedParameters)
@@ -504,22 +506,22 @@ namespace RDMSharp
                     trySetParameter(ERDM_Parameter.DEVICE_INFO, this.DeviceInfo);
                     trySetParameter(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID, this.DeviceInfo.SoftwareVersionId);
                     break;
-                case nameof(CurrentPersonality):
-                    var slots = Personalities.First(p => p.ID == this.CurrentPersonality).Slots.Count;
-                    var slotInfos = new RDMSlotInfo[slots];
-                    var slotDesc = new ConcurrentDictionary<object, object>();
-                    var slotDefault = new RDMDefaultSlotValue[slots];
-                    foreach (var s in Personalities.First(p => p.ID == this.CurrentPersonality).Slots)
-                    {
-                        Slot slot = s.Value;
-                        slotInfos[slot.SlotId] = new RDMSlotInfo(slot.SlotId, slot.Type, slot.Category);
-                        slotDesc.TryAdd(slot.SlotId, new RDMSlotDescription(slot.SlotId, slot.Description));
-                        slotDefault[slot.SlotId] = new RDMDefaultSlotValue(slot.SlotId, slot.DefaultValue);
-                    }
-                    trySetParameter(ERDM_Parameter.SLOT_INFO, slotInfos);
-                    trySetParameter(ERDM_Parameter.SLOT_DESCRIPTION, slotDesc);
-                    trySetParameter(ERDM_Parameter.DEFAULT_SLOT_VALUE, slotDefault);
-                    break;
+                //case nameof(CurrentPersonality):
+                //    var slots = Personalities.First(p => p.ID == this.CurrentPersonality).Slots.Count;
+                //    var slotInfos = new RDMSlotInfo[slots];
+                //    var slotDesc = new ConcurrentDictionary<object, object>();
+                //    var slotDefault = new RDMDefaultSlotValue[slots];
+                //    foreach (var s in Personalities.First(p => p.ID == this.CurrentPersonality).Slots)
+                //    {
+                //        Slot slot = s.Value;
+                //        slotInfos[slot.SlotId] = new RDMSlotInfo(slot.SlotId, slot.Type, slot.Category);
+                //        slotDesc.TryAdd(slot.SlotId, new RDMSlotDescription(slot.SlotId, slot.Description));
+                //        slotDefault[slot.SlotId] = new RDMDefaultSlotValue(slot.SlotId, slot.DefaultValue);
+                //    }
+                //    trySetParameter(ERDM_Parameter.SLOT_INFO, slotInfos);
+                //    trySetParameter(ERDM_Parameter.SLOT_DESCRIPTION, slotDesc);
+                //    trySetParameter(ERDM_Parameter.DEFAULT_SLOT_VALUE, slotDefault);
+                //    break;
             }
             base.OnPropertyChanged(property);
         }
@@ -545,6 +547,9 @@ namespace RDMSharp
                         parameterValues.TryRemove(parameter, out object oldValue);
                         return;
                     }
+                    bool raiseAddedEvent = false;
+                    bool raiseUpdatedEvent = false;
+                    object? ov = null;
                     parameterValues.AddOrUpdate(parameter, (_) =>
                     {
                         try
@@ -553,34 +558,46 @@ namespace RDMSharp
                         }
                         finally
                         {
-                            InvokeParameterValueAdded(new ParameterValueAddedEventArgs(parameter, value, index));
+                            raiseAddedEvent = true;
                         }
                     }, (o, p) =>
                     {
                         try
                         {
-                            if (object.Equals(p, value) && value is not ConcurrentDictionary<object, object>)
+                            ov = p;
+                            if (object.Equals(ov, value) && value is not ConcurrentDictionary<object, object>)
                                 notNew = true;
                             return value;
                         }
                         finally
                         {
-                            InvokeParameterValueChanged(new ParameterValueChangedEventArgs(parameter, value, p, index));
+                            raiseUpdatedEvent = true;
                         }
                     });
-                    if (notNew)
-                        return;
-                    if (parameter != ERDM_Parameter.SLOT_DESCRIPTION)
+
+                    try
                     {
-                        updateParameterBag(parameter, index);
+                        if (notNew)
+                            return;
+                        if (parameter != ERDM_Parameter.SLOT_DESCRIPTION)
+                        {
+                            updateParameterBag(parameter, index);
+                            return;
+                        }
+                        if (value is ConcurrentDictionary<object, object> dict)
+                        {
+                            foreach (var p in dict)
+                                updateParameterBag(parameter, p.Key);
+                        }
                         return;
                     }
-                    if(value is ConcurrentDictionary<object, object> dict)
+                    finally
                     {
-                        foreach (var p in dict)
-                            updateParameterBag(parameter, p.Key);
+                        if (raiseAddedEvent)
+                            InvokeParameterValueAdded(new ParameterValueAddedEventArgs(parameter, value, index));
+                        if (raiseUpdatedEvent)
+                            InvokeParameterValueChanged(new ParameterValueChangedEventArgs(parameter, value, ov, index));
                     }
-                    return;
             }
         }
 

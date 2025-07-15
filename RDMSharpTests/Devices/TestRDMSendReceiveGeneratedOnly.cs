@@ -1,3 +1,4 @@
+using RDMSharp.Metadata;
 using RDMSharp.RDM.Device.Module;
 using RDMSharpTests.Devices.Mock;
 
@@ -12,6 +13,7 @@ namespace RDMSharpTests.RDM.Devices
         [SetUp]
         public void Setup()
         {
+            var defines = MetadataFactory.GetMetadataDefineVersions();
             generated = new MockGeneratedDevice1(DEVCIE_UID);
         }
         [TearDown]

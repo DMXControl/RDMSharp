@@ -293,7 +293,7 @@ namespace RDMSharp.Metadata
         private static MetadataJSONObjectDefine getDefine(ParameterBag parameter)
         {
             var version = GetMetadataSchemaVersions().First();
-            if (parameter.PID == ERDM_Parameter.QUEUED_MESSAGE)
+            if (parameter.PID == ERDM_Parameter.QUEUED_MESSAGE && metadataVersionDefinesBagDictionary is not null)
                 return metadataVersionDefinesBagDictionary[version].FirstOrDefault(d => d.PID == (ushort)parameter.PID);
 
             fillDefaultMetadataVersionList();

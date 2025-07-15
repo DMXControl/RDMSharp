@@ -90,7 +90,8 @@ namespace RDMSharpTests.Devices.Mock
                 new SoftwareVersionModule(0x1234, $"Dummy Software"),
                 new BootSoftwareVersionModule(123, $"Dummy Bootloader Software"),
                 new DMX_StartAddressModule(1),
-                new DMX_PersonalityModule(1,PERSONALITYS) };
+                new DMX_PersonalityModule(1,PERSONALITYS),
+                new SlotsModule() };
         }
         protected sealed override void OnDispose()
         {
