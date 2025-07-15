@@ -91,6 +91,67 @@ namespace RDMSharp.RDM.Device.Module
         protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
         {
         }
+        public override bool IsHandlingParameter(ERDM_Parameter parameter, ERDM_Command command)
+        {
+            if (parameter == ERDM_Parameter.RECORD_SENSORS)
+                return true;
+
+            return base.IsHandlingParameter(parameter, command);
+        }
+        protected override RDMMessage handleRequest(RDMMessage message)
+        {
+            if (message.Parameter == ERDM_Parameter.RECORD_SENSORS)
+                if (message.Command == ERDM_Command.SET_COMMAND)
+                {
+                    if (message.Value is byte sensorID)
+                    {
+                        try
+                        {
+                            if (sensorID == 0xff)// Broadcast
+                                foreach (var sensor in sensors.Values)
+                                    sensor.RecordValue();
+                            else if (sensors.ContainsKey(sensorID))
+                                sensors[sensorID].RecordValue();
+                            else
+                            {
+                                return new RDMMessage(ERDM_NackReason.DATA_OUT_OF_RANGE)
+                                {
+                                    DestUID = message.SourceUID,
+                                    SourceUID = message.DestUID,
+                                    Parameter = message.Parameter,
+                                    Command = ERDM_Command.SET_COMMAND_RESPONSE
+                                };
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger?.LogError(ex);
+                            return new RDMMessage(ERDM_NackReason.HARDWARE_FAULT)
+                            {
+                                DestUID = message.SourceUID,
+                                SourceUID = message.DestUID,
+                                Parameter = message.Parameter,
+                                Command = ERDM_Command.SET_COMMAND_RESPONSE
+                            };
+                        }
+                        return new RDMMessage()
+                        {
+                            DestUID = message.SourceUID,
+                            SourceUID = message.DestUID,
+                            Parameter = message.Parameter,
+                            Command = ERDM_Command.SET_COMMAND_RESPONSE,
+                        };
+                    }
+                    return new RDMMessage(ERDM_NackReason.FORMAT_ERROR)
+                    {
+                        DestUID = message.SourceUID,
+                        SourceUID = message.DestUID,
+                        Parameter = message.Parameter,
+                        Command = ERDM_Command.SET_COMMAND_RESPONSE
+                    };
+                }
+            return base.handleRequest(message);
+        }
         private void Sensor_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (sender is not Sensor sensor)

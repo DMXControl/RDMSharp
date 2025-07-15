@@ -126,20 +126,54 @@ namespace RDMSharp.RDM.Device.Module
         }
         protected override RDMMessage handleRequest(RDMMessage message)
         {
-            if (message.Command == ERDM_Command.SET_COMMAND)
-                if (message.Value is byte b)
+            if (message.Parameter == ERDM_Parameter.DMX_PERSONALITY)
+                if (message.Command == ERDM_Command.SET_COMMAND)
                 {
-                    CurrentPersonality = b;
-
-                    return new RDMMessage()
+                    if (message.Value is byte b)
+                    {
+                        try
+                        {
+                            if (this.Personalities.Any(p => p.ID == b))
+                                CurrentPersonality = b;
+                            else
+                            {
+                                return new RDMMessage(ERDM_NackReason.DATA_OUT_OF_RANGE)
+                                {
+                                    DestUID = message.SourceUID,
+                                    SourceUID = message.DestUID,
+                                    Parameter = message.Parameter,
+                                    Command = ERDM_Command.SET_COMMAND_RESPONSE
+                                };
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger?.LogError(ex);
+                            return new RDMMessage(ERDM_NackReason.HARDWARE_FAULT)
+                            {
+                                DestUID = message.SourceUID,
+                                SourceUID = message.DestUID,
+                                Parameter = message.Parameter,
+                                Command = ERDM_Command.SET_COMMAND_RESPONSE
+                            };
+                        }
+                        return new RDMMessage()
+                        {
+                            DestUID = message.SourceUID,
+                            SourceUID = message.DestUID,
+                            Parameter = message.Parameter,
+                            Command = ERDM_Command.SET_COMMAND_RESPONSE,
+                        };
+                    }
+                    return new RDMMessage(ERDM_NackReason.FORMAT_ERROR)
                     {
                         DestUID = message.SourceUID,
                         SourceUID = message.DestUID,
                         Parameter = message.Parameter,
-                        Command = ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE,
+                        Command = ERDM_Command.SET_COMMAND_RESPONSE
                     };
                 }
-            return null;
+            return base.handleRequest(message);
         }
     }
 }

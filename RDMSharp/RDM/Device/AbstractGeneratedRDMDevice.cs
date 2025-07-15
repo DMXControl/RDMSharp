@@ -19,7 +19,7 @@ namespace RDMSharp
     {
         public sealed override bool IsGenerated => true;
         public abstract bool SupportQueued { get; }
-        public abstract bool SupportStatus { get; }
+
         private HashSet<ERDM_Parameter> _parameters;
         public IReadOnlySet<ERDM_Parameter> Parameters { get => _parameters;
             private set
@@ -90,8 +90,7 @@ namespace RDMSharp
         }
         #endregion
 
-        private ConcurrentDictionary<int, RDMStatusMessage> statusMessages = new ConcurrentDictionary<int, RDMStatusMessage>();
-        public sealed override IReadOnlyDictionary<int, RDMStatusMessage> StatusMessages { get { return statusMessages.AsReadOnly(); } }
+        public sealed override IReadOnlyDictionary<int, RDMStatusMessage> StatusMessages { get { return statusMessageModule?.StatusMessages; } }
 
         private ConcurrentDictionary<UID, ControllerCommunicationCache> controllerCommunicationCache = new ConcurrentDictionary<UID, ControllerCommunicationCache>();
         private ConcurrentDictionary<UID, OverflowCacheBag> overflowCacheBags = new ConcurrentDictionary<UID, OverflowCacheBag>();
@@ -99,12 +98,13 @@ namespace RDMSharp
         private readonly IReadOnlyCollection<IModule> _modules;
         public IReadOnlyCollection<IModule> Modules { get => _modules; }
 
-        private readonly DeviceInfoModule deviceInfoModule;
-        private readonly IdentifyDeviceModule identifyDeviceModule;
-        private readonly DMX_StartAddressModule? dmxStartAddressModule;
-        private readonly DMX_PersonalityModule? dmxPersonalityModule;
-        private readonly SlotsModule? slotsModule;
-        private readonly SensorsModule? sensorsModule;
+        protected readonly DeviceInfoModule deviceInfoModule;
+        protected readonly IdentifyDeviceModule identifyDeviceModule;
+        protected readonly DMX_StartAddressModule? dmxStartAddressModule;
+        protected readonly DMX_PersonalityModule? dmxPersonalityModule;
+        protected readonly SlotsModule? slotsModule;
+        protected readonly SensorsModule? sensorsModule;
+        protected readonly StatusMessageModule? statusMessageModule;
 
         private bool discoveryMuted;
         public bool DiscoveryMuted
@@ -167,6 +167,7 @@ namespace RDMSharp
             dmxPersonalityModule = _modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
             slotsModule = _modules.OfType<SlotsModule>().FirstOrDefault();
             sensorsModule = _modules.OfType<SensorsModule>().FirstOrDefault();
+            statusMessageModule = _modules.OfType<StatusMessageModule>().FirstOrDefault();
             if (dmxPersonalityModule is not null)//Remove after Refactoring to Modules
                 dmxPersonalityModule.PropertyChanged += DmxPersonalityModule_PropertyChanged;
 
@@ -179,13 +180,7 @@ namespace RDMSharp
 
             if (SupportQueued)
                 _params.Add(ERDM_Parameter.QUEUED_MESSAGE);
-            if (SupportStatus)
-            {
-                _params.Add(ERDM_Parameter.STATUS_MESSAGES);
-                _params.Add(ERDM_Parameter.CLEAR_STATUS_ID);
-            }
 
-            _params.Add(ERDM_Parameter.DEVICE_INFO);
             _params.Add(ERDM_Parameter.SUPPORTED_PARAMETERS);
 
             foreach (IModule module in _modules)
@@ -199,11 +194,6 @@ namespace RDMSharp
                     aModule.SetParentDevice(this);
 
             trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters.ToArray());
-            #endregion
-
-            #region StatusMessage
-            if (SupportStatus)
-                trySetParameter(ERDM_Parameter.STATUS_MESSAGES, new RDMStatusMessage[0]);
             #endregion
 
             _initialized = true;
@@ -521,7 +511,7 @@ namespace RDMSharp
                                 Command = ERDM_Command.GET_COMMAND_RESPONSE,
                                 MessageCounter = 0
                             };
-                            if (SupportStatus)
+                            if (statusMessageModule is not null)
                                 fillRDMMessageWithStatusMessageData(controllerCache, statusCode, ref response);
 
                             goto FAIL;
@@ -538,7 +528,7 @@ namespace RDMSharp
                         ERDM_Status statusCode = ERDM_Status.NONE;
                         if (requestValue is ERDM_Status status)
                             statusCode = status;
-                        if (SupportStatus)
+                        if (statusMessageModule is not null)
                         {
                             if (statusCode == ERDM_Status.GET_LAST_MESSAGE)
                             {
@@ -734,28 +724,28 @@ namespace RDMSharp
                         var define = MetadataFactory.GetDefine(parameterBag);
                         switch (rdmMessage.Parameter)
                         {
-                            case ERDM_Parameter.RECORD_SENSORS when rdmMessage.Value is byte sensorID:
-                                success = true;
-                                if (sensorID == 0xFF)//Broadcast
-                                    foreach (var sensor in Sensors.Values)
-                                        sensor.RecordValue();
-                                else
-                                    Sensors[sensorID].RecordValue();
-                                response = new RDMMessage
-                                {
-                                    Parameter = rdmMessage.Parameter,
-                                    Command = ERDM_Command.SET_COMMAND_RESPONSE
-                                };
-                                goto FAIL;
-                            case ERDM_Parameter.CLEAR_STATUS_ID:
-                                this.statusMessages.Clear();
-                                setParameterValue(ERDM_Parameter.STATUS_MESSAGES, this.statusMessages.Select(sm => sm.Value).ToArray());
-                                response = new RDMMessage
-                                {
-                                    Parameter = rdmMessage.Parameter,
-                                    Command = ERDM_Command.SET_COMMAND_RESPONSE
-                                };
-                                goto FAIL;
+                            //case ERDM_Parameter.RECORD_SENSORS when rdmMessage.Value is byte sensorID:
+                            //    success = true;
+                            //    if (sensorID == 0xFF)//Broadcast
+                            //        foreach (var sensor in Sensors.Values)
+                            //            sensor.RecordValue();
+                            //    else
+                            //        Sensors[sensorID].RecordValue();
+                            //    response = new RDMMessage
+                            //    {
+                            //        Parameter = rdmMessage.Parameter,
+                            //        Command = ERDM_Command.SET_COMMAND_RESPONSE
+                            //    };
+                            //    goto FAIL;
+                            //case ERDM_Parameter.CLEAR_STATUS_ID:
+                            //    this.statusMessages.Clear();
+                            //    setParameterValue(ERDM_Parameter.STATUS_MESSAGES, this.statusMessages.Select(sm => sm.Value).ToArray());
+                            //    response = new RDMMessage
+                            //    {
+                            //        Parameter = rdmMessage.Parameter,
+                            //        Command = ERDM_Command.SET_COMMAND_RESPONSE
+                            //    };
+                            //    goto FAIL;
 
                             default:
                                 response = new RDMMessage(ERDM_NackReason.ACTION_NOT_SUPPORTED) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
@@ -867,46 +857,11 @@ namespace RDMSharp
             }
         }
 
-        protected void AddStatusMessage(RDMStatusMessage statusMessage)
-        {
-            if (!SupportStatus)
-                throw new NotSupportedException($"The Device {this.UID} not support Status Messages.");
-
-            int id = 0;
-            if (this.statusMessages.Count != 0)
-                id = this.statusMessages.Max(s => s.Key) + 1;
-            if (this.statusMessages.TryAdd(id, statusMessage))
-                setParameterValue(ERDM_Parameter.STATUS_MESSAGES, this.statusMessages.Select(sm => sm.Value).ToArray());
-
-        }
-        protected void ClearStatusMessage(RDMStatusMessage statusMessage)
-        {
-            if (!SupportStatus)
-                throw new NotSupportedException($"The Device {this.UID} not support Status Messages.");
-            this.statusMessages.Where(s => s.Value.Equals(statusMessage)).ToList().ForEach(s =>
-            {
-                s.Value.Clear();
-            });
-            setParameterValue(ERDM_Parameter.STATUS_MESSAGES, this.statusMessages.Select(sm => sm.Value).ToArray());
-        }
-        protected void RemoveStatusMessage(RDMStatusMessage statusMessage)
-        {
-            if (!SupportStatus)
-                throw new NotSupportedException($"The Device {this.UID} not support Status Messages.");
-
-            bool succes = false;
-            this.statusMessages.Where(s => s.Value.Equals(statusMessage)).ToList().ForEach(s =>
-            {
-                if (this.statusMessages.TryRemove(s.Key, out _))
-                    succes = true;
-            });
-            if(succes)
-                setParameterValue(ERDM_Parameter.STATUS_MESSAGES, this.statusMessages.Select(sm => sm.Value).ToArray());
-        }
+        
         private void fillRDMMessageWithStatusMessageData(ControllerCommunicationCache controllerCache, ERDM_Status statusCode, ref RDMMessage rdmMessage)
         {
             var lastSendStatusMessageID= controllerCache.GetLastSendStatusMessageID(statusCode);
-            var _messages = statusMessages.Where(s => s.Key > lastSendStatusMessageID && matchStausCode(statusCode, s.Value)).OrderBy(s => s.Key).ToList();
+            var _messages = StatusMessages.Where(s => s.Key > lastSendStatusMessageID && matchStausCode(statusCode, s.Value)).OrderBy(s => s.Key).ToList();
             if (_messages.Count() != 0)
             {
                 byte count = 0;

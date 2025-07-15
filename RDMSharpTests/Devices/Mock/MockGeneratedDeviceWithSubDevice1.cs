@@ -33,8 +33,6 @@ namespace RDMSharpTests.Devices.Mock
 
         public override bool SupportQueued => true;
 
-        public override bool SupportStatus => true;
-
         public MockGeneratedDeviceWithSubDeviceMaster1(UID uid, ushort subDevicesCount) : base(uid, getSubDevices(uid, subDevicesCount), GetModulesMaster())
         {
         }
@@ -49,7 +47,8 @@ namespace RDMSharpTests.Devices.Mock
                 new DMX_StartAddressModule(1),
                 new DMX_PersonalityModule(1,PERSONALITYS),
                 new SlotsModule(),
-                new SensorsModule(SENSORS)
+                new SensorsModule(SENSORS),
+                new StatusMessageModule()
             };
         }
 
@@ -80,8 +79,6 @@ namespace RDMSharpTests.Devices.Mock
 
         public override bool SupportQueued => true;
 
-        public override bool SupportStatus => true;
-
         public MockGeneratedDeviceWithSubDeviceSub1(UID uid, ushort subDeviceID) : base(uid, getSubDevice(subDeviceID), GetModulesSubDevice())
         {
         }
@@ -96,7 +93,8 @@ namespace RDMSharpTests.Devices.Mock
                 new DMX_StartAddressModule(1),
                 new DMX_PersonalityModule(1,PERSONALITYS),
                 new SlotsModule(),
-                new SensorsModule(SENSORS)
+                new SensorsModule(SENSORS),
+                new StatusMessageModule()
             };
         }
         private static SubDevice getSubDevice(ushort subDeviceID)

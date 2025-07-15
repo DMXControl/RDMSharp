@@ -16,17 +16,17 @@ namespace RDMSharpTests.Devices.Mock
             return base.processRequestMessage(request);
         }
 
-        internal new void AddStatusMessage(RDMStatusMessage statusMessage)
+        internal void AddStatusMessage(RDMStatusMessage statusMessage)
         {
-            base.AddStatusMessage(statusMessage);
+            base.statusMessageModule?.AddStatusMessage(statusMessage);
         }
-        internal new void ClearStatusMessage(RDMStatusMessage statusMessage)
+        internal void ClearStatusMessage(RDMStatusMessage statusMessage)
         {
-            base.ClearStatusMessage(statusMessage);
+            base.statusMessageModule?.ClearStatusMessage(statusMessage);
         }
-        internal new void RemoveStatusMessage(RDMStatusMessage statusMessage)
+        internal void RemoveStatusMessage(RDMStatusMessage statusMessage)
         {
-            base.RemoveStatusMessage(statusMessage);
+            base.statusMessageModule?.RemoveStatusMessage(statusMessage);
         }
 
         protected sealed override void onDispose()

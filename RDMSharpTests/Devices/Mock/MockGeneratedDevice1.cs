@@ -53,8 +53,6 @@ namespace RDMSharpTests.Devices.Mock
 
         public override bool SupportQueued => true;
 
-        public override bool SupportStatus => true;
-
         public MockGeneratedDevice1(UID uid, IReadOnlyCollection<IModule> modules = null) : base(uid, SubDevice.Root, new ERDM_Parameter[] { }, GetModules().Concat(modules ?? Array.Empty<IModule>()).ToList().AsReadOnly())
         {
         }
@@ -69,7 +67,8 @@ namespace RDMSharpTests.Devices.Mock
                 new DMX_StartAddressModule(1),
                 new DMX_PersonalityModule(1,PERSONALITYS),
                 new SlotsModule(),
-                new SensorsModule(GetSensors())
+                new SensorsModule(GetSensors()),
+                new StatusMessageModule()
             };
         }
         protected sealed override void OnDispose()
