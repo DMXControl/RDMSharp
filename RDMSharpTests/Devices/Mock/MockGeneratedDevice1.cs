@@ -55,7 +55,7 @@ namespace RDMSharpTests.Devices.Mock
 
         public override bool SupportStatus => true;
 
-        public MockGeneratedDevice1(UID uid, IReadOnlyCollection<IModule> modules = null) : base(uid, SubDevice.Root, new ERDM_Parameter[] { }, GetSensors(), GetModules().Concat(modules ?? Array.Empty<IModule>()).ToList().AsReadOnly())
+        public MockGeneratedDevice1(UID uid, IReadOnlyCollection<IModule> modules = null) : base(uid, SubDevice.Root, new ERDM_Parameter[] { }, GetModules().Concat(modules ?? Array.Empty<IModule>()).ToList().AsReadOnly())
         {
         }
         private static IReadOnlyCollection<IModule> GetModules()
@@ -68,7 +68,9 @@ namespace RDMSharpTests.Devices.Mock
                 new BootSoftwareVersionModule(123, $"Dummy Bootloader Software"),
                 new DMX_StartAddressModule(1),
                 new DMX_PersonalityModule(1,PERSONALITYS),
-                new SlotsModule()};
+                new SlotsModule(),
+                new SensorsModule(GetSensors())
+            };
         }
         protected sealed override void OnDispose()
         {

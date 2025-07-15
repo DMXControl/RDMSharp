@@ -52,10 +52,7 @@ namespace RDMSharp
             }
         }
 
-        private readonly ConcurrentDictionary<byte, Sensor> sensors = new ConcurrentDictionary<byte, Sensor>();
-        public sealed override IReadOnlyDictionary<byte, Sensor> Sensors { get { return sensors.AsReadOnly(); } }
-        private ConcurrentDictionary<object, object> sensorDef;
-        private ConcurrentDictionary<object, object> sensorValue;
+        public sealed override IReadOnlyDictionary<byte, Sensor> Sensors { get { return sensorsModule?.Sensors; } }
 
         public sealed override IReadOnlyDictionary<ushort, Slot> Slots { get { return slotsModule?.Slots; } }
 
@@ -73,6 +70,7 @@ namespace RDMSharp
         private readonly DMX_StartAddressModule? dmxStartAddressModule;
         private readonly DMX_PersonalityModule? dmxPersonalityModule;
         private readonly SlotsModule? slotsModule;
+        private readonly SensorsModule? sensorsModule;
 
         private readonly IReadOnlyCollection<IModule> _modules;
         public IReadOnlyCollection<IModule> Modules { get => _modules; }
@@ -149,13 +147,13 @@ namespace RDMSharp
 
         private bool _initialized = false;
 
-        protected AbstractGeneratedRDMDevice(UID uid, ERDM_Parameter[] parameters, Sensor[] sensors = null, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules = null) : this(uid, SubDevice.Root, parameters, sensors, subDevices, modules)
+        protected AbstractGeneratedRDMDevice(UID uid, ERDM_Parameter[] parameters, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules = null) : this(uid, SubDevice.Root, parameters, subDevices, modules)
         {
         }
-        protected AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, Sensor[] sensors = null, IReadOnlyCollection<IModule> modules =null) : this(uid, subDevice, parameters, sensors, null, modules)
+        protected AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, IReadOnlyCollection<IModule> modules =null) : this(uid, subDevice, parameters, null, modules)
         {
         }
-        private AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, Sensor[] sensors = null, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules = null) : base(uid, subDevice, subDevices)
+        private AbstractGeneratedRDMDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules = null) : base(uid, subDevice, subDevices)
         {
             if (!((ushort)ManufacturerID).Equals(uid.ManufacturerID))
                 throw new Exception($"{uid.ManufacturerID} not match the {ManufacturerID}");
@@ -175,6 +173,7 @@ namespace RDMSharp
             dmxStartAddressModule = _modules.OfType<DMX_StartAddressModule>().FirstOrDefault();
             dmxPersonalityModule = _modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
             slotsModule = _modules.OfType<SlotsModule>().FirstOrDefault();
+            sensorsModule = _modules.OfType<SensorsModule>().FirstOrDefault();
             if (dmxPersonalityModule is not null)//Remove after Refactoring to Modules
                 dmxPersonalityModule.PropertyChanged += DmxPersonalityModule_PropertyChanged;
 
@@ -207,13 +206,6 @@ namespace RDMSharp
                     aModule.SetParentDevice(this);
 
             trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters.ToArray());
-            #endregion
-
-            #region Sensors
-
-            if (sensors != null)
-                this.AddSensors(sensors);
-
             #endregion
 
             #region StatusMessage
@@ -256,162 +248,15 @@ namespace RDMSharp
             this.OnPropertyChanged(nameof(this.DeviceInfo));
         }
 
-        protected void AddSensors(params Sensor[] @sensors)
-        {
-            if (sensors == null)
-                throw new ArgumentNullException();
-
-            if (sensorDef is null)
-                sensorDef = new ConcurrentDictionary<object, object>();
-            if (sensorValue is null)
-                sensorValue = new ConcurrentDictionary<object, object>();
-            foreach (var sensor in @sensors)
-            {
-                if (sensor == null)
-                    throw new ArgumentNullException(nameof(sensor));
-                if (this.sensors.ContainsKey(sensor.SensorId))
-                    throw new ArgumentOutOfRangeException($"The Sensor with the ID: {sensor.SensorId} already exists");
-
-                if (this.sensors.TryAdd(sensor.SensorId, sensor))
-                {
-                    if (!sensorDef.TryAdd(sensor.SensorId, (RDMSensorDefinition)sensor))
-                        throw new Exception($"{sensor.SensorId} already used as {nameof(RDMSensorDefinition)}");
-
-                    if (!sensorValue.TryAdd(sensor.SensorId, (RDMSensorValue)sensor))
-                        throw new Exception($"{sensor.SensorId} already used as {nameof(RDMSensorValue)}");
-
-                    sensor.PropertyChanged += Sensor_PropertyChanged;
-                }
-            }
-
-            var _sensors = Sensors.Values.ToArray();
-            if (_sensors.Length >= byte.MaxValue)
-                throw new ArgumentOutOfRangeException($"There to many {Sensors}! Maximum is {byte.MaxValue - 1}");
-            if (_sensors.Length > 0)
-            {
-                if (_sensors.Min(s => s.SensorId) != 0)
-                    throw new ArgumentOutOfRangeException($"The first Sensor should have the ID: 0, but is({_sensors.Min(s => s.SensorId)})");
-                if (_sensors.Max(s => s.SensorId) + 1 != _sensors.Length)
-                    throw new ArgumentOutOfRangeException($"The last Sensor should have the ID: {_sensors.Max(s => s.SensorId) + 1}, but is({_sensors.Max(s => s.SensorId)})");
-
-                if (_sensors.Select(s => s.SensorId).Distinct().Count() != _sensors.Length)
-                    throw new ArgumentOutOfRangeException($"Some Sensor-IDs are used more then onse");
-
-                setParameterValue(ERDM_Parameter.SENSOR_DEFINITION, sensorDef);
-                setParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue);
-            }
-
-            updateSupportedParametersOnAddRemoveSensors();
-            updateDeviceInfo();
-        }
-        protected void RemoveSensors(params Sensor[] @sensors)
-        {
-            foreach (var sensor in @sensors)
-            {
-                if (sensor == null)
-                    throw new ArgumentNullException(nameof(sensor));
-                if (!this.sensors.ContainsKey(sensor.SensorId))
-                    throw new ArgumentOutOfRangeException($"The Sensor with the ID: {sensor.SensorId} not exists");
-                if (this.sensors.TryRemove(sensor.SensorId, out _))
-                {
-                    sensor.PropertyChanged -= Sensor_PropertyChanged;
-                    if (parameterValues.TryGetValue(ERDM_Parameter.SENSOR_DEFINITION, out object value_d) && value_d is ConcurrentDictionary<object, object> sensorDef)
-                    {
-                        if (sensorDef.TryRemove(sensor.SensorId, out _))
-                            setParameterValue(ERDM_Parameter.SENSOR_DEFINITION, sensorDef);
-                    }
-                    if (parameterValues.TryGetValue(ERDM_Parameter.SENSOR_VALUE, out object value_v) && value_v is ConcurrentDictionary<object, object> sensorValue)
-                    {
-                        if (sensorValue.TryRemove(sensor.SensorId, out _))
-                            setParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue);
-                    }
-                }
-            }
-
-            if (sensorDef?.IsEmpty ?? false)
-                sensorDef = null;
-            if (sensorValue?.IsEmpty ?? false)
-                sensorValue = null;
-
-            setParameterValue(ERDM_Parameter.SENSOR_DEFINITION, sensorDef);
-            setParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue);
-
-            updateSupportedParametersOnAddRemoveSensors();
-            updateDeviceInfo();
-        }
-
         private void updateSupportedParametersOnAddRemoveSensors()
         {
             var oldParameters = Parameters;
-            if (!this.sensors.IsEmpty)
-            {
-                HashSet<ERDM_Parameter> _params = Parameters.ToHashSet();
-                _params.Add(ERDM_Parameter.SENSOR_DEFINITION);
-                _params.Add(ERDM_Parameter.SENSOR_VALUE);
-                Parameters = _params;
-            }
-            else if (
-                Parameters.Contains(ERDM_Parameter.SENSOR_DEFINITION) ||
-                Parameters.Contains(ERDM_Parameter.SENSOR_VALUE) ||
-                Parameters.Contains(ERDM_Parameter.RECORD_SENSORS) ||
-                Parameters.Contains(ERDM_Parameter.SENSOR_TYPE_CUSTOM) ||
-                Parameters.Contains(ERDM_Parameter.SENSOR_UNIT_CUSTOM))
-            {
-                HashSet<ERDM_Parameter> _params = Parameters.ToHashSet();
-                _params.RemoveWhere(p =>
-                    p == ERDM_Parameter.SENSOR_DEFINITION ||
-                    p == ERDM_Parameter.SENSOR_VALUE ||
-                    p == ERDM_Parameter.RECORD_SENSORS ||
-                    p == ERDM_Parameter.SENSOR_TYPE_CUSTOM ||
-                    p == ERDM_Parameter.SENSOR_UNIT_CUSTOM);
-                Parameters = _params;
-            }
-
-            if (sensors.Values.Any(s => s.RecordedValueSupported) && !Parameters.Contains(ERDM_Parameter.RECORD_SENSORS))
-            {
-                HashSet<ERDM_Parameter> _params = Parameters.ToHashSet();
-                _params.Add(ERDM_Parameter.RECORD_SENSORS);
-                Parameters = _params;
-            }
-            else if (!sensors.Values.Any(s => s.RecordedValueSupported) && Parameters.Contains(ERDM_Parameter.RECORD_SENSORS))
-            {
-                HashSet<ERDM_Parameter> _params = Parameters.ToHashSet();
-                _params.RemoveWhere(sensors => sensors == ERDM_Parameter.RECORD_SENSORS);
-                Parameters = _params;
-            }
 
             if (!Parameters.SequenceEqual(oldParameters))
                 trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters.ToArray());
         }
 
-        private void Sensor_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (sender is not Sensor sensor)
-                return;
-
-            switch (e.PropertyName)
-            {
-                case nameof(Sensor.Type):
-                case nameof(Sensor.Unit):
-                case nameof(Sensor.Prefix):
-                case nameof(Sensor.RangeMaximum):
-                case nameof(Sensor.RangeMinimum):
-                case nameof(Sensor.NormalMaximum):
-                case nameof(Sensor.NormalMinimum):
-                case nameof(Sensor.LowestHighestValueSupported):
-                case nameof(Sensor.RecordedValueSupported):
-                    sensorDef.AddOrUpdate(sensor.SensorId, (RDMSensorDefinition)sensor, (o1, o2) => (RDMSensorDefinition)sensor);
-                    setParameterValue(ERDM_Parameter.SENSOR_DEFINITION, sensorDef, sensor.SensorId);
-                    break;
-                case nameof(Sensor.PresentValue):
-                case nameof(Sensor.LowestValue):
-                case nameof(Sensor.HighestValue):
-                case nameof(Sensor.RecordedValue):
-                    sensorValue.AddOrUpdate(sensor.SensorId, (RDMSensorValue)sensor, (o1, o2) => (RDMSensorValue)sensor);
-                    setParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue, sensor.SensorId);
-                    break;
-            }
-        }
+        
 
         protected bool trySetParameter(ERDM_Parameter parameter, object value)
         {

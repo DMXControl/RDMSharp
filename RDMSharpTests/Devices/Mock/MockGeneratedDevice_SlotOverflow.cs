@@ -56,10 +56,6 @@ namespace RDMSharpTests.Devices.Mock
 
         private static readonly GeneratedPersonality[] PERSONALITYS = new GeneratedPersonality[] { PersonalityFromRawData(SLOT_INFO_RAW) };
 
-        private static Sensor[] GetSensors() {
-            return new Sensor[] {};
-        }
-
         private static GeneratedPersonality PersonalityFromRawData(byte[] bytes)
         {
             List<Slot> slots = new List<Slot>();
@@ -77,7 +73,7 @@ namespace RDMSharpTests.Devices.Mock
 
         public override bool SupportStatus => true;
         
-        public MockGeneratedDevice_SlotOverflow(UID uid) : base(uid, SubDevice.Root, new ERDM_Parameter[] { }, GetSensors(), GetModules())
+        public MockGeneratedDevice_SlotOverflow(UID uid) : base(uid, SubDevice.Root, new ERDM_Parameter[] { }, GetModules())
         {
         }
         private static IReadOnlyCollection<IModule> GetModules()
@@ -90,7 +86,8 @@ namespace RDMSharpTests.Devices.Mock
                 new BootSoftwareVersionModule(123, $"Dummy Bootloader Software"),
                 new DMX_StartAddressModule(1),
                 new DMX_PersonalityModule(1,PERSONALITYS),
-                new SlotsModule() };
+                new SlotsModule()
+            };
         }
         protected sealed override void OnDispose()
         {

@@ -81,43 +81,6 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(deviceInfo, Is.Not.Null);
             Assert.That(deviceInfo.SensorCount, Is.EqualTo(5));
             #endregion
-
-            #region Test Remove Sensors
-            List<Sensor> sensors = generated.Sensors.Values.ToList();
-            foreach (var sensor in sensors)
-                generated.RemoveSensors(sensor);
-            response = generated.ProcessRequestMessage_Internal(request);
-            Assert.That(response, Is.Not.Null);
-            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEVICE_INFO));
-            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Has.Length.EqualTo(19));
-            Assert.That(response.Value, Is.EqualTo(generated.DeviceInfo));
-            deviceInfo = response!.Value as RDMDeviceInfo;
-            Assert.That(deviceInfo, Is.Not.Null);
-            Assert.That(deviceInfo.SensorCount, Is.EqualTo(0));
-            #endregion
-
-            #region Test Add Sensors
-            foreach (var sensor in sensors)
-                generated.AddSensors(sensor);
-            response = generated.ProcessRequestMessage_Internal(request);
-            Assert.That(response, Is.Not.Null);
-            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEVICE_INFO));
-            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Has.Length.EqualTo(19));
-            Assert.That(response.Value, Is.EqualTo(generated.DeviceInfo));
-            deviceInfo = response!.Value as RDMDeviceInfo;
-            Assert.That(deviceInfo, Is.Not.Null);
-            Assert.That(deviceInfo.SensorCount, Is.EqualTo(5));
-            #endregion
         }
         [Test, Order(6)]
         public void TestGetIDENTIFY_DEVICE()
@@ -465,7 +428,7 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(generated, Is.Not.Null);
             var bootSoftwareVersionModule = generated.Modules.OfType<BootSoftwareVersionModule>().Single();
             Assert.That(bootSoftwareVersionModule, Is.Not.Null);
-            Assert.That(bootSoftwareVersionModule.BootSoftwareVersionId, Is.EqualTo(1234));
+            Assert.That(bootSoftwareVersionModule.BootSoftwareVersionId, Is.EqualTo(123));
             RDMMessage request = new RDMMessage()
             {
                 Command = ERDM_Command.GET_COMMAND,
@@ -803,43 +766,6 @@ namespace RDMSharpTests.RDM.Devices
             doTests(generated.Sensors.Values.ToArray());
             #endregion
 
-
-            #region Test Remove Sensors
-
-            foreach (var sensor in generated.Sensors.Values.ToArray())
-                generated.RemoveSensors(sensor);
-
-            request.Command = ERDM_Command.SET_COMMAND;
-            response = generated.ProcessRequestMessage_Internal(request);
-            Assert.That(response, Is.Not.Null);
-            Assert.Multiple(() =>
-            {
-                Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-                Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-                Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_DEFINITION));
-                Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-                Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.UNKNOWN_PID }));
-                Assert.That(response.ParameterData, Has.Length.EqualTo(0));
-            });
-
-            request.Command = ERDM_Command.GET_COMMAND;
-            response = generated.ProcessRequestMessage_Internal(request);
-            Assert.That(response, Is.Not.Null);
-            Assert.Multiple(() =>
-            {
-                Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-                Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-                Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_DEFINITION));
-                Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-                Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.UNKNOWN_PID }));
-                Assert.That(response.ParameterData, Has.Length.EqualTo(0));
-            });
-            #endregion
-
             void doTests(Sensor[] sensors)
             {
                 foreach (Sensor sensor in sensors)
@@ -1012,41 +938,6 @@ namespace RDMSharpTests.RDM.Devices
             }
             #endregion
 
-            #region Test Remove Sensors
-            foreach (var sensor in generated.Sensors.Values.ToArray())
-                generated.RemoveSensors(sensor);
-
-            request.ParameterData = new byte[] { 0 };
-            response = generated.ProcessRequestMessage_Internal(request);
-            Assert.That(response, Is.Not.Null);
-            Assert.Multiple(() =>
-            {
-                Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-                Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-                Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_VALUE));
-                Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-                Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.UNKNOWN_PID }));
-                Assert.That(response.ParameterData, Has.Length.EqualTo(0));
-            });
-
-            request.Command = ERDM_Command.GET_COMMAND;
-            response = generated.ProcessRequestMessage_Internal(request);
-            Assert.That(response, Is.Not.Null);
-            Assert.Multiple(() =>
-            {
-                Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-                Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-                Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_VALUE));
-                Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-                Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.UNKNOWN_PID }));
-                Assert.That(response.ParameterData, Has.Length.EqualTo(0));
-            });
-            #endregion
-
             void doTests(Sensor[] sensors)
             {
                 foreach (Sensor sensor in sensors)
@@ -1155,27 +1046,6 @@ namespace RDMSharpTests.RDM.Devices
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
             Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS }));
-            #endregion
-
-            #region Test Remove Sensors
-            foreach (var sensor in generated.Sensors.Values.ToArray())
-                generated.RemoveSensors(sensor);
-
-            request.ParameterData = new byte[] { 0 };
-            request.Command = ERDM_Command.SET_COMMAND;
-            response = generated.ProcessRequestMessage_Internal(request);
-            Assert.That(response, Is.Not.Null);
-            Assert.Multiple(() =>
-            {
-                Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-                Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-                Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.RECORD_SENSORS));
-                Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-                Assert.That(response.NackReason, Is.EqualTo(new ERDM_NackReason[] { ERDM_NackReason.UNKNOWN_PID }));
-                Assert.That(response.ParameterData, Has.Length.EqualTo(0));
-            });
             #endregion
         }
 

@@ -5,10 +5,10 @@ namespace RDMSharpTests.Devices.Mock
     internal abstract class AbstractMockGeneratedDevice : AbstractGeneratedRDMDevice
     {
 
-        public AbstractMockGeneratedDevice(UID uid, ERDM_Parameter[] parameters, Sensor[]? sensors = null, IRDMDevice[]? subDevices = null, IReadOnlyCollection<IModule> mudules = null) : base(uid, parameters, sensors: sensors, subDevices: subDevices, modules: mudules)
+        public AbstractMockGeneratedDevice(UID uid, ERDM_Parameter[] parameters, IRDMDevice[]? subDevices = null, IReadOnlyCollection<IModule> mudules = null) : base(uid, parameters, subDevices: subDevices, modules: mudules)
         {
         }
-        public AbstractMockGeneratedDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, Sensor[]? sensors = null, IReadOnlyCollection<IModule> mudules = null) : base(uid, subDevice, parameters, sensors: sensors, modules: mudules)
+        public AbstractMockGeneratedDevice(UID uid, SubDevice subDevice, ERDM_Parameter[] parameters, IReadOnlyCollection<IModule> mudules = null) : base(uid, subDevice, parameters, modules: mudules)
         {
         }
         internal RDMMessage? ProcessRequestMessage_Internal(RDMMessage request)
@@ -27,14 +27,6 @@ namespace RDMSharpTests.Devices.Mock
         internal new void RemoveStatusMessage(RDMStatusMessage statusMessage)
         {
             base.RemoveStatusMessage(statusMessage);
-        }
-        internal new void AddSensors(params Sensor[] sensor)
-        {
-            base.AddSensors(sensor);
-        }
-        internal new void RemoveSensors(params Sensor[] sensor)
-        {
-            base.RemoveSensors(sensor);
         }
 
         protected sealed override void onDispose()

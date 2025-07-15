@@ -25,6 +25,7 @@ namespace RDMSharp
                 this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(Type)));
             }
         }
+        public readonly RDMSensorTypeCustomDefine CustomType;
 
         private ERDM_SensorUnit unit;
         public ERDM_SensorUnit Unit
@@ -39,6 +40,7 @@ namespace RDMSharp
                 this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(Unit)));
             }
         }
+        public readonly RDMSensorUnitCustomDefine CustomUnit;
 
         private ERDM_UnitPrefix prefix;
         public ERDM_UnitPrefix Prefix
@@ -218,7 +220,9 @@ namespace RDMSharp
             in short normalMinimum,
             in short normalMaximum,
             in bool lowestHighestValueSupported = false,
-            in bool recordedValueSupported = false) : this(sensorId)
+            in bool recordedValueSupported = false,
+            in RDMSensorUnitCustomDefine customUnit = null,
+            in RDMSensorTypeCustomDefine customType = null) : this(sensorId)
         {
             if (String.IsNullOrWhiteSpace(description))
                 throw new ArgumentNullException(nameof(description));
@@ -233,6 +237,20 @@ namespace RDMSharp
             NormalMaximum = normalMaximum;
             LowestHighestValueSupported = lowestHighestValueSupported;
             RecordedValueSupported = recordedValueSupported;
+            CustomUnit = customUnit;
+            CustomType = customType;
+
+            if ((byte)Unit >= 0x80 && customUnit is null)
+                throw new ArgumentException($"The given {nameof(unit)} is a custom unit but no {nameof(customUnit)} is given.", nameof(unit));
+
+            if ((byte)Type >= 0x80 && customType is null)
+                throw new ArgumentException($"The given {nameof(type)} is a custom type but no {nameof(customType)} is given.", nameof(type));
+
+            if (customUnit is not null && customUnit.Id != (byte)Unit)
+                throw new ArgumentException($"The given {nameof(customUnit)} does not match the given {nameof(unit)}.", nameof(customUnit));
+
+            if (customType is not null && customType.Id != (byte)Type)
+                throw new ArgumentException($"The given {nameof(customType)} does not match the given {nameof(type)}.", nameof(customType));
         }
         public Sensor(in byte sensorId,
             in short initValue,
@@ -245,7 +263,9 @@ namespace RDMSharp
             in short normalMinimum,
             in short normalMaximum,
             in bool lowestHighestValueSupported = false,
-            in bool recordedValueSupported = false) : this(
+            in bool recordedValueSupported = false,
+            in RDMSensorUnitCustomDefine customUnit = null,
+            in RDMSensorTypeCustomDefine customType = null) : this(
                 sensorId,
                 type,
                 unit,
@@ -256,7 +276,9 @@ namespace RDMSharp
                 normalMinimum,
                 normalMaximum,
                 lowestHighestValueSupported,
-                recordedValueSupported)
+                recordedValueSupported,
+                customUnit,
+                customType)
         {
             this.UpdateValue(initValue);
             if (LowestHighestValueSupported)

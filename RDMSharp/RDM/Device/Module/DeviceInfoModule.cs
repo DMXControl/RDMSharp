@@ -23,6 +23,7 @@ namespace RDMSharp.RDM.Device.Module
         private SoftwareVersionModule softwareVersionModule;
         private DMX_StartAddressModule dmxStartAddressModule;
         private DMX_PersonalityModule dmxPersonalityModule;
+        private SensorsModule sensorsModule;
 
         public DeviceInfoModule() : base(
             "DeviceInfo",
@@ -35,6 +36,7 @@ namespace RDMSharp.RDM.Device.Module
             softwareVersionModule = device.Modules.OfType<SoftwareVersionModule>().FirstOrDefault();
             dmxStartAddressModule = device.Modules.OfType<DMX_StartAddressModule>().FirstOrDefault();
             dmxPersonalityModule = device.Modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
+            sensorsModule = device.Modules.OfType<SensorsModule>().FirstOrDefault();
             updateParameterValues();
         }
         private void updateParameterValues()
@@ -50,9 +52,9 @@ namespace RDMSharp.RDM.Device.Module
                                            dmx512Footprint: dmxPersonalityModule?.CurrentPersonalityFootprint ?? 0,
                                            dmx512CurrentPersonality: dmxPersonalityModule?.CurrentPersonality ?? 0,
                                            dmx512NumberOfPersonalities: dmxPersonalityModule?.PersonalitiesCount ?? 0,
-                                           dmx512StartAddress: (dmxStartAddressModule.DMXAddress ?? ushort.MaxValue),
+                                           dmx512StartAddress: (dmxStartAddressModule?.DMXAddress ?? ushort.MaxValue),
                                            subDeviceCount: (ushort)(ParentDevice.SubDevices?.Where(sd => !sd.Subdevice.IsRoot).Count() ?? 0),
-                                           sensorCount: (byte)(ParentDevice.Sensors?.Count ?? 0));
+                                           sensorCount: (byte)(sensorsModule?.Sensors?.Count ?? 0));
 
             OnPropertyChanged(nameof(DeviceInfo));
         }

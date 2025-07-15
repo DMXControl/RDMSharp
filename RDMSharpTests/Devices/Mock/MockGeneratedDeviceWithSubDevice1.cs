@@ -9,10 +9,10 @@ namespace RDMSharpTests.Devices.Mock
         public override ERDM_ProductCategoryCoarse ProductCategoryCoarse => ERDM_ProductCategoryCoarse.DIMMER;
         public override ERDM_ProductCategoryFine ProductCategoryFine => ERDM_ProductCategoryFine.DIMMER_CS_LED;
 
-        protected MockGeneratedDeviceWithSubDevice1(UID uid, MockGeneratedDeviceWithSubDeviceSub1[]? subDevices = null, Sensor[]? sensors = null, IReadOnlyCollection<IModule> modules=null) : base(uid, new ERDM_Parameter[] { }, sensors, subDevices, modules)
+        protected MockGeneratedDeviceWithSubDevice1(UID uid, MockGeneratedDeviceWithSubDeviceSub1[]? subDevices = null, IReadOnlyCollection<IModule> modules=null) : base(uid, new ERDM_Parameter[] { }, subDevices, modules)
         {
         }
-        protected MockGeneratedDeviceWithSubDevice1(UID uid, SubDevice subDevice, Sensor[]? sensors = null, IReadOnlyCollection<IModule> modules=null) : base(uid, subDevice, new ERDM_Parameter[] {  }, sensors, modules)
+        protected MockGeneratedDeviceWithSubDevice1(UID uid, SubDevice subDevice, IReadOnlyCollection<IModule> modules=null) : base(uid, subDevice, new ERDM_Parameter[] {  }, modules)
         {
         }
 
@@ -35,7 +35,7 @@ namespace RDMSharpTests.Devices.Mock
 
         public override bool SupportStatus => true;
 
-        public MockGeneratedDeviceWithSubDeviceMaster1(UID uid, ushort subDevicesCount) : base(uid, getSubDevices(uid, subDevicesCount), SENSORS, GetModulesMaster())
+        public MockGeneratedDeviceWithSubDeviceMaster1(UID uid, ushort subDevicesCount) : base(uid, getSubDevices(uid, subDevicesCount), GetModulesMaster())
         {
         }
         private static IReadOnlyCollection<IModule> GetModulesMaster()
@@ -48,7 +48,9 @@ namespace RDMSharpTests.Devices.Mock
                 new BootSoftwareVersionModule(12359,$"Dummy Software"),
                 new DMX_StartAddressModule(1),
                 new DMX_PersonalityModule(1,PERSONALITYS),
-                new SlotsModule()};
+                new SlotsModule(),
+                new SensorsModule(SENSORS)
+            };
         }
 
         private static MockGeneratedDeviceWithSubDeviceSub1[] getSubDevices(UID uid, ushort count)
@@ -80,7 +82,7 @@ namespace RDMSharpTests.Devices.Mock
 
         public override bool SupportStatus => true;
 
-        public MockGeneratedDeviceWithSubDeviceSub1(UID uid, ushort subDeviceID) : base(uid, getSubDevice(subDeviceID), SENSORS, GetModulesSubDevice())
+        public MockGeneratedDeviceWithSubDeviceSub1(UID uid, ushort subDeviceID) : base(uid, getSubDevice(subDeviceID), GetModulesSubDevice())
         {
         }
         private static IReadOnlyCollection<IModule> GetModulesSubDevice()
@@ -93,7 +95,9 @@ namespace RDMSharpTests.Devices.Mock
                 new BootSoftwareVersionModule(12359,$"Dummy Software"),
                 new DMX_StartAddressModule(1),
                 new DMX_PersonalityModule(1,PERSONALITYS),
-                new SlotsModule()};
+                new SlotsModule(),
+                new SensorsModule(SENSORS)
+            };
         }
         private static SubDevice getSubDevice(ushort subDeviceID)
         {
