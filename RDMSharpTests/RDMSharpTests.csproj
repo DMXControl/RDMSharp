@@ -8,7 +8,6 @@
     <IsPackable>false</IsPackable>
 	<LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
-    <RunSettingsFilePath>C:\Users\Patrick Grote\source\repos\RDMSharp\RDMSharpTests\bin\Debug\net9.0\fine-code-coverage\coverage-tool-output\RDMSharpTests %28net9.0%29-fcc-mscodecoverage-generated.runsettings</RunSettingsFilePath>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
