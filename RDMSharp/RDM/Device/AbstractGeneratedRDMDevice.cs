@@ -20,7 +20,6 @@ namespace RDMSharp
         public sealed override bool IsGenerated => true;
         public abstract bool SupportQueued { get; }
         public abstract bool SupportStatus { get; }
-        #region DeviceInfoStuff
         private HashSet<ERDM_Parameter> _parameters;
         public IReadOnlySet<ERDM_Parameter> Parameters { get => _parameters;
             private set
@@ -31,10 +30,13 @@ namespace RDMSharp
                 this.OnPropertyChanged();
             }
         }
+
+        #region DeviceInfoStuff
         public abstract EManufacturer ManufacturerID { get; }
         public abstract ushort DeviceModelID { get; }
         public abstract ERDM_ProductCategoryCoarse ProductCategoryCoarse { get; }
         public abstract ERDM_ProductCategoryFine ProductCategoryFine { get; }
+
         public uint SoftwareVersionID
         {
             get
@@ -43,36 +45,10 @@ namespace RDMSharp
                 return softwareVersionModule?.SoftwareVersionId ?? 0;
             }
         }
-        #endregion
-        public IReadOnlyCollection<GeneratedPersonality> Personalities
-        {
-            get
-            {
-                return dmxPersonalityModule?.Personalities ?? Array.Empty<GeneratedPersonality>();
-            }
-        }
-
+        public IReadOnlyCollection<GeneratedPersonality> Personalities { get { return dmxPersonalityModule?.Personalities ?? Array.Empty<GeneratedPersonality>(); } }
         public sealed override IReadOnlyDictionary<byte, Sensor> Sensors { get { return sensorsModule?.Sensors; } }
-
         public sealed override IReadOnlyDictionary<ushort, Slot> Slots { get { return slotsModule?.Slots; } }
-
-        private ConcurrentDictionary<int, RDMStatusMessage> statusMessages = new ConcurrentDictionary<int, RDMStatusMessage>();
-        public sealed override IReadOnlyDictionary<int, RDMStatusMessage> StatusMessages { get { return statusMessages.AsReadOnly(); } }
-        private ConcurrentDictionary<UID, ControllerCommunicationCache> controllerCommunicationCache = new ConcurrentDictionary<UID, ControllerCommunicationCache>();
-
         public sealed override RDMDeviceInfo DeviceInfo { get { return deviceInfoModule?.DeviceInfo; } }
-
-        private ConcurrentDictionary<UID, OverflowCacheBag> overflowCacheBags = new ConcurrentDictionary<UID, OverflowCacheBag>();
-
-        private readonly DeviceInfoModule deviceInfoModule;
-        private readonly IdentifyDeviceModule identifyDeviceModule;
-        private readonly DMX_StartAddressModule? dmxStartAddressModule;
-        private readonly DMX_PersonalityModule? dmxPersonalityModule;
-        private readonly SlotsModule? slotsModule;
-        private readonly SensorsModule? sensorsModule;
-
-        private readonly IReadOnlyCollection<IModule> _modules;
-        public IReadOnlyCollection<IModule> Modules { get => _modules; }
 
         public ushort? DMXAddress
         {
@@ -112,6 +88,24 @@ namespace RDMSharp
                 this.OnPropertyChanged(nameof(this.CurrentPersonality));
             }
         }
+        #endregion
+
+        private ConcurrentDictionary<int, RDMStatusMessage> statusMessages = new ConcurrentDictionary<int, RDMStatusMessage>();
+        public sealed override IReadOnlyDictionary<int, RDMStatusMessage> StatusMessages { get { return statusMessages.AsReadOnly(); } }
+
+        private ConcurrentDictionary<UID, ControllerCommunicationCache> controllerCommunicationCache = new ConcurrentDictionary<UID, ControllerCommunicationCache>();
+        private ConcurrentDictionary<UID, OverflowCacheBag> overflowCacheBags = new ConcurrentDictionary<UID, OverflowCacheBag>();
+
+        private readonly IReadOnlyCollection<IModule> _modules;
+        public IReadOnlyCollection<IModule> Modules { get => _modules; }
+
+        private readonly DeviceInfoModule deviceInfoModule;
+        private readonly IdentifyDeviceModule identifyDeviceModule;
+        private readonly DMX_StartAddressModule? dmxStartAddressModule;
+        private readonly DMX_PersonalityModule? dmxPersonalityModule;
+        private readonly SlotsModule? slotsModule;
+        private readonly SensorsModule? sensorsModule;
+
         private bool discoveryMuted;
         public bool DiscoveryMuted
         {
@@ -388,8 +382,6 @@ namespace RDMSharp
             }
         }
 
-
-        #region SendReceive Pipeline
         private void Instance_RequestReceivedEvent(object sender, RequestReceivedEventArgs e)
         {
             RDMMessage response = null;
@@ -416,7 +408,7 @@ namespace RDMSharp
             else if (response != null && response.Command == ERDM_Command.DISCOVERY_COMMAND_RESPONSE)
                 RDMSharp.Instance.SendMessage(response);
         }
-#endregion
+
         protected async Task OnReceiveRDMMessage(RDMMessage rdmMessage)
         {
             if ((rdmMessage.DestUID.IsBroadcast || rdmMessage.DestUID == UID) && !rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
