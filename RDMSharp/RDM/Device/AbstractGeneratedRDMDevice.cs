@@ -60,8 +60,7 @@ namespace RDMSharp
         public sealed override IReadOnlyDictionary<int, RDMStatusMessage> StatusMessages { get { return statusMessages.AsReadOnly(); } }
         private ConcurrentDictionary<UID, ControllerCommunicationCache> controllerCommunicationCache = new ConcurrentDictionary<UID, ControllerCommunicationCache>();
 
-        private RDMDeviceInfo deviceInfo;
-        public sealed override RDMDeviceInfo DeviceInfo { get { return deviceInfo; } }
+        public sealed override RDMDeviceInfo DeviceInfo { get { return deviceInfoModule?.DeviceInfo; } }
 
         private ConcurrentDictionary<UID, OverflowCacheBag> overflowCacheBags = new ConcurrentDictionary<UID, OverflowCacheBag>();
 
@@ -213,7 +212,6 @@ namespace RDMSharp
                 trySetParameter(ERDM_Parameter.STATUS_MESSAGES, new RDMStatusMessage[0]);
             #endregion
 
-            updateDeviceInfo();
             _initialized = true;
         }
 
@@ -221,42 +219,6 @@ namespace RDMSharp
         {
             OnPropertyChanged(e.PropertyName);
         }
-
-        private void updateDeviceInfo()
-        {
-            var info = new RDMDeviceInfo(1,
-                                           0,
-                                           DeviceModelID,
-                                           ProductCategoryCoarse,
-                                           ProductCategoryFine,
-                                           SoftwareVersionID,
-                                           dmx512Footprint: dmxPersonalityModule?.CurrentPersonalityFootprint ?? 0,
-                                           dmx512CurrentPersonality: dmxPersonalityModule?.CurrentPersonality ?? 0,
-                                           dmx512NumberOfPersonalities: dmxPersonalityModule?.PersonalitiesCount ?? 0,
-                                           dmx512StartAddress: dmxStartAddressModule?.DMXAddress ?? ushort.MaxValue,
-                                           subDeviceCount: (ushort)(SubDevices?.Where(sd => !sd.Subdevice.IsRoot).Count() ?? 0),
-                                           sensorCount: (byte)(Sensors?.Count ?? 0));
-            updateDeviceInfo(info);
-        }
-
-        private void updateDeviceInfo(RDMDeviceInfo value)
-        {
-            if (RDMDeviceInfo.Equals(deviceInfo, value))
-                return;
-
-            deviceInfo = value;
-            this.OnPropertyChanged(nameof(this.DeviceInfo));
-        }
-
-        private void updateSupportedParametersOnAddRemoveSensors()
-        {
-            var oldParameters = Parameters;
-
-            if (!Parameters.SequenceEqual(oldParameters))
-                trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters.ToArray());
-        }
-
-        
 
         protected bool trySetParameter(ERDM_Parameter parameter, object value)
         {
@@ -365,72 +327,64 @@ namespace RDMSharp
             setParameterValue(parameter, value);
             return true;
         }
-        internal void setParameterValue(ERDM_Parameter parameter, object value, object index=null)
+        internal void setParameterValue(ERDM_Parameter parameter, object value, object index = null)
         {
-            switch (parameter)
+            bool notNew = false;
+            if (value is null)
             {
-                case ERDM_Parameter.DEVICE_INFO when value is RDMDeviceInfo _deviceInfo:
-                    deviceInfo = _deviceInfo;
-                    goto default;
+                parameterValues.TryRemove(parameter, out object oldValue);
+                return;
+            }
+            bool raiseAddedEvent = false;
+            bool raiseUpdatedEvent = false;
+            object? ov = null;
+            parameterValues.AddOrUpdate(parameter, (_) =>
+            {
+                try
+                {
+                    return value;
+                }
+                finally
+                {
+                    raiseAddedEvent = true;
+                }
+            }, (o, p) =>
+            {
+                try
+                {
+                    ov = p;
+                    if (object.Equals(ov, value) && value is not ConcurrentDictionary<object, object>)
+                        notNew = true;
+                    return value;
+                }
+                finally
+                {
+                    raiseUpdatedEvent = true;
+                }
+            });
 
-                default:
-                    bool notNew = false;
-                    if (value is null)
-                    {
-                        parameterValues.TryRemove(parameter, out object oldValue);
-                        return;
-                    }
-                    bool raiseAddedEvent = false;
-                    bool raiseUpdatedEvent = false;
-                    object? ov = null;
-                    parameterValues.AddOrUpdate(parameter, (_) =>
-                    {
-                        try
-                        {
-                            return value;
-                        }
-                        finally
-                        {
-                            raiseAddedEvent = true;
-                        }
-                    }, (o, p) =>
-                    {
-                        try
-                        {
-                            ov = p;
-                            if (object.Equals(ov, value) && value is not ConcurrentDictionary<object, object>)
-                                notNew = true;
-                            return value;
-                        }
-                        finally
-                        {
-                            raiseUpdatedEvent = true;
-                        }
-                    });
-
-                    try
-                    {
-                        if (notNew)
-                            return;
-                        if (parameter != ERDM_Parameter.SLOT_DESCRIPTION)
-                        {
-                            updateParameterBag(parameter, index);
-                            return;
-                        }
-                        if (value is ConcurrentDictionary<object, object> dict)
-                        {
-                            foreach (var p in dict)
-                                updateParameterBag(parameter, p.Key);
-                        }
-                        return;
-                    }
-                    finally
-                    {
-                        if (raiseAddedEvent)
-                            InvokeParameterValueAdded(new ParameterValueAddedEventArgs(parameter, value, index));
-                        if (raiseUpdatedEvent)
-                            InvokeParameterValueChanged(new ParameterValueChangedEventArgs(parameter, value, ov, index));
-                    }
+            try
+            {
+                if (notNew)
+                    return;
+                if (parameter != ERDM_Parameter.SLOT_DESCRIPTION)
+                {
+                    updateParameterBag(parameter, index);
+                    return;
+                }
+                if (value is ConcurrentDictionary<object, object> dict)
+                {
+                    foreach (var p in dict)
+                        updateParameterBag(parameter, p.Key);
+                }
+                return;
+            }
+            finally
+            {
+                if (raiseAddedEvent)
+                    InvokeParameterValueAdded(new ParameterValueAddedEventArgs(parameter, value, index));
+                if (raiseUpdatedEvent)
+                    InvokeParameterValueChanged(new ParameterValueChangedEventArgs(parameter, value, ov, index));
             }
         }
 
