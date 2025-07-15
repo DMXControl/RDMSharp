@@ -30,7 +30,6 @@ namespace RDMSharp.RDM.Device.Module
             dmxPersonalityModule = device.Modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
             dmxPersonalityModule.PropertyChanged += DmxPersonalityModule_PropertyChanged;
             updateParameterValues();
-            OnPropertyChanged(nameof(Slots));
         }
 
         private void DmxPersonalityModule_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -39,7 +38,6 @@ namespace RDMSharp.RDM.Device.Module
                 return;
 
             updateParameterValues();
-            OnPropertyChanged(nameof(Slots));
         }
 
         protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
@@ -48,7 +46,6 @@ namespace RDMSharp.RDM.Device.Module
             {
                 case ERDM_Parameter.DMX_PERSONALITY:
                     updateParameterValues();
-                    OnPropertyChanged(nameof(Slots));
                     break;
             }
         }
@@ -69,6 +66,7 @@ namespace RDMSharp.RDM.Device.Module
             ParentDevice.setParameterValue(ERDM_Parameter.SLOT_INFO, slotInfos);
             ParentDevice.setParameterValue(ERDM_Parameter.SLOT_DESCRIPTION, slotDesc);
             ParentDevice.setParameterValue(ERDM_Parameter.DEFAULT_SLOT_VALUE, slotDefault);
+            OnPropertyChanged(nameof(Slots));
         }
     }
 }

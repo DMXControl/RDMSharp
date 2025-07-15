@@ -8,7 +8,6 @@ namespace RDMSharpTests.Devices.Mock
         public override ushort DeviceModelID => 50;
         public override ERDM_ProductCategoryCoarse ProductCategoryCoarse => ERDM_ProductCategoryCoarse.DIMMER;
         public override ERDM_ProductCategoryFine ProductCategoryFine => ERDM_ProductCategoryFine.DIMMER_CS_LED;
-        public override bool SupportDMXAddress => true;
 
         protected MockGeneratedDeviceWithSubDevice1(UID uid, MockGeneratedDeviceWithSubDeviceSub1[]? subDevices = null, Sensor[]? sensors = null, IReadOnlyCollection<IModule> modules=null) : base(uid, new ERDM_Parameter[] { }, sensors, subDevices, modules)
         {

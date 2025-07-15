@@ -15,7 +15,6 @@ namespace RDMSharpTests.Devices.Mock
         public override ushort DeviceModelID => 20;
         public override ERDM_ProductCategoryCoarse ProductCategoryCoarse => ERDM_ProductCategoryCoarse.CONTROL;
         public override ERDM_ProductCategoryFine ProductCategoryFine => ERDM_ProductCategoryFine.DATA_CONVERSION;
-        public override bool SupportDMXAddress => true;
 
         private static byte[] SLOT_INFO_RAW = new byte[] {
                 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x01, 0x01,

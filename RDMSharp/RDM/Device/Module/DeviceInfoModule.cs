@@ -20,6 +20,9 @@ namespace RDMSharp.RDM.Device.Module
                     ParentDevice.setParameterValue(ERDM_Parameter.DEVICE_INFO, value);
             }
         }
+        private SoftwareVersionModule softwareVersionModule;
+        private DMX_StartAddressModule dmxStartAddressModule;
+        private DMX_PersonalityModule dmxPersonalityModule;
 
         public DeviceInfoModule() : base(
             "DeviceInfo",
@@ -29,21 +32,29 @@ namespace RDMSharp.RDM.Device.Module
 
         protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
         {
-            var softwareVersionModule = device.Modules.OfType<SoftwareVersionModule>().FirstOrDefault();
-            var dmxStartAddressModule = device.Modules.OfType<DMX_StartAddressModule>().FirstOrDefault();
-            var dmxPersonalityModule = device.Modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
+            softwareVersionModule = device.Modules.OfType<SoftwareVersionModule>().FirstOrDefault();
+            dmxStartAddressModule = device.Modules.OfType<DMX_StartAddressModule>().FirstOrDefault();
+            dmxPersonalityModule = device.Modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
+            updateParameterValues();
+        }
+        private void updateParameterValues()
+        {
+            if (ParentDevice is null)
+                return;
             this.DeviceInfo = new RDMDeviceInfo(1,
                                            0,
-                                           device.DeviceModelID,
-                                           device.ProductCategoryCoarse,
-                                           device.ProductCategoryFine,
+                                           ParentDevice.DeviceModelID,
+                                           ParentDevice.ProductCategoryCoarse,
+                                           ParentDevice.ProductCategoryFine,
                                            softwareVersionModule?.SoftwareVersionId ?? 0,
                                            dmx512Footprint: dmxPersonalityModule?.CurrentPersonalityFootprint ?? 0,
                                            dmx512CurrentPersonality: dmxPersonalityModule?.CurrentPersonality ?? 0,
                                            dmx512NumberOfPersonalities: dmxPersonalityModule?.PersonalitiesCount ?? 0,
                                            dmx512StartAddress: (dmxStartAddressModule.DMXAddress ?? ushort.MaxValue),
-                                           subDeviceCount: (ushort)(device.SubDevices?.Where(sd => !sd.Subdevice.IsRoot).Count() ?? 0),
-                                           sensorCount: (byte)(device.Sensors?.Count ?? 0));
+                                           subDeviceCount: (ushort)(ParentDevice.SubDevices?.Where(sd => !sd.Subdevice.IsRoot).Count() ?? 0),
+                                           sensorCount: (byte)(ParentDevice.Sensors?.Count ?? 0));
+
+            OnPropertyChanged(nameof(DeviceInfo));
         }
         protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
         {
@@ -51,6 +62,10 @@ namespace RDMSharp.RDM.Device.Module
             {
                 case ERDM_Parameter.DEVICE_INFO:
                     OnPropertyChanged(nameof(DeviceInfo));
+                    break;
+                case ERDM_Parameter.DMX_PERSONALITY:
+                case ERDM_Parameter.DMX_START_ADDRESS:
+                    updateParameterValues();
                     break;
             }
         }

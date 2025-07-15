@@ -14,7 +14,6 @@ namespace RDMSharpTests.Devices.Mock
         public override ushort DeviceModelID => 20;
         public override ERDM_ProductCategoryCoarse ProductCategoryCoarse => ERDM_ProductCategoryCoarse.CONTROL;
         public override ERDM_ProductCategoryFine ProductCategoryFine => ERDM_ProductCategoryFine.DATA_CONVERSION;
-        public override bool SupportDMXAddress => true;
 
         private static readonly GeneratedPersonality[] PERSONALITYS = new GeneratedPersonality[] {
             new GeneratedPersonality(1, "5CH RGB",

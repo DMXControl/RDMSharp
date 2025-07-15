@@ -62,7 +62,6 @@ namespace RDMSharp
         private ConcurrentDictionary<int, RDMStatusMessage> statusMessages = new ConcurrentDictionary<int, RDMStatusMessage>();
         public sealed override IReadOnlyDictionary<int, RDMStatusMessage> StatusMessages { get { return statusMessages.AsReadOnly(); } }
         private ConcurrentDictionary<UID, ControllerCommunicationCache> controllerCommunicationCache = new ConcurrentDictionary<UID, ControllerCommunicationCache>();
-        public abstract bool SupportDMXAddress { get; }
 
         private RDMDeviceInfo deviceInfo;
         public sealed override RDMDeviceInfo DeviceInfo { get { return deviceInfo; } }
@@ -96,7 +95,6 @@ namespace RDMSharp
 
                 dmxStartAddressModule.DMXAddress = value;
                 this.OnPropertyChanged(nameof(this.DMXAddress));
-                this.updateDeviceInfo();
             }
         }
 
@@ -115,7 +113,6 @@ namespace RDMSharp
 
                 dmxPersonalityModule.CurrentPersonality = value;
                 this.OnPropertyChanged(nameof(this.CurrentPersonality));
-                this.updateDeviceInfo();
             }
         }
         private bool discoveryMuted;
@@ -198,15 +195,6 @@ namespace RDMSharp
 
             _params.Add(ERDM_Parameter.DEVICE_INFO);
             _params.Add(ERDM_Parameter.SUPPORTED_PARAMETERS);
-            _params.Add(ERDM_Parameter.SOFTWARE_VERSION_LABEL);
-            if (SupportDMXAddress)
-                _params.Add(ERDM_Parameter.DMX_START_ADDRESS);
-            //if ((Personalities?.Count ?? 0) != 0)
-            //{
-            //    _params.Add(ERDM_Parameter.SLOT_INFO);
-            //    _params.Add(ERDM_Parameter.SLOT_DESCRIPTION);
-            //    _params.Add(ERDM_Parameter.DEFAULT_SLOT_VALUE);
-            //}
 
             foreach (IModule module in _modules)
                 foreach (var parameter in module.SupportedParameters)
