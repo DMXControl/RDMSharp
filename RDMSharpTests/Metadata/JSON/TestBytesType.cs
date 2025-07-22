@@ -300,7 +300,7 @@ namespace RDMSharpTests.Metadata.JSON
             var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", null, null, null);
             var utf8 = "äöüß€!";
             var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, utf8)).SelectMany(en => en).ToArray();
-            Assert.That(data, Is.EqualTo(new byte[] { 195, 164, 195, 182, 195, 188, 195, 159, 226, 130, 172, 33 }));
+            Assert.That(data, Is.EqualTo(new byte[] { 63, 63, 63, 63, 63, 33 }));
             var dataTree = bytesType.ParseDataToPayload(ref data);
             Assert.That(data, Has.Length.EqualTo(0));
             Assert.That(dataTree.Value, Is.Not.Null);

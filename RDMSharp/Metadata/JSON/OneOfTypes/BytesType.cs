@@ -191,7 +191,17 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                         //Fallback
                         default:
                             if (value is string str)
-                                return Encoding.UTF8.GetBytes(str);
+                                return Encoding.ASCII.GetBytes(str);
+                            if (value is IReadOnlyCollection<string> strings)
+                            {
+                                List<byte> bytes = new List<byte>();
+                                foreach (string _str in strings)
+                                {
+                                    bytes.AddRange(Encoding.ASCII.GetBytes(_str));
+                                    bytes.Add(0x00);
+                                }
+                                return bytes.ToArray();
+                            }
                             if (value is byte[] byteArray)
                                 return byteArray;
                             throw new NotImplementedException($"There is no implementation for {nameof(Format)}: {Format} and Value: {value}");

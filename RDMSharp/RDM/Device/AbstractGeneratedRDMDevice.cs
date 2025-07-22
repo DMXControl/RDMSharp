@@ -458,6 +458,14 @@ namespace RDMSharp
                     }
                 }
 
+                var module = this.Modules.FirstOrDefault(m => m.IsHandlingParameter(rdmMessage.Parameter, rdmMessage.Command));
+                if (module is not null)
+                {
+                    response = module.HandleRequest(rdmMessage);
+                    if (response != null)
+                        goto FAIL;
+                }
+
                 if (rdmMessage.SubDevice != SubDevice.Broadcast && !(this.SubDevices?.Any(sd => sd.Subdevice == rdmMessage.SubDevice) ?? true))
                 {
                     response = new RDMMessage(ERDM_NackReason.SUB_DEVICE_OUT_OF_RANGE) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
@@ -600,14 +608,14 @@ namespace RDMSharp
                                 if (data.Count() !=1)
                                 {
                                     overflowCacheBags.AddOrUpdate(rdmMessage.SourceUID, (uid) => new OverflowCacheBag(rdmMessage.Parameter, data.ToList()), (uid, o) => new OverflowCacheBag(rdmMessage.Parameter, data.ToList()));
-                                    pData = overflowCacheBags[rdmMessage.SourceUID].Cache.Dequeue();
+                                    overflowCacheBags[rdmMessage.SourceUID].Cache.TryDequeue(out pData);
                                 }
                                 response = new RDMMessage
                                 {
                                     Parameter = parameter,
                                     Command = ERDM_Command.GET_COMMAND_RESPONSE,
                                     MessageCounter = messageCounter,
-                                    ParameterData = pData ?? data.First(),
+                                    ParameterData = pData ?? data.FirstOrDefault() ?? new byte[0],
                                     PortID_or_Responsetype = pData is null ? (byte)ERDM_ResponseType.ACK : (byte)ERDM_ResponseType.ACK_OVERFLOW
                                 };
                             }
@@ -628,13 +636,6 @@ namespace RDMSharp
                 {
                     bool success = false;
                     //Handle set Request
-                    var module = this.Modules.FirstOrDefault(m => m.IsHandlingParameter(rdmMessage.Parameter, rdmMessage.Command));
-                    if (module is not null)
-                    {
-                        response = module.HandleRequest(rdmMessage);
-                        if (response != null)
-                            goto FAIL;
-                    }
                     if (parameterValues.TryGetValue(rdmMessage.Parameter, out object comparisonValue))
                     {
                         parameterValues.AddOrUpdate(rdmMessage.Parameter, (_) =>

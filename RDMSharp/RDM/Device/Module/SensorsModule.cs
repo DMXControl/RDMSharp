@@ -94,7 +94,7 @@ namespace RDMSharp.RDM.Device.Module
         public override bool IsHandlingParameter(ERDM_Parameter parameter, ERDM_Command command)
         {
             if (parameter == ERDM_Parameter.RECORD_SENSORS)
-                return true;
+                return command == ERDM_Command.SET_COMMAND;
 
             return base.IsHandlingParameter(parameter, command);
         }
@@ -150,6 +150,14 @@ namespace RDMSharp.RDM.Device.Module
                         Command = ERDM_Command.SET_COMMAND_RESPONSE
                     };
                 }
+                else
+                    return new RDMMessage(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS)
+                    {
+                        DestUID = message.SourceUID,
+                        SourceUID = message.DestUID,
+                        Parameter = message.Parameter,
+                        Command = message.Command | ERDM_Command.RESPONSE
+                    };
             return base.handleRequest(message);
         }
         private void Sensor_PropertyChanged(object sender, PropertyChangedEventArgs e)

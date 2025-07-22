@@ -4,15 +4,15 @@
   "manufacturer_id": 0,
   "pid": 1620,
   "version": 1,
-  "set_request_subdevice_range": [ "root", "subdevices" ],
-  "set_request": [
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [
     {
       "name": "tag",
       "type": "string",
       "maxLength": 32
     }
   ],
-  "set_response": [
+  "get_response": [
     {
       "name": "status",
       "type": "boolean",
