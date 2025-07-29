@@ -285,7 +285,7 @@ namespace RDMSharp
 
         internal bool handleNACKReason(RDMMessage rdmMessage)
         {
-            if (rdmMessage.NackReason.Contains(ERDM_NackReason.ACTION_NOT_SUPPORTED) || rdmMessage.NackReason.Contains(ERDM_NackReason.UNKNOWN_PID))
+            if (rdmMessage.NackReason.Contains(ERDM_NackReason.FORMAT_ERROR) || rdmMessage.NackReason.Contains(ERDM_NackReason.UNKNOWN_PID))
             {
                 AddParameterToKnownNotSupportedParameters(rdmMessage.Parameter);
                 return false;

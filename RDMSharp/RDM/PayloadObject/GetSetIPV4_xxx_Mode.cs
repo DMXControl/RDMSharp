@@ -27,7 +27,7 @@ namespace RDMSharp
 
         public override string ToString()
         {
-            return $"GetSetDHCPMode: {InterfaceId} - {Enabled}";
+            return $"GetSet-xxx-Mode: {InterfaceId} - {Enabled}";
         }
 
         public static GetSetIPV4_xxx_Mode FromMessage(RDMMessage msg)

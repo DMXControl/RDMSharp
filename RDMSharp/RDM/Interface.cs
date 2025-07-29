@@ -9,6 +9,8 @@ namespace RDMSharp
     public class Interface : INotifyPropertyChanged, IEquatable<Interface>
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler<EventArgs> CurrentIPChanged;
+        public event EventHandler<EventArgs> StaticIPChanged;
 
         public readonly uint InterfaceId;
 
@@ -26,6 +28,19 @@ namespace RDMSharp
             }
         }
 
+        private ERDM_DHCPStatusMode currentIP_DHCPStatus;
+        public ERDM_DHCPStatusMode CurrentIP_DHCPStatus
+        {
+            get { return currentIP_DHCPStatus; }
+            private set
+            {
+                if (currentIP_DHCPStatus == value)
+                    return;
+                currentIP_DHCPStatus = value;
+                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(CurrentIP_DHCPStatus)));
+            }
+        }
+
         private IPv4Address currentIP;
         public IPv4Address CurrentIP
         {
@@ -40,19 +55,59 @@ namespace RDMSharp
             }
         }
 
-        private byte subnetMask;
-        public byte SubnetMask
+        private byte currentSubnetMask;
+        public byte CurrentSubnetMask
         {
-            get { return subnetMask; }
+            get { return currentSubnetMask; }
             private set
             {
-                if (subnetMask == value)
+                if (currentSubnetMask == value)
                     return;
 
-                subnetMask = value;
-                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(SubnetMask)));
+                currentSubnetMask = value;
+                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(CurrentSubnetMask)));
             }
         }
+        private IPv4Address staticIP;
+        public IPv4Address StaticIP
+        {
+            get { return staticIP; }
+            private set
+            {
+                if (staticIP == value)
+                    return;
+
+                staticIP = value;
+                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(StaticIP)));
+                if (!dhcp)
+                {
+                    currentIP_DHCPStatus = ERDM_DHCPStatusMode.INACTIVE;
+                    CurrentIP = staticIP;
+                }
+            }
+        }
+
+        private byte staticSubnetMask;
+        public byte StaticSubnetMask
+        {
+            get { return staticSubnetMask; }
+            private set
+            {
+                if (staticSubnetMask == value)
+                    return;
+
+                staticSubnetMask = value;
+                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(StaticSubnetMask)));
+                if (!dhcp)
+                {
+                    currentIP_DHCPStatus = ERDM_DHCPStatusMode.INACTIVE;
+                    CurrentSubnetMask = staticSubnetMask;
+                }
+            }
+        }
+
+        public readonly IPv4Address DefaultIP;
+        public readonly byte DefaultSubnetMask;
 
         private MACAddress macAddress;
         public MACAddress MACAddress
@@ -72,12 +127,17 @@ namespace RDMSharp
         public bool DHCP
         {
             get { return dhcp; }
-            private set
+            set
             {
                 if (dhcp == value)
                     return;
 
                 dhcp = value;
+                if (!value)
+                {
+                    CurrentIP = StaticIP;
+                    CurrentSubnetMask = StaticSubnetMask;
+                }
                 this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(DHCP)));
             }
         }
@@ -85,7 +145,7 @@ namespace RDMSharp
         public bool ZeroConf
         {
             get { return zeroConf; }
-            private set
+            set
             {
                 if (zeroConf == value)
                     return;
@@ -115,20 +175,54 @@ namespace RDMSharp
         }
         internal protected Interface(in byte interfaceId,
             in string lable,
-            in IPv4Address currentIp,
-            in byte subnetMask,
+            in IPv4Address zeroconfIp,
+            in byte zeroconfSubnetMask,
             in MACAddress macAddress,
-            in bool dhcp,
-            in bool zeroConf,
             in EARP_HardwareTypes hardwareType) : this(interfaceId)
         {
             Lable = lable;
-            CurrentIP = currentIp;
-            SubnetMask = subnetMask;
+            DefaultIP = zeroconfIp;
+            DefaultSubnetMask = zeroconfSubnetMask;
+            staticIP = DefaultIP;
+            staticSubnetMask = DefaultSubnetMask;
+            currentIP = StaticIP;
+            currentSubnetMask = StaticSubnetMask;
             MACAddress = macAddress;
-            DHCP = dhcp;
-            ZeroConf = zeroConf;
             HardwareType = hardwareType;
+            dhcp = false;
+            zeroConf = true;
+            currentIP_DHCPStatus = ERDM_DHCPStatusMode.INACTIVE;
+        }
+
+        public void SetStaticIP(in IPv4Address staticIP, in byte staticSubnetMask)
+        {
+            if (staticSubnetMask < 0 || staticSubnetMask > 32)
+                throw new ArgumentOutOfRangeException(nameof(staticSubnetMask), "Subnet mask must be between 0 and 32");
+            StaticIP = staticIP;
+            StaticSubnetMask = staticSubnetMask;
+
+            this.StaticIPChanged?.InvokeFailSafe(this, EventArgs.Empty);
+            if (!dhcp)
+                this.SetCurrentIP(staticIP, staticSubnetMask, false);
+        }
+        protected void SetCurrentIP(in IPv4Address currentIP, in byte currentSubnetMask, in bool isGivenByDHCP)
+        {
+            if (currentSubnetMask < 0 || currentSubnetMask > 32)
+                throw new ArgumentOutOfRangeException(nameof(currentSubnetMask), "Subnet mask must be between 0 and 32");
+
+            this.CurrentIP = currentIP;
+            this.CurrentSubnetMask = currentSubnetMask;
+            this.CurrentIP_DHCPStatus = isGivenByDHCP ? ERDM_DHCPStatusMode.ACTIVE : ERDM_DHCPStatusMode.INACTIVE;
+            
+            this.CurrentIPChanged?.InvokeFailSafe(this, EventArgs.Empty);
+        }
+
+        public virtual void RenewDHCP()
+        {
+        }
+
+        public virtual void ReleaseDHCP()
+        {
         }
 
         public override string ToString()
@@ -136,7 +230,7 @@ namespace RDMSharp
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"Interface: {this.InterfaceId}");
             sb.AppendLine($"Lable: {this.Lable}");
-            sb.AppendLine($"CurrentIP: {this.CurrentIP}/{this.SubnetMask}");
+            sb.AppendLine($"CurrentIP: {this.CurrentIP}/{this.CurrentSubnetMask}");
             sb.AppendLine($"MACAddress: {this.MACAddress}");
             sb.AppendLine($"DHCP: {this.DHCP}");
             sb.AppendLine($"ZeroConf: {this.ZeroConf}");
@@ -154,8 +248,12 @@ namespace RDMSharp
             return other is not null &&
                    InterfaceId == other.InterfaceId &&
                    Lable == other.Lable &&
+                   DefaultIP == other.DefaultIP &&
+                   DefaultSubnetMask == other.DefaultSubnetMask &&
+                   StaticIP == other.StaticIP &&
+                   StaticSubnetMask == other.StaticSubnetMask &&
                    CurrentIP == other.CurrentIP &&
-                   SubnetMask == other.SubnetMask &&
+                   CurrentSubnetMask == other.CurrentSubnetMask &&
                    MACAddress == other.MACAddress &&
                    DHCP == other.DHCP &&
                    ZeroConf == other.ZeroConf;
@@ -167,8 +265,12 @@ namespace RDMSharp
             HashCode hash = new HashCode();
             hash.Add(InterfaceId);
             hash.Add(Lable);
+            hash.Add(DefaultIP);
+            hash.Add(DefaultSubnetMask);
+            hash.Add(StaticIP);
+            hash.Add(StaticSubnetMask);
             hash.Add(CurrentIP);
-            hash.Add(SubnetMask);
+            hash.Add(CurrentSubnetMask);
             hash.Add(MACAddress);
             hash.Add(DHCP);
             hash.Add(ZeroConf);
@@ -177,8 +279,12 @@ namespace RDMSharp
             int hashCode = 1916557166;
             hashCode = hashCode * -1521134295 + InterfaceId.GetHashCode();
             hashCode = hashCode * -1521134295 + Lable.GetHashCode();
+            hashCode = hashCode * -1521134295 + DefaultIP.GetHashCode();
+            hashCode = hashCode * -1521134295 + DefaultSubnetMask.GetHashCode();
+            hashCode = hashCode * -1521134295 + StaticIP.GetHashCode();
+            hashCode = hashCode * -1521134295 + StaticSubnetMask.GetHashCode();
             hashCode = hashCode * -1521134295 + CurrentIP.GetHashCode();
-            hashCode = hashCode * -1521134295 + SubnetMask.GetHashCode();
+            hashCode = hashCode * -1521134295 + CurrentSubnetMask.GetHashCode();
             hashCode = hashCode * -1521134295 + MACAddress.GetHashCode();
             hashCode = hashCode * -1521134295 + DHCP.GetHashCode();
             hashCode = hashCode * -1521134295 + ZeroConf.GetHashCode();
