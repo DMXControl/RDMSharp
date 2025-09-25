@@ -104,7 +104,7 @@ namespace RDMSharp
                         (responseResult.Response is not null && responseResult.Response.ResponseType == ERDM_ResponseType.NACK_REASON))
                     {
                         State = EPeerToPeerProcessState.Failed;
-                        NackReason= responseResult.Response.NackReason;
+                        NackReason= responseResult.Response?.NackReason;
                         if (responseResult.Response is not null)
                             ResponseMessage?.InvokeFailSafe(responseResult.Response);
                         return;

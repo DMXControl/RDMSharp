@@ -50,7 +50,14 @@ namespace RDMSharp.Metadata
             if (define == null)
                 throw new ArgumentNullException();
 
-            ParsedObject = this.getParsedObject(define, commandType);
+            try
+            {
+                ParsedObject = this.getParsedObject(define, commandType);
+            }
+            catch (Exception e)
+            {
+                Logger?.LogWarning($"Can't get a Parsed Object for {define.Name} (0x{define.PID:X4})", e);
+            }
         }
 
         private object getParsedObject(MetadataJSONObjectDefine define, Command.ECommandDublicate commandType)
@@ -455,6 +462,15 @@ namespace RDMSharp.Metadata
         public static bool operator !=(DataTreeBranch left, DataTreeBranch right)
         {
             return !(left == right);
+        }
+
+        public override string ToString()
+        {
+            if (Children is not null)
+            {
+                return "DTB:" + Environment.NewLine + String.Join(Environment.NewLine, Children.Select(c=>$"{c.Name} = {c.Value}"));
+            }
+            return base.ToString();
         }
     }
 }
