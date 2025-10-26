@@ -273,6 +273,12 @@ namespace RDMSharp
                     string name = intType.Name;
                     var depBag = parameterValuesDependeciePropertyBag.FirstOrDefault(bag => bag.Key.Parameter == parameterBag.PID && bag.Key.Command == Metadata.JSON.Command.ECommandDublicate.GetRequest && string.Equals(bag.Key.Name, name));
                     IComparable dependecyValue = (IComparable)depBag.Value;
+                    switch (parameterBag.PID)
+                    {
+                        case ERDM_Parameter.STATUS_MESSAGES:
+                            i = (byte)0;
+                            break;
+                    }
 
                     if (i == null)
                     {
@@ -281,6 +287,7 @@ namespace RDMSharp
                             switch (parameterBag.PID)
                             {
                                 case ERDM_Parameter.STATUS_ID_DESCRIPTION:
+                                case ERDM_Parameter.STATUS_MESSAGES:
                                     break;
                                 default:
                                     Logger?.LogDebug($"No {nameof(dependecyValue)} found for {parameterBag.PID}");
@@ -295,6 +302,7 @@ namespace RDMSharp
                                 i = intType.GetMinimum();
                                 object max = intType.GetMaximum();
                                 object count = Convert.ChangeType(0, i.GetType());
+                                object dataOutOfRangeMin = Convert.ChangeType(2, i.GetType());
                                 while (dependecyValue.CompareTo(count) > 0)
                                 {
                                     if (!intType.IsInRange(i))
@@ -307,9 +315,12 @@ namespace RDMSharp
                                     PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
                                     await runPeerToPeerProcess(ptpProcess);
                                     if (ptpProcess.State == EPeerToPeerProcessState.Failed && ptpProcess.NackReason.Contains(ERDM_NackReason.DATA_OUT_OF_RANGE))
-                                        return new RequestResult(ptpProcess);
+                                    {
+                                        if (((IComparable)dataOutOfRangeMin).CompareTo(i) < 0)
+                                            return new RequestResult(ptpProcess);
+                                    }
                                     if (!ptpProcess.ResponsePayloadObject.IsUnset)
-                                        updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, i), ptpProcess.ResponsePayloadObject);
+                                            updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, i), ptpProcess.ResponsePayloadObject);
 
                                     i = intType.IncrementJumpRange(i);
                                     count = intType.Increment(count);

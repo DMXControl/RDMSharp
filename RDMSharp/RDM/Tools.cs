@@ -125,7 +125,7 @@ namespace RDMSharp
 
         public static string GetStatusMessage(this ERDM_StatusMessage status, in short dataValue1 = 0, in short dataValue2 = 0)
         {
-            return status.GetAttribute<StatusMessageAttribute>().GetFormatedString(dataValue1, dataValue2) ?? string.Empty;
+            return status.GetAttribute<StatusMessageAttribute>()?.GetFormatedString(dataValue1, dataValue2) ?? string.Empty;
         }
         public static string GetEnumDescription(Enum value)
         {
