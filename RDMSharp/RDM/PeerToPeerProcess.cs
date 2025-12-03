@@ -161,6 +161,7 @@ public class PeerToPeerProcess : INotifyPropertyChanged
             int counter = 0;
             do
             {
+                await RDMSharp.Instance.lockTransaktion(UID);
                 counter++;
                 if (response?.ResponseType == ERDM_ResponseType.ACK)
                     return;
@@ -171,7 +172,15 @@ public class PeerToPeerProcess : INotifyPropertyChanged
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RequestResponseHistory)));
                 OnRequestResponseHistoryAdded?.Invoke(this, historyEntry);
 
-                var responseResult = await asyncRDMRequestHelper.RequestMessage(request);
+                RequestResult responseResult;
+                try
+                {
+                    responseResult = await asyncRDMRequestHelper.RequestMessage(request);
+                }
+                finally
+                {
+                    RDMSharp.Instance.unlockTransaktion(UID);
+                }
 
                 if (responseResult.Timeout)
                 {
@@ -205,7 +214,14 @@ public class PeerToPeerProcess : INotifyPropertyChanged
                         if (response.AcknowledgeTimer is IAcknowledgeTimer timer)
                         {
                             await Task.Delay(timer.EstimidatedResponseTime);
-                            request.Parameter = ERDM_Parameter.QUEUED_MESSAGE;
+                            request = new RDMMessage()
+                            {
+                                Command = ERDM_Command.GET_COMMAND,
+                                DestUID = UID,
+                                SubDevice = SubDevice,
+                                Parameter = ERDM_Parameter.QUEUED_MESSAGE,
+                                ParameterData = new byte[] { 2 }
+                            };
                             //Send Message on next loop
                             continue;
                         }

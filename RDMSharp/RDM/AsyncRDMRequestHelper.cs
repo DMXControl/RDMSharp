@@ -105,8 +105,6 @@ public class AsyncRDMRequestHelper : IDisposable
                 return false;
             if (request.DestUID != response.SourceUID)
                 return false;
-            if ((request.Command | ERDM_Command.RESPONSE) != response.Command)
-                return false;
 
             return true;
         }

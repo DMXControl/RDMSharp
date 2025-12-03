@@ -32,6 +32,7 @@ public abstract class AbstractRDMCache : IDisposable
     {
         get { return this.parameterMetadataBag?.AsReadOnly(); }
     }
+    internal protected event EventHandler<ParameterMetadata> ParameterMetadataAdded;
 
     public class ParameterValueAddedEventArgs : EventArgs
     {
@@ -201,12 +202,17 @@ public abstract class AbstractRDMCache : IDisposable
         await Task.CompletedTask;
     }
 
+    internal protected void tryAddParameterMetadata(ERDM_Parameter pid)
+    {
+        if (!parameterMetadataBag.ContainsKey(pid))
+            if (parameterMetadataBag.TryAdd(pid, new ParameterMetadata(pid)))
+                ParameterMetadataAdded?.InvokeFailSafe(this, parameterMetadataBag[pid]);
+    }
     protected async Task runPeerToPeerProcess(PeerToPeerProcess ptpProcess)
     {
         ptpProcess.BeforeSendMessage = OnSendRDMMessage;
         ptpProcess.ResponseMessage = OnResponseMessage;
-        if (!parameterMetadataBag.ContainsKey(ptpProcess.ParameterBag.PID))
-            parameterMetadataBag.TryAdd(ptpProcess.ParameterBag.PID, new ParameterMetadata(ptpProcess.ParameterBag.PID));
+        tryAddParameterMetadata(ptpProcess.ParameterBag.PID);
 
         parameterMetadataBag[ptpProcess.ParameterBag.PID].AddPeerToPeerProcess(ptpProcess);
         await ptpProcess?.Run();

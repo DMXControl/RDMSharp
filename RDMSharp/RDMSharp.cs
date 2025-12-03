@@ -1,106 +1,124 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace RDMSharp
+namespace RDMSharp;
+
+public class RDMSharp
 {
-    public class RDMSharp
+    private static RDMSharp _instance;
+    public static RDMSharp Instance
     {
-        private static RDMSharp _instance;
-        public static RDMSharp Instance
+        get
         {
-            get
-            {
-                return _instance;
-            }
+            return _instance;
         }
+    }
 
-        public readonly UID ControllerUID;
-        public readonly Func<RDMMessage, Task> SendMessage;
-        public readonly AsyncRDMRequestHelper AsyncRDMRequestHelper;
-        public event EventHandler<RDMMessage>? ResponseReceivedEvent;
-        public event EventHandler<RequestReceivedEventArgs>? RequestReceivedEvent;
+    public readonly UID ControllerUID;
+    public readonly Func<RDMMessage, Task> SendMessage;
+    public readonly AsyncRDMRequestHelper AsyncRDMRequestHelper;
+    public event EventHandler<RDMMessage>? ResponseReceivedEvent;
+    public event EventHandler<RequestReceivedEventArgs>? RequestReceivedEvent;
 
-        private readonly ConcurrentDictionary<UID, byte> transactionCounters = new ConcurrentDictionary<UID, byte>();
+    private readonly ConcurrentDictionary<UID, byte> transactionCounters = new ConcurrentDictionary<UID, byte>();
+    private readonly ConcurrentDictionary<UID, SemaphoreSlim> transactionLock = new ConcurrentDictionary<UID, SemaphoreSlim>();
 
-        private RDMSharp(UID controllerUID, Func<RDMMessage, Task> sendMessage)
+    private RDMSharp(UID controllerUID, Func<RDMMessage, Task> sendMessage)
+    {
+        _instance = this ?? throw new InvalidOperationException("RDMSharp instance already exists. Use Instance property to access it.");
+
+        this.ControllerUID = controllerUID;
+
+        SendMessage = sendMessage ?? throw new ArgumentNullException(nameof(sendMessage), "SendMethode can't be null.");
+        AsyncRDMRequestHelper = new AsyncRDMRequestHelper(async (rdmMessage) =>
         {
-            _instance = this ?? throw new InvalidOperationException("RDMSharp instance already exists. Use Instance property to access it.");
+            rdmMessage.SourceUID = ControllerUID;
+            await SendMessage.Invoke(rdmMessage);
+        });
+    }
+    public void ResponseReceived(RDMMessage rdmMessage)
+    {
+        if (!AsyncRDMRequestHelper.ReceiveMessage(rdmMessage))
+            ResponseReceivedEvent?.InvokeFailSafe(this, rdmMessage);
+    }
+    public bool RequestReceived(RDMMessage request, out RDMMessage response)
+    {
+        RDMMessage _response = null;
+        var e = new RequestReceivedEventArgs(request);
+        var handlers = RequestReceivedEvent?.GetInvocationList() ?? Array.Empty<Delegate>();
 
-            this.ControllerUID = controllerUID;
-
-            SendMessage = sendMessage ?? throw new ArgumentNullException(nameof(sendMessage), "SendMethode can't be null.");
-            AsyncRDMRequestHelper = new AsyncRDMRequestHelper(async (rdmMessage) =>
-            {
-                rdmMessage.SourceUID = ControllerUID;
-                await SendMessage.Invoke(rdmMessage);
-            });
-        }
-        public void ResponseReceived(RDMMessage rdmMessage)
+        // Parallel ausführen, aber Reihenfolge der Responses beachten
+        ParallelOptions parallelOptions = new ParallelOptions
         {
-            if (!AsyncRDMRequestHelper.ReceiveMessage(rdmMessage))
-                ResponseReceivedEvent?.InvokeFailSafe(this, rdmMessage);
-        }
-        public bool RequestReceived(RDMMessage request, out RDMMessage response)
+            MaxDegreeOfParallelism = Environment.ProcessorCount // Optional: Setze die maximale Parallelität
+        };
+        Parallel.ForEach(handlers, parallelOptions, (handler, state) =>
         {
-            RDMMessage _response = null;
-            var e = new RequestReceivedEventArgs(request);
-            var handlers = RequestReceivedEvent?.GetInvocationList() ?? Array.Empty<Delegate>();
-
-            // Parallel ausführen, aber Reihenfolge der Responses beachten
-            ParallelOptions parallelOptions = new ParallelOptions
+            handler.InvokeFailSafe(this, e);
+            if (e.Response is not null)
             {
-                MaxDegreeOfParallelism = Environment.ProcessorCount // Optional: Setze die maximale Parallelität
-            };
-            Parallel.ForEach(handlers, parallelOptions, (handler, state) =>
-            {
-                handler.InvokeFailSafe(this, e);
-                if (e.Response is not null)
+                if (request.Command != ERDM_Command.DISCOVERY_COMMAND || request.DestUID.IsBroadcast)
                 {
-                    if (request.Command != ERDM_Command.DISCOVERY_COMMAND || request.DestUID.IsBroadcast)
-                    {
-                        _response = e.Response;
-                        state.Stop(); // Beende Parallel.ForEach, wenn eine Response gefunden wurde
-                    }
+                    _response = e.Response;
+                    state.Stop(); // Beende Parallel.ForEach, wenn eine Response gefunden wurde
                 }
-            });
+            }
+        });
 
-            response = _response;
-            return response is not null;
+        response = _response;
+        return response is not null;
+    }
+
+    public static void Initialize(UID controllerUID, Func<RDMMessage, Task> sendMethode)
+    {
+        if (_instance != null)
+        {
+            throw new InvalidOperationException("RDMSharp instance already exists. Use Instance property to access it.");
+        }
+        _instance = new RDMSharp(controllerUID, sendMethode);
+    }
+
+    public class RequestReceivedEventArgs : EventArgs
+    {
+        public RDMMessage Request { get; }
+        public RDMMessage Response { get; set; }
+        public RequestReceivedEventArgs(RDMMessage request)
+        {
+            Request = request ?? throw new ArgumentNullException(nameof(request), "Request can't be null.");
+            Response = null;
+        }
+    }
+    internal byte getTransactionCounter(UID uid)
+    {
+        if (transactionCounters.TryGetValue(uid, out byte tc))
+        {
+            tc++;
+            transactionCounters.AddOrUpdate(uid, (a) => tc, (b, c) => tc);
+            return tc;
+        }
+        else
+        {
+            transactionCounters.TryAdd(uid, 0);
+            return 0;
+        }
+    }
+    internal Task lockTransaktion(UID uid)
+    {
+        if (!transactionLock.TryGetValue(uid, out SemaphoreSlim semaphore))
+        {
+            semaphore = new SemaphoreSlim(1);
+            transactionLock.TryAdd(uid, semaphore);
         }
 
-        public static void Initialize(UID controllerUID, Func<RDMMessage, Task> sendMethode)
+        return Task.WhenAny(semaphore.WaitAsync(), Task.Delay(7000));
+    }
+    internal void unlockTransaktion(UID uid)
+    {
+        if (transactionLock.TryGetValue(uid, out SemaphoreSlim? semaphore))
         {
-            if (_instance != null)
-            {
-                throw new InvalidOperationException("RDMSharp instance already exists. Use Instance property to access it.");
-            }
-            _instance = new RDMSharp(controllerUID, sendMethode);
-        }
-
-        public class RequestReceivedEventArgs : EventArgs
-        {
-            public RDMMessage Request { get; }
-            public RDMMessage Response { get; set; }
-            public RequestReceivedEventArgs(RDMMessage request)
-            {
-                Request = request ?? throw new ArgumentNullException(nameof(request), "Request can't be null.");
-                Response = null;
-            }
-        }
-        internal byte getTransactionCounter(UID uid)
-        {
-            if (transactionCounters.TryGetValue(uid, out byte tc))
-            {
-                tc++;
-                transactionCounters.AddOrUpdate(uid, (a) => tc, (b, c) => tc);
-                return tc;
-            }
-            else
-            {
-                transactionCounters.TryAdd(uid, 0);
-                return 0;
-            }
+            semaphore.Release();
         }
     }
 }

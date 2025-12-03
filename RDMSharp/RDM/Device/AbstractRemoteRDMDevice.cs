@@ -76,10 +76,20 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
     {
         get
         {
-            if (DeviceModel == null)
-                return parameterMetadataBag.AsReadOnly();
+            IReadOnlyDictionary<ERDM_Parameter, ParameterMetadata> deviceModelParameterMetadataBag = null;
+            IReadOnlyDictionary<ERDM_Parameter, ParameterMetadata> personalityModelParameterMetadataBag = null;
+            if (PersonalityModel is not null)
+                personalityModelParameterMetadataBag = PersonalityModel.ParameterMetadataBag.Where(x => !parameterMetadataBag.ContainsKey(x.Key)).ToDictionary(k => k.Key, v => v.Value).AsReadOnly();
+            if (DeviceModel is not null)
+                deviceModelParameterMetadataBag = DeviceModel.ParameterMetadataBag.Where(x => !parameterMetadataBag.ContainsKey(x.Key) && !(personalityModelParameterMetadataBag?.ContainsKey(x.Key) ?? false)).ToDictionary(k => k.Key, v => v.Value).AsReadOnly();
 
-            return DeviceModel.ParameterMetadataBag.Where(x => !parameterMetadataBag.ContainsKey(x.Key)).Concat(parameterMetadataBag).ToDictionary(k => k.Key, v => v.Value).AsReadOnly();
+            if (deviceModelParameterMetadataBag is not null || personalityModelParameterMetadataBag is not null)
+                return parameterMetadataBag.Concat(deviceModelParameterMetadataBag ?? Enumerable.Empty<KeyValuePair<ERDM_Parameter, ParameterMetadata>>())
+                    .Concat(personalityModelParameterMetadataBag ?? Enumerable.Empty<KeyValuePair<ERDM_Parameter, ParameterMetadata>>())
+                    .ToDictionary(k => k.Key, v => v.Value)
+                    .AsReadOnly();
+
+            return parameterMetadataBag.AsReadOnly();
         }
     }
 
@@ -267,11 +277,13 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
                 case ERDM_Parameter.DEVICE_INFO:
                     continue;
                 case ERDM_Parameter.QUEUED_MESSAGE:
+                    tryAddParameterMetadata(parameter);
                     continue;
                 case ERDM_Parameter.STATUS_MESSAGES:
                     await requestParameter(parameter, ERDM_Status.NONE);
                     continue;
             }
+            tryAddParameterMetadata(parameter);
             await requestParameter(parameter);
             await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
         }
