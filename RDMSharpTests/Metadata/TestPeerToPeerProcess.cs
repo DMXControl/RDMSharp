@@ -92,7 +92,7 @@ public class TestPeerToPeerProcess
 
             Assert.That(peerToPeerProcess.ResponsePayloadObject, Is.TypeOf(typeof(DataTreeBranch)));
             Assert.That(peerToPeerProcess.ResponsePayloadObject.Children[0].Children, Is.EqualTo(children));
-            Assert.That(peerToPeerProcess.ResponsePayloadObject.ParsedObject, Is.EqualTo(children.Select(dt => dt.Value).ToList()));
+            Assert.That(peerToPeerProcess.ResponsePayloadObject.ParsedObject, Is.EqualTo(new RDMProxiedDevices(children.Select(dt => (UID)dt.Value!).ToArray())));
         }
         finally
         {

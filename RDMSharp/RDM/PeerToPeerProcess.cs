@@ -161,7 +161,7 @@ public class PeerToPeerProcess : INotifyPropertyChanged
             int counter = 0;
             do
             {
-                await RDMSharp.Instance.lockTransaktion(UID);
+                await RDMSharp.Instance.lockTransaktion(UID).WaitAsync(TimeSpan.FromSeconds(7));
                 counter++;
                 if (response?.ResponseType == ERDM_ResponseType.ACK)
                     return;

@@ -332,52 +332,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         await updateSenaphoreSlim.WaitAsync();
         try
         {
-            if (QueuedSupported && !deviceModel.KnownNotSupportedParameters.Contains(ERDM_Parameter.QUEUED_MESSAGE))
-            {
-                if (DateTime.UtcNow - lastSendQueuedMessage < TimeSpan.FromMilliseconds(GlobalTimers.Instance.QueuedUpdateTime))
-                    return;
-                ParameterBag parameterBag = new ParameterBag(ERDM_Parameter.QUEUED_MESSAGE, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
-                var define = MetadataFactory.GetDefine(parameterBag);
-                if (define.GetRequest.HasValue)
-                {
-                    byte mc = 0;
-                    do
-                    {
-                        var cts = new CancellationTokenSource();
-                        cts.CancelAfter(TimeSpan.FromMilliseconds(GlobalTimers.Instance.ParameterUpdateTimerInterval));
-                        var task = Task.Run(async () =>
-                        {
-                            lastSendQueuedMessage = DateTime.UtcNow;
-
-                            Stopwatch sw = new Stopwatch();
-                            sw?.Restart();
-                            var result = await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice, ERDM_Status.ADVISORY);
-                            mc = result.MessageCounter;
-                            sw?.Stop();
-                            if (result.State == PeerToPeerProcess.EPeerToPeerProcessState.Failed)
-                            {
-                                if (sw.Elapsed.TotalSeconds > 3)
-                                    QueuedSupported = false;
-                                Logger?.LogWarning($"Queued Parameter failed after {sw.ElapsedMilliseconds}ms, Queued seems not supported, and wil be disabled");
-                                return;
-                            }
-                            Logger?.LogTrace($"Queued Parameter update took {sw.ElapsedMilliseconds}ms for {mc} messages.");
-                        }, cts.Token);
-                        await task;
-
-                        if (task.IsCompletedSuccessfully)
-                            await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenQueuedUpdateRequests);
-                        else
-                        {
-                            Logger?.LogTrace(task.Exception, $"Queue Parameter update failed: {task.Exception?.Message}");
-                            return;
-                        }
-
-                    }
-                    while (mc != 0);
-                    return;
-                }
-            }
+            await requestQueuedMessages();
             while (ParameterUpdatedBag.TryPeek(out ParameterUpdatedBag bag))
             {
                 if (DateTime.UtcNow - bag.Timestamp < TimeSpan.FromMilliseconds(GlobalTimers.Instance.NonQueuedUpdateTime))
@@ -410,6 +365,56 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         finally
         {
             updateSenaphoreSlim.Release();
+        }
+    }
+
+    private async Task requestQueuedMessages()
+    {
+        if (QueuedSupported && !deviceModel.KnownNotSupportedParameters.Contains(ERDM_Parameter.QUEUED_MESSAGE))
+        {
+            if (DateTime.UtcNow - lastSendQueuedMessage < TimeSpan.FromMilliseconds(GlobalTimers.Instance.QueuedUpdateTime))
+                return;
+            ParameterBag parameterBag = new ParameterBag(ERDM_Parameter.QUEUED_MESSAGE, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
+            var define = MetadataFactory.GetDefine(parameterBag);
+            if (define.GetRequest.HasValue)
+            {
+                byte mc = 0;
+                do
+                {
+                    var cts = new CancellationTokenSource();
+                    cts.CancelAfter(TimeSpan.FromMilliseconds(GlobalTimers.Instance.ParameterUpdateTimerInterval));
+                    var task = Task.Run(async () =>
+                    {
+                        lastSendQueuedMessage = DateTime.UtcNow;
+
+                        Stopwatch sw = new Stopwatch();
+                        sw?.Restart();
+                        var result = await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice, ERDM_Status.ADVISORY);
+                        mc = result.MessageCounter;
+                        sw?.Stop();
+                        if (result.State == PeerToPeerProcess.EPeerToPeerProcessState.Failed)
+                        {
+                            if (sw.Elapsed.TotalSeconds > 3)
+                                QueuedSupported = false;
+                            Logger?.LogWarning($"Queued Parameter failed after {sw.ElapsedMilliseconds}ms, Queued seems not supported, and wil be disabled");
+                            return;
+                        }
+                        Logger?.LogTrace($"Queued Parameter update took {sw.ElapsedMilliseconds}ms for {mc} messages.");
+                    }, cts.Token);
+                    await task;
+
+                    if (task.IsCompletedSuccessfully)
+                        await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenQueuedUpdateRequests);
+                    else
+                    {
+                        Logger?.LogTrace(task.Exception, $"Queue Parameter update failed: {task.Exception?.Message}");
+                        return;
+                    }
+
+                }
+                while (mc != 0);
+                return;
+            }
         }
     }
 

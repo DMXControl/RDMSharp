@@ -112,7 +112,7 @@ public class RDMSharp
             transactionLock.TryAdd(uid, semaphore);
         }
 
-        return Task.WhenAny(semaphore.WaitAsync(), Task.Delay(7000));
+        return semaphore.WaitAsync();
     }
     internal void unlockTransaktion(UID uid)
     {

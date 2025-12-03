@@ -96,11 +96,10 @@ public class ParameterMetadata : INotifyPropertyChanged
         }
     }
 }
-[Flags]
 public enum EQueuedParameterCapabilitiesStatus : byte
 {
     Unknown = 0b00000000,
-    ParameterNotSupported = 0b00000010,
+    QueuedMessagesParameterSupported = 0b00000010,
     Try_1 = 0b00000100,
     Try_2 = 0b00001000,
     Try_3 = 0b00010000,
