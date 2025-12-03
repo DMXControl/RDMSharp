@@ -91,7 +91,7 @@ public class RDMMessage : IEquatable<RDMMessage>
         DestUID = new UID(manIdDest, devIdDest);
         TransactionCounter = data[15];
         PortID_or_Responsetype = data[16];
-        MessageCounter = data[17];
+        ControllerFlags_or_MessageCounter = data[17];
         SubDevice = new SubDevice((ushort)((data[18] << 8) | data[19]));
         Command = (ERDM_Command)data[20];
         Parameter = (ERDM_Parameter)((data[21] << 8) | data[22]);
@@ -147,7 +147,25 @@ public class RDMMessage : IEquatable<RDMMessage>
         }
     }
 
-    public byte MessageCounter { get; set; }
+    public byte? MessageCounter
+    {
+        get
+        {
+            if (this.Command.HasFlag(ERDM_Command.RESPONSE))
+                return ControllerFlags_or_MessageCounter;
+            return null;
+        }
+    }
+    public ERDM_ControllerFlags? ControllerFlags
+    {
+        get
+        {
+            if (!this.Command.HasFlag(ERDM_Command.RESPONSE))
+                return (ERDM_ControllerFlags)ControllerFlags_or_MessageCounter;
+            return null;
+        }
+    }
+    public byte ControllerFlags_or_MessageCounter { get; set; }
     public byte? PreambleCount
     {
         get
@@ -312,7 +330,7 @@ public class RDMMessage : IEquatable<RDMMessage>
 
             sum += TransactionCounter;
             sum += PortID_or_Responsetype;
-            sum += MessageCounter;
+            sum += ControllerFlags_or_MessageCounter;
             sum += ((ushort)SubDevice) & 0xFF;
             sum += (((ushort)SubDevice) >> 8) & 0xFF;
             sum += (byte)Command;
@@ -413,7 +431,7 @@ public class RDMMessage : IEquatable<RDMMessage>
                 ret.AddRange(SourceUID.ToBytes());
                 ret.Add(TransactionCounter);
                 ret.Add(PortID_or_Responsetype);
-                ret.Add(MessageCounter);
+                ret.Add(ControllerFlags_or_MessageCounter);
                 ret.Add((byte)(((ushort)SubDevice) >> 8));
                 ret.Add((byte)SubDevice);
                 ret.Add((byte)Command);

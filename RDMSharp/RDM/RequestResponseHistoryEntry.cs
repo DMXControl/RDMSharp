@@ -8,6 +8,22 @@ public class RequestResponseHistoryEntry : INotifyPropertyChanged
     public readonly DateTime Timestamp = DateTime.Now;
     public readonly RDMMessage Request;
 
+    private DateTime? _timestampRespone;
+    public DateTime? TimestampResponse
+    {
+        get
+        {
+            return _timestampRespone;
+        }
+        private set
+        {
+            if (_timestampRespone == value)
+                return;
+            _timestampRespone = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TimestampResponse)));
+        }
+    }
+
     private RDMMessage _response;
     public RDMMessage Response
     {
@@ -51,6 +67,7 @@ public class RequestResponseHistoryEntry : INotifyPropertyChanged
     internal void SetResponse(RDMMessage response, string state = "Success")
     {
         Response = response;
+        TimestampResponse = DateTime.Now;
         State = state;
     }
 }
