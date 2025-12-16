@@ -4,465 +4,467 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 [assembly: InternalsVisibleTo("RDMSharpTests")]
-namespace RDMSharp
+namespace RDMSharp;
+
+public class Sensor : INotifyPropertyChanged, IEquatable<Sensor>
 {
-    public class Sensor : INotifyPropertyChanged, IEquatable<Sensor>
+    public event PropertyChangedEventHandler PropertyChanged;
+    public event EventHandler SensorUpdated;
+
+    public readonly byte SensorId;
+
+    private ERDM_SensorType type;
+    public ERDM_SensorType Type
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public readonly byte SensorId;
-
-        private ERDM_SensorType type;
-        public ERDM_SensorType Type
+        get { return type; }
+        private set
         {
-            get { return type; }
-            private set
-            {
-                if (type == value)
-                    return;
+            if (type == value)
+                return;
 
-                type = value;
-                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(Type)));
-            }
+            type = value;
+            this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(Type)));
         }
-        public readonly RDMSensorTypeCustomDefine CustomType;
+    }
+    public readonly RDMSensorTypeCustomDefine CustomType;
 
-        private ERDM_SensorUnit unit;
-        public ERDM_SensorUnit Unit
+    private ERDM_SensorUnit unit;
+    public ERDM_SensorUnit Unit
+    {
+        get { return unit; }
+        private set
         {
-            get { return unit; }
-            private set
-            {
-                if (unit == value)
-                    return;
+            if (unit == value)
+                return;
 
-                unit = value;
-                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(Unit)));
-            }
+            unit = value;
+            this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(Unit)));
         }
-        public readonly RDMSensorUnitCustomDefine CustomUnit;
+    }
+    public readonly RDMSensorUnitCustomDefine CustomUnit;
 
-        private ERDM_UnitPrefix prefix;
-        public ERDM_UnitPrefix Prefix
+    private ERDM_UnitPrefix prefix;
+    public ERDM_UnitPrefix Prefix
+    {
+        get { return prefix; }
+        private set
         {
-            get { return prefix; }
-            private set
-            {
-                if (prefix == value)
-                    return;
+            if (prefix == value)
+                return;
 
-                prefix = value;
-                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(Prefix)));
-            }
+            prefix = value;
+            this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(Prefix)));
         }
+    }
 
-        private short rangeMinimum;
-        public short RangeMinimum
+    private short rangeMinimum;
+    public short RangeMinimum
+    {
+        get { return rangeMinimum; }
+        private set
         {
-            get { return rangeMinimum; }
-            private set
-            {
-                if (rangeMinimum == value)
-                    return;
+            if (rangeMinimum == value)
+                return;
 
-                rangeMinimum = value;
-                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(RangeMinimum)));
-            }
+            rangeMinimum = value;
+            this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(RangeMinimum)));
         }
+    }
 
-        private short rangeMaximum;
-        public short RangeMaximum
+    private short rangeMaximum;
+    public short RangeMaximum
+    {
+        get { return rangeMaximum; }
+        private set
         {
-            get { return rangeMaximum; }
-            private set
-            {
-                if (rangeMaximum == value)
-                    return;
+            if (rangeMaximum == value)
+                return;
 
-                rangeMaximum = value;
-                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(RangeMaximum)));
-            }
+            rangeMaximum = value;
+            this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(RangeMaximum)));
         }
+    }
 
-        private short normalMinimum;
-        public short NormalMinimum
+    private short normalMinimum;
+    public short NormalMinimum
+    {
+        get { return normalMinimum; }
+        private set
         {
-            get { return normalMinimum; }
-            private set
-            {
-                if (normalMinimum == value)
-                    return;
+            if (normalMinimum == value)
+                return;
 
-                normalMinimum = value;
-                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(NormalMinimum)));
-            }
+            normalMinimum = value;
+            this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(NormalMinimum)));
         }
+    }
 
-        private short normalMaximum;
-        public short NormalMaximum
+    private short normalMaximum;
+    public short NormalMaximum
+    {
+        get { return normalMaximum; }
+        private set
         {
-            get { return normalMaximum; }
-            private set
-            {
-                if (normalMaximum == value)
-                    return;
+            if (normalMaximum == value)
+                return;
 
-                normalMaximum = value;
-                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(NormalMaximum)));
-            }
+            normalMaximum = value;
+            this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(NormalMaximum)));
         }
+    }
 
-        private bool lowestHighestValueSupported;
-        public bool LowestHighestValueSupported
+    private bool lowestHighestValueSupported;
+    public bool LowestHighestValueSupported
+    {
+        get { return lowestHighestValueSupported; }
+        private set
         {
-            get { return lowestHighestValueSupported; }
-            private set
-            {
-                if (lowestHighestValueSupported == value)
-                    return;
+            if (lowestHighestValueSupported == value)
+                return;
 
-                lowestHighestValueSupported = value;
-                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(LowestHighestValueSupported)));
-            }
+            lowestHighestValueSupported = value;
+            this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(LowestHighestValueSupported)));
         }
+    }
 
-        private bool recordedValueSupported;
-        public bool RecordedValueSupported
+    private bool recordedValueSupported;
+    public bool RecordedValueSupported
+    {
+        get { return recordedValueSupported; }
+        private set
         {
-            get { return recordedValueSupported; }
-            private set
-            {
-                if (recordedValueSupported == value)
-                    return;
+            if (recordedValueSupported == value)
+                return;
 
-                recordedValueSupported = value;
-                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(RecordedValueSupported)));
-            }
+            recordedValueSupported = value;
+            this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(RecordedValueSupported)));
         }
+    }
 
-        private string description;
-        public string Description
+    private string description;
+    public string Description
+    {
+        get { return description; }
+        private set
         {
-            get { return description; }
-            private set
-            {
-                if (description == value)
-                    return;
+            if (description == value)
+                return;
 
-                description = value;
-                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(Description)));
-            }
+            description = value;
+            this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(Description)));
         }
+    }
 
-        private short presentValue;
-        public short PresentValue
+    private short presentValue;
+    public short PresentValue
+    {
+        get { return presentValue; }
+        private set
         {
-            get { return presentValue; }
-            private set
-            {
-                if (presentValue == value)
-                    return;
+            if (presentValue == value)
+                return;
 
-                presentValue = value;
-                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(PresentValue)));
-            }
+            presentValue = value;
+            this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(PresentValue)));
         }
-        private short lowestValue;
-        public short LowestValue
+    }
+    private short lowestValue;
+    public short LowestValue
+    {
+        get { return lowestValue; }
+        private set
         {
-            get { return lowestValue; }
-            private set
-            {
-                if (lowestValue == value)
-                    return;
+            if (lowestValue == value)
+                return;
 
-                lowestValue = value;
-                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(LowestValue)));
-            }
+            lowestValue = value;
+            this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(LowestValue)));
         }
-        private short highestValue;
-        public short HighestValue
+    }
+    private short highestValue;
+    public short HighestValue
+    {
+        get { return highestValue; }
+        private set
         {
-            get { return highestValue; }
-            private set
-            {
-                if (highestValue == value)
-                    return;
+            if (highestValue == value)
+                return;
 
-                highestValue = value;
-                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(HighestValue)));
-            }
+            highestValue = value;
+            this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(HighestValue)));
         }
-        private short recordedValue;
-        public short RecordedValue
+    }
+    private short recordedValue;
+    public short RecordedValue
+    {
+        get { return recordedValue; }
+        private set
         {
-            get { return recordedValue; }
-            private set
-            {
-                if (recordedValue == value)
-                    return;
+            if (recordedValue == value)
+                return;
 
-                recordedValue = value;
-                this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(RecordedValue)));
-            }
+            recordedValue = value;
+            this.PropertyChanged?.InvokeFailSafe(this, new PropertyChangedEventArgs(nameof(RecordedValue)));
         }
-        public Sensor(in byte sensorId)
-        {
-            this.SensorId = sensorId;
-        }
-        internal protected Sensor(in byte sensorId,
-            in ERDM_SensorType type,
-            in ERDM_SensorUnit unit,
-            in ERDM_UnitPrefix prefix,
-            in string description,
-            in short rangeMinimum,
-            in short rangeMaximum,
-            in short normalMinimum,
-            in short normalMaximum,
-            in bool lowestHighestValueSupported = false,
-            in bool recordedValueSupported = false,
-            in RDMSensorUnitCustomDefine customUnit = null,
-            in RDMSensorTypeCustomDefine customType = null) : this(sensorId)
-        {
-            if (String.IsNullOrWhiteSpace(description))
-                throw new ArgumentNullException(nameof(description));
+    }
+    public Sensor(in byte sensorId)
+    {
+        this.SensorId = sensorId;
+    }
+    internal protected Sensor(in byte sensorId,
+        in ERDM_SensorType type,
+        in ERDM_SensorUnit unit,
+        in ERDM_UnitPrefix prefix,
+        in string description,
+        in short rangeMinimum,
+        in short rangeMaximum,
+        in short normalMinimum,
+        in short normalMaximum,
+        in bool lowestHighestValueSupported = false,
+        in bool recordedValueSupported = false,
+        in RDMSensorUnitCustomDefine customUnit = null,
+        in RDMSensorTypeCustomDefine customType = null) : this(sensorId)
+    {
+        if (String.IsNullOrWhiteSpace(description))
+            throw new ArgumentNullException(nameof(description));
 
-            Type = type;
-            Unit = unit;
-            Prefix = prefix;
-            Description = description;
-            RangeMinimum = rangeMinimum;
-            RangeMaximum = rangeMaximum;
-            NormalMinimum = normalMinimum;
-            NormalMaximum = normalMaximum;
-            LowestHighestValueSupported = lowestHighestValueSupported;
-            RecordedValueSupported = recordedValueSupported;
-            CustomUnit = customUnit;
-            CustomType = customType;
+        Type = type;
+        Unit = unit;
+        Prefix = prefix;
+        Description = description;
+        RangeMinimum = rangeMinimum;
+        RangeMaximum = rangeMaximum;
+        NormalMinimum = normalMinimum;
+        NormalMaximum = normalMaximum;
+        LowestHighestValueSupported = lowestHighestValueSupported;
+        RecordedValueSupported = recordedValueSupported;
+        CustomUnit = customUnit;
+        CustomType = customType;
 
-            if ((byte)Unit >= 0x80 && customUnit is null)
-                throw new ArgumentException($"The given {nameof(unit)} is a custom unit but no {nameof(customUnit)} is given.", nameof(unit));
+        if ((byte)Unit >= 0x80 && customUnit is null)
+            throw new ArgumentException($"The given {nameof(unit)} is a custom unit but no {nameof(customUnit)} is given.", nameof(unit));
 
-            if ((byte)Type >= 0x80 && customType is null)
-                throw new ArgumentException($"The given {nameof(type)} is a custom type but no {nameof(customType)} is given.", nameof(type));
+        if ((byte)Type >= 0x80 && customType is null)
+            throw new ArgumentException($"The given {nameof(type)} is a custom type but no {nameof(customType)} is given.", nameof(type));
 
-            if (customUnit is not null && customUnit.Id != (byte)Unit)
-                throw new ArgumentException($"The given {nameof(customUnit)} does not match the given {nameof(unit)}.", nameof(customUnit));
+        if (customUnit is not null && customUnit.Id != (byte)Unit)
+            throw new ArgumentException($"The given {nameof(customUnit)} does not match the given {nameof(unit)}.", nameof(customUnit));
 
-            if (customType is not null && customType.Id != (byte)Type)
-                throw new ArgumentException($"The given {nameof(customType)} does not match the given {nameof(type)}.", nameof(customType));
-        }
-        public Sensor(in byte sensorId,
-            in short initValue,
-            in ERDM_SensorType type,
-            in ERDM_SensorUnit unit,
-            in ERDM_UnitPrefix prefix,
-            in string description,
-            in short rangeMinimum,
-            in short rangeMaximum,
-            in short normalMinimum,
-            in short normalMaximum,
-            in bool lowestHighestValueSupported = false,
-            in bool recordedValueSupported = false,
-            in RDMSensorUnitCustomDefine customUnit = null,
-            in RDMSensorTypeCustomDefine customType = null) : this(
-                sensorId,
-                type,
-                unit,
-                prefix,
-                description,
-                rangeMinimum,
-                rangeMaximum,
-                normalMinimum,
-                normalMaximum,
-                lowestHighestValueSupported,
-                recordedValueSupported,
-                customUnit,
-                customType)
+        if (customType is not null && customType.Id != (byte)Type)
+            throw new ArgumentException($"The given {nameof(customType)} does not match the given {nameof(type)}.", nameof(customType));
+    }
+    public Sensor(in byte sensorId,
+        in short initValue,
+        in ERDM_SensorType type,
+        in ERDM_SensorUnit unit,
+        in ERDM_UnitPrefix prefix,
+        in string description,
+        in short rangeMinimum,
+        in short rangeMaximum,
+        in short normalMinimum,
+        in short normalMaximum,
+        in bool lowestHighestValueSupported = false,
+        in bool recordedValueSupported = false,
+        in RDMSensorUnitCustomDefine customUnit = null,
+        in RDMSensorTypeCustomDefine customType = null) : this(
+            sensorId,
+            type,
+            unit,
+            prefix,
+            description,
+            rangeMinimum,
+            rangeMaximum,
+            normalMinimum,
+            normalMaximum,
+            lowestHighestValueSupported,
+            recordedValueSupported,
+            customUnit,
+            customType)
+    {
+        this.UpdateValue(initValue);
+        if (LowestHighestValueSupported)
         {
-            this.UpdateValue(initValue);
-            if (LowestHighestValueSupported)
-            {
-                LowestValue = initValue;
-                HighestValue = initValue;
-            }
+            LowestValue = initValue;
+            HighestValue = initValue;
         }
-        internal void UpdateDescription(RDMSensorDefinition sensorDescription)
-        {
-            if (this.SensorId != sensorDescription.SensorId)
-                throw new InvalidOperationException($"The given {nameof(sensorDescription)} has not the expected id of {this.SensorId} but {sensorDescription.SensorId}");
+    }
+    internal void UpdateDescription(RDMSensorDefinition sensorDescription)
+    {
+        if (this.SensorId != sensorDescription.SensorId)
+            throw new InvalidOperationException($"The given {nameof(sensorDescription)} has not the expected id of {this.SensorId} but {sensorDescription.SensorId}");
 
-            this.Description = sensorDescription.Description;
-            this.Type = sensorDescription.Type;
-            this.Unit = sensorDescription.Unit;
-            this.Prefix = sensorDescription.Prefix;
-            this.RangeMinimum = sensorDescription.RangeMinimum;
-            this.RangeMaximum = sensorDescription.RangeMaximum;
-            this.NormalMinimum = sensorDescription.NormalMinimum;
-            this.NormalMaximum = sensorDescription.NormalMaximum;
-            this.LowestHighestValueSupported = sensorDescription.LowestHighestValueSupported;
-            this.RecordedValueSupported = sensorDescription.RecordedValueSupported;
-        }
-        internal void UpdateValue(RDMSensorValue sensorValue)
-        {
-            if (this.SensorId != sensorValue.SensorId)
-                throw new InvalidOperationException($"The given {nameof(sensorValue)} has not the expected id of {this.SensorId} but {sensorValue.SensorId}");
+        this.Description = sensorDescription.Description;
+        this.Type = sensorDescription.Type;
+        this.Unit = sensorDescription.Unit;
+        this.Prefix = sensorDescription.Prefix;
+        this.RangeMinimum = sensorDescription.RangeMinimum;
+        this.RangeMaximum = sensorDescription.RangeMaximum;
+        this.NormalMinimum = sensorDescription.NormalMinimum;
+        this.NormalMaximum = sensorDescription.NormalMaximum;
+        this.LowestHighestValueSupported = sensorDescription.LowestHighestValueSupported;
+        this.RecordedValueSupported = sensorDescription.RecordedValueSupported;
+    }
+    internal void UpdateValue(RDMSensorValue sensorValue)
+    {
+        if (this.SensorId != sensorValue.SensorId)
+            throw new InvalidOperationException($"The given {nameof(sensorValue)} has not the expected id of {this.SensorId} but {sensorValue.SensorId}");
 
-            this.PresentValue = sensorValue.PresentValue;
-            this.LowestValue = sensorValue.LowestValue;
-            this.HighestValue = sensorValue.HighestValue;
-            this.RecordedValue = sensorValue.RecordedValue;
-        }
+        this.PresentValue = sensorValue.PresentValue;
+        this.LowestValue = sensorValue.LowestValue;
+        this.HighestValue = sensorValue.HighestValue;
+        this.RecordedValue = sensorValue.RecordedValue;
+        this.SensorUpdated?.InvokeFailSafe(this, EventArgs.Empty);
+    }
 
-        protected virtual void UpdateValue(short value)
-        {
-            PresentValue = value;
-            if (this.LowestHighestValueSupported)
-                updateLowestHighestValue(value);
-        }
-        private void updateLowestHighestValue(short value)
-        {
-            LowestValue = Math.Min(LowestValue, value);
-            HighestValue = Math.Max(HighestValue, value);
-        }
-        internal void RecordValue()
-        {
-            if (this.RecordedValueSupported)
-                RecordedValue = PresentValue;
-        }
-        internal void ResetValues()
-        {
-            LowestValue = PresentValue;
-            HighestValue = PresentValue;
+    protected virtual void UpdateValue(short value)
+    {
+        PresentValue = value;
+        if (this.LowestHighestValueSupported)
+            updateLowestHighestValue(value);
+        this.SensorUpdated?.InvokeFailSafe(this, EventArgs.Empty);
+    }
+    private void updateLowestHighestValue(short value)
+    {
+        LowestValue = Math.Min(LowestValue, value);
+        HighestValue = Math.Max(HighestValue, value);
+    }
+    internal void RecordValue()
+    {
+        if (this.RecordedValueSupported)
             RecordedValue = PresentValue;
+    }
+    internal void ResetValues()
+    {
+        LowestValue = PresentValue;
+        HighestValue = PresentValue;
+        RecordedValue = PresentValue;
+    }
+
+    public string GetFormatedString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append(Tools.GetFormatedSensorValue(PresentValue, Prefix, Unit));
+        if (LowestHighestValueSupported)
+        {
+            sb.Append(" ");
+            sb.Append($"Lowest: {Tools.GetFormatedSensorValue(LowestValue, Prefix, Unit)}");
+            sb.Append(" ");
+            sb.Append($"Highest: {Tools.GetFormatedSensorValue(HighestValue, Prefix, Unit)}");
+        }
+        if (RecordedValueSupported)
+        {
+            sb.Append(" ");
+            sb.Append($"Recorded: {Tools.GetFormatedSensorValue(RecordedValue, Prefix, Unit)}");
         }
 
-        public string GetFormatedString()
+        return sb.ToString();
+    }
+    public override string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine($"Sensor: {this.SensorId}");
+        sb.AppendLine($"Formated: {this.GetFormatedString()}");
+        sb.AppendLine($"Type: {this.Type}");
+        sb.AppendLine($"Unit: {this.Unit}");
+        sb.AppendLine($"Prefix: {this.Prefix}");
+        sb.AppendLine($"Description: {this.Description}");
+        sb.AppendLine($"RangeMinimum: {this.RangeMinimum}");
+        sb.AppendLine($"RangeMaximum: {this.RangeMaximum}");
+        sb.AppendLine($"NormalMinimum: {this.NormalMinimum}");
+        sb.AppendLine($"NormalMaximum: {this.NormalMaximum}");
+        sb.AppendLine($"LowestHighestValueSupported: {this.LowestHighestValueSupported}");
+        sb.AppendLine($"RecordedValueSupported: {this.RecordedValueSupported}");
+        sb.AppendLine($"PresentValue: {this.PresentValue}");
+        if (LowestHighestValueSupported)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(Tools.GetFormatedSensorValue(PresentValue, Prefix, Unit));
-            if (LowestHighestValueSupported)
-            {
-                sb.Append(" ");
-                sb.Append($"Lowest: {Tools.GetFormatedSensorValue(LowestValue, Prefix, Unit)}");
-                sb.Append(" ");
-                sb.Append($"Highest: {Tools.GetFormatedSensorValue(HighestValue, Prefix, Unit)}");
-            }
-            if (RecordedValueSupported)
-            {
-                sb.Append(" ");
-                sb.Append($"Recorded: {Tools.GetFormatedSensorValue(RecordedValue, Prefix, Unit)}");
-            }
-
-            return sb.ToString();
+            sb.AppendLine($"LowestValue: {this.LowestValue}");
+            sb.AppendLine($"HighestValue: {this.HighestValue}");
         }
-        public override string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"Sensor: {this.SensorId}");
-            sb.AppendLine($"Formated: {this.GetFormatedString()}");
-            sb.AppendLine($"Type: {this.Type}");
-            sb.AppendLine($"Unit: {this.Unit}");
-            sb.AppendLine($"Prefix: {this.Prefix}");
-            sb.AppendLine($"Description: {this.Description}");
-            sb.AppendLine($"RangeMinimum: {this.RangeMinimum}");
-            sb.AppendLine($"RangeMaximum: {this.RangeMaximum}");
-            sb.AppendLine($"NormalMinimum: {this.NormalMinimum}");
-            sb.AppendLine($"NormalMaximum: {this.NormalMaximum}");
-            sb.AppendLine($"LowestHighestValueSupported: {this.LowestHighestValueSupported}");
-            sb.AppendLine($"RecordedValueSupported: {this.RecordedValueSupported}");
-            sb.AppendLine($"PresentValue: {this.PresentValue}");
-            if (LowestHighestValueSupported)
-            {
-                sb.AppendLine($"LowestValue: {this.LowestValue}");
-                sb.AppendLine($"HighestValue: {this.HighestValue}");
-            }
-            if (RecordedValueSupported)
-                sb.AppendLine($"RecordedValue: {this.RecordedValue}");
+        if (RecordedValueSupported)
+            sb.AppendLine($"RecordedValue: {this.RecordedValue}");
 
-            return sb.ToString();
-        }
+        return sb.ToString();
+    }
 
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as Sensor);
-        }
+    public override bool Equals(object obj)
+    {
+        return Equals(obj as Sensor);
+    }
 
-        public bool Equals(Sensor other)
-        {
-            return other is not null &&
-                   SensorId == other.SensorId &&
-                   Type == other.Type &&
-                   Unit == other.Unit &&
-                   Prefix == other.Prefix &&
-                   RangeMinimum == other.RangeMinimum &&
-                   RangeMaximum == other.RangeMaximum &&
-                   NormalMinimum == other.NormalMinimum &&
-                   NormalMaximum == other.NormalMaximum &&
-                   LowestHighestValueSupported == other.LowestHighestValueSupported &&
-                   RecordedValueSupported == other.RecordedValueSupported &&
-                   Description == other.Description &&
-                   PresentValue == other.PresentValue &&
-                   LowestValue == other.LowestValue &&
-                   HighestValue == other.HighestValue &&
-                   RecordedValue == other.RecordedValue;
-        }
+    public bool Equals(Sensor other)
+    {
+        return other is not null &&
+               SensorId == other.SensorId &&
+               Type == other.Type &&
+               Unit == other.Unit &&
+               Prefix == other.Prefix &&
+               RangeMinimum == other.RangeMinimum &&
+               RangeMaximum == other.RangeMaximum &&
+               NormalMinimum == other.NormalMinimum &&
+               NormalMaximum == other.NormalMaximum &&
+               LowestHighestValueSupported == other.LowestHighestValueSupported &&
+               RecordedValueSupported == other.RecordedValueSupported &&
+               Description == other.Description &&
+               PresentValue == other.PresentValue &&
+               LowestValue == other.LowestValue &&
+               HighestValue == other.HighestValue &&
+               RecordedValue == other.RecordedValue;
+    }
 
-        public override int GetHashCode()
-        {
+    public override int GetHashCode()
+    {
 #if !NETSTANDARD
-            HashCode hash = new HashCode();
-            hash.Add(SensorId);
-            hash.Add(Type);
-            hash.Add(Unit);
-            hash.Add(Prefix);
-            hash.Add(RangeMinimum);
-            hash.Add(RangeMaximum);
-            hash.Add(NormalMinimum);
-            hash.Add(NormalMaximum);
-            hash.Add(LowestHighestValueSupported);
-            hash.Add(RecordedValueSupported);
-            hash.Add(Description);
-            return hash.ToHashCode();
+        HashCode hash = new HashCode();
+        hash.Add(SensorId);
+        hash.Add(Type);
+        hash.Add(Unit);
+        hash.Add(Prefix);
+        hash.Add(RangeMinimum);
+        hash.Add(RangeMaximum);
+        hash.Add(NormalMinimum);
+        hash.Add(NormalMaximum);
+        hash.Add(LowestHighestValueSupported);
+        hash.Add(RecordedValueSupported);
+        hash.Add(Description);
+        return hash.ToHashCode();
 #else
-            int hashCode = 1916557166;
-            hashCode = hashCode * -1521134295 + SensorId.GetHashCode();
-            hashCode = hashCode * -1521134295 + Type.GetHashCode();
-            hashCode = hashCode * -1521134295 + Unit.GetHashCode();
-            hashCode = hashCode * -1521134295 + Prefix.GetHashCode();
-            hashCode = hashCode * -1521134295 + RangeMinimum.GetHashCode();
-            hashCode = hashCode * -1521134295 + RangeMaximum.GetHashCode();
-            hashCode = hashCode * -1521134295 + NormalMinimum.GetHashCode();
-            hashCode = hashCode * -1521134295 + NormalMaximum.GetHashCode();
-            hashCode = hashCode * -1521134295 + LowestHighestValueSupported.GetHashCode();
-            hashCode = hashCode * -1521134295 + RecordedValueSupported.GetHashCode();
-            hashCode = hashCode * -1521134295 + Description.GetHashCode();
-            return hashCode;
+        int hashCode = 1916557166;
+        hashCode = hashCode * -1521134295 + SensorId.GetHashCode();
+        hashCode = hashCode * -1521134295 + Type.GetHashCode();
+        hashCode = hashCode * -1521134295 + Unit.GetHashCode();
+        hashCode = hashCode * -1521134295 + Prefix.GetHashCode();
+        hashCode = hashCode * -1521134295 + RangeMinimum.GetHashCode();
+        hashCode = hashCode * -1521134295 + RangeMaximum.GetHashCode();
+        hashCode = hashCode * -1521134295 + NormalMinimum.GetHashCode();
+        hashCode = hashCode * -1521134295 + NormalMaximum.GetHashCode();
+        hashCode = hashCode * -1521134295 + LowestHighestValueSupported.GetHashCode();
+        hashCode = hashCode * -1521134295 + RecordedValueSupported.GetHashCode();
+        hashCode = hashCode * -1521134295 + Description.GetHashCode();
+        return hashCode;
 #endif
-        }
+    }
 
 
-        public static implicit operator RDMSensorDefinition(Sensor _this)
-        {
-            return new RDMSensorDefinition(_this.SensorId,
-                                           _this.Type,
-                                           _this.Unit,
-                                           _this.Prefix,
-                                           _this.RangeMinimum,
-                                           _this.RangeMaximum,
-                                           _this.NormalMinimum,
-                                           _this.NormalMaximum,
-                                           _this.LowestHighestValueSupported,
-                                           _this.RecordedValueSupported,
-                                           _this.Description);
-        }
-        public static implicit operator RDMSensorValue(Sensor _this)
-        {
-            return new RDMSensorValue(_this.SensorId,
-                                           _this.PresentValue,
-                                           _this.LowestValue,
-                                           _this.HighestValue,
-                                           _this.RecordedValue);
-        }
+    public static implicit operator RDMSensorDefinition(Sensor _this)
+    {
+        return new RDMSensorDefinition(_this.SensorId,
+                                       _this.Type,
+                                       _this.Unit,
+                                       _this.Prefix,
+                                       _this.RangeMinimum,
+                                       _this.RangeMaximum,
+                                       _this.NormalMinimum,
+                                       _this.NormalMaximum,
+                                       _this.LowestHighestValueSupported,
+                                       _this.RecordedValueSupported,
+                                       _this.Description);
+    }
+    public static implicit operator RDMSensorValue(Sensor _this)
+    {
+        return new RDMSensorValue(_this.SensorId,
+                                       _this.PresentValue,
+                                       _this.LowestValue,
+                                       _this.HighestValue,
+                                       _this.RecordedValue);
     }
 }
