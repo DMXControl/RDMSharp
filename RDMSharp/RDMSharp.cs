@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RDMSharp.Metadata;
+using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
@@ -71,13 +72,14 @@ public class RDMSharp
         return response is not null;
     }
 
-    public static void Initialize(UID controllerUID, Func<RDMMessage, Task> sendMethode)
+    public static async Task Initialize(UID controllerUID, Func<RDMMessage, Task> sendMethode)
     {
         if (_instance != null)
         {
             throw new InvalidOperationException("RDMSharp instance already exists. Use Instance property to access it.");
         }
         _instance = new RDMSharp(controllerUID, sendMethode);
+        await MetadataFactory.AwaitInitialize();
     }
 
     public class RequestReceivedEventArgs : EventArgs

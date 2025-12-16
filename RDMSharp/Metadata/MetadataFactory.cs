@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("RDMSharpTests")]
@@ -24,6 +25,8 @@ public static class MetadataFactory
     private static ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>> metadataVersionDefinesBagDictionary;
     private static ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine> parameterBagDefineCache;
     private static List<Assembly> resourceProvider = new List<Assembly>() { typeof(MetadataFactory).Assembly };
+    public static bool IsInitialized = false;
+    private static readonly SemaphoreSlim fillDefaultMetadataVersionListSemaphoreSlim = new SemaphoreSlim(1, 1);
 
     public static void AddResourceProvider(Assembly assembly)
     {
@@ -58,8 +61,11 @@ public static class MetadataFactory
     {
         return assembly.GetManifestResourceNames().Where(p => p.EndsWith(JSON_ENDING)).ToList().AsReadOnly();
     }
-    private static void fillDefaultMetadataVersionList()
+    private static async Task fillDefaultMetadataVersionList()
     {
+        if (fillDefaultMetadataVersionListSemaphoreSlim.CurrentCount == 0)
+            return;
+        await fillDefaultMetadataVersionListSemaphoreSlim.WaitAsync();
         if (metadataVersionDefinesBagDictionary != null)
             return;
 
@@ -87,7 +93,7 @@ public static class MetadataFactory
         {
             MaxDegreeOfParallelism = Environment.ProcessorCount, // Optional: Set the maximum degree of parallelism
         };
-        Parallel.ForEach(nonSchemaVersions, parallelOptions, mv =>
+        await Parallel.ForEachAsync(nonSchemaVersions, parallelOptions, async (mv, token) =>
         {
             try
             {
@@ -98,7 +104,8 @@ public static class MetadataFactory
                     versionSchemas.TryAdd(schema.Version, jsonSchema);
                 }
                 MetadataBag metadataBag = new MetadataBag(mv);
-                var result = jsonSchema.Evaluate(System.Text.Json.JsonElement.Parse(metadataBag.Content));
+                var doc = JsonDocument.Parse(metadataBag.Content);
+                var result = jsonSchema.Evaluate(doc.RootElement);
                 if (result.IsValid)
                 {
                     MetadataJSONObjectDefine jsonDefine = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(metadataBag.Content);
@@ -121,6 +128,8 @@ public static class MetadataFactory
                 Logger?.LogError($"Exception while Deserialize {mv.Name}", e);
             }
         });
+        IsInitialized = true;
+        fillDefaultMetadataVersionListSemaphoreSlim.Release();
     }
 
     public static IReadOnlyCollection<MetadataVersion> GetMetadataSchemaVersions()
@@ -465,5 +474,14 @@ public static class MetadataFactory
                 return true;
             return false;
         }).FirstOrDefault();
+    }
+
+    public static async Task AwaitInitialize()
+    {
+        while (!IsInitialized)
+        {
+            GetMetadataDefineVersions();
+            await Task.Delay(100);
+        }
     }
 }
