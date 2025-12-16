@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("RDMSharpTests")]
@@ -99,7 +98,7 @@ public static class MetadataFactory
                     versionSchemas.TryAdd(schema.Version, jsonSchema);
                 }
                 MetadataBag metadataBag = new MetadataBag(mv);
-                var result = jsonSchema.Evaluate(JsonNode.Parse(metadataBag.Content));
+                var result = jsonSchema.Evaluate(System.Text.Json.JsonElement.Parse(metadataBag.Content));
                 if (result.IsValid)
                 {
                     MetadataJSONObjectDefine jsonDefine = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(metadataBag.Content);
