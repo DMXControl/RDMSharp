@@ -333,10 +333,26 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         try
         {
             await requestQueuedMessages();
+            var loopDetectionCache = new HashSet<ParameterUpdatedBag>();
             while (ParameterUpdatedBag.TryPeek(out ParameterUpdatedBag bag))
             {
-                if (DateTime.UtcNow - bag.Timestamp < TimeSpan.FromMilliseconds(GlobalTimers.Instance.NonQueuedUpdateTime))
+                TimeSpan updateTime = TimeSpan.FromMilliseconds(GlobalTimers.Instance.NonQueuedUpdateTime);
+                if (bag.Parameter.GetAttribute<ParameterUpdateTimeAttribute>() is ParameterUpdateTimeAttribute attribute)
+                    updateTime = TimeSpan.FromMilliseconds(attribute.Milliseconds);
+
+                if (loopDetectionCache.Any(b => b.Parameter == bag.Parameter && b.Index == bag.Index))
                     return;
+
+                if (DateTime.UtcNow - bag.Timestamp < updateTime)
+                {
+                    ParameterUpdatedBag.TryDequeue(out _);
+                    ParameterUpdatedBag.Enqueue(bag);
+
+                    loopDetectionCache.Add(bag);
+                    continue;
+                }
+
+                loopDetectionCache.Add(bag);
 
                 var cts = new CancellationTokenSource();
                 cts.CancelAfter(TimeSpan.FromMilliseconds(GlobalTimers.Instance.ParameterUpdateTimerInterval));
@@ -393,12 +409,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
                         mc = result.MessageCounter;
                         sw?.Stop();
                         if (result.State == PeerToPeerProcess.EPeerToPeerProcessState.Failed)
-                        {
-                            if (sw.Elapsed.TotalSeconds > 3)
-                                QueuedSupported = false;
-                            Logger?.LogWarning($"Queued Parameter failed after {sw.ElapsedMilliseconds}ms, Queued seems not supported, and wil be disabled");
                             return;
-                        }
                         Logger?.LogTrace($"Queued Parameter update took {sw.ElapsedMilliseconds}ms for {mc} messages.");
                     }, cts.Token);
                     await task;
