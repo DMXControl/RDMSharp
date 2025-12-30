@@ -16,7 +16,7 @@ public enum ERDM_Parameter : ushort
     DISC_UNIQUE_BRANCH = 0x0001,
     DISC_MUTE = 0x0002,
     DISC_UN_MUTE = 0x0003,
-    [ParameterGroup("Proxie")]
+    [ParameterGroup("Proxie"), ParameterUpdateTime(300000)]
     PROXIED_DEVICES = 0x0010,
     [ParameterGroup("Proxie"), ParameterUpdateTime(30000)]
     PROXIED_DEVICES_COUNT = 0x0011,
