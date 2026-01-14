@@ -161,7 +161,15 @@ public class PeerToPeerProcess : INotifyPropertyChanged
             int counter = 0;
             do
             {
-                await RDMSharp.Instance.lockTransaktion(UID).WaitAsync(TimeSpan.FromSeconds(7));
+                try
+                {
+                    await RDMSharp.Instance.lockTransaktion(UID, TimeSpan.FromSeconds(7));
+                }
+                catch (TimeoutException)
+                {
+
+                }
+
                 counter++;
                 if (response?.ResponseType == ERDM_ResponseType.ACK)
                     return;
@@ -284,6 +292,11 @@ public class PeerToPeerProcess : INotifyPropertyChanged
                 //}
             }
             while (!done && State == EPeerToPeerProcessState.Running);
+        }
+        catch (TimeoutException te)
+        {
+            Logger?.LogInformation($"Timeout while running PeerToPeerProcess: {Command} UID: {UID} SubDevice: {SubDevice} Parameter: {ParameterBag.PID}");
+            State = EPeerToPeerProcessState.Failed;
         }
         catch (Exception e)
         {

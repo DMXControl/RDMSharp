@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("RDMSharp.Tests")]
 namespace RDMSharp;
 
 public class GlobalTimers
 {
+    private static readonly ILogger Logger = Logging.CreateLogger<GlobalTimers>();
     private static GlobalTimers instance = null;
     public static GlobalTimers Instance
     {
@@ -107,6 +109,7 @@ public class GlobalTimers
     }
     private void initializeParameterUpdateTimer()
     {
+        Logger?.LogInformation("InitializeParameterUpdateTimer");
         if (parameterUpdateTimer != null)
             return;
         parameterUpdateTimer = new System.Timers.Timer(ParameterUpdateTimerInterval);
@@ -115,6 +118,7 @@ public class GlobalTimers
     }
     private void destroyParameterUpdateTimer()
     {
+        Logger?.LogCritical("DestroyParameterUpdateTimer");
         if (parameterUpdateTimer == null)
             return;
         parameterUpdateTimer.Enabled = false;
@@ -125,6 +129,7 @@ public class GlobalTimers
 
     private void initializePresentUpdateTimer()
     {
+        Logger?.LogInformation("InitializePresentUpdateTimer");
         if (parameterUpdateTimer != null)
             return;
         presentUpdateTimer = new System.Timers.Timer(PresentUpdateTimerInterval);
@@ -133,6 +138,7 @@ public class GlobalTimers
     }
     private void destroyPresentUpdateTimer()
     {
+        Logger?.LogCritical("DestroyPresentUpdateTimer");
         if (parameterUpdateTimer == null)
             return;
         presentUpdateTimer.Enabled = false;
@@ -142,6 +148,7 @@ public class GlobalTimers
     }
     public void ResetAllTimersToDefault()
     {
+        Logger?.LogCritical("ResetAllTimersToDefault");
         QueuedUpdateTime = DefaultQueuedUpdateTime;
         NonQueuedUpdateTime = DefaultNonQueuedUpdateTime;
         UpdateDelayBetweenRequests = DefaultUpdateDelayBetweenRequests;
@@ -172,37 +179,52 @@ public class GlobalTimers
 
     private void ParameterUpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
     {
-        // Parallelisierung: Alle Handler parallel ausführen, falls mehrere abonniert sind
-        var handlers = parameterUpdateTimerElapsed?.GetInvocationList();
-        if (handlers != null)
+        try
         {
-            System.Threading.Tasks.Parallel.ForEach(handlers, handler =>
+            var handlers = parameterUpdateTimerElapsed?.GetInvocationList();
+            if (handlers != null)
             {
-                try
+                System.Threading.Tasks.Parallel.ForEach(handlers, handler =>
                 {
-                    ((EventHandler)handler)?.Invoke(sender, EventArgs.Empty);
-                }
-                catch
-                {
-                }
-            });
+                    try
+                    {
+                        ((EventHandler)handler)?.Invoke(sender, EventArgs.Empty);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger?.LogError(ex, "Error in ParameterUpdateTimerElapsed handler");
+                    }
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "Error in ParameterUpdateTimer_Elapsed");
         }
     }
     private void PresentUpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
     {
-        var handlers = presentUpdateTimerElapsed?.GetInvocationList();
-        if (handlers != null)
+        try
         {
-            System.Threading.Tasks.Parallel.ForEach(handlers, handler =>
+            var handlers = presentUpdateTimerElapsed?.GetInvocationList();
+            if (handlers != null)
             {
-                try
+                System.Threading.Tasks.Parallel.ForEach(handlers, handler =>
                 {
-                    ((EventHandler)handler)?.Invoke(sender, EventArgs.Empty);
-                }
-                catch
-                {
-                }
-            });
+                    try
+                    {
+                        ((EventHandler)handler)?.Invoke(sender, EventArgs.Empty);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger?.LogError(ex, "Error in PresentUpdateTimerElapsed handler");
+                    }
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "Error in PresentUpdateTimer_Elapsed");
         }
     }
 }

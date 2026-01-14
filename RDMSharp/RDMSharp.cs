@@ -106,7 +106,7 @@ public class RDMSharp
             return 0;
         }
     }
-    internal Task lockTransaktion(UID uid)
+    internal Task lockTransaktion(UID uid, TimeSpan? timeout = null)
     {
         if (!transactionLock.TryGetValue(uid, out SemaphoreSlim semaphore))
         {
@@ -114,7 +114,16 @@ public class RDMSharp
             transactionLock.TryAdd(uid, semaphore);
         }
 
-        return semaphore.WaitAsync();
+        if (timeout.HasValue)
+            try
+            {
+                return semaphore.WaitAsync(timeout.Value);
+            }
+            catch (TimeoutException) { }// Ignore Exception
+        else
+            return semaphore.WaitAsync();
+
+        return Task.CompletedTask;
     }
     internal void unlockTransaktion(UID uid)
     {

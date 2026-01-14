@@ -177,6 +177,11 @@ public class AsyncRDMRequestHelper : IDisposable
             Logger?.LogTrace($"Successful Request: {request?.ToString()} Response: {response?.ToString()} ElapsedTime: {bag2?.ElapsedTime}");
             return result;
         }
+        catch (TimeoutException)
+        {
+            Logger?.LogInformation($"Timeout Exception Request: {request}");
+            return new RequestResult(request, timeout: true);
+        }
         catch (Exception ex)
         {
             Logger?.LogError(ex);
