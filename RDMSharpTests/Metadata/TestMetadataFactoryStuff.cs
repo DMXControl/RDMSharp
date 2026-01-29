@@ -35,22 +35,11 @@ public class TestMetadataFactoryStuff
             {
                 switch (parameter)
                 {
-                    case ERDM_Parameter.QUEUED_MESSAGE_SENSOR_SUBSCRIBE:
-                    case ERDM_Parameter.SUPPORTED_PARAMETERS_ENHANCED:
-                    case ERDM_Parameter.CONTROLLER_FLAG_SUPPORT:
-                    case ERDM_Parameter.NACK_DESCRIPTION:
-                    case ERDM_Parameter.PACKED_PID_SUB:
-                    case ERDM_Parameter.PACKED_PID_INDEX:
-                    case ERDM_Parameter.ENUM_LABEL:
-                    case ERDM_Parameter.SELFTEST_ENHANCED:
-                        Assert.Warn("Implement E1.20-2025 Defines!!!");
-                        continue;
-
                     case ERDM_Parameter.COMPONENT_SCOPE:
                     case ERDM_Parameter.SEARCH_DOMAIN:
                     case ERDM_Parameter.TCP_COMMS_STATUS:
                     case ERDM_Parameter.BROKER_STATUS:
-                        Assert.Warn("Implement E1.33 Defines!!!");
+                        Assert.Warn($"Implement Parameter: {parameter}");
                         continue;
                 }
                 var define = MetadataFactory.GetDefine(new ParameterBag(parameter));

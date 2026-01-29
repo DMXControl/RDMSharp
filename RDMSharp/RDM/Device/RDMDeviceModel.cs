@@ -222,6 +222,9 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
 
             if (this.supportedParameters.Any(p => ((ushort)p.Key) > 0x9000 && ((ushort)p.Key) <= 0x900D))
                 this.supportedParameters.TryAdd(ERDM_Parameter.ENDPOINT_LIST, true);
+
+            if (this.Manufacturer == EManufacturer.SGM_Technology_For_Lighting_SPA)
+                this.supportedParameters.TryAdd((ERDM_Parameter)0xA139, true);
         }
         await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
     }
