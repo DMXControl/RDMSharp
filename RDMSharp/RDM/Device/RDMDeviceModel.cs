@@ -1,4 +1,5 @@
-﻿using RDMSharp.Metadata;
+﻿using RDMSharp.Extensions;
+using RDMSharp.Metadata;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -170,7 +171,9 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
         try
         {
             await requestSupportedParameters();
-            await requestBlueprintParameters();
+            var parameters = this.SupportedBlueprintParameters.OrderBy(p => (ushort)p).ToList();
+            await requestBlueprintParameters(parameters);
+            await requestSupportedParametersExtensions();
             //await requestPersonalityBlueprintParameters();
 
             IsInitialized = true;
@@ -222,16 +225,27 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
 
             if (this.supportedParameters.Any(p => ((ushort)p.Key) > 0x9000 && ((ushort)p.Key) <= 0x900D))
                 this.supportedParameters.TryAdd(ERDM_Parameter.ENDPOINT_LIST, true);
-
-            if (this.Manufacturer == EManufacturer.SGM_Technology_For_Lighting_SPA)
-                this.supportedParameters.TryAdd((ERDM_Parameter)0xA139, true);
         }
         await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
     }
-
-    private async Task requestBlueprintParameters()
+    private async Task requestSupportedParametersExtensions()
     {
-        var parameters = this.SupportedBlueprintParameters.OrderBy(p => (ushort)p).ToList();
+        ExtensionsManager.Instance.TryGetSupportedParametersExtensions(this.Manufacturer, out IReadOnlyCollection<ISupportedParametersExtension> supportedParametersExtensionsResult);
+        Func<ERDM_Parameter[], Task> getExtSupportedParameters = async (dm) =>
+        {
+            List<ERDM_Parameter> extSupportedParameters = new List<ERDM_Parameter>();
+            foreach (var p in dm)
+                if (supportedParameters.TryAdd(p, true))
+                    extSupportedParameters.Add(p);
+
+            var parameters = this.SupportedBlueprintParameters.OrderBy(p => (ushort)p).Intersect(extSupportedParameters).ToList();
+            await requestBlueprintParameters(extSupportedParameters);
+        };
+        foreach (var ext in supportedParametersExtensionsResult)
+            await ext.RegisterAddSupportedParametersHandler(this, getExtSupportedParameters);
+    }
+    private async Task requestBlueprintParameters(IReadOnlyCollection<ERDM_Parameter> parameters)
+    {
         foreach (ERDM_Parameter parameter in parameters)
         {
             if (parameter == ERDM_Parameter.SUPPORTED_PARAMETERS)
