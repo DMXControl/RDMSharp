@@ -153,10 +153,11 @@ public static class Tools
     }
     public static List<Type> FindClassesWithAttribute<TAttribute>() where TAttribute : Attribute
     {
-        Assembly assembly = Assembly.GetExecutingAssembly();
-        return assembly.GetTypes()
-                       .Where(t => (t.IsClass || t.IsEnum) && t.GetCustomAttributes<TAttribute>().Any(a => a is TAttribute))
-                       .ToList();
+        var assemblys = AppDomain.CurrentDomain.GetAssemblies();
+        List<Type> types = new List<Type>();
+        foreach (var assembly in assemblys)
+            types.AddRange(assembly.GetTypes().Where(t => (t.IsClass || t.IsEnum) && t.GetCustomAttributes<TAttribute>().Any(a => a is TAttribute)));
+        return types;
     }
 
     public static IEnumerable<byte[]> EncaseData(byte[] data)

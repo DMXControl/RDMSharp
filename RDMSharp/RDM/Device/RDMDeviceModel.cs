@@ -1,5 +1,6 @@
 ﻿using RDMSharp.Extensions;
 using RDMSharp.Metadata;
+using RDMSharp.RDM.Device;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -27,7 +28,6 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
         return kdm;
 
     }
-
 
     private ConcurrentDictionary<byte, RDMPersonalityModel> knownPersonalityModels = new ConcurrentDictionary<byte, RDMPersonalityModel>();
     public IReadOnlyCollection<RDMPersonalityModel> KnownPersonalityModels => knownPersonalityModels.Values.ToList();
@@ -125,27 +125,27 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
         }
     }
 
-    private ConcurrentDictionary<ERDM_Parameter, bool> supportedParameters = new ConcurrentDictionary<ERDM_Parameter, bool>();
-    public IReadOnlyCollection<ERDM_Parameter> SupportedParameters
-    {
-        get { return this.supportedParameters.Where(sp => sp.Value).Select(sp => sp.Key).Where(p => ((ushort)p > 0x000F)).OrderBy(p => p).ToArray().AsReadOnly(); }
-    }
-    public IReadOnlyCollection<ERDM_Parameter> SupportedBlueprintParameters
-    {
-        get { return this.SupportedParameters.Intersect(Constants.BLUEPRINT_MODEL_PARAMETERS).OrderBy(p => p).ToList().AsReadOnly(); }
-    }
-    public IReadOnlyCollection<ERDM_Parameter> SupportedPersonalityBlueprintParameters
-    {
-        get { return this.SupportedParameters.Intersect(Constants.BLUEPRINT_MODEL_PERSONALITY_PARAMETERS).OrderBy(p => p).ToList().AsReadOnly(); }
-    }
-    public IReadOnlyCollection<ERDM_Parameter> SupportedNonBlueprintParameters
-    {
-        get { return this.SupportedParameters.Except(SupportedBlueprintParameters).Except(SupportedPersonalityBlueprintParameters).OrderBy(p => p).ToList().AsReadOnly(); }
-    }
+    private ConcurrentDictionary<ERDM_Parameter, SupportedParameterMetadata> supportedParameters = new ConcurrentDictionary<ERDM_Parameter, SupportedParameterMetadata>();
 
-    public IReadOnlyCollection<ERDM_Parameter> KnownNotSupportedParameters
+    public IReadOnlyCollection<SupportedParameterMetadata> GetSupportedParameters()
     {
-        get { return this.supportedParameters.Where(sp => !sp.Value).Select(sp => sp.Key).OrderBy(p => p).ToArray().AsReadOnly(); }
+        return this.supportedParameters.Where(sp => sp.Value.IsSupported && ((ushort)sp.Value.Parameter > 0x000F)).Select(sp => sp.Value).OrderBy(p => p.Parameter).ToArray().AsReadOnly();
+    }
+    public IReadOnlyCollection<SupportedParameterMetadata> GetSupportedBlueprintModelParameters()
+    {
+        return this.supportedParameters.Where(sp => sp.Value.IsSupported && sp.Value.IsBlueprintModel && ((ushort)sp.Value.Parameter > 0x000F)).Select(sp => sp.Value).OrderBy(p => p.Parameter).ToArray().AsReadOnly();
+    }
+    public IReadOnlyCollection<SupportedParameterMetadata> GetSupportedBlueprintModelPersonalityParameters()
+    {
+        return this.supportedParameters.Where(sp => sp.Value.IsSupported && sp.Value.IsBlueprintModelPersonality && ((ushort)sp.Value.Parameter > 0x000F)).Select(sp => sp.Value).OrderBy(p => p.Parameter).ToArray().AsReadOnly();
+    }
+    public IReadOnlyCollection<SupportedParameterMetadata> GetSupportedNonBlueprintParameters()
+    {
+        return this.supportedParameters.Where(sp => sp.Value.IsSupported && sp.Value.IsNonBlueprint && ((ushort)sp.Value.Parameter > 0x000F)).Select(sp => sp.Value).OrderBy(p => p.Parameter).ToArray().AsReadOnly();
+    }
+    public IReadOnlyCollection<SupportedParameterMetadata> GetKnownNotSupportedParameters()
+    {
+        return this.supportedParameters.Where(sp => !sp.Value.IsSupported && ((ushort)sp.Value.Parameter > 0x000F)).Select(sp => sp.Value).OrderBy(p => p.Parameter).ToArray().AsReadOnly();
     }
 
     internal RDMDeviceModel(UID uid, SubDevice subdevice, RDMDeviceInfo deviceInfo)
@@ -171,8 +171,7 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
         try
         {
             await requestSupportedParameters();
-            var parameters = this.SupportedBlueprintParameters.OrderBy(p => (ushort)p).ToList();
-            await requestBlueprintParameters(parameters);
+            await requestBlueprintParameters(this.GetSupportedBlueprintModelParameters());
             await requestSupportedParametersExtensions();
             //await requestPersonalityBlueprintParameters();
 
@@ -203,28 +202,29 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
             foreach (var para in parameters)
             {
                 if (!this.supportedParameters.TryGetValue(para, out _))
-                    supportedParameters.TryAdd(para, true);
+                    if (ExtensionsManager.Instance.TryGetSupportedParameterMetadata(this.Manufacturer, para, out SupportedParameterMetadata supportedParameterMetadata))
+                        supportedParameters.TryAdd(para, supportedParameterMetadata);
             }
-            if (DeviceInfo.Dmx512StartAddress.HasValue && DeviceInfo.Dmx512StartAddress >= 1 && DeviceInfo.Dmx512StartAddress.Value <= 512) // Remote Device not send DMX_START_ADDRESS Parameter but uses it!
-                supportedParameters.TryAdd(ERDM_Parameter.DMX_START_ADDRESS, true);
+            //if (DeviceInfo.Dmx512StartAddress.HasValue && DeviceInfo.Dmx512StartAddress >= 1 && DeviceInfo.Dmx512StartAddress.Value <= 512) // Remote Device not send DMX_START_ADDRESS Parameter but uses it!
+            //    supportedParameters.TryAdd(ERDM_Parameter.DMX_START_ADDRESS, true);
 
-            if (DeviceInfo.Dmx512CurrentPersonality.HasValue) // Remote Device not send DMX_PERSONALITY Parameter but uses it!
-                supportedParameters.TryAdd(ERDM_Parameter.DMX_PERSONALITY, true);
+            //if (DeviceInfo.Dmx512CurrentPersonality.HasValue) // Remote Device not send DMX_PERSONALITY Parameter but uses it!
+            //    supportedParameters.TryAdd(ERDM_Parameter.DMX_PERSONALITY, true);
 
-            if (!this.supportedParameters.ContainsKey(ERDM_Parameter.PARAMETER_DESCRIPTION) && this.supportedParameters.Any(p => ((ushort)p.Key) >= 0x8000 && ((ushort)p.Key) <= 0xFFDF)) // Remote Device not send PARAMETER_DESCRIPTION Parameter but has Manufacture speific Parameters it!
-                this.supportedParameters.TryAdd(ERDM_Parameter.PARAMETER_DESCRIPTION, true);
+            //if (!this.supportedParameters.ContainsKey(ERDM_Parameter.PARAMETER_DESCRIPTION) && this.supportedParameters.Any(p => ((ushort)p.Key) >= 0x8000 && ((ushort)p.Key) <= 0xFFDF)) // Remote Device not send PARAMETER_DESCRIPTION Parameter but has Manufacture speific Parameters it!
+            //    this.supportedParameters.TryAdd(ERDM_Parameter.PARAMETER_DESCRIPTION, true);
 
-            if (!this.supportedParameters.ContainsKey(ERDM_Parameter.IDENTIFY_DEVICE)) //Test it if the device supports Identify Device Parameter, if not it will be labled as not supported later on
-                this.supportedParameters.TryAdd(ERDM_Parameter.IDENTIFY_DEVICE, true);
+            //if (!this.supportedParameters.ContainsKey(ERDM_Parameter.IDENTIFY_DEVICE)) //Test it if the device supports Identify Device Parameter, if not it will be labled as not supported later on
+            //    this.supportedParameters.TryAdd(ERDM_Parameter.IDENTIFY_DEVICE, true);
 
-            if (!this.supportedParameters.ContainsKey(ERDM_Parameter.SOFTWARE_VERSION_LABEL))//Test it if the device supports Software Version Lable Device Parameter, if not it will be labled as not supported later on
-                this.supportedParameters.TryAdd(ERDM_Parameter.SOFTWARE_VERSION_LABEL, true);
+            //if (!this.supportedParameters.ContainsKey(ERDM_Parameter.SOFTWARE_VERSION_LABEL))//Test it if the device supports Software Version Lable Device Parameter, if not it will be labled as not supported later on
+            //    this.supportedParameters.TryAdd(ERDM_Parameter.SOFTWARE_VERSION_LABEL, true);
 
-            if (!this.supportedParameters.ContainsKey(ERDM_Parameter.FACTORY_DEFAULTS))//Test it if the device supports Factory Defaults Device Parameter, if not it will be labled as not supported later on
-                this.supportedParameters.TryAdd(ERDM_Parameter.FACTORY_DEFAULTS, true);
+            //if (!this.supportedParameters.ContainsKey(ERDM_Parameter.FACTORY_DEFAULTS))//Test it if the device supports Factory Defaults Device Parameter, if not it will be labled as not supported later on
+            //    this.supportedParameters.TryAdd(ERDM_Parameter.FACTORY_DEFAULTS, true);
 
-            if (this.supportedParameters.Any(p => ((ushort)p.Key) > 0x9000 && ((ushort)p.Key) <= 0x900D))
-                this.supportedParameters.TryAdd(ERDM_Parameter.ENDPOINT_LIST, true);
+            //if (this.supportedParameters.Any(p => ((ushort)p.Key) > 0x9000 && ((ushort)p.Key) <= 0x900D))
+            //    this.supportedParameters.TryAdd(ERDM_Parameter.ENDPOINT_LIST, true);
         }
         await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
     }
@@ -233,32 +233,40 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
         ExtensionsManager.Instance.TryGetSupportedParametersExtensions(this.Manufacturer, out IReadOnlyCollection<ISupportedParametersExtension> supportedParametersExtensionsResult);
         Func<ERDM_Parameter[], Task> getExtSupportedParameters = async (dm) =>
         {
-            List<ERDM_Parameter> extSupportedParameters = new List<ERDM_Parameter>();
+            List<SupportedParameterMetadata> extSupportedParameters = new List<SupportedParameterMetadata>();
             foreach (var p in dm)
-                if (supportedParameters.TryAdd(p, true))
-                    extSupportedParameters.Add(p);
+                if (ExtensionsManager.Instance.TryGetSupportedParameterMetadata(this.Manufacturer, p, out SupportedParameterMetadata supportedParameterMetadata))
+                    if (supportedParameters.TryAdd(p, supportedParameterMetadata))
+                        extSupportedParameters.Add(supportedParameterMetadata);
 
-            var parameters = this.SupportedBlueprintParameters.OrderBy(p => (ushort)p).Intersect(extSupportedParameters).ToList();
-            await requestBlueprintParameters(extSupportedParameters);
+            List<SupportedParameterMetadata> supportedParameterMetadataToRequest = new List<SupportedParameterMetadata>();
+            supportedParameterMetadataToRequest.AddRange(extSupportedParameters);
+            if (extSupportedParameters.Where(spm => spm.IsManufacturerSpecific).Count() != 0)
+                supportedParameterMetadataToRequest.InsertRange(0, this.supportedParameters.Where(p => p.Key == ERDM_Parameter.PARAMETER_DESCRIPTION).Select(p => p.Value));
+            await requestBlueprintParameters(supportedParameterMetadataToRequest.Where(sp => sp.IsBlueprintModel).ToList());
         };
         foreach (var ext in supportedParametersExtensionsResult)
             await ext.RegisterAddSupportedParametersHandler(this, getExtSupportedParameters);
     }
-    private async Task requestBlueprintParameters(IReadOnlyCollection<ERDM_Parameter> parameters)
+    private async Task requestBlueprintParameters(IReadOnlyCollection<SupportedParameterMetadata> parameters)
     {
-        foreach (ERDM_Parameter parameter in parameters)
+        foreach (var spm in parameters)
         {
+            ERDM_Parameter parameter = spm.Parameter;
             if (parameter == ERDM_Parameter.SUPPORTED_PARAMETERS)
                 continue;
             ParameterBag parameterBag = new ParameterBag(parameter, ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
             var define = MetadataFactory.GetDefine(parameterBag);
-            if (define.GetRequest.HasValue)
+            if (define?.GetRequest.HasValue ?? false)
             {
                 if (define.GetRequest.Value.GetIsEmpty())
                     await requestGetParameterWithEmptyPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
                 else if (parameter == ERDM_Parameter.PARAMETER_DESCRIPTION)
-                    foreach (var pid in this.supportedParameters.Where(p => (ushort)p.Key >= 0x8000 && (ushort)p.Key <= 0xFFDF).Select(p => (ushort)p.Key))
-                        await requestGetParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice, pid);
+                    foreach (var pid in this.supportedParameters.Where(p => p.Value.IsManufacturerSpecific && p.Value.ParameterDescription is null).Select(p => (ushort)p.Key))
+                    {
+                        var result = await requestGetParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice, pid);
+                        spm.SetParameterDescription(result);
+                    }
                 else
                     await requestGetParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
             }
@@ -304,15 +312,11 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
     {
         if (rdmMessage.NackReason == ERDM_NackReason.FORMAT_ERROR || rdmMessage.NackReason == ERDM_NackReason.UNKNOWN_PID)
         {
-            AddParameterToKnownNotSupportedParameters(rdmMessage.Parameter);
+            if (this.supportedParameters.TryGetValue(rdmMessage.Parameter, out SupportedParameterMetadata supportedParameterMetadata))
+                supportedParameterMetadata.HandleNack(rdmMessage);
             return false;
         }
         return true;
-    }
-
-    internal void AddParameterToKnownNotSupportedParameters(ERDM_Parameter parameter)
-    {
-        this.supportedParameters.AddOrUpdate(parameter, false, (x, y) => false);
     }
 
     private void RDMDeviceModel_ParameterValueAdded(object sender, ParameterValueAddedEventArgs e)

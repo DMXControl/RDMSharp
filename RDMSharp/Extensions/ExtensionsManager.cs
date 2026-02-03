@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
+using RDMSharp.RDM.Device;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RDMSharp.Extensions;
 
@@ -67,6 +69,7 @@ internal class ExtensionsManager
 
         return bytesParsers.TryGetValue(formatIdentifyer, out bytesParser);
     }
+
     private void LoadSupportedParametersExtension()
     {
         var assemblies = AppDomain.CurrentDomain.GetAssemblies();
@@ -117,6 +120,53 @@ internal class ExtensionsManager
         {
             Logger?.LogError(e, "Error while getting SupportedParametersExtensions");
             supportedParametersExtensionsResult = Array.Empty<ISupportedParametersExtension>();
+            return false;
+        }
+    }
+    public bool TryGetSupportedParameterMetadata(EManufacturer manufacturer, ERDM_Parameter parameter, out SupportedParameterMetadata? supportedParameterMetadata)
+    {
+        try
+        {
+            if (supportedParametersExtensions.IsEmpty)
+                LoadSupportedParametersExtension();
+
+            bool isBlueprintModelParameter = false;
+            bool isBlueprintModelPersonalityParameter = false;
+            bool isManufacturerInternalParameter = false;
+            string name = null;
+            int updateTimeMilliseconds = -1;
+            foreach (var spe in supportedParametersExtensions.Values)
+            {
+                if (spe.Manufacturer != EManufacturer.ESTA && spe.Manufacturer != manufacturer)
+                    continue;
+
+                isBlueprintModelParameter |= spe.BlueprintModelParameters.Contains(parameter);
+                isBlueprintModelPersonalityParameter |= spe.BlueprintModelPersonalityParameters.Contains(parameter);
+                isManufacturerInternalParameter |= spe.ManufacturerInternalParameters.Contains(parameter);
+
+                if (name == null && spe.TryGetParameterName(parameter, out var paramName))
+                    name = paramName;
+                if (updateTimeMilliseconds < 0 && spe.TryGetParameterUpdateTimeMilliseconds(parameter, out var paramUpdateTime))
+                    updateTimeMilliseconds = paramUpdateTime;
+            }
+
+            if (isBlueprintModelParameter)
+                supportedParameterMetadata = SupportedParameterMetadata.CreateBlueprintModel(parameter, isManufacturerInternalParameter);
+            else if (isBlueprintModelPersonalityParameter)
+                supportedParameterMetadata = SupportedParameterMetadata.CreateBlueprintModelPersonality(parameter, isManufacturerInternalParameter);
+            else
+                supportedParameterMetadata = SupportedParameterMetadata.Create(parameter, isManufacturerInternalParameter);
+
+
+            supportedParameterMetadata.SetName(name);
+            supportedParameterMetadata.SetParameterUpdateTime(updateTimeMilliseconds);
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            Logger?.LogError(e, "Error while getting SupportedParametersExtensions");
+            supportedParameterMetadata = null;
             return false;
         }
     }

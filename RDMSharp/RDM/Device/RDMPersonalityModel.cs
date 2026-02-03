@@ -67,7 +67,7 @@ public sealed class RDMPersonalityModel : AbstractRDMCache
         this.ParameterValueAdded += RDMDeviceModel_ParameterValueAdded;
         if (remoteRDMDevice is AbstractRemoteRDMDevice rd)
         {
-            SupportedPersonalityBlueprintParameters = rd.DeviceModel.SupportedPersonalityBlueprintParameters;
+            SupportedPersonalityBlueprintParameters = rd.DeviceModel.GetSupportedBlueprintModelPersonalityParameters().Select(spm => spm.Parameter).ToList();
             if (remoteRDMDevice.ParameterValues.TryGetValue(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION, out object obj) && obj is ConcurrentDictionary<object, object> dict)
             {
                 if (dict.TryGetValue(personalityId, out object disc) && disc is RDMDMXPersonalityDescription personalityDescription)

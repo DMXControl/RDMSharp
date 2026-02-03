@@ -12,6 +12,7 @@ public abstract class AbstractSupportedParametersExtension : ISupportedParameter
     public abstract EManufacturer Manufacturer { get; }
     public abstract ERDM_Parameter[] BlueprintModelParameters { get; }
     public abstract ERDM_Parameter[] BlueprintModelPersonalityParameters { get; }
+    public abstract ERDM_Parameter[] ManufacturerInternalParameters { get; }
 
     private ConcurrentDictionary<IRDMDeviceModel, Func<ERDM_Parameter[], Task>> _handlers = new();
 
@@ -40,4 +41,8 @@ public abstract class AbstractSupportedParametersExtension : ISupportedParameter
         await registerAddSupportedParametersHandler(deviceModel, handler);
     }
     protected abstract Task registerAddSupportedParametersHandler(IRDMDeviceModel deviceModel, Func<ERDM_Parameter[], Task> handler);
+
+    public abstract bool TryGetParameterName(ERDM_Parameter parameter, out string name);
+
+    public abstract bool TryGetParameterUpdateTimeMilliseconds(ERDM_Parameter parameter, out int milliseconds);
 }

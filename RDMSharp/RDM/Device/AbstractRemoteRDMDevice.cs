@@ -266,7 +266,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
     }
     private async Task requestParameters()
     {
-        var parameters = this.DeviceModel?.SupportedNonBlueprintParameters.OrderBy(p => (ushort)p).ToList();
+        var parameters = this.DeviceModel?.GetSupportedNonBlueprintParameters().Select(spm => spm.Parameter);
         if (parameters == null)
             return;
 
@@ -323,7 +323,8 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
     private SemaphoreSlim updateSenaphoreSlim = new SemaphoreSlim(1);
     private async Task updateParameters()
     {
-        if (QueuedSupported && deviceModel.KnownNotSupportedParameters.Contains(ERDM_Parameter.QUEUED_MESSAGE))
+        var supportedParameters = this.DeviceModel?.GetSupportedNonBlueprintParameters();
+        if (QueuedSupported && supportedParameters.Any(spm => spm.Parameter == ERDM_Parameter.QUEUED_MESSAGE))
             QueuedSupported = false;
 
         if (updateSenaphoreSlim.CurrentCount == 0)
@@ -337,8 +338,10 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
             while (ParameterUpdatedBag.TryPeek(out ParameterUpdatedBag bag))
             {
                 TimeSpan updateTime = TimeSpan.FromMilliseconds(GlobalTimers.Instance.NonQueuedUpdateTime);
-                if (bag.Parameter.GetAttribute<ParameterUpdateTimeAttribute>() is ParameterUpdateTimeAttribute attribute)
-                    updateTime = TimeSpan.FromMilliseconds(attribute.Milliseconds);
+                //if (bag.Parameter.GetAttribute<ParameterUpdateTimeAttribute>() is ParameterUpdateTimeAttribute attribute)
+                //    updateTime = TimeSpan.FromMilliseconds(attribute.Milliseconds);
+                if ((supportedParameters.FirstOrDefault(spm => spm.Parameter == bag.Parameter)?.ParameterUpdateTimeMilliseconds is int milliseconds) && milliseconds >= 0)
+                    updateTime = TimeSpan.FromMilliseconds(milliseconds);
 
                 if (loopDetectionCache.Any(b => b.Parameter == bag.Parameter && b.Index == bag.Index))
                     return;
@@ -386,7 +389,8 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
 
     private async Task requestQueuedMessages()
     {
-        if (QueuedSupported && !deviceModel.KnownNotSupportedParameters.Contains(ERDM_Parameter.QUEUED_MESSAGE))
+        var supportedParameters = this.deviceModel?.GetSupportedNonBlueprintParameters();
+        if (QueuedSupported && !supportedParameters.Any(spm => spm.Parameter == ERDM_Parameter.QUEUED_MESSAGE))
         {
             if (DateTime.UtcNow - lastSendQueuedMessage < TimeSpan.FromMilliseconds(GlobalTimers.Instance.QueuedUpdateTime))
                 return;

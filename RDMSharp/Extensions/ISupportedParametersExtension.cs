@@ -10,6 +10,10 @@ public interface ISupportedParametersExtension
 
     ERDM_Parameter[] BlueprintModelParameters { get; }
     ERDM_Parameter[] BlueprintModelPersonalityParameters { get; }
+    ERDM_Parameter[] ManufacturerInternalParameters { get; }
 
     Task RegisterAddSupportedParametersHandler(IRDMDeviceModel deviceModel, Func<ERDM_Parameter[], Task> handler);
+
+    bool TryGetParameterName(ERDM_Parameter parameter, out string name);
+    bool TryGetParameterUpdateTimeMilliseconds(ERDM_Parameter parameter, out int milliseconds);
 }
