@@ -116,17 +116,17 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
                     if (constructor.GetCustomAttribute<DataTreeObjectConstructorAttribute>() is DataTreeObjectConstructorAttribute cAttribute)
                     {
                         if (!children.All(c => c.IsCompound))
-                            return createObjectFromDataTree(children);
+                            return createObjectFromDataTree(objectAttribute, children);
                         else
                         {
                             var array = Array.CreateInstance(definedDataTreeObjectType, children.Length);
                             foreach (var comp in children)
-                                array.SetValue(createObjectFromDataTree(comp.Children), comp.Index);
+                                array.SetValue(createObjectFromDataTree(objectAttribute, comp.Children), comp.Index);
                             return array;
                         }
 
 
-                        object createObjectFromDataTree(DataTree[] children)
+                        object createObjectFromDataTree(DataTreeObjectAttribute objectAttribute, DataTree[] children)
                         {
                             var parameters = new List<object>();
                             foreach (var param in constructor.GetParameters())
@@ -310,8 +310,13 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
         if (isArray)
             type = type.GetElementType();
 
-        if (type.GetCustomAttributes<DataTreeObjectAttribute>().FirstOrDefault(a => a.Parameter == parameter && a.Command == Tools.ConvertCommandDublicateToCommand(command) && a.IsArray == isArray) is not DataTreeObjectAttribute dataTreeObjectAttribute)
+        var dataTreeObjectAttributes = type.GetCustomAttributes<DataTreeObjectAttribute>();
+        if (dataTreeObjectAttributes.FirstOrDefault(a => a.Parameter == parameter && a.Command == Tools.ConvertCommandDublicateToCommand(command)) is not DataTreeObjectAttribute dataTreeObjectAttribute)
             return DataTreeBranch.Unset;
+
+        if (dataTreeObjectAttribute.IsArray != isArray)
+        {
+        }
 
         List<DataTree> children = new List<DataTree>();
         bool isCompound = false;

@@ -186,7 +186,7 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
 
         foreach (IModule module in _modules)
             if (module is AbstractModule aModule)
-                aModule.SetParentDevice(this);
+                aModule.SetGeneratedParentDevice(this);
 
         trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters.ToArray());
 

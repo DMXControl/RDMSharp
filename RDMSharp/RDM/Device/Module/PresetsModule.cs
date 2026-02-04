@@ -1,27 +1,38 @@
-﻿namespace RDMSharp.RDM.Device.Module
+﻿namespace RDMSharp.RDM.Device.Module;
+
+public sealed class PresetsModule : AbstractModule
 {
-    public sealed class PresetsModule : AbstractModule
+    private const string _moduleName = "Presets";
+    private static readonly ERDM_Parameter[] _moduleParameters = new ERDM_Parameter[]
     {
-        public PresetsModule() : base(
-            "Presets",
-            ERDM_Parameter.PRESET_PLAYBACK,
-            ERDM_Parameter.CAPTURE_PRESET)
-        {
-        }
+        ERDM_Parameter.PRESET_PLAYBACK,
+        ERDM_Parameter.CAPTURE_PRESET
+    };
 
-        protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        //protected override RDMMessage handleRequest(RDMMessage message)
-        //{
-        //    return null;
-        //}
+    public PresetsModule() : base(
+        _moduleName,
+        _moduleParameters)
+    {
     }
+    public PresetsModule(IRDMRemoteDevice remoteDevice) : base(
+        remoteDevice,
+        _moduleName,
+        _moduleParameters)
+    {
+    }
+
+    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    //protected override RDMMessage handleRequest(RDMMessage message)
+    //{
+    //    return null;
+    //}
 }

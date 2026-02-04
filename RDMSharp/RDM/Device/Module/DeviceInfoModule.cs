@@ -1,75 +1,83 @@
 ﻿using System;
 using System.Linq;
 
-namespace RDMSharp.RDM.Device.Module
+namespace RDMSharp.RDM.Device.Module;
+
+public sealed class DeviceInfoModule : AbstractModule
 {
-    public sealed class DeviceInfoModule : AbstractModule
+    private const string _moduleName = "DeviceInfo";
+    private const ERDM_Parameter _moduleParameter = ERDM_Parameter.DEVICE_INFO;
+
+    public RDMDeviceInfo DeviceInfo
     {
-        public RDMDeviceInfo DeviceInfo
+        get
         {
-            get
-            {
-                object res;
-                if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.DEVICE_INFO, out res))
-                    return (RDMDeviceInfo)res;
-                return null;
-            }
-            internal set
-            {
-                if (ParentDevice is not null)
-                    ParentDevice.setParameterValue(ERDM_Parameter.DEVICE_INFO, value);
-            }
+            object res;
+            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.DEVICE_INFO, out res))
+                return (RDMDeviceInfo)res;
+            return null;
         }
-        private SoftwareVersionModule softwareVersionModule;
-        private DMX_StartAddressModule dmxStartAddressModule;
-        private DMX_PersonalityModule dmxPersonalityModule;
-        private SensorsModule sensorsModule;
+        internal set
+        {
+            if (ParentDevice is not null)
+                ParentDevice.setParameterValue(ERDM_Parameter.DEVICE_INFO, value);
+        }
+    }
+    private SoftwareVersionModule softwareVersionModule;
+    private DMX_StartAddressModule dmxStartAddressModule;
+    private DMX_PersonalityModule dmxPersonalityModule;
+    private SensorsModule sensorsModule;
 
-        public DeviceInfoModule() : base(
-            "DeviceInfo",
-            ERDM_Parameter.DEVICE_INFO)
-        {
-        }
+    public DeviceInfoModule() : base(
+        _moduleName,
+        _moduleParameter)
+    {
+    }
+    public DeviceInfoModule(IRDMRemoteDevice remoteDevice) : base(
+        remoteDevice,
+        _moduleName,
+        _moduleParameter)
+    {
+    }
 
-        protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
-        {
-            softwareVersionModule = device.Modules.OfType<SoftwareVersionModule>().FirstOrDefault();
-            dmxStartAddressModule = device.Modules.OfType<DMX_StartAddressModule>().FirstOrDefault();
-            dmxPersonalityModule = device.Modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
-            sensorsModule = device.Modules.OfType<SensorsModule>().FirstOrDefault();
-            updateParameterValues();
-        }
-        private void updateParameterValues()
-        {
-            if (ParentDevice is null)
-                return;
-            this.DeviceInfo = new RDMDeviceInfo(1,
-                                           0,
-                                           ParentDevice.DeviceModelID,
-                                           ParentDevice.ProductCategoryCoarse,
-                                           ParentDevice.ProductCategoryFine,
-                                           softwareVersionModule?.SoftwareVersionId ?? 0,
-                                           dmx512Footprint: dmxPersonalityModule?.CurrentPersonalityFootprint ?? 0,
-                                           dmx512CurrentPersonality: dmxPersonalityModule?.CurrentPersonality ?? 0,
-                                           dmx512NumberOfPersonalities: dmxPersonalityModule?.PersonalitiesCount ?? 0,
-                                           dmx512StartAddress: (dmxStartAddressModule?.DMXAddress ?? ushort.MaxValue),
-                                           subDeviceCount: (ushort)(ParentDevice.SubDevices?.Where(sd => !sd.Subdevice.IsRoot).Count() ?? 0),
-                                           sensorCount: (byte)(sensorsModule?.Sensors?.Count ?? 0));
+    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    {
+        softwareVersionModule = device.Modules.OfType<SoftwareVersionModule>().FirstOrDefault();
+        dmxStartAddressModule = device.Modules.OfType<DMX_StartAddressModule>().FirstOrDefault();
+        dmxPersonalityModule = device.Modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
+        sensorsModule = device.Modules.OfType<SensorsModule>().FirstOrDefault();
+        updateParameterValues();
+    }
+    private void updateParameterValues()
+    {
+        if (ParentDevice is null)
+            return;
+        this.DeviceInfo = new RDMDeviceInfo(1,
+                                       0,
+                                       ParentDevice.DeviceModelID,
+                                       ParentDevice.ProductCategoryCoarse,
+                                       ParentDevice.ProductCategoryFine,
+                                       softwareVersionModule?.SoftwareVersionId ?? 0,
+                                       dmx512Footprint: dmxPersonalityModule?.CurrentPersonalityFootprint ?? 0,
+                                       dmx512CurrentPersonality: dmxPersonalityModule?.CurrentPersonality ?? 0,
+                                       dmx512NumberOfPersonalities: dmxPersonalityModule?.PersonalitiesCount ?? 0,
+                                       dmx512StartAddress: (dmxStartAddressModule?.DMXAddress ?? ushort.MaxValue),
+                                       subDeviceCount: (ushort)(ParentDevice.SubDevices?.Where(sd => !sd.Subdevice.IsRoot).Count() ?? 0),
+                                       sensorCount: (byte)(sensorsModule?.Sensors?.Count ?? 0));
 
-            OnPropertyChanged(nameof(DeviceInfo));
-        }
-        protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
+        OnPropertyChanged(nameof(DeviceInfo));
+    }
+    protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
+    {
+        switch (parameter)
         {
-            switch (parameter)
-            {
-                case ERDM_Parameter.DEVICE_INFO:
-                    OnPropertyChanged(nameof(DeviceInfo));
-                    break;
-                case ERDM_Parameter.DMX_PERSONALITY:
-                case ERDM_Parameter.DMX_START_ADDRESS:
-                    updateParameterValues();
-                    break;
-            }
+            case ERDM_Parameter.DEVICE_INFO:
+                OnPropertyChanged(nameof(DeviceInfo));
+                break;
+            case ERDM_Parameter.DMX_PERSONALITY:
+            case ERDM_Parameter.DMX_START_ADDRESS:
+                updateParameterValues();
+                break;
         }
     }
 }

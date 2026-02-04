@@ -1,45 +1,53 @@
-﻿namespace RDMSharp.RDM.Device.Module
-{
-    public sealed class DeviceLabelModule : AbstractModule
-    {
-        private string _deviceLabel;
-        public string DeviceLabel
-        {
-            get
-            {
-                if (ParentDevice is null)
-                    return _deviceLabel;
-                object res;
-                if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.DEVICE_LABEL, out res))
-                    return (string)res;
-                return _deviceLabel;
-            }
-            internal set
-            {
-                _deviceLabel = value;
-                if (ParentDevice is not null)
-                    ParentDevice.setParameterValue(ERDM_Parameter.DEVICE_LABEL, value);
-            }
-        }
-        public DeviceLabelModule(string deviceLabel) : base(
-            "DeviceLabel",
-            ERDM_Parameter.DEVICE_LABEL)
-        {
-            _deviceLabel = deviceLabel;
-        }
+﻿namespace RDMSharp.RDM.Device.Module;
 
-        protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+public sealed class DeviceLabelModule : AbstractModule
+{
+    private const string _moduleName = "DeviceLabel";
+    private const ERDM_Parameter _moduleParameter = ERDM_Parameter.DEVICE_LABEL;
+
+    private string _deviceLabel;
+    public string DeviceLabel
+    {
+        get
         {
-            this.DeviceLabel = _deviceLabel;
+            if (ParentDevice is null)
+                return _deviceLabel;
+            object res;
+            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.DEVICE_LABEL, out res))
+                return (string)res;
+            return _deviceLabel;
         }
-        protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
+        internal set
         {
-            switch (parameter)
-            {
-                case ERDM_Parameter.DEVICE_LABEL:
-                    OnPropertyChanged(nameof(DeviceLabel));
-                    break;
-            }
+            _deviceLabel = value;
+            if (ParentDevice is not null)
+                ParentDevice.setParameterValue(ERDM_Parameter.DEVICE_LABEL, value);
+        }
+    }
+    public DeviceLabelModule(string deviceLabel) : base(
+        _moduleName,
+        _moduleParameter)
+    {
+        _deviceLabel = deviceLabel;
+    }
+    public DeviceLabelModule(IRDMRemoteDevice remoteDevice) : base(
+        remoteDevice,
+        _moduleName,
+        _moduleParameter)
+    {
+    }
+
+    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    {
+        this.DeviceLabel = _deviceLabel;
+    }
+    protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
+    {
+        switch (parameter)
+        {
+            case ERDM_Parameter.DEVICE_LABEL:
+                OnPropertyChanged(nameof(DeviceLabel));
+                break;
         }
     }
 }

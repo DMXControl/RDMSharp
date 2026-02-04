@@ -304,6 +304,26 @@ public abstract class AbstractRDMCache : IDisposable
                         {
                             case ERDM_Parameter.STATUS_ID_DESCRIPTION:
                             case ERDM_Parameter.STATUS_MESSAGES:
+                            case ERDM_Parameter.METADATA_PARAMETER_VERSION:
+                            case ERDM_Parameter.METADATA_JSON:
+                                break;
+
+                            case ERDM_Parameter.IDENTIFY_ENDPOINT:
+                            case ERDM_Parameter.ENDPOINT_TO_UNIVERSE:
+                            case ERDM_Parameter.ENDPOINT_TIMING:
+                            case ERDM_Parameter.ENDPOINT_LABEL:
+                            case ERDM_Parameter.ENDPOINT_MODE:
+                            case ERDM_Parameter.BINDING_CONTROL_FIELDS:
+                            case ERDM_Parameter.DISCOVERY_STATE:
+                            case ERDM_Parameter.ENDPOINT_RESPONDER_LIST_CHANGE:
+                            case ERDM_Parameter.BACKGROUND_DISCOVERY:
+                            case ERDM_Parameter.RDM_TRAFFIC_ENABLE:
+                            case ERDM_Parameter.ENDPOINT_RESPONDERS:
+                                if (this.parameterValues.TryGetValue(ERDM_Parameter.ENDPOINT_LIST, out object value))
+                                {
+                                    if (value is EndpointDescriptor[] endpoints)
+                                        dependecyValue = (ushort)endpoints.Max(ep => ep.EndpointId);
+                                }
                                 break;
                             default:
                                 Logger?.LogDebug($"No {nameof(dependecyValue)} found for {parameterBag.PID}");

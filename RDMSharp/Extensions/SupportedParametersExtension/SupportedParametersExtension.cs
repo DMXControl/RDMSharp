@@ -62,26 +62,63 @@ public sealed class SupportedParametersExtension : AbstractSupportedParametersEx
         List<ERDM_Parameter> supportedParameters = new List<ERDM_Parameter>();
         var deviceInfo = deviceModel.DeviceInfo;
 
+        if (!parameters.Contains(ERDM_Parameter.QUEUED_MESSAGE))
+        {
+            supportedParameters.Add(ERDM_Parameter.QUEUED_MESSAGE);
+            Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for QUEUED_MESSAGE Parameter.");
+        }
+
         // Remote Device not send DMX_START_ADDRESS Parameter but uses it!
-        if (deviceInfo.Dmx512StartAddress.HasValue && deviceInfo.Dmx512StartAddress >= 1 && deviceInfo.Dmx512StartAddress.Value <= 512)
+        if (deviceInfo.Dmx512StartAddress.HasValue &&
+            deviceInfo.Dmx512StartAddress >= 1 &&
+            deviceInfo.Dmx512StartAddress.Value <= 512 &&
+            !parameters.Contains(ERDM_Parameter.DMX_START_ADDRESS))
         {
             supportedParameters.Add(ERDM_Parameter.DMX_START_ADDRESS);
             Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for DMX_START_ADDRESS Parameter based on Start Address value {deviceInfo.Dmx512StartAddress.Value}.");
         }
 
         // Remote Device not send DMX_PERSONALITY Parameter but uses it!
-        if (deviceInfo.Dmx512CurrentPersonality.HasValue)
+        if (deviceInfo.Dmx512CurrentPersonality.HasValue &&
+            !parameters.Contains(ERDM_Parameter.DMX_PERSONALITY))
         {
             supportedParameters.Add(ERDM_Parameter.DMX_PERSONALITY);
             Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for DMX_PERSONALITY Parameter based on Current Personality value {deviceInfo.Dmx512CurrentPersonality.Value}.");
         }
 
-        // Remote Device not send PARAMETER_DESCRIPTION Parameter but has Manufacture speific Parameters it!
-        if (!parameters.Contains(ERDM_Parameter.PARAMETER_DESCRIPTION) && parameters.Any(p => ((ushort)p) >= 0x8000 && ((ushort)p) <= 0xFFDF))
+        // Remote Device not send DMX_PERSONALITY Parameter but uses it!
+        if (deviceInfo.Dmx512NumberOfPersonalities != 0 &&
+            !parameters.Contains(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION))
         {
-            supportedParameters.Add(ERDM_Parameter.PARAMETER_DESCRIPTION);
-            Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for PARAMETER_DESCRIPTION Parameter based on presence of Manufacturer Specific Parameters.");
+            supportedParameters.Add(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION);
+            Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for DMX_PERSONALITY_DESCRIPTION Parameter based on Number of Personalities value {deviceInfo.Dmx512NumberOfPersonalities}.");
         }
+
+        if (parameters.Any(p => ((ushort)p) >= 0x8000 &&
+                                ((ushort)p) <= 0xFFDF))
+        {
+            // Remote Device not send PARAMETER_DESCRIPTION Parameter but has Manufacture speific Parameters it!
+            if (!parameters.Contains(ERDM_Parameter.PARAMETER_DESCRIPTION))
+            {
+                supportedParameters.Add(ERDM_Parameter.PARAMETER_DESCRIPTION);
+                Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for PARAMETER_DESCRIPTION Parameter based on presence of Manufacturer Specific Parameters.");
+            }
+
+            // Remote Device not send METADATA_PARAMETER_VERSION Parameter but has Manufacture speific Parameters it!
+            if (!parameters.Contains(ERDM_Parameter.METADATA_PARAMETER_VERSION))
+            {
+                supportedParameters.Add(ERDM_Parameter.METADATA_PARAMETER_VERSION);
+                Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for METADATA_PARAMETER_VERSION Parameter based on presence of Manufacturer Specific Parameters.");
+            }
+            // Remote Device not send METADATA_JSON Parameter but has Manufacture speific Parameters it!
+            if (!parameters.Contains(ERDM_Parameter.METADATA_JSON))
+            {
+                supportedParameters.Add(ERDM_Parameter.METADATA_JSON);
+                Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for METADATA_JSON Parameter based on presence of Manufacturer Specific Parameters.");
+            }
+        }
+
+
         //Test it if the device supports Identify Device Parameter, if not it will be labled as not supported later on
         if (!parameters.Contains(ERDM_Parameter.IDENTIFY_DEVICE))
         {
@@ -103,11 +140,64 @@ public sealed class SupportedParametersExtension : AbstractSupportedParametersEx
             Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for FACTORY_DEFAULTS Parameter.");
         }
 
-        // Remote Device not send ENDPOINT_LIST Parameter but has Endpoint Parameters it!
-        if (parameters.Any(p => ((ushort)p) > 0x9000 && ((ushort)p) <= 0x900D))
+        // Remote Device not send Required Tag Parameters but has at least one Tag Parameter!
+        if (parameters.Any(p => ((ushort)p) >= 0x0651 &&
+                                ((ushort)p) <= 0x0655))
         {
-            supportedParameters.Add(ERDM_Parameter.ENDPOINT_LIST);
-            Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for ENDPOINT_LIST Parameter based on presence of Endpoint Parameters.");
+            if (!parameters.Contains(ERDM_Parameter.LIST_TAGS))
+            {
+                supportedParameters.Add(ERDM_Parameter.LIST_TAGS);
+                Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for LIST_TAGS Parameter based on presence of Tag Parameters.");
+            }
+            if (!parameters.Contains(ERDM_Parameter.ADD_TAG))
+            {
+                supportedParameters.Add(ERDM_Parameter.ADD_TAG);
+                Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for ADD_TAG Parameter based on presence of Tag Parameters.");
+            }
+            if (!parameters.Contains(ERDM_Parameter.REMOVE_TAG))
+            {
+                supportedParameters.Add(ERDM_Parameter.REMOVE_TAG);
+                Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for REMOVE_TAG Parameter based on presence of Tag Parameters.");
+            }
+            if (!parameters.Contains(ERDM_Parameter.CHECK_TAG))
+            {
+                supportedParameters.Add(ERDM_Parameter.CHECK_TAG);
+                Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for CHECK_TAG Parameter based on presence of Tag Parameters.");
+            }
+            if (!parameters.Contains(ERDM_Parameter.CLEAR_TAGS))
+            {
+                supportedParameters.Add(ERDM_Parameter.CLEAR_TAGS);
+                Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for CLEAR_TAGS Parameter based on presence of Tag Parameters.");
+            }
+        }
+
+        // Remote Device not send LIST_INTERFACES Parameter but has Interface Parameters it!
+        if (parameters.Any(p => ((ushort)p) > 0x7000 &&
+                                ((ushort)p) <= 0x700D))
+        {
+            if (!parameters.Contains(ERDM_Parameter.LIST_INTERFACES))
+            {
+                supportedParameters.Add(ERDM_Parameter.LIST_INTERFACES);
+                Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for LIST_INTERFACES Parameter based on presence of Interface Parameters.");
+            }
+        }
+
+        // Remote Device not send ENDPOINT_LIST Parameter but has Endpoint Parameters it!
+        if (parameters.Any(p => ((ushort)p) > 0x9000 &&
+                                ((ushort)p) <= 0x900D))
+        {
+            if (!parameters.Contains(ERDM_Parameter.ENDPOINT_LIST))
+            {
+                supportedParameters.Add(ERDM_Parameter.ENDPOINT_LIST);
+                Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for ENDPOINT_LIST Parameter based on presence of Endpoint Parameters.");
+            }
+        }
+
+        if (parameters.Contains(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY) &&
+           !parameters.Contains(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY_DESCRIPTION))
+        {
+            supportedParameters.Add(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY_DESCRIPTION);
+            Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for BACKGROUND_QUEUED_STATUS_POLICY_DESCRIPTION Parameter based on presence of BACKGROUND_QUEUED_STATUS_POLICY Parameter.");
         }
 
         await handler.Invoke(supportedParameters.ToArray());

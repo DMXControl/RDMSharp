@@ -143,23 +143,6 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         }
     }
 
-    private bool queuedSupported = true;
-    public bool QueuedSupported
-    {
-        get
-        {
-            return queuedSupported;
-        }
-        private set
-        {
-            if (queuedSupported == value)
-                return;
-            queuedSupported = value;
-            OnPropertyChanged(nameof(QueuedSupported));
-        }
-    }
-
-
     public AbstractRemoteRDMDevice(UID uid) : base(uid)
     {
     }
@@ -324,8 +307,6 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
     private async Task updateParameters()
     {
         var supportedParameters = this.DeviceModel?.GetSupportedNonBlueprintParameters();
-        if (QueuedSupported && supportedParameters.Any(spm => spm.Parameter == ERDM_Parameter.QUEUED_MESSAGE))
-            QueuedSupported = false;
 
         if (updateSenaphoreSlim.CurrentCount == 0)
             return;
@@ -390,7 +371,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
     private async Task requestQueuedMessages()
     {
         var supportedParameters = this.deviceModel?.GetSupportedNonBlueprintParameters();
-        if (QueuedSupported && !supportedParameters.Any(spm => spm.Parameter == ERDM_Parameter.QUEUED_MESSAGE))
+        if (supportedParameters.FirstOrDefault(spm => spm.Parameter == ERDM_Parameter.QUEUED_MESSAGE)?.IsSupported ?? false)
         {
             if (DateTime.UtcNow - lastSendQueuedMessage < TimeSpan.FromMilliseconds(GlobalTimers.Instance.QueuedUpdateTime))
                 return;

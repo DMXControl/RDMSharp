@@ -3,85 +3,98 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace RDMSharp.RDM.Device.Module
+namespace RDMSharp.RDM.Device.Module;
+
+public abstract class AbstractModule : IModule
 {
-    public abstract class AbstractModule : IModule
+    protected static ILogger Logger = Logging.CreateLogger<AbstractModule>();
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private readonly string _name;
+    public string Name { get => _name; }
+
+    private readonly IReadOnlyCollection<ERDM_Parameter> _supportedParameters;
+
+    public IReadOnlyCollection<ERDM_Parameter> SupportedParameters { get => _supportedParameters; }
+
+    protected AbstractGeneratedRDMDevice ParentDevice { get; private set; }
+
+    private readonly IRDMRemoteDevice _remoteDevice;
+
+    protected AbstractModule(string name, params ERDM_Parameter[] supportedParameters)
     {
-        protected static ILogger Logger = Logging.CreateLogger<AbstractModule>();
+        this._name = name;
+        this._supportedParameters = supportedParameters;
+    }
+    protected AbstractModule(IRDMRemoteDevice remoteDevice, string name, params ERDM_Parameter[] supportedParameters) : this(name, supportedParameters)
+    {
+        _remoteDevice = remoteDevice;
+        if (remoteDevice is AbstractRemoteRDMDevice device)
+            SetRemoteParentDevice(device);
+    }
+    public RDMMessage? HandleRequest(RDMMessage message)
+    {
+        if (!this.IsHandlingParameter(message.Parameter, message.Command))
+            return null;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private readonly string _name;
-        public string Name { get => _name; }
-
-        private readonly IReadOnlyCollection<ERDM_Parameter> _supportedParameters;
-
-        public IReadOnlyCollection<ERDM_Parameter> SupportedParameters { get => _supportedParameters; }
-
-        protected AbstractGeneratedRDMDevice ParentDevice { get; private set; }
-
-        public AbstractModule(string name, params ERDM_Parameter[] supportedParameters)
+        ERDM_NackReason? nackReason = null;
+        try
         {
-            this._name = name;
-            this._supportedParameters = supportedParameters;
+            return handleRequest(message);
         }
-        public RDMMessage? HandleRequest(RDMMessage message)
+        catch (System.Exception ex)
         {
-            if (!this.IsHandlingParameter(message.Parameter, message.Command))
-                return null;
+            nackReason = ERDM_NackReason.HARDWARE_FAULT;
+        }
+        return new RDMMessage(nackReason ?? ERDM_NackReason.UNKNOWN_PID)
+        {
+            DestUID = message.SourceUID,
+            SourceUID = message.SourceUID,
+            Command = ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE,
+            Parameter = message.Parameter
+        };
+    }
+    protected virtual RDMMessage? handleRequest(RDMMessage message)
+    {
+        throw new System.NotImplementedException("This method should be overridden in derived classes to handle specific requests.");
+    }
 
-            ERDM_NackReason? nackReason = null;
-            try
-            {
-                return handleRequest(message);
-            }
-            catch (System.Exception ex)
-            {
-                nackReason = ERDM_NackReason.HARDWARE_FAULT;
-            }
-            return new RDMMessage(nackReason ?? ERDM_NackReason.UNKNOWN_PID)
-            {
-                DestUID = message.SourceUID,
-                SourceUID = message.SourceUID,
-                Command = ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE,
-                Parameter = message.Parameter
-            };
-        }
-        protected virtual RDMMessage? handleRequest(RDMMessage message)
-        {
-            throw new System.NotImplementedException("This method should be overridden in derived classes to handle specific requests.");
-        }
+    public virtual bool IsHandlingParameter(ERDM_Parameter parameter, ERDM_Command command)
+    {
+        return false;
+    }
 
-        public virtual bool IsHandlingParameter(ERDM_Parameter parameter, ERDM_Command command)
-        {
-            return false;
-        }
+    internal void SetGeneratedParentDevice(AbstractGeneratedRDMDevice device)
+    {
+        if (ParentDevice is not null)
+            return;
+        ParentDevice = device;
+        device.ParameterValueAdded += Device_ParameterValueAdded;
+        device.ParameterValueChanged += Device_ParameterValueChanged;
+        OnParentDeviceChanged(ParentDevice);
+    }
+    private void SetRemoteParentDevice(AbstractRemoteRDMDevice device)
+    {
+        device.ParameterValueAdded += Device_ParameterValueAdded;
+        device.ParameterValueChanged += Device_ParameterValueChanged;
+        OnParentDeviceChanged(ParentDevice);
+    }
 
-        internal void SetParentDevice(AbstractGeneratedRDMDevice device)
-        {
-            if (ParentDevice is not null)
-                return;
-            ParentDevice = device;
-            device.ParameterValueAdded += Device_ParameterValueAdded;
-            device.ParameterValueChanged += Device_ParameterValueChanged;
-            OnParentDeviceChanged(ParentDevice);
-        }
+    private void Device_ParameterValueAdded(object sender, AbstractRDMCache.ParameterValueAddedEventArgs e)
+    {
+        ParameterChanged(e.Parameter, e.Value, e.Index);
+    }
+    private void Device_ParameterValueChanged(object sender, AbstractRDMCache.ParameterValueChangedEventArgs e)
+    {
+        ParameterChanged(e.Parameter, e.NewValue, e.Index);
+    }
+    protected abstract void ParameterChanged(ERDM_Parameter parameter, object? newValue, object? index);
 
-        private void Device_ParameterValueAdded(object sender, AbstractRDMCache.ParameterValueAddedEventArgs e)
-        {
-            ParameterChanged(e.Parameter, e.Value, e.Index);
-        }
-        private void Device_ParameterValueChanged(object sender, AbstractRDMCache.ParameterValueChangedEventArgs e)
-        {
-            ParameterChanged(e.Parameter, e.NewValue, e.Index);
-        }
-        protected abstract void ParameterChanged(ERDM_Parameter parameter, object? newValue, object? index);
+    protected abstract void OnParentDeviceChanged(AbstractGeneratedRDMDevice device);
 
-        protected abstract void OnParentDeviceChanged(AbstractGeneratedRDMDevice device);
-
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+    protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

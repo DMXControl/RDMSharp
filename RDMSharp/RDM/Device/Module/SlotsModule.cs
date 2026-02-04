@@ -1,72 +1,82 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
-namespace RDMSharp.RDM.Device.Module
+namespace RDMSharp.RDM.Device.Module;
+
+public sealed class SlotsModule : AbstractModule
 {
-    public sealed class SlotsModule : AbstractModule
+    private const string _moduleName = "Slots";
+    private static readonly ERDM_Parameter[] _moduleParameters = new ERDM_Parameter[]
     {
-        public IReadOnlyDictionary<ushort, Slot> Slots
-        {
-            get
-            {
-                return dmxPersonalityModule?.Personalities?.FirstOrDefault(p=>p.ID == dmxPersonalityModule.CurrentPersonality)?.Slots;
-            }
-        }
+        ERDM_Parameter.SLOT_INFO,
+        ERDM_Parameter.SLOT_DESCRIPTION,
+        ERDM_Parameter.DEFAULT_SLOT_VALUE
+    };
 
-        private DMX_PersonalityModule dmxPersonalityModule;
-
-        public SlotsModule() : base(
-            "Slots",
-            ERDM_Parameter.SLOT_INFO,
-            ERDM_Parameter.SLOT_DESCRIPTION,
-            ERDM_Parameter.DEFAULT_SLOT_VALUE)
+    public IReadOnlyDictionary<ushort, Slot> Slots
+    {
+        get
         {
+            return dmxPersonalityModule?.Personalities?.FirstOrDefault(p => p.ID == dmxPersonalityModule.CurrentPersonality)?.Slots;
         }
+    }
 
-        protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
-        {
-            dmxPersonalityModule = device.Modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
-            dmxPersonalityModule.PropertyChanged += DmxPersonalityModule_PropertyChanged;
-            updateParameterValues();
-        }
+    private DMX_PersonalityModule dmxPersonalityModule;
 
-        private void DmxPersonalityModule_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName != nameof(DMX_PersonalityModule.CurrentPersonality))
-                return;
+    public SlotsModule() : base(
+        _moduleName,
+        _moduleParameters)
+    {
+    }
+    public SlotsModule(IRDMRemoteDevice remoteDevice) : base(
+        remoteDevice,
+        _moduleName,
+        _moduleParameters)
+    {
+    }
 
-            updateParameterValues();
-        }
+    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    {
+        dmxPersonalityModule = device.Modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
+        dmxPersonalityModule.PropertyChanged += DmxPersonalityModule_PropertyChanged;
+        updateParameterValues();
+    }
 
-        protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
+    private void DmxPersonalityModule_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(DMX_PersonalityModule.CurrentPersonality))
+            return;
+
+        updateParameterValues();
+    }
+
+    protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
+    {
+        switch (parameter)
         {
-            switch (parameter)
-            {
-                case ERDM_Parameter.DMX_PERSONALITY:
-                    updateParameterValues();
-                    break;
-            }
+            case ERDM_Parameter.DMX_PERSONALITY:
+                updateParameterValues();
+                break;
         }
-        private void updateParameterValues()
+    }
+    private void updateParameterValues()
+    {
+        var slots = this.Slots;
+        var slotsCount = slots.Count;
+        var slotInfos = new RDMSlotInfo[slotsCount];
+        var slotDesc = new ConcurrentDictionary<object, object>();
+        var slotDefault = new RDMDefaultSlotValue[slotsCount];
+        foreach (var s in slots)
         {
-            var slots = this.Slots;
-            var slotsCount = slots.Count;
-            var slotInfos = new RDMSlotInfo[slotsCount];
-            var slotDesc = new ConcurrentDictionary<object, object>();
-            var slotDefault = new RDMDefaultSlotValue[slotsCount];
-            foreach (var s in slots)
-            {
-                Slot slot = s.Value;
-                slotInfos[slot.SlotId] = new RDMSlotInfo(slot.SlotId, slot.Type, slot.Category);
-                slotDesc.TryAdd(slot.SlotId, new RDMSlotDescription(slot.SlotId, slot.Description));
-                slotDefault[slot.SlotId] = new RDMDefaultSlotValue(slot.SlotId, slot.DefaultValue);
-            }
-            ParentDevice.setParameterValue(ERDM_Parameter.SLOT_INFO, slotInfos);
-            ParentDevice.setParameterValue(ERDM_Parameter.SLOT_DESCRIPTION, slotDesc);
-            ParentDevice.setParameterValue(ERDM_Parameter.DEFAULT_SLOT_VALUE, slotDefault);
-            OnPropertyChanged(nameof(Slots));
+            Slot slot = s.Value;
+            slotInfos[slot.SlotId] = new RDMSlotInfo(slot.SlotId, slot.Type, slot.Category);
+            slotDesc.TryAdd(slot.SlotId, new RDMSlotDescription(slot.SlotId, slot.Description));
+            slotDefault[slot.SlotId] = new RDMDefaultSlotValue(slot.SlotId, slot.DefaultValue);
         }
+        ParentDevice.setParameterValue(ERDM_Parameter.SLOT_INFO, slotInfos);
+        ParentDevice.setParameterValue(ERDM_Parameter.SLOT_DESCRIPTION, slotDesc);
+        ParentDevice.setParameterValue(ERDM_Parameter.DEFAULT_SLOT_VALUE, slotDefault);
+        OnPropertyChanged(nameof(Slots));
     }
 }

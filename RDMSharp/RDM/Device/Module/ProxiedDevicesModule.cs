@@ -7,6 +7,13 @@ namespace RDMSharp.RDM.Device.Module;
 
 public sealed class ProxiedDevicesModule : AbstractModule
 {
+    private const string _moduleName = "ProxiedDevices";
+    private static readonly ERDM_Parameter[] _moduleParameters = new ERDM_Parameter[]
+    {
+        ERDM_Parameter.PROXIED_DEVICES,
+        ERDM_Parameter.PROXIED_DEVICES_COUNT
+    };
+
     public IReadOnlyCollection<UID> DeviceUIDs
     {
         get
@@ -22,9 +29,14 @@ public sealed class ProxiedDevicesModule : AbstractModule
     }
     private ConcurrentDictionary<UID, ConcurrentQueue<RDMMessage>> proxiedDevicesOngoingTransaktions = new ConcurrentDictionary<UID, ConcurrentQueue<RDMMessage>>();
     public ProxiedDevicesModule() : base(
-        "ProxiedDevices",
-        ERDM_Parameter.PROXIED_DEVICES,
-        ERDM_Parameter.PROXIED_DEVICES_COUNT)
+        _moduleName,
+        _moduleParameters)
+    {
+    }
+    public ProxiedDevicesModule(IRDMRemoteDevice remoteDevice) : base(
+        remoteDevice,
+        _moduleName,
+        _moduleParameters)
     {
     }
 

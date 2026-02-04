@@ -7,6 +7,11 @@ namespace RDMSharpTests.Metadata.Parser;
 
 public class TestDefinedDataTreeObjects
 {
+    [SetUp]
+    public async Task Setup()
+    {
+        await MetadataFactory.AwaitInitialize();
+    }
     [Test]
     public void Test_AllDefinedDataTreeObjectsForValidility()
     {
@@ -26,7 +31,7 @@ public class TestDefinedDataTreeObjects
             {
                 StringBuilder stringBuilder3 = new StringBuilder();
                 var parameters = constructor.GetParameters();
-                foreach (var para in parameters.Where(p => !p.GetCustomAttributes<DataTreeObjectParameterAttribute>().Any(a=>a is DataTreeObjectParameterAttribute)))
+                foreach (var para in parameters.Where(p => !p.GetCustomAttributes<DataTreeObjectParameterAttribute>().Any(a => a is DataTreeObjectParameterAttribute)))
                     stringBuilder3.AppendLine($"\t{para.Name}");
                 if (stringBuilder3.Length > 0)
                 {
@@ -79,7 +84,7 @@ public class TestDefinedDataTreeObjects
         });
 
         var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DEVICE_INFO);
-        Assert.That(reversed, Is.EqualTo(dataTreeBranch));        
+        Assert.That(reversed, Is.EqualTo(dataTreeBranch));
     }
 
     [Test]
@@ -271,6 +276,132 @@ public class TestDefinedDataTreeObjects
         });
 
         var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND, ERDM_Parameter.STATUS_MESSAGES);
+        Assert.That(reversed, Is.EqualTo(dataTreeBranch));
+    }
+    [Test]
+    public void Test_Endpoint_Responders_1()
+    {
+        byte[] data = {
+            0x00, 0x03, 0x00, 0x00, 0x00, 0x09, 0x53, 0x47, 0x94, 0x71, 0xaf, 0x2f
+        };
+
+        var parameterBag = new ParameterBag(ERDM_Parameter.ENDPOINT_RESPONDERS);
+        var define = MetadataFactory.GetDefine(parameterBag);
+
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dataTreeBranch.IsUnset, Is.False);
+            Assert.That(dataTreeBranch.IsEmpty, Is.False);
+            Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+            Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetEndpointRespondersResponse)));
+
+            var obj = dataTreeBranch.ParsedObject as GetEndpointRespondersResponse;
+            Assert.That(obj, Is.Not.Null);
+            Assert.That(obj!.EndpointId, Is.EqualTo(3));
+            Assert.That(obj.ListChangedNumber, Is.EqualTo(9));
+            Assert.That(obj.UIDs, Is.Not.Null);
+            Assert.That(obj.UIDs.Length, Is.EqualTo(1));
+            Assert.That(obj.UIDs[0], Is.EqualTo(new UID(0x5347, 0x9471af2f)));
+        });
+
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.ENDPOINT_RESPONDERS);
+        Assert.That(reversed, Is.EqualTo(dataTreeBranch));
+    }
+    [Test]
+    public void Test_Endpoint_Responders_2()
+    {
+        byte[] data = {
+            0x00, 0x03, 0x00, 0x00, 0x00, 0x09, 0x53, 0x47,
+            0x94, 0x71, 0xaf, 0x2f, 0x53, 0x47, 0x94, 0x03,
+            0x02, 0x01
+        };
+
+        var parameterBag = new ParameterBag(ERDM_Parameter.ENDPOINT_RESPONDERS);
+        var define = MetadataFactory.GetDefine(parameterBag);
+
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dataTreeBranch.IsUnset, Is.False);
+            Assert.That(dataTreeBranch.IsEmpty, Is.False);
+            Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+            Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetEndpointRespondersResponse)));
+
+            var obj = dataTreeBranch.ParsedObject as GetEndpointRespondersResponse;
+            Assert.That(obj, Is.Not.Null);
+            Assert.That(obj!.EndpointId, Is.EqualTo(3));
+            Assert.That(obj.ListChangedNumber, Is.EqualTo(9));
+            Assert.That(obj.UIDs, Is.Not.Null);
+            Assert.That(obj.UIDs.Length, Is.EqualTo(2));
+            Assert.That(obj.UIDs[0], Is.EqualTo(new UID(0x5347, 0x9471af2f)));
+            Assert.That(obj.UIDs[1], Is.EqualTo(new UID(0x5347, 0x94030201)));
+        });
+
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.ENDPOINT_RESPONDERS);
+        Assert.That(reversed, Is.EqualTo(dataTreeBranch));
+    }
+
+    [Test]
+    public void Test_Proxied_Devices_1()
+    {
+        byte[] data = {
+            0x53, 0x47, 0x94, 0x71, 0xaf, 0x2f
+        };
+
+        var parameterBag = new ParameterBag(ERDM_Parameter.PROXIED_DEVICES);
+        var define = MetadataFactory.GetDefine(parameterBag);
+
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dataTreeBranch.IsUnset, Is.False);
+            Assert.That(dataTreeBranch.IsEmpty, Is.False);
+            Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+            Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMProxiedDevices)));
+
+            var obj = dataTreeBranch.ParsedObject as RDMProxiedDevices;
+            Assert.That(obj, Is.Not.Null);
+            Assert.That(obj!.Devices, Is.Not.Null);
+            Assert.That(obj.Devices.Length, Is.EqualTo(1));
+            Assert.That(obj.Devices[0], Is.EqualTo(new UID(0x5347, 0x9471af2f)));
+        });
+
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.PROXIED_DEVICES);
+        Assert.That(reversed, Is.EqualTo(dataTreeBranch));
+    }
+    [Test]
+    public void Test_Proxied_Devices_2()
+    {
+        byte[] data = {
+            0x53, 0x47, 0x94, 0x71, 0xaf, 0x2f,
+            0x53, 0x47, 0x94, 0x03, 0x02, 0x01
+        };
+
+        var parameterBag = new ParameterBag(ERDM_Parameter.PROXIED_DEVICES);
+        var define = MetadataFactory.GetDefine(parameterBag);
+
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dataTreeBranch.IsUnset, Is.False);
+            Assert.That(dataTreeBranch.IsEmpty, Is.False);
+            Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+            Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMProxiedDevices)));
+
+            var obj = dataTreeBranch.ParsedObject as RDMProxiedDevices;
+            Assert.That(obj, Is.Not.Null);
+            Assert.That(obj!.Devices, Is.Not.Null);
+            Assert.That(obj.Devices.Length, Is.EqualTo(2));
+            Assert.That(obj.Devices[0], Is.EqualTo(new UID(0x5347, 0x9471af2f)));
+            Assert.That(obj.Devices[1], Is.EqualTo(new UID(0x5347, 0x94030201)));
+        });
+
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.PROXIED_DEVICES);
         Assert.That(reversed, Is.EqualTo(dataTreeBranch));
     }
 }

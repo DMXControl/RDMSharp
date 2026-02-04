@@ -23,6 +23,7 @@ internal class ExtensionsManager
 
     private readonly ConcurrentDictionary<string, IBytesParser> bytesParsers = new();
     private readonly ConcurrentDictionary<string, ISupportedParametersExtension> supportedParametersExtensions = new();
+    private readonly ConcurrentDictionary<string, IModulesExtension> modulesExtensions = new();
 
     private ExtensionsManager()
     {
@@ -167,6 +168,58 @@ internal class ExtensionsManager
         {
             Logger?.LogError(e, "Error while getting SupportedParametersExtensions");
             supportedParameterMetadata = null;
+            return false;
+        }
+    }
+
+    private void LoadModulesExtension()
+    {
+        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        foreach (var assembly in assemblies)
+        {
+            try
+            {
+                var types = assembly.GetTypes();
+                foreach (var type in types)
+                    if (typeof(IModulesExtension).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
+                        if (Activator.CreateInstance(type) is IModulesExtension modulesExtension)
+                            RegisterModulesExtension(modulesExtension);
+            }
+            catch
+            {
+                // Ignore assemblies that can't be loaded
+            }
+        }
+    }
+    public void RegisterModulesExtension(IModulesExtension modulesExtension)
+    {
+        if (!modulesExtensions.ContainsKey(modulesExtension.Key))
+            if (modulesExtensions.TryAdd(modulesExtension.Key, modulesExtension))
+                Logger?.LogInformation($"Registered ModulesExtension with key '{modulesExtension.Key}'");
+    }
+    public bool TryGetModulesExtensions(EManufacturer manufacturer, out IReadOnlyCollection<IModulesExtension> modulesExtensionsResult)
+    {
+        try
+        {
+            if (modulesExtensions.IsEmpty)
+                LoadModulesExtension();
+
+            List<IModulesExtension> result = new();
+
+            foreach (var spe in modulesExtensions.Values)
+            {
+                if (spe.Manufacturer == EManufacturer.ESTA)
+                    result.Add(spe);
+                if (spe.Manufacturer == manufacturer)
+                    result.Add(spe);
+            }
+            modulesExtensionsResult = result;
+            return true;
+        }
+        catch (Exception e)
+        {
+            Logger?.LogError(e, "Error while getting ModulesExtensions");
+            modulesExtensionsResult = Array.Empty<IModulesExtension>();
             return false;
         }
     }
