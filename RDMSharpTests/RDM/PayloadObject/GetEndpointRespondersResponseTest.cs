@@ -1,57 +1,57 @@
-namespace RDMSharpTests.RDM.PayloadObject;
+//namespace RDMSharpTests.RDM.PayloadObject;
 
-public class GetEndpointRespondersResponseTest
-{
-    [SetUp]
-    public void Setup()
-    {
-    }
+//public class GetEndpointRespondersResponseTest
+//{
+//    [SetUp]
+//    public void Setup()
+//    {
+//    }
 
-    [Test]
-    public void ToPayloadAndFromMessageTest()
-    {
-        GetEndpointRespondersResponse getEndpointRespondersResponse = new GetEndpointRespondersResponse(3, 0x12345678,
-            new UID(123, 34567872),
-            new UID(654, 26323133),
-            new UID(932, 14567542),
-            new UID(923, 79812414),
-            new UID(124, 29836472),
-            new UID(986, 79832421));
+//    [Test]
+//    public void ToPayloadAndFromMessageTest()
+//    {
+//        GetEndpointRespondersResponse getEndpointRespondersResponse = new GetEndpointRespondersResponse(3, 0x12345678,
+//            new UID(123, 34567872),
+//            new UID(654, 26323133),
+//            new UID(932, 14567542),
+//            new UID(923, 79812414),
+//            new UID(124, 29836472),
+//            new UID(986, 79832421));
 
-        byte[] data = getEndpointRespondersResponse.ToPayloadData();
+//        byte[] data = getEndpointRespondersResponse.ToPayloadData();
 
-        RDMMessage message = new RDMMessage()
-        {
-            PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK,
-            Command = ERDM_Command.GET_COMMAND_RESPONSE,
-            Parameter = ERDM_Parameter.ENDPOINT_RESPONDERS,
-            ParameterData = data,
-        };
+//        RDMMessage message = new RDMMessage()
+//        {
+//            PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK,
+//            Command = ERDM_Command.GET_COMMAND_RESPONSE,
+//            Parameter = ERDM_Parameter.ENDPOINT_RESPONDERS,
+//            ParameterData = data,
+//        };
 
-        GetEndpointRespondersResponse resultGetEndpointRespondersResponse = GetEndpointRespondersResponse.FromMessage(message);
-        Assert.Throws(typeof(Exception), () => { GetEndpointRespondersResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
-        Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetEndpointRespondersResponse.FromPayloadData(data.ToList().Concat(new byte[220]).ToArray()); });
+//        GetEndpointRespondersResponse resultGetEndpointRespondersResponse = GetEndpointRespondersResponse.FromMessage(message);
+//        Assert.Throws(typeof(Exception), () => { GetEndpointRespondersResponse.FromPayloadData(data.ToList().Concat(new byte[1]).ToArray()); });
+//        Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { GetEndpointRespondersResponse.FromPayloadData(data.ToList().Concat(new byte[220]).ToArray()); });
 
-        Assert.That(resultGetEndpointRespondersResponse, Is.EqualTo(getEndpointRespondersResponse));
+//        Assert.That(resultGetEndpointRespondersResponse, Is.EqualTo(getEndpointRespondersResponse));
 
-        Assert.That(resultGetEndpointRespondersResponse.EndpointId, Is.EqualTo(3));
-        Assert.That(resultGetEndpointRespondersResponse.ListChangedNumber, Is.EqualTo(0x12345678));
-        Assert.That(resultGetEndpointRespondersResponse.UIDs, Is.EquivalentTo(new UID[] {
-            new UID(123, 34567872),
-            new UID(654, 26323133),
-            new UID(932, 14567542),
-            new UID(923, 79812414),
-            new UID(124, 29836472),
-            new UID(986, 79832421)
-        }));
+//        Assert.That(resultGetEndpointRespondersResponse.EndpointId, Is.EqualTo(3));
+//        Assert.That(resultGetEndpointRespondersResponse.ListChangedNumber, Is.EqualTo(0x12345678));
+//        Assert.That(resultGetEndpointRespondersResponse.UIDs, Is.EquivalentTo(new UID[] {
+//            new UID(123, 34567872),
+//            new UID(654, 26323133),
+//            new UID(932, 14567542),
+//            new UID(923, 79812414),
+//            new UID(124, 29836472),
+//            new UID(986, 79832421)
+//        }));
 
-        var res = resultGetEndpointRespondersResponse.ToString();
-        var src = getEndpointRespondersResponse.ToString();
-        Assert.Multiple(() =>
-        {
-            Assert.That(res, Is.Not.Null);
-            Assert.That(src, Is.Not.Null);
-        });
-        Assert.That(res, Is.EqualTo(src));
-    }
-}
+//        var res = resultGetEndpointRespondersResponse.ToString();
+//        var src = getEndpointRespondersResponse.ToString();
+//        Assert.Multiple(() =>
+//        {
+//            Assert.That(res, Is.Not.Null);
+//            Assert.That(src, Is.Not.Null);
+//        });
+//        Assert.That(res, Is.EqualTo(src));
+//    }
+//}

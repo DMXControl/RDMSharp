@@ -1,6 +1,5 @@
 ﻿using RDMSharp.Metadata;
 using RDMSharp.Metadata.JSON;
-using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -31,27 +30,27 @@ public class RDMProxiedDevices : AbstractRDMPayloadObject
 
         return b.ToString();
     }
-    public static RDMProxiedDevices FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDLRange(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.PROXIED_DEVICES, PDL_MIN, PDL_MAX);
+    //public static RDMProxiedDevices FromMessage(RDMMessage msg)
+    //{
+    //    RDMMessageInvalidException.ThrowIfInvalidPDLRange(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.PROXIED_DEVICES, PDL_MIN, PDL_MAX);
 
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static RDMProxiedDevices FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDLRange(data, PDL_MIN, PDL_MAX);
+    //    return FromPayloadData(msg.ParameterData);
+    //}
+    //public static RDMProxiedDevices FromPayloadData(byte[] data)
+    //{
+    //    RDMMessageInvalidPDLException.ThrowIfInvalidPDLRange(data, PDL_MIN, PDL_MAX);
 
-        List<UID> uids = new List<UID>();
-        while (data.Length >= 6)
-            uids.Add(Tools.DataToRDMUID(ref data));
+    //    List<UID> uids = new List<UID>();
+    //    while (data.Length >= 6)
+    //        uids.Add(Tools.DataToRDMUID(ref data));
 
-        var i = new RDMProxiedDevices(uids.ToArray());
+    //    var i = new RDMProxiedDevices(uids.ToArray());
 
-        if (data.Length != 0)
-            throw new Exception("After deserialization data should be empty!");
+    //    if (data.Length != 0)
+    //        throw new Exception("After deserialization data should be empty!");
 
-        return i;
-    }
+    //    return i;
+    //}
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

@@ -81,6 +81,9 @@ public class TestDefinedDataTreeObjects
             Assert.That(obj.Dmx512StartAddress, Is.EqualTo(1));
             Assert.That(obj.SubDeviceCount, Is.EqualTo(4));
             Assert.That(obj.SensorCount, Is.EqualTo(0));
+
+            Assert.That(obj.ToString(), Is.Not.Null);
+            Assert.That(obj.ToPayloadData(), Is.EqualTo(data));
         });
 
         var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DEVICE_INFO);
@@ -110,6 +113,9 @@ public class TestDefinedDataTreeObjects
             Assert.That(obj, Is.Not.Null);
             Assert.That(obj!.CurrentPersonality, Is.EqualTo(1));
             Assert.That(obj.OfPersonalities, Is.EqualTo(3));
+
+            Assert.That(obj.ToString(), Is.Not.Null);
+            Assert.That(obj.ToPayloadData(), Is.EqualTo(data));
         });
 
         var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DMX_PERSONALITY);
@@ -141,6 +147,9 @@ public class TestDefinedDataTreeObjects
             Assert.That(obj!.PersonalityId, Is.EqualTo(1));
             Assert.That(obj.Slots, Is.EqualTo(1));
             Assert.That(obj.Description, Is.EqualTo("SEQUENCE"));
+
+            Assert.That(obj.ToString(), Is.Not.Null);
+            Assert.That(obj.ToPayloadData(), Is.EqualTo(data));
         });
 
         var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION);
@@ -170,6 +179,9 @@ public class TestDefinedDataTreeObjects
             Assert.That(obj, Is.Not.Null);
             Assert.That(obj!.SlotId, Is.EqualTo(0));
             Assert.That(obj.Description, Is.EqualTo("SAFETY"));
+
+            Assert.That(obj.ToString(), Is.Not.Null);
+            Assert.That(obj.ToPayloadData(), Is.EqualTo(data));
         });
 
         var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.SLOT_DESCRIPTION);
@@ -316,6 +328,123 @@ public class TestDefinedDataTreeObjects
         Assert.That(reversed, Is.EqualTo(dataTreeBranch));
     }
     [Test]
+    public void Test_DMX_Fail_Mode()
+    {
+        byte[] data = {
+            0x00, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff
+        };
+
+        var parameterBag = new ParameterBag(ERDM_Parameter.DMX_FAIL_MODE);
+        var define = MetadataFactory.GetDefine(parameterBag);
+
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dataTreeBranch.IsUnset, Is.False);
+            Assert.That(dataTreeBranch.IsEmpty, Is.False);
+            Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+            Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMDMX_xxxx_Mode)));
+
+            var obj = dataTreeBranch.ParsedObject as RDMDMX_xxxx_Mode;
+            Assert.That(obj, Is.Not.Null);
+            Assert.That(obj!.Scene, Is.EqualTo(0));
+            Assert.That(obj.Delay, Is.EqualTo(0.1).Within(1e-9).Percent);
+            Assert.That(obj.HoldTime, Is.EqualTo(6553.5).Within(1e-9).Percent);
+            Assert.That(obj.Level, Is.EqualTo(byte.MaxValue));
+
+            Assert.That(obj.ToString(), Is.Not.Null);
+            Assert.That(obj.ToPayloadData(), Is.EqualTo(data));
+        });
+
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DMX_FAIL_MODE);
+        Assert.That(reversed, Is.EqualTo(dataTreeBranch));
+    }
+    [Test]
+    public void Test_DMX_Startup_Mode()
+    {
+        byte[] data = {
+            0x00, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff
+        };
+
+        var parameterBag = new ParameterBag(ERDM_Parameter.DMX_STARTUP_MODE);
+        var define = MetadataFactory.GetDefine(parameterBag);
+
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dataTreeBranch.IsUnset, Is.False);
+            Assert.That(dataTreeBranch.IsEmpty, Is.False);
+            Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+            Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMDMX_xxxx_Mode)));
+
+            var obj = dataTreeBranch.ParsedObject as RDMDMX_xxxx_Mode;
+            Assert.That(obj, Is.Not.Null);
+            Assert.That(obj!.Scene, Is.EqualTo(0));
+            Assert.That(obj.Delay, Is.EqualTo(0.1).Within(1e-9).Percent);
+            Assert.That(obj.HoldTime, Is.EqualTo(6553.5).Within(1e-9).Percent);
+            Assert.That(obj.Level, Is.EqualTo(byte.MaxValue));
+
+            Assert.That(obj.ToString(), Is.Not.Null);
+            Assert.That(obj.ToPayloadData(), Is.EqualTo(data));
+        });
+
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DMX_STARTUP_MODE);
+        Assert.That(reversed, Is.EqualTo(dataTreeBranch));
+    }
+    [Test]
+    public void Test_Preset_Info()
+    {
+        byte[] data = {
+            0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x02,
+            0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+            0x00, 0x00, 0xff, 0xfe, 0x00, 0x01, 0xff, 0xfe,
+            0x00, 0x01, 0xff, 0xfe, 0x00, 0x01, 0xff, 0xfe
+        };
+
+        var parameterBag = new ParameterBag(ERDM_Parameter.PRESET_INFO);
+        var define = MetadataFactory.GetDefine(parameterBag);
+
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dataTreeBranch.IsUnset, Is.False);
+            Assert.That(dataTreeBranch.IsEmpty, Is.False);
+            Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+            Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMPresetInfo)));
+
+            var obj = dataTreeBranch.ParsedObject as RDMPresetInfo;
+            Assert.That(obj, Is.Not.Null);
+            Assert.That(obj!.LevelFieldSupported, Is.EqualTo(false));
+            Assert.That(obj!.PresetSequenceSupported, Is.EqualTo(false));
+            Assert.That(obj!.SplitTimesSupported, Is.EqualTo(false));
+            Assert.That(obj!.DMX512FailInfiniteDelayTimeSupported, Is.EqualTo(true));
+            Assert.That(obj!.DMX512FailInfiniteHoldTimeSupported, Is.EqualTo(true));
+            Assert.That(obj!.StartupInfiniteHoldTimeSupported, Is.EqualTo(true));
+            Assert.That(obj!.MaximumSceneNumber, Is.EqualTo(2));
+            Assert.That(obj!.MinimumPresetFadeTimeSupported, Is.EqualTo(6553.5).Within(1e-9).Percent);
+            Assert.That(obj!.MaximumPresetFadeTimeSupported, Is.EqualTo(6553.5).Within(1e-9).Percent);
+            Assert.That(obj!.MinimumPresetWaitTimeSupported, Is.EqualTo(6553.5).Within(1e-9).Percent);
+            Assert.That(obj!.MaximumPresetWaitTimeSupported, Is.EqualTo(6553.5).Within(1e-9).Percent);
+            Assert.That(obj!.MinimumDMX512FailDelayTimeSupported, Is.EqualTo(0).Within(1e-9).Percent);
+            Assert.That(obj!.MaximumDMX512FailDelayTimeSupported, Is.EqualTo(6553.4).Within(1e-9).Percent);
+            Assert.That(obj!.MinimumDMX512FailDelayHoldSupported, Is.EqualTo(0.1).Within(1e-9).Percent);
+            Assert.That(obj!.MaximumDMX512FailDelayHoldSupported, Is.EqualTo(6553.4).Within(1e-9).Percent);
+            Assert.That(obj!.MinimumStartupDelayTimeSupported, Is.EqualTo(0.1).Within(1e-9).Percent);
+            Assert.That(obj!.MaximumStartupDelayTimeSupported, Is.EqualTo(6553.4).Within(1e-9).Percent);
+            Assert.That(obj!.MinimumStartupDelayHoldSupported, Is.EqualTo(0.1).Within(1e-9).Percent);
+            Assert.That(obj!.MaximumStartupDelayHoldSupported, Is.EqualTo(6553.4).Within(1e-9).Percent);
+
+            Assert.That(obj.ToString(), Is.Not.Null);
+            Assert.That(obj.ToPayloadData(), Is.EqualTo(data));
+        });
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.PRESET_INFO);
+        Assert.That(reversed, Is.EqualTo(dataTreeBranch));
+    }
+
+    [Test]
     public void Test_Endpoint_List()
     {
         byte[] data = {
@@ -341,6 +470,9 @@ public class TestDefinedDataTreeObjects
             Assert.That(obj, Is.Not.Null);
             Assert.That(obj!.Endpoints.Length, Is.EqualTo(7));
             Assert.That(obj.Endpoints, Is.Not.Null);
+
+            Assert.That(obj.ToString(), Is.Not.Null);
+            Assert.That(obj.ToPayloadData(), Is.EqualTo(data));
         });
 
         var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.ENDPOINT_LIST);
@@ -372,6 +504,9 @@ public class TestDefinedDataTreeObjects
             Assert.That(obj.UIDs, Is.Not.Null);
             Assert.That(obj.UIDs.Length, Is.EqualTo(1));
             Assert.That(obj.UIDs[0], Is.EqualTo(new UID(0x5347, 0x9471af2f)));
+
+            Assert.That(obj.ToString(), Is.Not.Null);
+            Assert.That(obj.ToPayloadData(), Is.EqualTo(data));
         });
 
         var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.ENDPOINT_RESPONDERS);
@@ -406,6 +541,9 @@ public class TestDefinedDataTreeObjects
             Assert.That(obj.UIDs.Length, Is.EqualTo(2));
             Assert.That(obj.UIDs[0], Is.EqualTo(new UID(0x5347, 0x9471af2f)));
             Assert.That(obj.UIDs[1], Is.EqualTo(new UID(0x5347, 0x94030201)));
+
+            Assert.That(obj.ToString(), Is.Not.Null);
+            Assert.That(obj.ToPayloadData(), Is.EqualTo(data));
         });
 
         var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.ENDPOINT_RESPONDERS);
@@ -436,6 +574,9 @@ public class TestDefinedDataTreeObjects
             Assert.That(obj!.Devices, Is.Not.Null);
             Assert.That(obj.Devices.Length, Is.EqualTo(1));
             Assert.That(obj.Devices[0], Is.EqualTo(new UID(0x5347, 0x9471af2f)));
+
+            Assert.That(obj.ToString(), Is.Not.Null);
+            Assert.That(obj.ToPayloadData(), Is.EqualTo(data));
         });
 
         var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.PROXIED_DEVICES);
@@ -467,6 +608,9 @@ public class TestDefinedDataTreeObjects
             Assert.That(obj.Devices.Length, Is.EqualTo(2));
             Assert.That(obj.Devices[0], Is.EqualTo(new UID(0x5347, 0x9471af2f)));
             Assert.That(obj.Devices[1], Is.EqualTo(new UID(0x5347, 0x94030201)));
+
+            Assert.That(obj.ToString(), Is.Not.Null);
+            Assert.That(obj.ToPayloadData(), Is.EqualTo(data));
         });
 
         var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.PROXIED_DEVICES);

@@ -96,7 +96,7 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
 
 
                 var flatDataTree = flateningDateTree(Children);
-                var children = getChildrenUsingPath(objectAttribute, Children);
+                //var children = getChildrenUsingPath(objectAttribute, Children);
                 DataTree[] getChildrenUsingPath(DataTreeObjectAttribute objectAttribute, DataTree[] children)
                 {
                     if (!string.IsNullOrWhiteSpace(objectAttribute.Path))
@@ -117,10 +117,17 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
 
                     if (constructor.GetCustomAttribute<DataTreeObjectConstructorAttribute>() is DataTreeObjectConstructorAttribute cAttribute)
                     {
+                        DataTreeObjectParameterAttribute getOPA(ParameterInfo parameterInfo)
+                        {
+                            var attributes = parameterInfo.GetCustomAttributes<DataTreeObjectParameterAttribute>();
+                            if (attributes.Count() == 1)
+                                return attributes.Single();
 
+                            return attributes.Single(a => (ushort)a.Parameter == pid);
+                        }
                         #region Fast path for non-compound objects with matching parameter attributes
                         var cParameters = constructor.GetParameters();
-                        var pAttributes = cParameters.Select(p => p.GetCustomAttribute<DataTreeObjectParameterAttribute>()).ToArray();
+                        var pAttributes = cParameters.Select(p => getOPA(p)).ToArray();
 
                         if (pAttributes.Select(p => p.Name).SequenceEqual(flatDataTree.Keys))
                         {
@@ -131,7 +138,9 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
                                 var parameterAttribute = pAttributes[i];
                                 if (flatDataTree.TryGetValue(parameterAttribute.Name, out object value))
                                 {
-                                    if (constructorParameter.ParameterType == value?.GetType())
+                                    Type expectedType = Nullable.GetUnderlyingType(constructorParameter.ParameterType) ?? constructorParameter.ParameterType;
+
+                                    if (expectedType == value?.GetType())
                                         parameters.Add(value);
                                     else if (value is object[] compoundObjectArray)
                                     {
@@ -140,6 +149,11 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
                                         var pAttributesCompound = constructorCompound.GetParameters().Select(p => p.GetCustomAttribute<DataTreeObjectParameterAttribute>()).ToArray();
                                         value = getCompoundObject(compoundObjectArray, pAttributesCompound, constructorCompound);
                                         parameters.Add(value);
+                                    }
+                                    else
+                                    {
+                                        Logger?.LogWarning($"Can't find propperty for {parameterAttribute.Name}, Expected Type: {constructorParameter.ParameterType}, Actual Type: {value?.GetType()}");
+
                                     }
                                 }
                             }

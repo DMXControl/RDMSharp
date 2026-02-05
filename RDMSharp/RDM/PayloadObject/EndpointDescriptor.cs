@@ -33,16 +33,16 @@ public class EndpointDescriptor : AbstractRDMPayloadObject
     {
         return $"Id: {EndpointId} EndpointType: {EndpointType}";
     }
-    public static EndpointDescriptor FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
+    //public static EndpointDescriptor FromPayloadData(byte[] data)
+    //{
+    //    RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
 
-        var i = new EndpointDescriptor(
-            endpointId: Tools.DataToUShort(ref data),
-            endpointType: Tools.DataToEnum<ERDM_EndpointType>(ref data));
+    //    var i = new EndpointDescriptor(
+    //        endpointId: Tools.DataToUShort(ref data),
+    //        endpointType: Tools.DataToEnum<ERDM_EndpointType>(ref data));
 
-        return i;
-    }
+    //    return i;
+    //}
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();
