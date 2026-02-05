@@ -53,6 +53,8 @@ public static class Constants
         ERDM_Parameter.LIST_INTERFACES,
         ERDM_Parameter.INTERFACE_LABEL,
 
+        ERDM_Parameter.ENDPOINT_TIMING_DESCRIPTION,
+
         ERDM_Parameter.NACK_DESCRIPTION,
         ERDM_Parameter.ENUM_LABEL
 

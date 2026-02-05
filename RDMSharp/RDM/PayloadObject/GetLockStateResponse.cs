@@ -3,63 +3,62 @@ using RDMSharp.Metadata.JSON;
 using System;
 using System.Collections.Generic;
 
-namespace RDMSharp
+namespace RDMSharp;
+
+[DataTreeObject(ERDM_Parameter.LOCK_STATE, Command.ECommandDublicate.GetResponse)]
+public class GetLockStateResponse : AbstractRDMPayloadObjectOneOf
 {
-    [DataTreeObject(ERDM_Parameter.LOCK_STATE, Command.ECommandDublicate.GetResponse)]
-    public class GetLockStateResponse : AbstractRDMPayloadObjectOneOf
+    [DataTreeObjectConstructor]
+    public GetLockStateResponse(
+        [DataTreeObjectParameter("state")] byte currentLockStateId = 1,
+        [DataTreeObjectParameter("state_count")] byte lockStates = 0)
     {
-        [DataTreeObjectConstructor]
-        public GetLockStateResponse(
-            [DataTreeObjectParameter("state")] byte currentLockStateId = 1,
-            [DataTreeObjectParameter("state_count")] byte lockStates = 0)
-        {
-            this.CurrentLockStateId = currentLockStateId;
-            this.LockStates = lockStates;
-        }
+        this.CurrentLockStateId = currentLockStateId;
+        this.LockStates = lockStates;
+    }
 
-        [DataTreeObjectProperty("state", 0)]
-        public byte CurrentLockStateId { get; private set; }
+    [DataTreeObjectProperty("state", 0)]
+    public byte CurrentLockStateId { get; private set; }
 
-        [DataTreeObjectDependecieProperty("state", ERDM_Parameter.LOCK_STATE_DESCRIPTION, Command.ECommandDublicate.GetRequest)]
-        [DataTreeObjectProperty("state_count", 1)]
-        public byte LockStates { get; private set; }
+    [DataTreeObjectDependecieProperty("state", ERDM_Parameter.LOCK_STATE_DESCRIPTION, Command.ECommandDublicate.GetRequest)]
+    [DataTreeObjectProperty("state_count", 1)]
+    public byte LockStates { get; private set; }
 
-        public override Type IndexType => typeof(byte);
-        public override object MinIndex => (byte)1;
+    public override Type IndexType => typeof(byte);
+    public override object MinIndex => (byte)0;
 
-        public override object Index => CurrentLockStateId;
+    public override object Index => CurrentLockStateId;
 
-        public override object Count => LockStates;
+    public override object Count => LockStates;
 
-        public override ERDM_Parameter DescriptorParameter => ERDM_Parameter.LOCK_STATE_DESCRIPTION;
+    public override ERDM_Parameter DescriptorParameter => ERDM_Parameter.LOCK_STATE_DESCRIPTION;
 
-        public const int PDL = 2;
+    public const int PDL = 2;
 
-        public override string ToString()
-        {
-            return $"RDMLockState: {CurrentLockStateId} of {LockStates}";
-        }
-        public static GetLockStateResponse FromMessage(RDMMessage msg)
-        {
-            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.LOCK_STATE, PDL);
+    public override string ToString()
+    {
+        return $"RDMLockState: {CurrentLockStateId} of {LockStates}";
+    }
+    public static GetLockStateResponse FromMessage(RDMMessage msg)
+    {
+        RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.LOCK_STATE, PDL);
 
-            return FromPayloadData(msg.ParameterData);
-        }
-        public static GetLockStateResponse FromPayloadData(byte[] data)
-        {
-            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-            var i = new GetLockStateResponse(
-                currentLockStateId: Tools.DataToByte(ref data),
-                lockStates: Tools.DataToByte(ref data));
+        return FromPayloadData(msg.ParameterData);
+    }
+    public static GetLockStateResponse FromPayloadData(byte[] data)
+    {
+        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
+        var i = new GetLockStateResponse(
+            currentLockStateId: Tools.DataToByte(ref data),
+            lockStates: Tools.DataToByte(ref data));
 
-            return i;
-        }
-        public override byte[] ToPayloadData()
-        {
-            List<byte> data = new List<byte>();
-            data.AddRange(Tools.ValueToData(this.CurrentLockStateId));
-            data.AddRange(Tools.ValueToData(this.LockStates));
-            return data.ToArray();
-        }
+        return i;
+    }
+    public override byte[] ToPayloadData()
+    {
+        List<byte> data = new List<byte>();
+        data.AddRange(Tools.ValueToData(this.CurrentLockStateId));
+        data.AddRange(Tools.ValueToData(this.LockStates));
+        return data.ToArray();
     }
 }

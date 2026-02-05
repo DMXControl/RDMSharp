@@ -9,10 +9,16 @@ public class TestRDMSendReceive
     private MockGeneratedDevice1? generated;
     private MockDevice? remote;
     private Random random = new Random();
-    [SetUp]
-    public async Task Setup()
+
+    [OneTimeSetUp]
+    public async Task OneTimeSetup()
     {
         await MetadataFactory.AwaitInitialize();
+    }
+
+    [SetUp]
+    public void Setup()
+    {
         var uid = new UID((ushort)random.Next(), (uint)random.Next());
         generated = new MockGeneratedDevice1(uid);
         remote = new MockDevice(uid);
@@ -41,19 +47,35 @@ public class TestRDMSendReceive
             Assert.That(parameterValuesGenerated.Keys, Is.EquivalentTo(parameterValuesRemote.Keys));
             foreach (var parameter in parameterValuesGenerated.Keys)
             {
-                Assert.That(parameterValuesRemote.Keys, Contains.Item(parameter), $"Tested Parameter {parameter}");
-                if (parameterValuesGenerated[parameter] is Array)
-                    Assert.That(parameterValuesGenerated[parameter], Is.EquivalentTo((Array)parameterValuesRemote[parameter]), $"Tested Parameter {parameter}");
-                else
-                    Assert.That(parameterValuesGenerated[parameter], Is.EqualTo(parameterValuesRemote[parameter]), $"Tested Parameter {parameter}");
+                try
+                {
+                    Assert.That(parameterValuesRemote.Keys, Contains.Item(parameter), $"Tested Parameter {parameter}");
+                    if (parameterValuesGenerated[parameter] is Array)
+                        Assert.That(parameterValuesGenerated[parameter], Is.EquivalentTo((Array)parameterValuesRemote[parameter]), $"Tested Parameter {parameter}");
+                    else
+                        Assert.That(parameterValuesGenerated[parameter], Is.EqualTo(parameterValuesRemote[parameter]), $"Tested Parameter {parameter}");
+                }
+                catch (Exception ex)
+                {
+                    Assert.Fail($"Parameter {parameter} failed: {ex.Message}");
+                    throw;
+                }
             }
             foreach (var parameter in parameterValuesRemote.Keys)
             {
-                Assert.That(parameterValuesGenerated.Keys, Contains.Item(parameter), $"Tested Parameter {parameter}");
-                if (parameterValuesRemote[parameter] is Array)
-                    Assert.That(parameterValuesRemote[parameter], Is.EquivalentTo((Array)parameterValuesGenerated[parameter]), $"Tested Parameter {parameter}");
-                else
-                    Assert.That(parameterValuesRemote[parameter], Is.EqualTo(parameterValuesGenerated[parameter]), $"Tested Parameter {parameter}");
+                try
+                {
+                    Assert.That(parameterValuesGenerated.Keys, Contains.Item(parameter), $"Tested Parameter {parameter}");
+                    if (parameterValuesRemote[parameter] is Array)
+                        Assert.That(parameterValuesRemote[parameter], Is.EquivalentTo((Array)parameterValuesGenerated[parameter]), $"Tested Parameter {parameter}");
+                    else
+                        Assert.That(parameterValuesRemote[parameter], Is.EqualTo(parameterValuesGenerated[parameter]), $"Tested Parameter {parameter}");
+                }
+                catch (Exception ex)
+                {
+                    Assert.Fail($"Parameter {parameter} failed: {ex.Message}");
+                    throw;
+                }
             }
             Assert.That(parameterValuesRemote, Has.Count.EqualTo(parameterValuesGenerated.Count));
         });
@@ -62,20 +84,20 @@ public class TestRDMSendReceive
         var manufacturerLabelModule = generated.Modules.OfType<ManufacturerLabelModule>().Single();
         var deviceModelDescriptionModule = generated.Modules.OfType<DeviceModelDescriptionModule>().Single();
         Assert.Multiple(() =>
-        {
-            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_INFO], Is.EqualTo(generated.DeviceInfo));
-            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(deviceLabelModule.DeviceLabel));
-            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_MODEL_DESCRIPTION], Is.EqualTo(deviceModelDescriptionModule.DeviceModelDescription));
-            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.MANUFACTURER_LABEL], Is.EqualTo(manufacturerLabelModule.ManufacturerLabel));
-            Assert.That(((RDMDMXPersonality)remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY]).Index, Is.EqualTo(generated.CurrentPersonality));
-        });
+            {
+                Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_INFO], Is.EqualTo(generated.DeviceInfo));
+                Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(deviceLabelModule.DeviceLabel));
+                Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_MODEL_DESCRIPTION], Is.EqualTo(deviceModelDescriptionModule.DeviceModelDescription));
+                Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.MANUFACTURER_LABEL], Is.EqualTo(manufacturerLabelModule.ManufacturerLabel));
+                Assert.That(((RDMDMXPersonality)remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY]).Index, Is.EqualTo(generated.CurrentPersonality));
+            });
 
         await remote.SetParameter(ERDM_Parameter.DMX_START_ADDRESS, (ushort)512);
         Assert.Multiple(() =>
-        {
-            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(512));
-            Assert.That(generated.DMXAddress, Is.EqualTo(512));
-        });
+                {
+                    Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(512));
+                    Assert.That(generated.DMXAddress, Is.EqualTo(512));
+                });
 
         await remote.SetParameter(ERDM_Parameter.DMX_PERSONALITY, (byte)3);
         Assert.Multiple(() =>

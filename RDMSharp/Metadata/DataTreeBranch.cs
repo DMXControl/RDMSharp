@@ -72,6 +72,7 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
             return null;
         try
         {
+
             if (definedDataTreeObjectType != null)
             {
                 if (definedDataTreeObjectType.IsEnum)
@@ -94,6 +95,7 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
                 var objectAttribute = definedDataTreeObjectType.GetCustomAttributes<DataTreeObjectAttribute>().FirstOrDefault(a => (ushort)a.Parameter == pid && a.Command == commandType);
 
 
+                var flatDataTree = flateningDateTree(Children);
                 var children = getChildrenUsingPath(objectAttribute, Children);
                 DataTree[] getChildrenUsingPath(DataTreeObjectAttribute objectAttribute, DataTree[] children)
                 {
@@ -115,60 +117,119 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
 
                     if (constructor.GetCustomAttribute<DataTreeObjectConstructorAttribute>() is DataTreeObjectConstructorAttribute cAttribute)
                     {
-                        if (!children.All(c => c.IsCompound))
-                            return createObjectFromDataTree(objectAttribute, children);
-                        else
+
+                        #region Fast path for non-compound objects with matching parameter attributes
+                        var cParameters = constructor.GetParameters();
+                        var pAttributes = cParameters.Select(p => p.GetCustomAttribute<DataTreeObjectParameterAttribute>()).ToArray();
+
+                        if (pAttributes.Select(p => p.Name).SequenceEqual(flatDataTree.Keys))
                         {
-                            var array = Array.CreateInstance(definedDataTreeObjectType, children.Length);
-                            foreach (var comp in children)
-                                array.SetValue(createObjectFromDataTree(objectAttribute, comp.Children), comp.Index);
+                            List<object> parameters = new List<object>();
+                            for (int i = 0; i < cParameters.Length; i++)
+                            {
+                                var constructorParameter = cParameters[i];
+                                var parameterAttribute = pAttributes[i];
+                                if (flatDataTree.TryGetValue(parameterAttribute.Name, out object value))
+                                {
+                                    if (constructorParameter.ParameterType == value?.GetType())
+                                        parameters.Add(value);
+                                    else if (value is object[] compoundObjectArray)
+                                    {
+                                        ConstructorInfo constructorCompound = constructorParameter.ParameterType.GetElementType().GetConstructors().FirstOrDefault(c => c.GetCustomAttribute<DataTreeObjectConstructorAttribute>() is DataTreeObjectConstructorAttribute);
+                                        DataTreeObjectConstructorAttribute cAttributeCompound = constructorCompound.GetCustomAttribute<DataTreeObjectConstructorAttribute>();
+                                        var pAttributesCompound = constructorCompound.GetParameters().Select(p => p.GetCustomAttribute<DataTreeObjectParameterAttribute>()).ToArray();
+                                        value = getCompoundObject(compoundObjectArray, pAttributesCompound, constructorCompound);
+                                        parameters.Add(value);
+                                    }
+                                }
+                            }
+                            return constructor.Invoke(parameters.ToArray());
+                        }
+                        //If the Command is only a List with one compound object, the Path can be the root key
+                        else if (flatDataTree.Count == 1 &&
+                            flatDataTree.TryGetValue(objectAttribute.Path, out object compoundObjects))
+                            if (compoundObjects is object[] compoundObjectArray)
+                                return getCompoundObject(compoundObjectArray, pAttributes, constructor);
+                            else if (compoundObjects is null)
+                                return Array.CreateInstance(definedDataTreeObjectType, 0);
+                        #endregion
+                        static object getCompoundObject(object[] compoundObjectArray, DataTreeObjectParameterAttribute[] pAttributes, ConstructorInfo constructor)
+                        {
+                            List<object> parameters = new List<object>();
+                            List<object> results = new List<object>();
+                            foreach (IReadOnlyDictionary<string, object> compoundDict in compoundObjectArray)
+                            {
+                                foreach (var parameterAttribute in pAttributes)
+                                {
+                                    if (compoundDict.TryGetValue(parameterAttribute.Name, out object value))
+                                        parameters.Add(value);
+                                }
+                                results.Add(constructor.Invoke(parameters.ToArray()));
+                                parameters.Clear();
+                            }
+                            Type targetType = results.First().GetType();
+                            var array = Array.CreateInstance(targetType, results.Count);
+                            Array.Copy(results.ToArray(), array, results.Count);
                             return array;
                         }
+                        #region Replaced by code above - keeping in case i need to revert
+                        //if (!children.All(c => c.IsCompound))
+                        //    return createObjectFromDataTree(objectAttribute, children);
+                        //else
+                        //{
+                        //    var array = Array.CreateInstance(definedDataTreeObjectType, children.Length);
+                        //    foreach (var comp in children)
+                        //        array.SetValue(createObjectFromDataTree(objectAttribute, comp.Children), comp.Index);
+                        //    return array;
+                        //}
 
 
-                        object createObjectFromDataTree(DataTreeObjectAttribute objectAttribute, DataTree[] children)
-                        {
-                            var parameters = new List<object>();
-                            foreach (var param in constructor.GetParameters())
-                                if (param.GetCustomAttribute<DataTreeObjectParameterAttribute>() is DataTreeObjectParameterAttribute pAttribute)
-                                {
-                                    var children2 = children;
+                        //object createObjectFromDataTree(DataTreeObjectAttribute objectAttribute, DataTree[] children)
+                        //{
+                        //    var parameters = new List<object>();
+                        //    foreach (var param in constructor.GetParameters())
+                        //        if (param.GetCustomAttribute<DataTreeObjectParameterAttribute>() is DataTreeObjectParameterAttribute pAttribute)
+                        //        {
+                        //            var children2 = children;
 
-                                    string name = pAttribute.Name;
-                                    string[] path = name.Split('/');
-                                    while (path.Length > 1)
-                                    {
-                                        children2 = children2.FirstOrDefault(c => string.Equals(c.Name, path[0])).Children;
-                                        path = path.Skip(1).ToArray();
-                                        if (path.Length == 1)
-                                            name = path[0];
-                                    }
-                                    if (!pAttribute.IsArray && children2.FirstOrDefault(c => string.Equals(c.Name, name)) is DataTree child)
-                                        parameters.Add(child.Value);
-                                    else if (pAttribute.IsArray && children2.Where(c => string.Equals(c.Name, pAttribute.Name)).OfType<DataTree>() is IEnumerable<DataTree> childenum)
-                                    {
-                                        Type targetType = children2.First().Value.GetType();
-                                        var array = Array.CreateInstance(targetType, children2.Length);
-                                        Array.Copy(children2.Select(c => c.Value).ToArray(), array, children2.Length);
-                                        parameters.Add(array);
-                                    }
-                                    else
-                                        throw new ArgumentException($"No matching Value found for '{pAttribute.Name}'");
-                                }
+                        //            string name = pAttribute.Name;
+                        //            string[] path = name.Split('/');
+                        //            while (path.Length > 1)
+                        //            {
+                        //                children2 = children2.FirstOrDefault(c => string.Equals(c.Name, path[0])).Children;
+                        //                path = path.Skip(1).ToArray();
+                        //                if (path.Length == 1)
+                        //                    name = path[0];
+                        //            }
+                        //            if (!pAttribute.IsArray && children2.FirstOrDefault(c => string.Equals(c.Name, name)) is DataTree child)
+                        //                parameters.Add(child.Value);
+                        //            else if (pAttribute.IsArray && children2.Where(c => string.Equals(c.Name, pAttribute.Name)).OfType<DataTree>() is IEnumerable<DataTree> childenum)
+                        //            {
+                        //                Type targetType = children2.First().Value.GetType();
+                        //                var array = Array.CreateInstance(targetType, children2.Length);
+                        //                Array.Copy(children2.Select(c => c.Value).ToArray(), array, children2.Length);
+                        //                parameters.Add(array);
+                        //            }
+                        //            else
+                        //                throw new ArgumentException($"No matching Value found for '{pAttribute.Name}'");
+                        //        }
 
-                            var instance = constructor.Invoke(parameters.ToArray());
-                            return instance;
-                        }
+                        //    var instance = constructor.Invoke(parameters.ToArray());
+                        //    return instance;
+                        //}
+                        #endregion
                     }
                 }
             }
 
+            #region Replaced by code above - keeping in case i need to revert
             if (Children.Length == 1)
             {
+                var flatDataTree = flateningDateTree(Children);
                 DataTree dataTree = Children[0];
 
-                if (dataTree.Value != null)
-                    return dataTree.Value;
+                if (flatDataTree.Count == 1 && flatDataTree.Values.FirstOrDefault() is object value)
+                    return value;
 
                 if (dataTree.Children.GroupBy(c => c.Name).Count() == 1)
                 {
@@ -182,6 +243,7 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
                     return array;
                 }
             }
+            #endregion
         }
         catch (Exception e)
         {
@@ -190,8 +252,47 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
             throw e;
 #pragma warning restore CA2200
         }
-
         throw new NotImplementedException();
+    }
+    private Dictionary<string, object> flateningDateTree(DataTree[] children)
+    {
+        Dictionary<string, object> result = new Dictionary<string, object>();
+        foreach (var child in children)
+        {
+            if (child.Value != null)
+                result.TryAdd(child.Name, child.Value);
+            else if (child.Children?.Length == 0)
+                result.TryAdd(child.Name, null);
+            else if (child.Children != null)
+            {
+                if (child.IsCompound)
+                    result.TryAdd(child.Name, flateningDateTree(child.Children));
+                else if (child.IsList)
+                {
+                    List<object> list = new List<object>();
+                    foreach (var grandChild in child.Children)
+                    {
+                        if (grandChild.Value != null)
+                            list.Add(grandChild.Value);
+                        else if (grandChild.Children != null)
+                            list.Add(flateningDateTree(grandChild.Children));
+                    }
+                    Type targetType = list.First().GetType();
+                    var array = Array.CreateInstance(targetType, list.Count);
+                    Array.Copy(list.ToArray(), array, list.Count);
+                    result.Add(child.Name, array);
+                }
+                else //Is BitField
+                {
+                    foreach (var grandChild in child.Children)
+                    {
+                        if (grandChild.Value != null)
+                            result.TryAdd(string.Join('/', child.Name, grandChild.Name), grandChild.Value);
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     public static DataTreeBranch FromObject(object obj, object key, ParameterBag parameterBag, ERDM_Command command)
@@ -314,9 +415,6 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
         if (dataTreeObjectAttributes.FirstOrDefault(a => a.Parameter == parameter && a.Command == Tools.ConvertCommandDublicateToCommand(command)) is not DataTreeObjectAttribute dataTreeObjectAttribute)
             return DataTreeBranch.Unset;
 
-        if (dataTreeObjectAttribute.IsArray != isArray)
-        {
-        }
 
         List<DataTree> children = new List<DataTree>();
         bool isCompound = false;

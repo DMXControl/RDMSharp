@@ -25,6 +25,13 @@ public class TestInterfaceModlue
         ParameterData = Tools.ValueToData((uint)1)
     };
 
+    [OneTimeSetUp]
+    public async Task OneTimeSetup()
+    {
+        await MetadataFactory.AwaitInitialize();
+    }
+
+
     [SetUp]
     public void Setup()
     {

@@ -288,7 +288,7 @@ public abstract class AbstractRDMCache : IDisposable
             {
                 string name = intType.Name;
                 var depBag = parameterValuesDependeciePropertyBag.FirstOrDefault(bag => bag.Key.Parameter == parameterBag.PID && bag.Key.Command == Metadata.JSON.Command.ECommandDublicate.GetRequest && string.Equals(bag.Key.Name, name));
-                IComparable dependecyValue = (IComparable)depBag.Value;
+                object dependecyValue = depBag.Value;
                 switch (parameterBag.PID)
                 {
                     case ERDM_Parameter.STATUS_MESSAGES:
@@ -308,23 +308,23 @@ public abstract class AbstractRDMCache : IDisposable
                             case ERDM_Parameter.METADATA_JSON:
                                 break;
 
-                            case ERDM_Parameter.IDENTIFY_ENDPOINT:
-                            case ERDM_Parameter.ENDPOINT_TO_UNIVERSE:
-                            case ERDM_Parameter.ENDPOINT_TIMING:
-                            case ERDM_Parameter.ENDPOINT_LABEL:
-                            case ERDM_Parameter.ENDPOINT_MODE:
-                            case ERDM_Parameter.BINDING_CONTROL_FIELDS:
-                            case ERDM_Parameter.DISCOVERY_STATE:
-                            case ERDM_Parameter.ENDPOINT_RESPONDER_LIST_CHANGE:
-                            case ERDM_Parameter.BACKGROUND_DISCOVERY:
-                            case ERDM_Parameter.RDM_TRAFFIC_ENABLE:
-                            case ERDM_Parameter.ENDPOINT_RESPONDERS:
-                                if (this.parameterValues.TryGetValue(ERDM_Parameter.ENDPOINT_LIST, out object value))
-                                {
-                                    if (value is EndpointDescriptor[] endpoints)
-                                        dependecyValue = (ushort)endpoints.Max(ep => ep.EndpointId);
-                                }
-                                break;
+                            //case ERDM_Parameter.IDENTIFY_ENDPOINT:
+                            //case ERDM_Parameter.ENDPOINT_TO_UNIVERSE:
+                            //case ERDM_Parameter.ENDPOINT_TIMING:
+                            //case ERDM_Parameter.ENDPOINT_LABEL:
+                            //case ERDM_Parameter.ENDPOINT_MODE:
+                            //case ERDM_Parameter.BINDING_CONTROL_FIELDS:
+                            //case ERDM_Parameter.DISCOVERY_STATE:
+                            //case ERDM_Parameter.ENDPOINT_RESPONDER_LIST_CHANGE:
+                            //case ERDM_Parameter.BACKGROUND_DISCOVERY:
+                            //case ERDM_Parameter.RDM_TRAFFIC_ENABLE:
+                            //case ERDM_Parameter.ENDPOINT_RESPONDERS:
+                            //    if (this.parameterValues.TryGetValue(ERDM_Parameter.ENDPOINT_LIST, out object value))
+                            //    {
+                            //        if (value is EndpointDescriptor[] endpoints)
+                            //            dependecyValue = (ushort)endpoints.Max(ep => ep.EndpointId);
+                            //    }
+                            //    break;
                             default:
                                 Logger?.LogDebug($"No {nameof(dependecyValue)} found for {parameterBag.PID}");
                                 dependecyValue = (IComparable)intType.GetMaximum();
@@ -333,13 +333,13 @@ public abstract class AbstractRDMCache : IDisposable
                     }
                     if (dependecyValue != null)
                     {
-                        if (!dependecyValue.GetType().IsArray)
+                        if (!dependecyValue.GetType().IsArray && dependecyValue is IComparable comparable_dependecyValue)
                         {
                             i = intType.GetMinimum();
                             object max = intType.GetMaximum();
                             object count = Convert.ChangeType(0, i.GetType());
                             object dataOutOfRangeMin = Convert.ChangeType(2, i.GetType());
-                            while (dependecyValue.CompareTo(count) > 0)
+                            while (comparable_dependecyValue.CompareTo(count) > 0)
                             {
                                 if (!intType.IsInRange(i))
                                     continue;
@@ -367,7 +367,7 @@ public abstract class AbstractRDMCache : IDisposable
                             foreach (var item in (Array)dependecyValue)
                             {
                                 var type = item.GetType();
-                                i = type.GetProperty(depBag.Key.Property);
+                                i = type.GetProperty(depBag.Key.Property).GetValue(item);
                                 DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
                                 PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
                                 await runPeerToPeerProcess(ptpProcess);

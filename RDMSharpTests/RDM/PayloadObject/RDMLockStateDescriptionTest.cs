@@ -45,7 +45,7 @@ public class RDMLockStateDescriptionTest
         Assert.Multiple(() =>
         {
             Assert.That(string.IsNullOrEmpty(resultLockStateDescription.Description), Is.True);
-            Assert.That(resultLockStateDescription.MinIndex, Is.EqualTo(0));
+            Assert.That(resultLockStateDescription.MinIndex, Is.EqualTo(1));
             Assert.That(resultLockStateDescription.Index, Is.EqualTo(7));
         });
     }

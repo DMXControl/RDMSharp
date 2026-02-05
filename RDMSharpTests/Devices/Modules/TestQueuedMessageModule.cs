@@ -10,6 +10,13 @@ public class TestQueuedMessageModule
 
     private static UID CONTROLLER_UID = new UID(0x1fff, 333);
     private static UID DEVCIE_UID = new UID(123, 555);
+
+    [OneTimeSetUp]
+    public async Task OneTimeSetup()
+    {
+        await MetadataFactory.AwaitInitialize();
+    }
+
     [SetUp]
     public void Setup()
     {

@@ -1,10 +1,8 @@
 ﻿using RDMSharp.Metadata;
-using RDMSharp.Metadata.JSON;
 using System.Collections.Generic;
 
 namespace RDMSharp;
 
-[DataTreeObject(ERDM_Parameter.ENDPOINT_LIST, Command.ECommandDublicate.GetResponse, true, "endpoints")]
 public class EndpointDescriptor : AbstractRDMPayloadObject
 {
     [DataTreeObjectConstructor]

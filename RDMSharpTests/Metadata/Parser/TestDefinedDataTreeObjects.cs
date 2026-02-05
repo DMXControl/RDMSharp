@@ -7,8 +7,8 @@ namespace RDMSharpTests.Metadata.Parser;
 
 public class TestDefinedDataTreeObjects
 {
-    [SetUp]
-    public async Task Setup()
+    [OneTimeSetUp]
+    public async Task OneTimeSetup()
     {
         await MetadataFactory.AwaitInitialize();
     }
@@ -276,6 +276,74 @@ public class TestDefinedDataTreeObjects
         });
 
         var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND, ERDM_Parameter.STATUS_MESSAGES);
+        Assert.That(reversed, Is.EqualTo(dataTreeBranch));
+
+        //Test Response with one Message
+        var testMessage = new RDMStatusMessage(0, ERDM_Status.ERROR, ERDM_StatusMessage.UNDERCURRENT, 2, 20);
+        data = testMessage.ToPayloadData();
+
+        dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dataTreeBranch.IsUnset, Is.False);
+            Assert.That(dataTreeBranch.IsEmpty, Is.False);
+            Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+            Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMStatusMessage[])));
+            var obj = dataTreeBranch.ParsedObject as RDMStatusMessage[];
+            Assert.That(obj, Is.Not.Null);
+            Assert.That(obj!.Length, Is.EqualTo(1));
+            Assert.That(obj[0], Is.EqualTo(testMessage));
+        });
+
+        reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.STATUS_MESSAGES);
+        Assert.That(reversed, Is.EqualTo(dataTreeBranch));
+
+        //Empty Data Test
+        data = new byte[0];
+
+        dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dataTreeBranch.IsUnset, Is.False);
+            Assert.That(dataTreeBranch.IsEmpty, Is.False);
+            Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+            Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMStatusMessage[])));
+        });
+
+        reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.STATUS_MESSAGES);
+        Assert.That(reversed, Is.EqualTo(dataTreeBranch));
+    }
+    [Test]
+    public void Test_Endpoint_List()
+    {
+        byte[] data = {
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00,
+            0x03, 0x01, 0x00, 0x04, 0x01, 0x00, 0x05, 0x01,
+            0x00, 0x06, 0x01, 0x00, 0x07, 0x01, 0x00, 0x08,
+            0x01
+        };
+
+        var parameterBag = new ParameterBag(ERDM_Parameter.ENDPOINT_LIST);
+        var define = MetadataFactory.GetDefine(parameterBag);
+
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dataTreeBranch.IsUnset, Is.False);
+            Assert.That(dataTreeBranch.IsEmpty, Is.False);
+            Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+            Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetEndpointListResponse)));
+
+            var obj = dataTreeBranch.ParsedObject as GetEndpointListResponse;
+            Assert.That(obj, Is.Not.Null);
+            Assert.That(obj!.Endpoints.Length, Is.EqualTo(7));
+            Assert.That(obj.Endpoints, Is.Not.Null);
+        });
+
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.ENDPOINT_LIST);
         Assert.That(reversed, Is.EqualTo(dataTreeBranch));
     }
     [Test]
