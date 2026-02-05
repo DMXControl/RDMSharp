@@ -443,6 +443,40 @@ public class TestDefinedDataTreeObjects
         var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.PRESET_INFO);
         Assert.That(reversed, Is.EqualTo(dataTreeBranch));
     }
+    [Test]
+    public void Test_Preset_Status()
+    {
+        byte[] data = {
+            0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x02
+        };
+
+        var parameterBag = new ParameterBag(ERDM_Parameter.PRESET_STATUS);
+        var define = MetadataFactory.GetDefine(parameterBag);
+
+        var dataTreeBranch = MetadataFactory.ParseDataToPayload(define, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, data);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(dataTreeBranch.IsUnset, Is.False);
+            Assert.That(dataTreeBranch.IsEmpty, Is.False);
+            Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+            Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMPresetStatus)));
+
+            var obj = dataTreeBranch.ParsedObject as RDMPresetStatus;
+            Assert.That(obj, Is.Not.Null);
+            Assert.That(obj!.SceneId, Is.EqualTo(1));
+            Assert.That(obj!.UpFadeTime, Is.EqualTo(0));
+            Assert.That(obj!.DownFadeTime, Is.EqualTo(0));
+            Assert.That(obj!.WaitTime, Is.EqualTo(0));
+            Assert.That(obj!.EProgrammed, Is.EqualTo(ERDM_PresetProgrammed.PROGRAMMED_READ_ONLY));
+
+            Assert.That(obj.ToString(), Is.Not.Null);
+            Assert.That(obj.ToPayloadData(), Is.EqualTo(data));
+        });
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.PRESET_STATUS);
+        Assert.That(reversed, Is.EqualTo(dataTreeBranch));
+    }
 
     [Test]
     public void Test_Endpoint_List()

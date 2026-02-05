@@ -128,6 +128,9 @@ public static class MetadataFactory
                 Logger?.LogError($"Exception while Deserialize {mv.Name}", e);
             }
         });
+        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true, compacting: true);
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
         IsInitialized = true;
         fillDefaultMetadataVersionListSemaphoreSlim.Release();
     }

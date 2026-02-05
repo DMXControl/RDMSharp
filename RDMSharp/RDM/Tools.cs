@@ -40,6 +40,8 @@ public static class Constants
         ERDM_Parameter.SENSOR_TYPE_CUSTOM,
         ERDM_Parameter.SENSOR_UNIT_CUSTOM,
 
+        ERDM_Parameter.PRESET_INFO,
+
         ERDM_Parameter.CURVE_DESCRIPTION,
         ERDM_Parameter.DIMMER_INFO,
         ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION,
@@ -57,7 +59,6 @@ public static class Constants
 
         ERDM_Parameter.NACK_DESCRIPTION,
         ERDM_Parameter.ENUM_LABEL
-
     };
 
     public static readonly ERDM_Parameter[] BLUEPRINT_MODEL_PERSONALITY_PARAMETERS = new ERDM_Parameter[]
