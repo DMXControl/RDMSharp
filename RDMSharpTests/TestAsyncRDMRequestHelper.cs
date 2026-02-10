@@ -143,11 +143,18 @@ public class TestAsyncRDMRequestHelper
     }
     private async Task testPackage(RDMMessage request, RDMMessage response, int responseDelay = 300)
     {
-        Task task = Task.Run(async () =>
+        SemaphoreSlim requestSemaphore = new SemaphoreSlim(1);
+        await requestSemaphore.WaitAsync();
+        Task task = new Task(async () =>
         {
+            requestSemaphore.Release();
             var result = await asyncRDMRequestHelper!.RequestMessage(request, false);
             validate(request, result);
         });
+        task.Start();
+        while (requestSemaphore.CurrentCount == 0)
+            await Task.Delay(10);
+
         await Task.Delay(responseDelay); // Simulate some delay before the next task
 
         asyncRDMRequestHelper!.ReceiveMessage(response);
@@ -156,7 +163,7 @@ public class TestAsyncRDMRequestHelper
     }
     private void validate(RDMMessage request, RequestResult result)
     {
-        NUnitString failMessage = $"Request: {request.ToString()} Response: {result.Response?.ToString()} Error: {result.Response?.NackReason.ToString() ?? result.Response?.ResponseType?.ToString()}";
+        NUnitString failMessage = $"Request: {request.ToString()} Response: {result.Response?.ToString()} Error: {result.Response?.NackReason.ToString() ?? result.Response?.ResponseType?.ToString()} Timeout: {result.Timeout} ElapsedTime: {result.ElapsedTime}";
 
         if (request.Command == ERDM_Command.SET_COMMAND && request.SubDevice.IsBroadcast)
         {
