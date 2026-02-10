@@ -47,7 +47,7 @@ public class TestAsyncRDMRequestHelper
     [Test, Order(3), CancelAfter(10000)]
     public async Task TestDelayedResponse()
     {
-        await testPackage(new UID(3, 56), new UID(55, 90), 1, SubDevice.Root, ERDM_Parameter.DMX_START_ADDRESS, ERDM_Command.GET_COMMAND, new byte[] { 0x00, 0x01 }, 8000);
+        await testPackage(new UID(3, 56), new UID(55, 90), 1, SubDevice.Root, ERDM_Parameter.DMX_START_ADDRESS, ERDM_Command.GET_COMMAND, new byte[] { 0x00, 0x01 }, 6000);
     }
 
     [Test, Order(6)]
