@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using RDMSharp.Metadata;
+using RDMSharp.PayloadObject;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using _AcknowledgeTimer = RDMSharp.AcknowledgeTimer;
+using _AcknowledgeTimer = RDMSharp.PayloadObject.AcknowledgeTimer;
 
 namespace RDMSharp;
 

@@ -3,7 +3,7 @@ using RDMSharp.Metadata.JSON;
 using System.Collections.Generic;
 using System.Text;
 
-namespace RDMSharp;
+namespace RDMSharp.PayloadObject;
 
 [DataTreeObject(ERDM_Parameter.PRESET_INFO, Command.ECommandDublicate.GetResponse)]
 public class RDMPresetInfo : AbstractRDMPayloadObject

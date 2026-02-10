@@ -3,7 +3,7 @@ using RDMSharp.Metadata.JSON;
 using System.Collections.Generic;
 using System.Text;
 
-namespace RDMSharp;
+namespace RDMSharp.PayloadObject;
 
 [DataTreeObject(ERDM_Parameter.ENDPOINT_RESPONDERS, Command.ECommandDublicate.GetResponse)]
 public class GetEndpointRespondersResponse : AbstractRDMPayloadObject
@@ -50,30 +50,7 @@ public class GetEndpointRespondersResponse : AbstractRDMPayloadObject
 
         return b.ToString();
     }
-    //public static GetEndpointRespondersResponse FromMessage(RDMMessage msg)
-    //{
-    //    RDMMessageInvalidException.ThrowIfInvalidPDLRange(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.ENDPOINT_RESPONDERS, PDL_MIN, PDL_MAX);
 
-    //    return FromPayloadData(msg.ParameterData);
-    //}
-    //public static GetEndpointRespondersResponse FromPayloadData(byte[] data)
-    //{
-    //    RDMMessageInvalidPDLException.ThrowIfInvalidPDLRange(data, PDL_MIN, PDL_MAX);
-
-    //    ushort endpointId = Tools.DataToUShort(ref data);
-    //    uint listChangedNumber = Tools.DataToUInt(ref data);
-
-    //    List<UID> uids = new List<UID>();
-    //    while (data.Length >= 6)
-    //        uids.Add(Tools.DataToRDMUID(ref data));
-
-    //    var i = new GetEndpointRespondersResponse(endpointId, listChangedNumber, uids.ToArray());
-
-    //    if (data.Length != 0)
-    //        throw new Exception("After deserialization data should be empty!");
-
-    //    return i;
-    //}
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

@@ -1,4 +1,5 @@
-﻿using RDMSharp.RDM.Device;
+﻿using RDMSharp.PayloadObject;
+using RDMSharp.RDM.Device;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

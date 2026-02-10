@@ -2,7 +2,7 @@
 using RDMSharp.Metadata.JSON;
 using System.Collections.Generic;
 
-namespace RDMSharp;
+namespace RDMSharp.PayloadObject;
 
 [DataTreeObject(ERDM_Parameter.LIST_INTERFACES, Command.ECommandDublicate.GetResponse, true, "interfaces")]
 public class InterfaceDescriptor : AbstractRDMPayloadObject

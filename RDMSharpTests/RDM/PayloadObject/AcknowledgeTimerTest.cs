@@ -1,4 +1,6 @@
-﻿namespace RDMSharpTests.RDM.PayloadObject;
+﻿using RDMSharp.PayloadObject;
+
+namespace RDMSharpTests.RDM.PayloadObject;
 
 public class AcknowledgeTimerTest
 {

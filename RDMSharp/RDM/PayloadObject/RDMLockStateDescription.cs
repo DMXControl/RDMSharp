@@ -2,7 +2,7 @@
 using RDMSharp.Metadata.JSON;
 using System.Collections.Generic;
 
-namespace RDMSharp;
+namespace RDMSharp.PayloadObject;
 
 [DataTreeObject(ERDM_Parameter.LOCK_STATE_DESCRIPTION, Command.ECommandDublicate.GetResponse)]
 public class RDMLockStateDescription : AbstractRDMPayloadObject, IRDMPayloadObjectIndex, IRDMPayloadObjectOneOfDescription

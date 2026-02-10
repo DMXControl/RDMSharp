@@ -3,7 +3,7 @@ using RDMSharp.Metadata.JSON;
 using System.Collections.Generic;
 using System.Text;
 
-namespace RDMSharp;
+namespace RDMSharp.PayloadObject;
 
 [DataTreeObject(ERDM_Parameter.PRESET_STATUS, Command.ECommandDublicate.GetResponse)]
 [DataTreeObject(ERDM_Parameter.PRESET_STATUS, Command.ECommandDublicate.SetRequest)]
@@ -62,25 +62,6 @@ public class RDMPresetStatus : AbstractRDMPayloadObject
         return b.ToString();
     }
 
-    //public static RDMPresetStatus FromMessage(RDMMessage msg)
-    //{
-    //    RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.PRESET_STATUS, PDL);
-
-    //    return FromPayloadData(msg.ParameterData);
-    //}
-    //public static RDMPresetStatus FromPayloadData(byte[] data)
-    //{
-    //    RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-
-    //    var i = new RDMPresetStatus(
-    //        sceneId: Tools.DataToUShort(ref data),
-    //        upFadeTime: Tools.DataToUShort(ref data),
-    //        downFadeTime: Tools.DataToUShort(ref data),
-    //        waitTime: Tools.DataToUShort(ref data),
-    //        programmed: Tools.DataToEnum<ERDM_PresetProgrammed>(ref data));
-
-    //    return i;
-    //}
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

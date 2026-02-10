@@ -1,5 +1,6 @@
 ﻿using RDMSharp.Extensions;
 using RDMSharp.Metadata;
+using RDMSharp.PayloadObject;
 using RDMSharp.RDM.Device;
 using System;
 using System.Collections.Concurrent;

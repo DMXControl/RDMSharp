@@ -1,3 +1,5 @@
+using RDMSharp.PayloadObject;
+
 namespace RDMSharpTests.RDM.PayloadObject;
 
 public class RDMLockStateDescriptionTest

@@ -2,7 +2,7 @@
 using RDMSharp.Metadata.JSON;
 using System.Collections.Generic;
 
-namespace RDMSharp;
+namespace RDMSharp.PayloadObject;
 
 [DataTreeObject(ERDM_Parameter.DISCOVERY_STATE, Command.ECommandDublicate.SetRequest)]
 public class SetDiscoveryStateRequest : AbstractRDMPayloadObject
@@ -31,23 +31,6 @@ public class SetDiscoveryStateRequest : AbstractRDMPayloadObject
     public override string ToString()
     {
         return $"Endpoint: {EndpointId} - DiscoveryState: {DiscoveryState}";
-    }
-
-    public static SetDiscoveryStateRequest FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DISCOVERY_STATE, PDL);
-
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static SetDiscoveryStateRequest FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-
-        var i = new SetDiscoveryStateRequest(
-            endpointId: Tools.DataToUShort(ref data),
-            discoveryState: Tools.DataToEnum<ERDM_DiscoveryState>(ref data));
-
-        return i;
     }
 
     public override byte[] ToPayloadData()

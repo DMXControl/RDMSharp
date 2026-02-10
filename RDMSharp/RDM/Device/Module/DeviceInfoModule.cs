@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RDMSharp.PayloadObject;
+using System;
 using System.Linq;
 
 namespace RDMSharp.RDM.Device.Module;

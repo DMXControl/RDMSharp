@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using RDMSharp.Metadata.JSON;
 using RDMSharp.Metadata.JSON.OneOfTypes;
+using RDMSharp.PayloadObject;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

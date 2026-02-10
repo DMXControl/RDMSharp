@@ -3,90 +3,89 @@ using RDMSharp.Metadata.JSON;
 using System.Collections.Generic;
 using System.Text;
 
-namespace RDMSharp
+namespace RDMSharp.PayloadObject;
+
+[DataTreeObject(ERDM_Parameter.SENSOR_VALUE, Command.ECommandDublicate.GetResponse)]
+[DataTreeObject(ERDM_Parameter.SENSOR_VALUE, Command.ECommandDublicate.SetResponse)]
+public class RDMSensorValue : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
 {
-    [DataTreeObject(ERDM_Parameter.SENSOR_VALUE, Command.ECommandDublicate.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.SENSOR_VALUE, Command.ECommandDublicate.SetResponse)]
-    public class RDMSensorValue : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
+    [DataTreeObjectConstructor]
+    public RDMSensorValue(
+        [DataTreeObjectParameter("sensor")] byte sensorId = 0,
+        [DataTreeObjectParameter("value")] short presentvalue = 0,
+        [DataTreeObjectParameter("lowest_detected")] short lowestValue = 0,
+        [DataTreeObjectParameter("highest_detected")] short highestValue = 0,
+        [DataTreeObjectParameter("recorded_value")] short recordedValue = 0)
     {
-        [DataTreeObjectConstructor]
-        public RDMSensorValue(
-            [DataTreeObjectParameter("sensor")] byte sensorId = 0,
-            [DataTreeObjectParameter("value")] short presentvalue = 0,
-            [DataTreeObjectParameter("lowest_detected")] short lowestValue = 0,
-            [DataTreeObjectParameter("highest_detected")] short highestValue = 0,
-            [DataTreeObjectParameter("recorded_value")] short recordedValue = 0)
-        {
-            this.SensorId = sensorId;
-            this.PresentValue = presentvalue;
-            this.LowestValue = lowestValue;
-            this.HighestValue = highestValue;
-            this.RecordedValue = recordedValue;
-        }
+        this.SensorId = sensorId;
+        this.PresentValue = presentvalue;
+        this.LowestValue = lowestValue;
+        this.HighestValue = highestValue;
+        this.RecordedValue = recordedValue;
+    }
 
-        [DataTreeObjectProperty("sensor", 0)]
-        public byte SensorId { get; private set; }
+    [DataTreeObjectProperty("sensor", 0)]
+    public byte SensorId { get; private set; }
 
-        [DataTreeObjectProperty("value", 1)]
-        public short PresentValue { get; private set; }
+    [DataTreeObjectProperty("value", 1)]
+    public short PresentValue { get; private set; }
 
-        [DataTreeObjectProperty("lowest_detected", 2)]
-        public short LowestValue { get; private set; }
+    [DataTreeObjectProperty("lowest_detected", 2)]
+    public short LowestValue { get; private set; }
 
-        [DataTreeObjectProperty("highest_detected", 3)]
-        public short HighestValue { get; private set; }
+    [DataTreeObjectProperty("highest_detected", 3)]
+    public short HighestValue { get; private set; }
 
-        [DataTreeObjectProperty("recorded_value", 4)]
-        public short RecordedValue { get; private set; }
+    [DataTreeObjectProperty("recorded_value", 4)]
+    public short RecordedValue { get; private set; }
 
-        public object MinIndex => (byte)0;
+    public object MinIndex => (byte)0;
 
-        public object Index => SensorId;
+    public object Index => SensorId;
 
-        public const int PDL = 9;
+    public const int PDL = 9;
 
 
-        public override string ToString()
-        {
-            StringBuilder b = new StringBuilder();
-            b.AppendLine("RDMSensorValue");
-            b.AppendLine($"SensorId:      {SensorId}");
-            b.AppendLine($"PresentValue:  {PresentValue}");
-            b.AppendLine($"LowestValue:   {LowestValue}");
-            b.AppendLine($"HighestValue:  {HighestValue}");
-            b.AppendLine($"RecordedValue: {RecordedValue}");
+    public override string ToString()
+    {
+        StringBuilder b = new StringBuilder();
+        b.AppendLine("RDMSensorValue");
+        b.AppendLine($"SensorId:      {SensorId}");
+        b.AppendLine($"PresentValue:  {PresentValue}");
+        b.AppendLine($"LowestValue:   {LowestValue}");
+        b.AppendLine($"HighestValue:  {HighestValue}");
+        b.AppendLine($"RecordedValue: {RecordedValue}");
 
-            return b.ToString();
-        }
+        return b.ToString();
+    }
 
-        public static RDMSensorValue FromMessage(RDMMessage msg)
-        {
-            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.SENSOR_VALUE, PDL);
+    public static RDMSensorValue FromMessage(RDMMessage msg)
+    {
+        RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.SENSOR_VALUE, PDL);
 
-            return FromPayloadData(msg.ParameterData);
-        }
-        public static RDMSensorValue FromPayloadData(byte[] data)
-        {
-            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
+        return FromPayloadData(msg.ParameterData);
+    }
+    public static RDMSensorValue FromPayloadData(byte[] data)
+    {
+        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
 
-            var i = new RDMSensorValue(
-                sensorId: Tools.DataToByte(ref data),
-                presentvalue: Tools.DataToShort(ref data),
-                lowestValue: Tools.DataToShort(ref data),
-                highestValue: Tools.DataToShort(ref data),
-                recordedValue: Tools.DataToShort(ref data));
+        var i = new RDMSensorValue(
+            sensorId: Tools.DataToByte(ref data),
+            presentvalue: Tools.DataToShort(ref data),
+            lowestValue: Tools.DataToShort(ref data),
+            highestValue: Tools.DataToShort(ref data),
+            recordedValue: Tools.DataToShort(ref data));
 
-            return i;
-        }
-        public override byte[] ToPayloadData()
-        {
-            List<byte> data = new List<byte>();
-            data.AddRange(Tools.ValueToData(this.SensorId));
-            data.AddRange(Tools.ValueToData(this.PresentValue));
-            data.AddRange(Tools.ValueToData(this.LowestValue));
-            data.AddRange(Tools.ValueToData(this.HighestValue));
-            data.AddRange(Tools.ValueToData(this.RecordedValue));
-            return data.ToArray();
-        }
+        return i;
+    }
+    public override byte[] ToPayloadData()
+    {
+        List<byte> data = new List<byte>();
+        data.AddRange(Tools.ValueToData(this.SensorId));
+        data.AddRange(Tools.ValueToData(this.PresentValue));
+        data.AddRange(Tools.ValueToData(this.LowestValue));
+        data.AddRange(Tools.ValueToData(this.HighestValue));
+        data.AddRange(Tools.ValueToData(this.RecordedValue));
+        return data.ToArray();
     }
 }

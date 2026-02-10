@@ -1,4 +1,6 @@
-﻿namespace RDMSharpTests.RDM;
+﻿using RDMSharp.PayloadObject;
+
+namespace RDMSharpTests.RDM;
 
 public class RDMMessageTest
 {

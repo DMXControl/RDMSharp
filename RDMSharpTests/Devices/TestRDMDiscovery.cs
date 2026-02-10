@@ -1,4 +1,5 @@
 using RDMSharp.Metadata;
+using RDMSharp.PayloadObject;
 using RDMSharpTests.Devices.Mock;
 
 namespace RDMSharpTests.RDM.Devices;

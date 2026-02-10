@@ -1,17 +1,15 @@
 ﻿using RDMSharp.Metadata;
 using System.Collections.Generic;
 
-namespace RDMSharp;
+namespace RDMSharp.PayloadObject;
 
 public class EndpointDescriptor : AbstractRDMPayloadObject
 {
     [DataTreeObjectConstructor]
     public EndpointDescriptor(
         [DataTreeObjectParameter("id")] ushort endpointId = 0,
-        [DataTreeObjectParameter("type")] byte endpointType = 0)
+        [DataTreeObjectParameter("type")] byte endpointType = 0) : this(endpointId, (ERDM_EndpointType)endpointType)
     {
-        this.EndpointId = endpointId;
-        this.EndpointType = (ERDM_EndpointType)endpointType;
     }
 
     public EndpointDescriptor(ushort endpointId = 0, ERDM_EndpointType endpointType = 0)
@@ -33,16 +31,6 @@ public class EndpointDescriptor : AbstractRDMPayloadObject
     {
         return $"Id: {EndpointId} EndpointType: {EndpointType}";
     }
-    //public static EndpointDescriptor FromPayloadData(byte[] data)
-    //{
-    //    RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-
-    //    var i = new EndpointDescriptor(
-    //        endpointId: Tools.DataToUShort(ref data),
-    //        endpointType: Tools.DataToEnum<ERDM_EndpointType>(ref data));
-
-    //    return i;
-    //}
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

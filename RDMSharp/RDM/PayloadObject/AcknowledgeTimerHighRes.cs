@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RDMSharp;
+namespace RDMSharp.PayloadObject;
 
 public class AcknowledgeTimerHighRes : AbstractRDMPayloadObject, IAcknowledgeTimer
 {

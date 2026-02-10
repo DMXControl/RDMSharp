@@ -2,7 +2,7 @@
 using RDMSharp.Metadata.JSON;
 using System.Collections.Generic;
 
-namespace RDMSharp;
+namespace RDMSharp.PayloadObject;
 
 [DataTreeObject(ERDM_Parameter.ENDPOINT_RESPONDER_LIST_CHANGE, Command.ECommandDublicate.GetResponse)]
 public class GetEndpointResponderListChangeResponse : AbstractRDMPayloadObject
@@ -26,23 +26,6 @@ public class GetEndpointResponderListChangeResponse : AbstractRDMPayloadObject
     {
         return $"Endpoint: {EndpointId} Responder ListChangeNumber: {ListChangeNumber:X}";
     }
-
-    //public static GetEndpointResponderListChangeResponse FromMessage(RDMMessage msg)
-    //{
-    //    RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.ENDPOINT_RESPONDER_LIST_CHANGE, PDL);
-
-    //    return FromPayloadData(msg.ParameterData);
-    //}
-    //public static GetEndpointResponderListChangeResponse FromPayloadData(byte[] data)
-    //{
-    //    RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-
-    //    var i = new GetEndpointResponderListChangeResponse(
-    //        endpointId: Tools.DataToUShort(ref data),
-    //        listChangeNumber: Tools.DataToUInt(ref data));
-
-    //    return i;
-    //}
 
     public override byte[] ToPayloadData()
     {

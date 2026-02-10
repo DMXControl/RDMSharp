@@ -3,7 +3,7 @@ using RDMSharp.Metadata.JSON;
 using System.Collections.Generic;
 using System.Text;
 
-namespace RDMSharp;
+namespace RDMSharp.PayloadObject;
 
 [DataTreeObject(ERDM_Parameter.ENDPOINT_LIST, Command.ECommandDublicate.GetResponse)]
 public class GetEndpointListResponse : AbstractRDMPayloadObject
@@ -53,34 +53,6 @@ public class GetEndpointListResponse : AbstractRDMPayloadObject
 
         return b.ToString();
     }
-    //public static GetEndpointListResponse FromMessage(RDMMessage msg)
-    //{
-    //    RDMMessageInvalidException.ThrowIfInvalidPDLRange(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.ENDPOINT_LIST, PDL_MIN, PDL_MAX);
-
-    //    return FromPayloadData(msg.ParameterData);
-    //}
-    //public static GetEndpointListResponse FromPayloadData(byte[] data)
-    //{
-    //    RDMMessageInvalidPDLException.ThrowIfInvalidPDLRange(data, PDL_MIN, PDL_MAX);
-
-    //    uint listChangedNumber = Tools.DataToUInt(ref data);
-
-    //    List<EndpointDescriptor> _endpoints = new List<EndpointDescriptor>();
-    //    int pdl = EndpointDescriptor.PDL;
-    //    while (data.Length >= pdl)
-    //    {
-    //        var bytes = data.Take(pdl).ToArray();
-    //        _endpoints.Add(EndpointDescriptor.FromPayloadData(bytes));
-    //        data = data.Skip(pdl).ToArray();
-    //    }
-
-    //    var i = new GetEndpointListResponse(listChangedNumber, _endpoints.ToArray());
-
-    //    if (data.Length != 0)
-    //        throw new Exception("After deserialization data should be empty!");
-
-    //    return i;
-    //}
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();
