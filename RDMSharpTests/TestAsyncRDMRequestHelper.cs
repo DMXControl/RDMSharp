@@ -156,7 +156,7 @@ public class TestAsyncRDMRequestHelper
     }
     private void validate(RDMMessage request, RequestResult result)
     {
-        string failMessage = $"Request: {request.ToString()} Response: {result.Response?.ToString()}";
+        NUnitString failMessage = $"Request: {request.ToString()} Response: {result.Response?.ToString()}";
 
         if (request.Command == ERDM_Command.SET_COMMAND && request.SubDevice.IsBroadcast)
         {
