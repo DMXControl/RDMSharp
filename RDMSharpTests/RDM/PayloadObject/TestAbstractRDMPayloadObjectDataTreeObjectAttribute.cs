@@ -35,16 +35,17 @@ public class TestAbstractRDMPayloadObjectDataTreeObjectAttribute
         foreach (var para in parameterAttributes)
         {
             var prop = propertyAttributes.FirstOrDefault(prop => string.Equals(prop.Name, para.Name));
+            if (prop is null)
+                prop = propertyAttributes.FirstOrDefault(prop => prop.Name.Contains(para.Name + "/"));
             Assert.That(prop, Is.Not.Null, $"No Property found using{nameof(DataTreeObjectPropertyAttribute)} with {nameof(DataTreeObjectPropertyAttribute.Name)}: {para.Name}");
         }
         foreach (var prop in propertyAttributes)
         {
-            var para = parameterAttributes.FirstOrDefault(para => string.Equals(prop.Name, para.Name));
-            Assert.That(para, Is.Not.Null, $"No Parameter found using{nameof(DataTreeObjectParameterAttribute)} with {nameof(DataTreeObjectParameterAttribute.Name)}: {prop.Name}");
-        }
-        foreach (var prop in propertyAttributes)
-        {
-            var para = parameterAttributes.FirstOrDefault(para => string.Equals(prop.Name, para.Name));
+            DataTreeObjectParameterAttribute para = null;
+            if (!prop.Name.Contains("/"))
+                para = parameterAttributes.FirstOrDefault(para => string.Equals(prop.Name, para.Name));
+            else
+                para = parameterAttributes.FirstOrDefault(para => prop.Name.StartsWith(para.Name));
             Assert.That(para, Is.Not.Null, $"No Parameter found using{nameof(DataTreeObjectParameterAttribute)} with {nameof(DataTreeObjectParameterAttribute.Name)}: {prop.Name}");
         }
         foreach (var item in propertyAttributes.Where(p => !p.Name.Contains('/')).GroupBy(p => p.Parameter))

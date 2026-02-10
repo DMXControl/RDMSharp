@@ -45,7 +45,7 @@ public class PayloadToParsedObjectTests
     [Test, Order(5)]
     public void Reverse()
     {
-        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, testSubject.PayloadToParseBag.Command, testSubject.PayloadToParseBag.Parameter);
+        var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, new ParameterBag(testSubject.PayloadToParseBag.Parameter), testSubject.PayloadToParseBag.Command);
         Assert.That(reversed, Is.EqualTo(dataTreeBranch));
     }
 }

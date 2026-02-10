@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RDMSharp;
 
-[DataTreeObject(ERDM_Parameter.PROXIED_DEVICES, Command.ECommandDublicate.GetResponse, true, "device_uids")]
+[DataTreeObject(ERDM_Parameter.PROXIED_DEVICES, Command.ECommandDublicate.GetResponse, true)]
 public class RDMProxiedDevices : AbstractRDMPayloadObject
 {
     [DataTreeObjectConstructor]
@@ -14,7 +14,7 @@ public class RDMProxiedDevices : AbstractRDMPayloadObject
         this.Devices = devices;
     }
 
-    [DataTreeObjectProperty("device_uids", 0)]
+    [DataTreeObjectProperty("device_uids/device_uid", 0)]
     public UID[] Devices { get; private set; }
     public const int PDL_MIN = 0;
     public const int PDL_MAX = 0xE4;

@@ -37,7 +37,7 @@ public class GetEndpointListResponse : AbstractRDMPayloadObject
     [DataTreeObjectDependecieProperty("endpoint_id", nameof(EndpointDescriptor.EndpointId), ERDM_Parameter.ENDPOINT_RESPONDERS, Command.ECommandDublicate.GetRequest)]
     [DataTreeObjectDependecieProperty("endpoint_id", nameof(EndpointDescriptor.EndpointId), ERDM_Parameter.ENDPOINT_RESPONDER_LIST_CHANGE, Command.ECommandDublicate.GetRequest)]
     [DataTreeObjectDependecieProperty("endpoint_id", nameof(EndpointDescriptor.EndpointId), ERDM_Parameter.BINDING_CONTROL_FIELDS, Command.ECommandDublicate.GetRequest)]
-    [DataTreeObjectProperty("endpoints", 1)]
+    [DataTreeObjectProperty("endpoints/", 1)]
     public EndpointDescriptor[] Endpoints { get; private set; }
     public const int PDL_MIN = 0x07;
     public const int PDL_MAX = 0xE5;

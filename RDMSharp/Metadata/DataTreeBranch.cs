@@ -386,7 +386,7 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
         return result;
     }
 
-    public static DataTreeBranch FromObject(object obj, object key, ERDM_Command command, ERDM_Parameter parameter)
+    internal static DataTreeBranch FromObject(object obj, object key, ERDM_Command command, ERDM_Parameter parameter)
     {
         if (obj == null)
             return DataTreeBranch.Empty;
@@ -496,12 +496,36 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
                     if (attribute.Name.Contains("/"))
                     {
                         string[] path = attribute.Name.Split('/');
-                        if (!deeperChildren.TryGetValue(path[0], out List<DataTree> ddc))
+                        if (!val.GetType().IsArray)
                         {
-                            ddc = new List<DataTree>();
-                            deeperChildren.TryAdd(path[0], ddc);
+                            if (!deeperChildren.TryGetValue(path[0], out List<DataTree> ddc))
+                            {
+                                ddc = new List<DataTree>();
+                                deeperChildren.TryAdd(path[0], ddc);
+                            }
+                            ddc.Add(new DataTree(path[1], attribute.Index, val));
                         }
-                        ddc.Add(new DataTree(path[1], attribute.Index, val));
+                        else
+                        {
+                            List<DataTree> _children = new List<DataTree>();
+                            uint _index = 0;
+                            foreach (var cv in (Array)val)
+                            {
+                                string _name = path[1];
+                                if (string.IsNullOrWhiteSpace(_name))
+                                    _name = null;
+                                if (!cv.GetType().GetConstructors().Any(c => c.GetCustomAttribute<DataTreeObjectConstructorAttribute>() is not null))
+                                    _children.Add(new DataTree(_name, _index, cv));
+                                else
+                                {
+                                    var _props = cv.GetType().GetProperties().Where(p => p.GetCustomAttributes<DataTreeObjectPropertyAttribute>() is not null);
+                                    _children.Add(new DataTree(_name, _index, convertToDataTree(cv, _props.ToArray(), parameter)));
+                                }
+                                _index++;
+                            }
+
+                            innerChildren.Add(new DataTree(path[0], attribute.Index, _children.ToArray()));
+                        }
                     }
                     else
                         innerChildren.Add(new DataTree(attribute.Name, attribute.Index, val));

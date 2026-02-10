@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RDMSharp;
 
-[DataTreeObject(ERDM_Parameter.ENDPOINT_RESPONDERS, Command.ECommandDublicate.GetResponse, false, "uids")]
+[DataTreeObject(ERDM_Parameter.ENDPOINT_RESPONDERS, Command.ECommandDublicate.GetResponse)]
 public class GetEndpointRespondersResponse : AbstractRDMPayloadObject
 {
     [DataTreeObjectConstructor]
@@ -31,7 +31,7 @@ public class GetEndpointRespondersResponse : AbstractRDMPayloadObject
     [DataTreeObjectProperty("list_change_number", 1)]
     public uint ListChangedNumber { get; private set; }
 
-    [DataTreeObjectProperty("uids", 2)]
+    [DataTreeObjectProperty("uids/uid", 2)]
     public UID[] UIDs { get; private set; }
 
     public const int PDL_MIN = 0x06;
