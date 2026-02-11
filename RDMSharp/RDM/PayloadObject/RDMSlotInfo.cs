@@ -47,22 +47,7 @@ public class RDMSlotInfo : AbstractRDMPayloadObject
 
         return b.ToString();
     }
-    public static RDMSlotInfo FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.SLOT_INFO, PDL);
 
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static RDMSlotInfo FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-
-        var i = new RDMSlotInfo(
-            slotOffset: Tools.DataToUShort(ref data),
-            slotType: Tools.DataToEnum<ERDM_SlotType>(ref data),
-            slotLabelId: Tools.DataToEnum<ERDM_SlotCategory>(ref data));
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

@@ -39,23 +39,6 @@ public class RDMMinimumLevel : AbstractRDMPayloadObject
         return b.ToString();
     }
 
-    public static RDMMinimumLevel FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.MINIMUM_LEVEL, PDL);
-
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static RDMMinimumLevel FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-
-        var i = new RDMMinimumLevel(
-            minimumLevelIncrease: Tools.DataToUShort(ref data),
-            minimumLevelDecrease: Tools.DataToUShort(ref data),
-            onBelowMinimum: Tools.DataToBool(ref data));
-
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

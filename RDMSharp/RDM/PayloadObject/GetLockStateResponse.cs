@@ -39,21 +39,7 @@ public class GetLockStateResponse : AbstractRDMPayloadObjectOneOf
     {
         return $"RDMLockState: {CurrentLockStateId} of {LockStates}";
     }
-    public static GetLockStateResponse FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.LOCK_STATE, PDL);
 
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static GetLockStateResponse FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-        var i = new GetLockStateResponse(
-            currentLockStateId: Tools.DataToByte(ref data),
-            lockStates: Tools.DataToByte(ref data));
-
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

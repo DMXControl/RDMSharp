@@ -39,22 +39,6 @@ public class RDMOutputResponseTimeDescription : AbstractRDMPayloadObject, IRDMPa
         return $"RDMOutputResponseTimeDescription: {OutputResponseTimeId} - {Description}";
     }
 
-    public static RDMOutputResponseTimeDescription FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDLRange(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.OUTPUT_RESPONSE_TIME_DESCRIPTION, PDL_MIN, PDL_MAX);
-
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static RDMOutputResponseTimeDescription FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDLRange(data, PDL_MIN, PDL_MAX);
-
-        var i = new RDMOutputResponseTimeDescription(
-            outputResponseTimeId: Tools.DataToByte(ref data),
-            description: Tools.DataToString(ref data));
-
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

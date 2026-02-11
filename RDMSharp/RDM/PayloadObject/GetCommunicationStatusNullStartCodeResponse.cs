@@ -98,33 +98,7 @@ public class GetCommunicationStatusNullStartCodeResponse : AbstractRDMPayloadObj
             b.AppendLine($"NumberOfPacketsWithAnError: {NumberOfPacketsWithAnError}");
         return b.ToString();
     }
-    public static GetCommunicationStatusNullStartCodeResponse FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.COMMS_STATUS_NSC, PDL);
 
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static GetCommunicationStatusNullStartCodeResponse FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-        var flags = Tools.DataToBoolArray(ref data, 8);
-        var additiveChecksumOfMostRecentPacket = Tools.DataToUInt(ref data);
-        var packetCount = Tools.DataToUInt(ref data);
-        var mostRecentSlotCount = Tools.DataToUShort(ref data);
-        var minimumSlotCount = Tools.DataToUShort(ref data);
-        var maximumSlotCount = Tools.DataToUShort(ref data);
-        var numberOfPacketsWithAnError = Tools.DataToUInt(ref data);
-        var i = new GetCommunicationStatusNullStartCodeResponse(
-            additiveChecksumOfMostRecentPacket: flags[0] ? additiveChecksumOfMostRecentPacket : null,
-            packetCount: flags[1] ? packetCount : null,
-            mostRecentSlotCount: flags[2] ? mostRecentSlotCount : null,
-            minimumSlotCount: flags[3] ? minimumSlotCount : null,
-            maximumSlotCount: flags[4] ? maximumSlotCount : null,
-            numberOfPacketsWithAnError: flags[5] ? numberOfPacketsWithAnError : null
-        );
-
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

@@ -121,27 +121,6 @@ public class RDMDeviceInfo : AbstractRDMPayloadObject
         return b.ToString();
     }
 
-    public static RDMDeviceInfo FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-
-        var i = new RDMDeviceInfo(
-            rdmProtocolVersionMajor: Tools.DataToByte(ref data),
-            rdmProtocolVersionMinor: Tools.DataToByte(ref data),
-            deviceModelId: Tools.DataToUShort(ref data),
-            productCategoryCoarse: (ERDM_ProductCategoryCoarse)data[0], //Because we need this byte in productCategoryFine too
-            productCategoryFine: Tools.DataToEnum<ERDM_ProductCategoryFine>(ref data),
-            softwareVersionId: Tools.DataToUInt(ref data),
-            dmx512Footprint: Tools.DataToUShort(ref data),
-            dmx512CurrentPersonality: Tools.DataToByte(ref data),
-            dmx512NumberOfPersonalities: Tools.DataToByte(ref data),
-            dmx512StartAddress: Tools.DataToUShort(ref data),
-            subDeviceCount: Tools.DataToUShort(ref data),
-            sensorCount: Tools.DataToByte(ref data)
-        );
-
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

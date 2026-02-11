@@ -59,25 +59,6 @@ public class RDMSensorValue : AbstractRDMPayloadObject, IRDMPayloadObjectIndex
         return b.ToString();
     }
 
-    public static RDMSensorValue FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.SENSOR_VALUE, PDL);
-
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static RDMSensorValue FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-
-        var i = new RDMSensorValue(
-            sensorId: Tools.DataToByte(ref data),
-            presentvalue: Tools.DataToShort(ref data),
-            lowestValue: Tools.DataToShort(ref data),
-            highestValue: Tools.DataToShort(ref data),
-            recordedValue: Tools.DataToShort(ref data));
-
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

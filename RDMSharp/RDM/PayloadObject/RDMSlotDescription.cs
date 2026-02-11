@@ -37,22 +37,6 @@ public class RDMSlotDescription : AbstractRDMPayloadObject
         return $"RDMSlotDescription: {SlotId} - {Description}";
     }
 
-    public static RDMSlotDescription FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDLRange(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.SLOT_DESCRIPTION, PDL_MIN, PDL_MAX);
-
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static RDMSlotDescription FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDLRange(data, PDL_MIN, PDL_MAX);
-
-        var i = new RDMSlotDescription(
-            slotId: Tools.DataToUShort(ref data),
-            description: Tools.DataToString(ref data));
-
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

@@ -33,21 +33,6 @@ public class RDMDefaultSlotValue : AbstractRDMPayloadObject
         return b.ToString();
     }
 
-    public static RDMDefaultSlotValue FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DEFAULT_SLOT_VALUE, PDL);
-
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static RDMDefaultSlotValue FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-
-        var i = new RDMDefaultSlotValue(
-            slotOffset: Tools.DataToUShort(ref data),
-            defaultSlotValue: Tools.DataToByte(ref data));
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

@@ -96,25 +96,7 @@ public class GetDeviceInfoOffstageResponse : AbstractRDMPayloadObject
 
         return b.ToString();
     }
-    public static GetDeviceInfoOffstageResponse FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DEVICE_INFO_OFFSTAGE, PDL);
 
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static GetDeviceInfoOffstageResponse FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-
-        var i = new GetDeviceInfoOffstageResponse(
-            rootPersonality: Tools.DataToByte(ref data),
-            subDeviceRequested: Tools.DataToUShort(ref data),
-            subDevicePersonalityRequested: Tools.DataToByte(ref data),
-            deviceInfo: RDMDeviceInfo.FromPayloadData(data)
-        );
-
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

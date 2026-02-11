@@ -62,27 +62,6 @@ public class RDMDimmerInfo : AbstractRDMPayloadObject
         return b.ToString();
     }
 
-    public static RDMDimmerInfo FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DIMMER_INFO, PDL);
-
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static RDMDimmerInfo FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-
-        var i = new RDMDimmerInfo(
-            minimumLevelLowerLimit: Tools.DataToUShort(ref data),
-            minimumLevelUpperLimit: Tools.DataToUShort(ref data),
-            maximumLevelLowerLimit: Tools.DataToUShort(ref data),
-            maximumLevelUpperLimit: Tools.DataToUShort(ref data),
-            numberOfSupportedCurves: Tools.DataToByte(ref data),
-            levelsResolution: Tools.DataToByte(ref data),
-            minimumLevelSplitLevelsSupported: Tools.DataToBool(ref data));
-
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

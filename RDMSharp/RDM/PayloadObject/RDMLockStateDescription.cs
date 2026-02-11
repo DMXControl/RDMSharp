@@ -39,22 +39,6 @@ public class RDMLockStateDescription : AbstractRDMPayloadObject, IRDMPayloadObje
         return $"RDMLockStateDescription: {LockStateId} - {Description}";
     }
 
-    public static RDMLockStateDescription FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDLRange(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.LOCK_STATE_DESCRIPTION, PDL_MIN, PDL_MAX);
-
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static RDMLockStateDescription FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDLRange(data, PDL_MIN, PDL_MAX);
-
-        var i = new RDMLockStateDescription(
-            lockStateId: Tools.DataToByte(ref data),
-            description: Tools.DataToString(ref data));
-
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

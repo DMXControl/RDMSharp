@@ -528,7 +528,7 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
                         }
                     }
                     else
-                        innerChildren.Add(new DataTree(attribute.Name, attribute.Index, val));
+                        innerChildren.Add(new DataTree(attribute.Name, attribute.Index, val ?? attribute.NullValue));
                 }
             }
             foreach (var dC in deeperChildren)

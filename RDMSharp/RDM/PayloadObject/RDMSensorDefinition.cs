@@ -85,9 +85,9 @@ public class RDMSensorDefinition : AbstractRDMPayloadObject, IRDMPayloadObjectIn
     [DataTreeObjectProperty("normal_max_value", 7)]
     public short NormalMaximum { get; private set; }
     [DataTreeObjectProperty("recorded_value_support/recorded_value_supported", 0)]
-    public bool LowestHighestValueSupported { get; private set; }
-    [DataTreeObjectProperty("recorded_value_support/low_high_detected_values_supported", 1)]
     public bool RecordedValueSupported { get; private set; }
+    [DataTreeObjectProperty("recorded_value_support/low_high_detected_values_supported", 1)]
+    public bool LowestHighestValueSupported { get; private set; }
     [DataTreeObjectProperty("description", 9)]
     public string Description { get; private set; }
 
@@ -117,43 +117,6 @@ public class RDMSensorDefinition : AbstractRDMPayloadObject, IRDMPayloadObjectIn
         return b.ToString();
     }
 
-    public static RDMSensorDefinition FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDLRange(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.SENSOR_DEFINITION, PDL_MIN, PDL_MAX);
-
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static RDMSensorDefinition FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDLRange(data, PDL_MIN, PDL_MAX);
-
-        var sensorId = Tools.DataToByte(ref data);
-        var type = Tools.DataToEnum<ERDM_SensorType>(ref data);
-        var unit = Tools.DataToEnum<ERDM_SensorUnit>(ref data);
-        var prefix = Tools.DataToEnum<ERDM_UnitPrefix>(ref data);
-        var rangeMinimum = Tools.DataToShort(ref data);
-        var rangeMaximum = Tools.DataToShort(ref data);
-        var normalMinimum = Tools.DataToShort(ref data);
-        var normalMaximum = Tools.DataToShort(ref data);
-        var @boolArray = Tools.DataToBoolArray(ref data, 2);
-        var description = Tools.DataToString(ref data);
-
-        var i = new RDMSensorDefinition(
-            sensorId: sensorId,
-            type: type,
-            unit: unit,
-            prefix: prefix,
-            rangeMinimum: rangeMinimum,
-            rangeMaximum: rangeMaximum,
-            normalMinimum: normalMinimum,
-            normalMaximum: normalMaximum,
-            lowestHighestValueSupported: @boolArray[1],
-            recordedValueSupported: @boolArray[0],
-            description: description
-        );
-
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

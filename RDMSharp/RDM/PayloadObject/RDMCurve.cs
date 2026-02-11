@@ -39,21 +39,7 @@ public class RDMCurve : AbstractRDMPayloadObjectOneOf
     {
         return $"RDMCurve: {CurrentCurveId} of {Curves}";
     }
-    public static RDMCurve FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.CURVE, PDL);
 
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static RDMCurve FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-        var i = new RDMCurve(
-            currentCurveId: Tools.DataToByte(ref data),
-            curves: Tools.DataToByte(ref data));
-
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

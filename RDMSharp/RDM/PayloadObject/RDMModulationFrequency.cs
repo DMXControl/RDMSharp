@@ -39,21 +39,7 @@ public class RDMModulationFrequency : AbstractRDMPayloadObjectOneOf
     {
         return $"RDMModulationFrequency: {ModulationFrequencyId} of {ModulationFrequencys}";
     }
-    public static RDMModulationFrequency FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.MODULATION_FREQUENCY, PDL);
 
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static RDMModulationFrequency FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-        var i = new RDMModulationFrequency(
-            modulationFrequencyId: Tools.DataToByte(ref data),
-            modulationFrequencys: Tools.DataToByte(ref data));
-
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

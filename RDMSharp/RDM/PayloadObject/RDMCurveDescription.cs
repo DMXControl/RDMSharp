@@ -39,23 +39,6 @@ public class RDMCurveDescription : AbstractRDMPayloadObject, IRDMPayloadObjectIn
     {
         return $"RDMCurveDescription: {CurveId} - {Description}";
     }
-
-    public static RDMCurveDescription FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDLRange(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.CURVE_DESCRIPTION, PDL_MIN, PDL_MAX);
-
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static RDMCurveDescription FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDLRange(data, PDL_MIN, PDL_MAX);
-
-        var i = new RDMCurveDescription(
-            curveId: Tools.DataToByte(ref data),
-            description: Tools.DataToString(ref data));
-
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

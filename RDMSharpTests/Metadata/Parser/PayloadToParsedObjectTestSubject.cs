@@ -442,13 +442,113 @@ public class PayloadToParsedObjectTestSubject
             }));
         #endregion
 
-        #region DEFALUT_SLOT_VALUE
+        #region DEFAULT_SLOT_VALUE
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.DEFAULT_SLOT_VALUE,
+            new byte[] {
+                0x00, 0x00, 0x80, 0x00, 0x01, 0x00, 0x00, 0x02,
+                0x80, 0x00, 0x03, 0x00, 0x00, 0x04, 0x00, 0x00,
+                0x05, 0x00, 0x00, 0x06, 0x0a, 0x00, 0x07, 0x80,
+                0x00, 0x08, 0x00, 0x00, 0x09, 0x00, 0x00, 0x0a,
+                0x00, 0x00, 0x0b, 0x00, 0x00, 0x0c, 0x00, 0x00,
+                0x0d, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x0f, 0x00,
+                0x00, 0x10, 0x00, 0x00, 0x11, 0x80, 0x00, 0x12,
+                0x00, 0x00, 0x13, 0x00, 0x00, 0x14, 0x00, 0x00,
+                0x15, 0x00, 0x00, 0x16, 0x00, 0x00, 0x17, 0x80,
+                0x00, 0x18, 0x00, 0x00, 0x19, 0x00, 0x00, 0x1a,
+                0x80, 0x00, 0x1b, 0x00, 0x00, 0x1c, 0x00, 0x00,
+                0x1d, 0x80, 0x00, 0x1e, 0x00, 0x00, 0x1f, 0x00,
+                0x00, 0x20, 0x80, 0x00, 0x21, 0x00, 0x00, 0x22,
+                0x80, 0x00, 0x23, 0x00, 0x00, 0x24, 0x00, 0x00,
+                0x25, 0x00, 0x00, 0x26, 0x80, 0x00, 0x27, 0x00,
+                0x00, 0x28, 0x80, 0x00, 0x29, 0x00, 0x00, 0x2a,
+                0x80, 0x00, 0x2b, 0x00, 0x00, 0x2c, 0x80, 0x00,
+                0x2d, 0x00, 0x00, 0x2e, 0x80, 0x00, 0x2f, 0x00,
+                0x00, 0x30, 0x80, 0x00, 0x31, 0x00, 0x00, 0x32,
+                0x80, 0x00, 0x33, 0x20, 0x00, 0x34, 0x00, 0x00,
+                0x35, 0x00
+            },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMDefaultSlotValue[])));
+                var obj = dataTreeBranch.ParsedObject as RDMDefaultSlotValue[];
+                Assert.That(obj, Is.Not.Null);
+                Assert.That(obj!.Length, Is.EqualTo(54));
+                Assert.That(obj[0].SlotOffset, Is.EqualTo(0));
+                Assert.That(obj[0].DefaultSlotValue, Is.EqualTo(128));
+                Assert.That(obj[1].SlotOffset, Is.EqualTo(1));
+                Assert.That(obj[1].DefaultSlotValue, Is.EqualTo(0));
+                Assert.That(obj[2].SlotOffset, Is.EqualTo(2));
+                Assert.That(obj[2].DefaultSlotValue, Is.EqualTo(128));
+                Assert.That(obj[3].SlotOffset, Is.EqualTo(3));
+                Assert.That(obj[3].DefaultSlotValue, Is.EqualTo(0));
+                Assert.That(obj[4].SlotOffset, Is.EqualTo(4));
+                Assert.That(obj[4].DefaultSlotValue, Is.EqualTo(0));
+            }));
         #endregion
 
         #region SENDOR_DEFINITION
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.SENSOR_DEFINITION,
+            new byte[] {
+                0x01, 0x00, 0x01, 0x00, 0xff, 0xe0, 0x00, 0xde,
+                0x00, 0x00, 0x00, 0x64, 0x02, 0x44, 0x72, 0x69,
+                0x76, 0x65, 0x72, 0x20, 0x54, 0x65, 0x6d, 0x70,
+                0x65, 0x72, 0x61, 0x74, 0x75, 0x72, 0x65
+            },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMSensorDefinition)));
+
+                var obj = (RDMSensorDefinition)dataTreeBranch.ParsedObject;
+                Assert.That(obj!.SensorId, Is.EqualTo(1));
+                Assert.That(obj.Index, Is.EqualTo(1));
+                Assert.That(obj.MinIndex, Is.EqualTo(0));
+                Assert.That(obj.Type, Is.EqualTo(ERDM_SensorType.TEMPERATURE));
+                Assert.That(obj.Unit, Is.EqualTo(ERDM_SensorUnit.CENTIGRADE));
+                Assert.That(obj.Prefix, Is.EqualTo(ERDM_UnitPrefix.NONE));
+                Assert.That(obj.RangeMinimum, Is.EqualTo(-32));
+                Assert.That(obj.RangeMaximum, Is.EqualTo(222));
+                Assert.That(obj.NormalMinimum, Is.EqualTo(0));
+                Assert.That(obj.NormalMaximum, Is.EqualTo(100));
+                Assert.That(obj.RecordedValueSupported, Is.EqualTo(false));
+                Assert.That(obj.LowestHighestValueSupported, Is.EqualTo(true));
+                Assert.That(obj.Description, Is.EqualTo("Driver Temperature"));
+            }));
         #endregion
 
         #region SENSOR_VALUE
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.SENSOR_VALUE,
+            new byte[] {
+                0x00, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x39, 0x00,
+                0x00
+            },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMSensorValue)));
+
+                var obj = (RDMSensorValue)dataTreeBranch.ParsedObject;
+                Assert.That(obj!.SensorId, Is.EqualTo(0));
+                Assert.That(obj.Index, Is.EqualTo(0));
+                Assert.That(obj.MinIndex, Is.EqualTo(0));
+                Assert.That(obj.PresentValue, Is.EqualTo(31));
+                Assert.That(obj.LowestValue, Is.EqualTo(0));
+                Assert.That(obj.HighestValue, Is.EqualTo(57));
+                Assert.That(obj.RecordedValue, Is.EqualTo(0));
+            }));
         #endregion
 
         #region RECORD_SENSORS
@@ -912,7 +1012,493 @@ public class PayloadToParsedObjectTestSubject
             }));
         #endregion
 
+        #region DIMMER_INFO
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.DIMMER_INFO,
+            new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x03, 0x01, 0x01 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMDimmerInfo)));
+                var obj = (RDMDimmerInfo)dataTreeBranch.ParsedObject;
+                Assert.That(obj.MinimumLevelLowerLimit, Is.EqualTo(0xffff));
+                Assert.That(obj.MinimumLevelUpperLimit, Is.EqualTo(0xffff));
+                Assert.That(obj.MaximumLevelLowerLimit, Is.EqualTo(0xffff));
+                Assert.That(obj.MaximumLevelUpperLimit, Is.EqualTo(0xffff));
+                Assert.That(obj.NumberOfSupportedCurves, Is.EqualTo(3));
+                Assert.That(obj.LevelsResolution, Is.EqualTo(1));
+                Assert.That(obj.MinimumLevelSplitLevelsSupported, Is.EqualTo(true));
+            }));
+        #endregion
 
+        #region MINIMUM_LEVEL
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND,
+            ERDM_Parameter.MINIMUM_LEVEL,
+            new byte[0],
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+            }));
+
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.MINIMUM_LEVEL,
+            new byte[] { 0x00, 0x01, 0x00, 0x01, 0x01 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMMinimumLevel)));
+
+                var obj = (RDMMinimumLevel)dataTreeBranch.ParsedObject;
+                Assert.That(obj.MinimumLevelIncrease, Is.EqualTo(1));
+                Assert.That(obj.MinimumLevelDecrease, Is.EqualTo(1));
+                Assert.That(obj.OnBelowMinimum, Is.EqualTo(true));
+            }));
+        yield return new PayloadToParseBagData(
+            ERDM_Command.SET_COMMAND,
+            ERDM_Parameter.MINIMUM_LEVEL,
+            new byte[] { 0x00, 0x02, 0x00, 0x01, 0x00 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMMinimumLevel)));
+
+                var obj = (RDMMinimumLevel)dataTreeBranch.ParsedObject;
+                Assert.That(obj.MinimumLevelIncrease, Is.EqualTo(2));
+                Assert.That(obj.MinimumLevelDecrease, Is.EqualTo(1));
+                Assert.That(obj.OnBelowMinimum, Is.EqualTo(false));
+            }));
+        #endregion
+
+        #region MAXIMUM_LEVEL
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND,
+            ERDM_Parameter.MAXIMUM_LEVEL,
+            new byte[0],
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+            }));
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.MAXIMUM_LEVEL,
+            new byte[] { 0x00, 0xff },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
+
+                var obj = (ushort)dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo(255));
+            }));
+        yield return new PayloadToParseBagData(
+            ERDM_Command.SET_COMMAND,
+            ERDM_Parameter.MAXIMUM_LEVEL,
+            new byte[] { 0x00, 0xff },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
+                var obj = (ushort)dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo(255));
+            }));
+        #endregion
+
+        #region CURVE
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND,
+            ERDM_Parameter.CURVE,
+            new byte[0],
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+            }));
+
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.CURVE,
+            new byte[] { 0x01, 0x04 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMCurve)));
+
+                var obj = (RDMCurve)dataTreeBranch.ParsedObject;
+                Assert.That(obj.CurrentCurveId, Is.EqualTo(1));
+                Assert.That(obj.Index, Is.EqualTo(1));
+                Assert.That(obj.Curves, Is.EqualTo(4));
+                Assert.That(obj.Count, Is.EqualTo(4));
+                Assert.That(obj.MinIndex, Is.EqualTo(1));
+                Assert.That(obj.IndexType, Is.EqualTo(typeof(byte)));
+                Assert.That(obj.DescriptorParameter, Is.EqualTo(ERDM_Parameter.CURVE_DESCRIPTION));
+            }));
+        #endregion
+
+        #region CURVE_DESCRIPTION
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND,
+            ERDM_Parameter.CURVE_DESCRIPTION,
+            new byte[] { 0x01 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
+
+                var obj = (byte)dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo(1));
+            }));
+
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.CURVE_DESCRIPTION,
+            new byte[] { 0x01, 0x4C, 0x69, 0x6E, 0x65, 0x61, 0x72 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMCurveDescription)));
+
+                var obj = (RDMCurveDescription)dataTreeBranch.ParsedObject;
+                Assert.That(obj.CurveId, Is.EqualTo(1));
+                Assert.That(obj.Description, Is.EqualTo("Linear"));
+            }));
+        #endregion
+
+        #region OUTPUT_RESPONSE_TIME
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND,
+            ERDM_Parameter.OUTPUT_RESPONSE_TIME,
+            new byte[0],
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+            }));
+
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.OUTPUT_RESPONSE_TIME,
+            new byte[] { 0x01, 0x05 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMOutputResponseTime)));
+
+                var obj = (RDMOutputResponseTime)dataTreeBranch.ParsedObject;
+                Assert.That(obj!.CurrentResponseTimeId, Is.EqualTo(1));
+                Assert.That(obj.Index, Is.EqualTo(1));
+                Assert.That(obj.ResponseTimes, Is.EqualTo(5));
+                Assert.That(obj.Count, Is.EqualTo(5));
+                Assert.That(obj.MinIndex, Is.EqualTo(1));
+                Assert.That(obj.IndexType, Is.EqualTo(typeof(byte)));
+                Assert.That(obj.DescriptorParameter, Is.EqualTo(ERDM_Parameter.OUTPUT_RESPONSE_TIME_DESCRIPTION));
+            }));
+        #endregion
+
+        #region OUTPUT_RESPONSE_TIME_DESCRIPTION
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND,
+            ERDM_Parameter.OUTPUT_RESPONSE_TIME_DESCRIPTION,
+            new byte[] { 0x01 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
+                var obj = (byte)dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo(1));
+            }));
+
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.OUTPUT_RESPONSE_TIME_DESCRIPTION,
+            new byte[] { 0x01, 0x46, 0x61, 0x73, 0x74 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMOutputResponseTimeDescription)));
+
+                var obj = (RDMOutputResponseTimeDescription)dataTreeBranch.ParsedObject;
+                Assert.That(obj.OutputResponseTimeId, Is.EqualTo(1));
+                Assert.That(obj.Description, Is.EqualTo("Fast"));
+            }));
+        #endregion
+
+        #region MODULATION_FREQUENCY
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND,
+            ERDM_Parameter.MODULATION_FREQUENCY,
+            new byte[0],
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+            }));
+
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.MODULATION_FREQUENCY,
+            new byte[] { 0x01, 0x05 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMModulationFrequency)));
+
+                var obj = (RDMModulationFrequency)dataTreeBranch.ParsedObject;
+                Assert.That(obj.ModulationFrequencyId, Is.EqualTo(1));
+                Assert.That(obj.Index, Is.EqualTo(1));
+                Assert.That(obj.ModulationFrequencys, Is.EqualTo(5));
+                Assert.That(obj.Count, Is.EqualTo(5));
+                Assert.That(obj.MinIndex, Is.EqualTo(1));
+                Assert.That(obj.IndexType, Is.EqualTo(typeof(byte)));
+                Assert.That(obj.DescriptorParameter, Is.EqualTo(ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION));
+            }));
+        #endregion
+
+        #region MODULATION_FREQUENCY_DESCRIPTION
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND,
+            ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION,
+            new byte[] { 0x01 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
+                var obj = (byte)dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo(1));
+            }));
+
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION,
+            new byte[] { 0x01, 0x00, 0x00, 0x00, 0xFF, 0x46, 0x61, 0x73, 0x74 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMModulationFrequencyDescription)));
+
+                var obj = (RDMModulationFrequencyDescription)dataTreeBranch.ParsedObject;
+                Assert.That(obj.ModulationFrequencyId, Is.EqualTo(1));
+                Assert.That(obj.Frequency, Is.EqualTo(255));
+                Assert.That(obj.Description, Is.EqualTo("Fast"));
+            }));
+
+        yield return new PayloadToParseBagData(
+           ERDM_Command.GET_COMMAND_RESPONSE,
+           ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION,
+           new byte[] { 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x46, 0x61, 0x73, 0x74 },
+           new Action<DataTreeBranch>((dataTreeBranch) =>
+           {
+               Assert.That(dataTreeBranch.IsUnset, Is.False);
+               Assert.That(dataTreeBranch.IsEmpty, Is.False);
+               Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMModulationFrequencyDescription)));
+
+               var obj = (RDMModulationFrequencyDescription)dataTreeBranch.ParsedObject;
+               Assert.That(obj.ModulationFrequencyId, Is.EqualTo(1));
+               Assert.That(obj.Frequency, Is.Null);
+               Assert.That(obj.Description, Is.EqualTo("Fast"));
+           }));
+        #endregion
+
+        #region BURN_IN
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.BURN_IN,
+            new byte[] { 0x09 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
+                var obj = (byte)dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo(9));
+            }));
+
+        yield return new PayloadToParseBagData(
+            ERDM_Command.SET_COMMAND,
+            ERDM_Parameter.BURN_IN,
+            new byte[] { 0xff },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
+                var obj = (byte)dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo(255));
+            }));
+        #endregion
+
+        #region LOCK_PIN
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.LOCK_PIN,
+            new byte[] { 0x01, 0x02 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
+
+                var obj = (ushort)dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo(258));
+            }));
+        yield return new PayloadToParseBagData(
+            ERDM_Command.SET_COMMAND,
+            ERDM_Parameter.LOCK_PIN,
+            new byte[] { 0x01, 0x02, 0x03, 0x04 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(SetLockPinRequest)));
+
+                var obj = (SetLockPinRequest)dataTreeBranch.ParsedObject;
+                Assert.That(obj.NewPinCode, Is.EqualTo(0258));
+                Assert.That(obj.CurrentPinCode, Is.EqualTo(0772));
+            }));
+        #endregion
+
+        #region LOCK_STATE
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.LOCK_STATE,
+            new byte[] { 0x01, 0x08 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetLockStateResponse)));
+
+                var obj = (GetLockStateResponse)dataTreeBranch.ParsedObject;
+                Assert.That(obj.CurrentLockStateId, Is.EqualTo(1));
+                Assert.That(obj.Index, Is.EqualTo(1));
+                Assert.That(obj.LockStates, Is.EqualTo(8));
+                Assert.That(obj.Count, Is.EqualTo(8));
+                Assert.That(obj.MinIndex, Is.EqualTo(0));
+                Assert.That(obj.IndexType, Is.EqualTo(typeof(byte)));
+                Assert.That(obj.DescriptorParameter, Is.EqualTo(ERDM_Parameter.LOCK_STATE_DESCRIPTION));
+            }));
+        yield return new PayloadToParseBagData(
+            ERDM_Command.SET_COMMAND,
+            ERDM_Parameter.LOCK_STATE,
+            new byte[] { 0x01, 0x02, 0x03 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(SetLockStateRequest)));
+
+                var obj = (SetLockStateRequest)dataTreeBranch.ParsedObject;
+                Assert.That(obj.LockStateId, Is.EqualTo(3));
+                Assert.That(obj.PinCode, Is.EqualTo(0258));
+            }));
+        #endregion
+
+        #region LOCK_STATE_DESCRIPTION
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND,
+            ERDM_Parameter.LOCK_STATE_DESCRIPTION,
+            new byte[] { 0x01 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
+
+                var obj = (byte)dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo(1));
+            }));
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.LOCK_STATE_DESCRIPTION,
+            new byte[] { 0x01, 0x4C, 0x6F, 0x63, 0x6B, 0x65, 0x64 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMLockStateDescription)));
+
+                var obj = (RDMLockStateDescription)dataTreeBranch.ParsedObject;
+                Assert.That(obj.LockStateId, Is.EqualTo(1));
+                Assert.That(obj.Description, Is.EqualTo("Locked"));
+            }));
+        #endregion
+
+        #region IDENTIFY_MODE
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.IDENTIFY_MODE,
+            new byte[] { 0xff },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_IdentifyMode)));
+
+                var obj = (ERDM_IdentifyMode)dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo(ERDM_IdentifyMode.LOUD));
+            }));
+        yield return new PayloadToParseBagData(
+            ERDM_Command.SET_COMMAND,
+            ERDM_Parameter.IDENTIFY_MODE,
+            new byte[] { 0x00 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_IdentifyMode)));
+
+                var obj = (ERDM_IdentifyMode)dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo(ERDM_IdentifyMode.QUIET));
+            }));
+        #endregion
 
         #region PRESET_INFO
         yield return new PayloadToParseBagData(
@@ -981,9 +1567,64 @@ public class PayloadToParsedObjectTestSubject
         #endregion
 
         #region PRESET_MERGEMODE
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.PRESET_MERGEMODE,
+            new byte[] { 0x01 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_MergeMode)));
+                var obj = (ERDM_MergeMode)dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo(ERDM_MergeMode.HTP));
+            }));
+
+        yield return new PayloadToParseBagData(
+            ERDM_Command.SET_COMMAND,
+            ERDM_Parameter.PRESET_MERGEMODE,
+            new byte[] { 0x02 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_MergeMode)));
+                var obj = (ERDM_MergeMode)dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo(ERDM_MergeMode.LTP));
+            }));
         #endregion
 
         #region POWER_ON_SELF_TEST
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.POWER_ON_SELF_TEST,
+            new byte[] { 0x01 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
+
+                var obj = (byte)dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo(1));
+            }));
+        yield return new PayloadToParseBagData(
+            ERDM_Command.SET_COMMAND,
+            ERDM_Parameter.POWER_ON_SELF_TEST,
+            new byte[] { 0x01 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
+
+                var obj = (byte)dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo(1));
+            }));
         #endregion
 
         #region LIST_INTERFACES
@@ -1065,6 +1706,21 @@ public class PayloadToParsedObjectTestSubject
         #endregion
 
         #region ENDPOINT_LIST_CHANGE
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.ENDPOINT_LIST_CHANGE,
+            new byte[] { 0x00, 0x00, 0x00, 0x01 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(uint)));
+
+                var obj = dataTreeBranch.ParsedObject as uint?;
+                Assert.That(obj, Is.Not.Null);
+                Assert.That(obj!.Value, Is.EqualTo(1));
+            }));
         #endregion
 
         #region IDENTIFY_ENDPOINT

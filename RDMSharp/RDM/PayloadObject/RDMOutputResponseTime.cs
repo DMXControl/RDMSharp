@@ -38,21 +38,7 @@ public class RDMOutputResponseTime : AbstractRDMPayloadObjectOneOf
     {
         return $"RDMOutputResponseTime: {CurrentResponseTimeId} of {ResponseTimes}";
     }
-    public static RDMOutputResponseTime FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.OUTPUT_RESPONSE_TIME, PDL);
 
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static RDMOutputResponseTime FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-        var i = new RDMOutputResponseTime(
-            currentResponseTimeId: Tools.DataToByte(ref data),
-            responseTimes: Tools.DataToByte(ref data));
-
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();

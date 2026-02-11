@@ -30,7 +30,7 @@ public class RDMModulationFrequencyDescription : AbstractRDMPayloadObject, IRDMP
     [DataTreeObjectProperty("setting", 0)]
     public byte ModulationFrequencyId { get; private set; }
 
-    [DataTreeObjectProperty("frequency", 1)]
+    [DataTreeObjectProperty("frequency", 1, uint.MaxValue)]
     public uint? Frequency { get; private set; }
 
     [DataTreeObjectProperty("description", 2)]
@@ -50,23 +50,6 @@ public class RDMModulationFrequencyDescription : AbstractRDMPayloadObject, IRDMP
         return $"RDMModulationFrequencyDescription: {ModulationFrequencyId} - {Description}";
     }
 
-    public static RDMModulationFrequencyDescription FromMessage(RDMMessage msg)
-    {
-        RDMMessageInvalidException.ThrowIfInvalidPDLRange(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION, PDL_MIN, PDL_MAX);
-
-        return FromPayloadData(msg.ParameterData);
-    }
-    public static RDMModulationFrequencyDescription FromPayloadData(byte[] data)
-    {
-        RDMMessageInvalidPDLException.ThrowIfInvalidPDLRange(data, PDL_MIN, PDL_MAX);
-
-        var i = new RDMModulationFrequencyDescription(
-            modulationFrequencyId: Tools.DataToByte(ref data),
-            frequency: Tools.DataToUInt(ref data),
-            description: Tools.DataToString(ref data));
-
-        return i;
-    }
     public override byte[] ToPayloadData()
     {
         List<byte> data = new List<byte>();
