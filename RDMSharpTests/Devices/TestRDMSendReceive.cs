@@ -48,35 +48,25 @@ public class TestRDMSendReceive
             Assert.That(parameterValuesGenerated.Keys, Is.EquivalentTo(parameterValuesRemote.Keys));
             foreach (var parameter in parameterValuesGenerated.Keys)
             {
-                try
+                Assert.DoesNotThrow(() =>
                 {
                     Assert.That(parameterValuesRemote.Keys, Contains.Item(parameter), $"Tested Parameter {parameter}");
                     if (parameterValuesGenerated[parameter] is Array)
                         Assert.That(parameterValuesGenerated[parameter], Is.EquivalentTo((Array)parameterValuesRemote[parameter]), $"Tested Parameter {parameter}");
                     else
                         Assert.That(parameterValuesGenerated[parameter], Is.EqualTo(parameterValuesRemote[parameter]), $"Tested Parameter {parameter}");
-                }
-                catch (Exception ex)
-                {
-                    Assert.Fail($"Parameter {parameter} failed: {ex.Message}");
-                    throw;
-                }
+                });
             }
             foreach (var parameter in parameterValuesRemote.Keys)
             {
-                try
+                Assert.DoesNotThrow(() =>
                 {
                     Assert.That(parameterValuesGenerated.Keys, Contains.Item(parameter), $"Tested Parameter {parameter}");
                     if (parameterValuesRemote[parameter] is Array)
                         Assert.That(parameterValuesRemote[parameter], Is.EquivalentTo((Array)parameterValuesGenerated[parameter]), $"Tested Parameter {parameter}");
                     else
                         Assert.That(parameterValuesRemote[parameter], Is.EqualTo(parameterValuesGenerated[parameter]), $"Tested Parameter {parameter}");
-                }
-                catch (Exception ex)
-                {
-                    Assert.Fail($"Parameter {parameter} failed: {ex.Message}");
-                    throw;
-                }
+                });
             }
             Assert.That(parameterValuesRemote, Has.Count.EqualTo(parameterValuesGenerated.Count));
         });

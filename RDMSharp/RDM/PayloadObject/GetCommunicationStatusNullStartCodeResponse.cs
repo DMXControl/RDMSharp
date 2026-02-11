@@ -25,48 +25,60 @@ public class GetCommunicationStatusNullStartCodeResponse : AbstractRDMPayloadObj
     }
     [DataTreeObjectConstructor]
     public GetCommunicationStatusNullStartCodeResponse(
-        [DataTreeObjectParameter("supported")] bool[] supported,
+        [DataTreeObjectParameter("supported/additive_checksum")] bool additiveChecksumSupported,
+        [DataTreeObjectParameter("supported/packet_count")] bool packetCountSupported,
+        [DataTreeObjectParameter("supported/most_recent_slot_count")] bool mostRecentSlotCountSupported,
+        [DataTreeObjectParameter("supported/min_slot_count")] bool minSlotCountSupported,
+        [DataTreeObjectParameter("supported/max_slot_count")] bool maxSlotCountSupported,
+        [DataTreeObjectParameter("supported/error_count")] bool errorCountSupported,
         [DataTreeObjectParameter("additive_checksum")] uint additiveChecksumOfMostRecentPacket,
         [DataTreeObjectParameter("packet_count")] uint packetCount,
         [DataTreeObjectParameter("most_recent_slot_count")] ushort mostRecentSlotCount,
         [DataTreeObjectParameter("min_slot_count")] ushort minimumSlotCount,
         [DataTreeObjectParameter("max_slot_count")] ushort maximumSlotCount,
-        [DataTreeObjectParameter("error_count")] uint numberOfPacketsWithAnError)
+        [DataTreeObjectParameter("error_count")] uint numberOfPacketsWithAnError) : this(
+            additiveChecksumSupported ? additiveChecksumOfMostRecentPacket : null,
+            packetCountSupported ? packetCount : null,
+            mostRecentSlotCountSupported ? mostRecentSlotCount : null,
+            minSlotCountSupported ? minimumSlotCount : null,
+            maxSlotCountSupported ? maximumSlotCount : null,
+            errorCountSupported ? numberOfPacketsWithAnError : null
+            )
     {
-        if (supported[0])
-            AdditiveChecksumOfMostRecentPacket = additiveChecksumOfMostRecentPacket;
-
-        if (supported[1])
-            PacketCount = packetCount;
-
-        if (supported[2])
-            MostRecentSlotCount = mostRecentSlotCount;
-
-        if (supported[3])
-            MinimumSlotCount = minimumSlotCount;
-
-        if (supported[4])
-            MaximumSlotCount = maximumSlotCount;
-
-        if (supported[5])
-            NumberOfPacketsWithAnError = numberOfPacketsWithAnError;
     }
 
-    [DataTreeObjectProperty("supported", 0)]
-    public bool[] Supported
+    [DataTreeObjectProperty("supported/additive_checksum", 0)]
+    public bool AdditiveChecksumSupported
     {
-        get
-        {
-            return new bool[] {
-                AdditiveChecksumOfMostRecentPacket is not null,
-                PacketCount is not null,
-                MostRecentSlotCount is not null,
-                MinimumSlotCount is not null,
-                MaximumSlotCount is not null,
-                NumberOfPacketsWithAnError is not null
-            };
-        }
+        get => AdditiveChecksumOfMostRecentPacket is not null;
     }
+    [DataTreeObjectProperty("supported/packet_count", 1)]
+    public bool PacketCountSupported
+    {
+        get => PacketCount is not null;
+    }
+    [DataTreeObjectProperty("supported/most_recent_slot_count", 2)]
+    public bool MostRecentSlotCountSupported
+    {
+        get => MostRecentSlotCount is not null;
+    }
+    [DataTreeObjectProperty("supported/min_slot_count", 3)]
+    public bool MinimumSlotCountSupported
+    {
+        get => MinimumSlotCount is not null;
+    }
+    [DataTreeObjectProperty("supported/max_slot_count", 4)]
+    public bool MaximumSlotCountSupported
+    {
+        get => MaximumSlotCount is not null;
+    }
+    [DataTreeObjectProperty("supported/error_count", 5)]
+    public bool ErrorCountSupported
+    {
+        get => NumberOfPacketsWithAnError is not null;
+    }
+
+
     [DataTreeObjectProperty("additive_checksum", 1)]
     public uint? AdditiveChecksumOfMostRecentPacket { get; private set; }
     [DataTreeObjectProperty("packet_count", 2)]

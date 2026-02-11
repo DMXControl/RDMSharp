@@ -209,6 +209,9 @@ public class BytesType : CommonPropertiesForNamed
 
         object parseData(string format, ref byte[] data)
         {
+            if ("string".Equals(format)) //Todo make this dependant on ControllerFlags
+                format = "ascii";
+
             if (Extensions.ExtensionsManager.Instance.TryGetBytesParser(format, out Extensions.IBytesParser bytesParser))
                 return bytesParser.ParseToObject(ref data);
 
