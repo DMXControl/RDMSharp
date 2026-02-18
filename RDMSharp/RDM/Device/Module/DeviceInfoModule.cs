@@ -13,6 +13,8 @@ public sealed class DeviceInfoModule : AbstractModule
     {
         get
         {
+            if (ParentDevice is null)
+                return null;
             object res;
             if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.DEVICE_INFO, out res))
                 return (RDMDeviceInfo)res;
@@ -20,8 +22,8 @@ public sealed class DeviceInfoModule : AbstractModule
         }
         internal set
         {
-            if (ParentDevice is not null)
-                ParentDevice.setParameterValue(ERDM_Parameter.DEVICE_INFO, value);
+            if (ParentGeneratedDevice is not null)
+                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.DEVICE_INFO, value);
         }
     }
     private SoftwareVersionModule softwareVersionModule;
@@ -34,36 +36,44 @@ public sealed class DeviceInfoModule : AbstractModule
         _moduleParameter)
     {
     }
-    public DeviceInfoModule(IRDMRemoteDevice remoteDevice) : base(
+    public DeviceInfoModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameter)
     {
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         softwareVersionModule = device.Modules.OfType<SoftwareVersionModule>().FirstOrDefault();
         dmxStartAddressModule = device.Modules.OfType<DMX_StartAddressModule>().FirstOrDefault();
         dmxPersonalityModule = device.Modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
         sensorsModule = device.Modules.OfType<SensorsModule>().FirstOrDefault();
-        updateParameterValues();
+        updateGeneratedParameterValues();
     }
-    private void updateParameterValues()
+    protected override void OnRemoteParentDeviceChanged(AbstractRemoteRDMDevice device)
     {
-        if (ParentDevice is null)
+        softwareVersionModule = device.Modules.OfType<SoftwareVersionModule>().FirstOrDefault();
+        dmxStartAddressModule = device.Modules.OfType<DMX_StartAddressModule>().FirstOrDefault();
+        dmxPersonalityModule = device.Modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
+        sensorsModule = device.Modules.OfType<SensorsModule>().FirstOrDefault();
+        base.OnRemoteParentDeviceChanged(device);
+    }
+    private void updateGeneratedParameterValues()
+    {
+        if (ParentGeneratedDevice is null)
             return;
         this.DeviceInfo = new RDMDeviceInfo(1,
                                        0,
-                                       ParentDevice.DeviceModelID,
-                                       ParentDevice.ProductCategoryCoarse,
-                                       ParentDevice.ProductCategoryFine,
+                                       ParentGeneratedDevice.DeviceModelID,
+                                       ParentGeneratedDevice.ProductCategoryCoarse,
+                                       ParentGeneratedDevice.ProductCategoryFine,
                                        softwareVersionModule?.SoftwareVersionId ?? 0,
-                                       dmx512Footprint: dmxPersonalityModule?.CurrentPersonalityFootprint ?? 0,
-                                       dmx512CurrentPersonality: dmxPersonalityModule?.CurrentPersonality ?? 0,
+                                       dmx512Footprint: dmxPersonalityModule?.CurrentPersonality.SlotCount ?? 0,
+                                       dmx512CurrentPersonality: dmxPersonalityModule?.CurrentPersonality.ID ?? 0,
                                        dmx512NumberOfPersonalities: dmxPersonalityModule?.PersonalitiesCount ?? 0,
                                        dmx512StartAddress: (dmxStartAddressModule?.DMXAddress ?? ushort.MaxValue),
-                                       subDeviceCount: (ushort)(ParentDevice.SubDevices?.Where(sd => !sd.Subdevice.IsRoot).Count() ?? 0),
+                                       subDeviceCount: (ushort)(ParentGeneratedDevice.SubDevices?.Where(sd => !sd.Subdevice.IsRoot).Count() ?? 0),
                                        sensorCount: (byte)(sensorsModule?.Sensors?.Count ?? 0));
 
         OnPropertyChanged(nameof(DeviceInfo));
@@ -77,7 +87,8 @@ public sealed class DeviceInfoModule : AbstractModule
                 break;
             case ERDM_Parameter.DMX_PERSONALITY:
             case ERDM_Parameter.DMX_START_ADDRESS:
-                updateParameterValues();
+                if (ParentGeneratedDevice is not null)
+                    updateGeneratedParameterValues();
                 break;
         }
     }

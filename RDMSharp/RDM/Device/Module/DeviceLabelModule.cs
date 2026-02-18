@@ -17,11 +17,14 @@ public sealed class DeviceLabelModule : AbstractModule
                 return (string)res;
             return _deviceLabel;
         }
-        internal set
+        set
         {
             _deviceLabel = value;
-            if (ParentDevice is not null)
-                ParentDevice.setParameterValue(ERDM_Parameter.DEVICE_LABEL, value);
+            if (ParentGeneratedDevice is not null)
+                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.DEVICE_LABEL, value);
+
+            if (ParentRemoteDevice is not null)
+                _ = ParentRemoteDevice.SetParameter(ERDM_Parameter.DEVICE_LABEL, value);
         }
     }
     public DeviceLabelModule(string deviceLabel) : base(
@@ -30,14 +33,14 @@ public sealed class DeviceLabelModule : AbstractModule
     {
         _deviceLabel = deviceLabel;
     }
-    public DeviceLabelModule(IRDMRemoteDevice remoteDevice) : base(
+    public DeviceLabelModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameter)
     {
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         this.DeviceLabel = _deviceLabel;
     }

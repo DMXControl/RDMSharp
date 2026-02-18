@@ -20,7 +20,7 @@ public sealed class ProxiedDevicesModule : AbstractModule
         get
         {
             IReadOnlyCollection<UID> uidList = null;
-            if (this.ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.PROXIED_DEVICES, out object proxiedDevices))
+            if (this.ParentGeneratedDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.PROXIED_DEVICES, out object proxiedDevices))
             {
                 if (proxiedDevices is RDMProxiedDevices obj)
                     uidList = obj.Devices.ToList().AsReadOnly();
@@ -34,17 +34,17 @@ public sealed class ProxiedDevicesModule : AbstractModule
         _moduleParameters)
     {
     }
-    public ProxiedDevicesModule(IRDMRemoteDevice remoteDevice) : base(
+    public ProxiedDevicesModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameters)
     {
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
-        this.ParentDevice.setParameterValue(ERDM_Parameter.PROXIED_DEVICES, new RDMProxiedDevices());
-        this.ParentDevice.setParameterValue(ERDM_Parameter.PROXIED_DEVICES_COUNT, new RDMProxiedDeviceCount(0, false));
+        this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.PROXIED_DEVICES, new RDMProxiedDevices());
+        this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.PROXIED_DEVICES_COUNT, new RDMProxiedDeviceCount(0, false));
     }
 
     protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
@@ -99,7 +99,7 @@ public sealed class ProxiedDevicesModule : AbstractModule
                     if (msgQueue.IsEmpty)
                     {
                         proxiedDevicesOngoingTransaktions.TryRemove(message.SourceUID, out _);
-                        this.ParentDevice.setParameterValue(ERDM_Parameter.PROXIED_DEVICES_COUNT, new RDMProxiedDeviceCount((ushort)DeviceUIDs.Count, false));
+                        this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.PROXIED_DEVICES_COUNT, new RDMProxiedDeviceCount((ushort)DeviceUIDs.Count, false));
                     }
                     return responseMessage;
                 }
@@ -112,7 +112,7 @@ public sealed class ProxiedDevicesModule : AbstractModule
                     DestUID = message.SourceUID,
                     Command = ERDM_Command.GET_COMMAND_RESPONSE,
                     Parameter = message.Parameter,
-                    ParameterData = (this.ParentDevice.GetAllParameterValues()[ERDM_Parameter.PROXIED_DEVICES_COUNT] as RDMProxiedDeviceCount).ToPayloadData()
+                    ParameterData = (this.ParentGeneratedDevice.GetAllParameterValues()[ERDM_Parameter.PROXIED_DEVICES_COUNT] as RDMProxiedDeviceCount).ToPayloadData()
                 };
         }
         return new RDMMessage(ERDM_NackReason.HARDWARE_FAULT)
@@ -126,7 +126,7 @@ public sealed class ProxiedDevicesModule : AbstractModule
 
     public void AddProxiedDevices(params UID[] deviceUIDs)
     {
-        var currentDevices = this.ParentDevice.GetAllParameterValues()[ERDM_Parameter.PROXIED_DEVICES] as RDMProxiedDevices;
+        var currentDevices = this.ParentGeneratedDevice.GetAllParameterValues()[ERDM_Parameter.PROXIED_DEVICES] as RDMProxiedDevices;
         var devicesList = currentDevices.Devices.ToList();
         bool changed = false;
         foreach (var deviceUID in deviceUIDs)
@@ -139,14 +139,14 @@ public sealed class ProxiedDevicesModule : AbstractModule
         }
         if (changed)
         {
-            this.ParentDevice.setParameterValue(ERDM_Parameter.PROXIED_DEVICES, new RDMProxiedDevices(devicesList.ToArray()));
-            this.ParentDevice.setParameterValue(ERDM_Parameter.PROXIED_DEVICES_COUNT, new RDMProxiedDeviceCount((ushort)devicesList.Count, true));
+            this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.PROXIED_DEVICES, new RDMProxiedDevices(devicesList.ToArray()));
+            this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.PROXIED_DEVICES_COUNT, new RDMProxiedDeviceCount((ushort)devicesList.Count, true));
             OnPropertyChanged(nameof(DeviceUIDs));
         }
     }
     public void RemoveProxiedDevices(params UID[] deviceUIDs)
     {
-        var currentDevices = this.ParentDevice.GetAllParameterValues()[ERDM_Parameter.PROXIED_DEVICES] as RDMProxiedDevices;
+        var currentDevices = this.ParentGeneratedDevice.GetAllParameterValues()[ERDM_Parameter.PROXIED_DEVICES] as RDMProxiedDevices;
         var devicesList = currentDevices.Devices.ToList();
         bool changed = false;
         foreach (var deviceUID in deviceUIDs)
@@ -159,8 +159,8 @@ public sealed class ProxiedDevicesModule : AbstractModule
         }
         if (changed)
         {
-            this.ParentDevice.setParameterValue(ERDM_Parameter.PROXIED_DEVICES, new RDMProxiedDevices(devicesList.ToArray()));
-            this.ParentDevice.setParameterValue(ERDM_Parameter.PROXIED_DEVICES_COUNT, new RDMProxiedDeviceCount((ushort)devicesList.Count, true));
+            this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.PROXIED_DEVICES, new RDMProxiedDevices(devicesList.ToArray()));
+            this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.PROXIED_DEVICES_COUNT, new RDMProxiedDeviceCount((ushort)devicesList.Count, true));
             OnPropertyChanged(nameof(DeviceUIDs));
         }
     }

@@ -13,7 +13,6 @@ namespace RDMSharp;
 public sealed class RDMPersonalityModel : AbstractRDMCache
 {
     public event PropertyChangedEventHandler PropertyChanged;
-    public event EventHandler<Slot> SlotAdded;
     public event EventHandler Initialized;
 
     public readonly ushort ManufacturerID;
@@ -47,8 +46,13 @@ public sealed class RDMPersonalityModel : AbstractRDMCache
         }
     }
 
-    private ConcurrentDictionary<ushort, Slot> slots = new ConcurrentDictionary<ushort, Slot>();
-    public IReadOnlyDictionary<ushort, Slot> Slots => slots.AsReadOnly();
+    private readonly RemotePersonality personality;
+    public IPersonality Personality
+    {
+        get { return personality; }
+    }
+
+    public IReadOnlyDictionary<ushort, Slot> Slots => Personality.Slots;
     public readonly IReadOnlyCollection<ERDM_Parameter> SupportedPersonalityBlueprintParameters;
 
     private UID currentUsedUid;
@@ -74,7 +78,8 @@ public sealed class RDMPersonalityModel : AbstractRDMCache
                 if (dict.TryGetValue(personalityId, out object disc) && disc is RDMDMXPersonalityDescription personalityDescription)
                 {
                     this.Description = personalityDescription.Description;
-                    SlotCount = personalityDescription.Slots;
+                    this.SlotCount = personalityDescription.Slots;
+                    this.personality = new RemotePersonality(personalityId, this.Description, SlotCount);
                     var rpl = DataTreeBranch.FromObject(personalityDescription, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION);
                     updateParameterValuesDependeciePropertyBag(ERDM_Parameter.SLOT_DESCRIPTION, rpl);
                 }
@@ -138,35 +143,37 @@ public sealed class RDMPersonalityModel : AbstractRDMCache
         //var bag = new ParameterDataCacheBag(e.Parameter, e.Index);
         //cache.parameterValuesDataTreeBranch.TryGetValue(bag, out var value);
         //updateParameterValuesDataTreeBranch(bag, value);
-
-        if (e.Value is RDMSlotInfo[] slotInfos)
+        try
         {
-            foreach (var slotInfo in slotInfos)
-                getOrCreate(slotInfo.SlotOffset).UpdateSlotInfo(slotInfo);
-            return;
-        }
-        if (e.Value is RDMDefaultSlotValue[] defaultSlotValues)
-        {
-            foreach (var defaultSlotValue in defaultSlotValues)
-                getOrCreate(defaultSlotValue.SlotOffset).UpdateSlotDefaultValue(defaultSlotValue);
-            return;
-        }
-        if (e.Value is RDMSlotDescription slotDescription)
-        {
-            var slot = getOrCreate(Convert.ToUInt16(e.Index));
-            if (slot.SlotId == slotDescription.SlotId)
-                slot.UpdateSlotDescription(slotDescription);
-        }
-
-        Slot getOrCreate(ushort id)
-        {
-            if (!slots.TryGetValue(id, out Slot slot1))
+            if (e.Value is RDMSlotInfo[] slotInfos)
             {
-                slot1 = new Slot(id);
-                if (slots.TryAdd(id, slot1))
-                    SlotAdded?.InvokeFailSafe(this, slot1);
+                foreach (var slotInfo in slotInfos)
+                    personality.getOrCreate(slotInfo.SlotOffset).UpdateSlotInfo(slotInfo);
+                return;
             }
-            return slot1;
+            if (e.Value is RDMDefaultSlotValue[] defaultSlotValues)
+            {
+                foreach (var defaultSlotValue in defaultSlotValues)
+                    personality.getOrCreate(defaultSlotValue.SlotOffset).UpdateSlotDefaultValue(defaultSlotValue);
+
+                personality.AllDataPulled = true;
+                return;
+            }
+            if (e.Value is RDMSlotDescription slotDescription)
+            {
+                var slot = personality.getOrCreate(Convert.ToUInt16(e.Index));
+                if (slot.SlotId == slotDescription.SlotId)
+                    slot.UpdateSlotDescription(slotDescription);
+
+                if (SlotCount == slot.SlotId + 1)
+                    if (!SupportedPersonalityBlueprintParameters.Contains(ERDM_Parameter.DEFAULT_SLOT_VALUE))
+                        personality.AllDataPulled = true;
+            }
+        }
+        finally
+        {
+            if (this.personality.AllDataPulled)
+                this.ParameterValueAdded -= RDMDeviceModel_ParameterValueAdded;
         }
     }
 

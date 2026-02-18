@@ -22,8 +22,8 @@ public sealed class ManufacturerLabelModule : AbstractModule
         internal set
         {
             _manufacturerLabel = value;
-            if (ParentDevice is not null)
-                ParentDevice.setParameterValue(ERDM_Parameter.MANUFACTURER_LABEL, value);
+            if (ParentGeneratedDevice is not null)
+                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.MANUFACTURER_LABEL, value);
         }
     }
     public ManufacturerLabelModule(string manufacturerLabel) : base(
@@ -32,14 +32,14 @@ public sealed class ManufacturerLabelModule : AbstractModule
     {
         _manufacturerLabel = manufacturerLabel;
     }
-    public ManufacturerLabelModule(IRDMRemoteDevice remoteDevice) : base(
+    public ManufacturerLabelModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameter)
     {
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         if (string.IsNullOrWhiteSpace(_manufacturerLabel))
             _manufacturerLabel = Enum.GetName(typeof(EManufacturer), (EManufacturer)device.UID.ManufacturerID);

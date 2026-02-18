@@ -10,7 +10,7 @@ public class TestTagModlue
     private TagsMockDevice? generated;
 
     private static UID CONTROLLER_UID = new UID(0x1fff, 333);
-    private static UID DEVCIE_UID = new UID(123, 555);
+    private static UID DEVCIE_UID = new UID(0x1e2e, 555);
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()
@@ -719,6 +719,125 @@ public class TestTagModlue
         Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
+    }
+
+    [Test, Retry(3), Order(301)]
+    public async Task TestRemoteDevice()
+    {
+        Assert.That(generated, Is.Not.Null);
+        Assert.That(generated.Parameters.Contains(ERDM_Parameter.LIST_TAGS), Is.True);
+        var generatedModule = generated.Modules.OfType<TagsModule>().Single();
+        Assert.That(generatedModule, Is.Not.Null);
+        Assert.That(generatedModule.Tags, Is.Not.Null);
+
+        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        while (!mockDevice.IsInitialized)
+            await Task.Delay(100);
+
+        bool parameterPresent = mockDevice.DeviceModel.GetSupportedParameters().Any(sp => sp.Parameter == ERDM_Parameter.LIST_TAGS);
+        Assert.That(parameterPresent, Is.True);
+        var module = mockDevice.Modules.OfType<TagsModule>().Single();
+        Assert.That(module, Is.Not.Null);
+        Assert.That(generatedModule.Tags, Is.Not.Null);
+
+        SemaphoreSlim semaphoreSlim = new SemaphoreSlim(0, 1);
+        module.PropertyChanged += (o, e) =>
+        {
+            semaphoreSlim.Release();
+        };
+        const string FRONT_TRUSS = "Front-Truss";
+        const string MID_TRUSS = "Mid-Truss";
+        const string BACK_TRUSS = "Back-Truss";
+
+        await module.AddTag(FRONT_TRUSS);
+        await semaphoreSlim.WaitAsync();
+
+        Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS));
+        Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS));
+
+        semaphoreSlim = new SemaphoreSlim(0, 1);
+        await module.AddTag(MID_TRUSS);
+        await semaphoreSlim.WaitAsync();
+
+        Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS));
+        Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS));
+
+        semaphoreSlim = new SemaphoreSlim(0, 1);
+        await module.AddTag(BACK_TRUSS);
+        await semaphoreSlim.WaitAsync();
+
+        Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS).And.Contain(BACK_TRUSS));
+        Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS).And.Contain(BACK_TRUSS));
+
+
+        Assert.That(await module.CheckTag(FRONT_TRUSS), Is.True);
+        Assert.That(await module.CheckTag(MID_TRUSS), Is.True);
+        Assert.That(await module.CheckTag(BACK_TRUSS), Is.True);
+
+        semaphoreSlim = new SemaphoreSlim(0, 1);
+        await module.RemoveTag(MID_TRUSS);
+        await semaphoreSlim.WaitAsync();
+
+        Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(BACK_TRUSS));
+        Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(BACK_TRUSS));
+
+        Assert.That(await module.CheckTag(FRONT_TRUSS), Is.True);
+        Assert.That(await module.CheckTag(MID_TRUSS), Is.False);
+        Assert.That(await module.CheckTag(BACK_TRUSS), Is.True);
+
+        await module.ClearTags();
+
+        Assert.That(await module.CheckTag(FRONT_TRUSS), Is.False);
+        Assert.That(await module.CheckTag(MID_TRUSS), Is.False);
+        Assert.That(await module.CheckTag(BACK_TRUSS), Is.False);
+
+        Assert.That(generatedModule.Tags.ToArray(), Does.Not.Contain(FRONT_TRUSS).And.Not.Contain(MID_TRUSS).And.Not.Contain(BACK_TRUSS));
+
+
+
+        await generatedModule.AddTag(FRONT_TRUSS);
+        await semaphoreSlim.WaitAsync();
+
+        Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS));
+        Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS));
+
+        semaphoreSlim = new SemaphoreSlim(0, 1);
+        await generatedModule.AddTag(MID_TRUSS);
+        await semaphoreSlim.WaitAsync();
+
+        Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS));
+        Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS));
+
+        semaphoreSlim = new SemaphoreSlim(0, 1);
+        await generatedModule.AddTag(BACK_TRUSS);
+        await semaphoreSlim.WaitAsync();
+
+        Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS).And.Contain(BACK_TRUSS));
+        Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS).And.Contain(BACK_TRUSS));
+
+
+        Assert.That(await generatedModule.CheckTag(FRONT_TRUSS), Is.True);
+        Assert.That(await generatedModule.CheckTag(MID_TRUSS), Is.True);
+        Assert.That(await generatedModule.CheckTag(BACK_TRUSS), Is.True);
+
+        semaphoreSlim = new SemaphoreSlim(0, 1);
+        await generatedModule.RemoveTag(MID_TRUSS);
+        await semaphoreSlim.WaitAsync();
+
+        Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(BACK_TRUSS));
+        Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(BACK_TRUSS));
+
+        Assert.That(await generatedModule.CheckTag(FRONT_TRUSS), Is.True);
+        Assert.That(await generatedModule.CheckTag(MID_TRUSS), Is.False);
+        Assert.That(await generatedModule.CheckTag(BACK_TRUSS), Is.True);
+
+        await generatedModule.ClearTags();
+
+        Assert.That(await generatedModule.CheckTag(FRONT_TRUSS), Is.False);
+        Assert.That(await generatedModule.CheckTag(MID_TRUSS), Is.False);
+        Assert.That(await generatedModule.CheckTag(BACK_TRUSS), Is.False);
+
+        Assert.That(generatedModule.Tags.ToArray(), Does.Not.Contain(FRONT_TRUSS).And.Not.Contain(MID_TRUSS).And.Not.Contain(BACK_TRUSS));
     }
 
     class TagsMockDevice : MockGeneratedDevice1

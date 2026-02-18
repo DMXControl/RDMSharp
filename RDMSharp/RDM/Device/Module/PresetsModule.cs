@@ -14,14 +14,14 @@ public sealed class PresetsModule : AbstractModule
         _moduleParameters)
     {
     }
-    public PresetsModule(IRDMRemoteDevice remoteDevice) : base(
+    public PresetsModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameters)
     {
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         throw new System.NotImplementedException();
     }

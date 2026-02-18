@@ -25,6 +25,10 @@ public class RDMDMXPersonalityDescription : AbstractRDMPayloadObject, IRDMPayloa
         this.Description = description;
     }
 
+    public RDMDMXPersonalityDescription(IPersonality pesronality) : this(pesronality.ID, pesronality.SlotCount, pesronality.Description)
+    {
+
+    }
 
     [DataTreeObjectProperty("personality", 0)]
     public byte PersonalityId { get; private set; }

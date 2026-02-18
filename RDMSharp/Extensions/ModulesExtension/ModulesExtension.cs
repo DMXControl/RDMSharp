@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace RDMSharp.Extensions.ModulesExtension;
 
-public abstract class ModulesExtension : AbstractModulesExtension
+public sealed class ModulesExtension : AbstractModulesExtension
 {
     private static readonly string _key = "BasicModulesExtension";
     private const EManufacturer _manufacturer = EManufacturer.ESTA;

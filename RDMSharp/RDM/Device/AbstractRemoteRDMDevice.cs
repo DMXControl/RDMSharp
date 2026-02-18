@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
+using RDMSharp.Extensions;
 using RDMSharp.Metadata;
 using RDMSharp.PayloadObject;
 using RDMSharp.RDM.Device;
+using RDMSharp.RDM.Device.Module;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -94,6 +96,9 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         }
     }
 
+    private readonly List<IModule> _modules = new List<IModule>();
+    public IReadOnlyCollection<IModule> Modules { get => _modules.AsReadOnly(); }
+
     private bool allDataPulled;
     public bool AllDataPulled
     {
@@ -161,7 +166,18 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         ParameterValueChanged += AbstractRDMDevice_ParameterValueChanged;
         ParameterRequested += AbstractRDMDevice_ParameterRequested;
         await requestDeviceInfo(deviceInfo);
+        UpdateModules();
         Logger?.LogDebug($"Remote RDM Device {UID} SubDevice: {Subdevice} initialized.");
+    }
+
+    private void UpdateModules()
+    {
+        if (ExtensionsManager.Instance.TryGetMatchingModules(this, out var modules))
+        {
+            this._modules.Clear();
+            this._modules.AddRange(modules);
+            OnPropertyChanged(nameof(Modules));
+        }
     }
 
     private void Instance_PresentUpdateTimerElapsed(object sender, EventArgs e)
@@ -302,6 +318,25 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         {
             Logger?.LogError(ex);
         }
+    }
+    public async Task RequestParameter(ERDM_Command command, ERDM_Parameter parameter)
+    {
+        ParameterBag parameterBag = new ParameterBag(parameter, this.UID.ManufacturerID, this.deviceInfo.DeviceModelId, this.deviceInfo.SoftwareVersionId);
+
+        PeerToPeerProcess ptpProcess = new PeerToPeerProcess(command, this.UID, this.Subdevice, parameterBag);
+        await ptpProcess.Run();
+    }
+    public async Task<object> RequestParameterWithPayload(ERDM_Command command, ERDM_Parameter parameter, object payload)
+    {
+        ParameterBag parameterBag = new ParameterBag(parameter, this.UID.ManufacturerID, this.deviceInfo.DeviceModelId, this.deviceInfo.SoftwareVersionId);
+        DataTreeBranch dataTreeBranch = DataTreeBranch.FromObject(payload, null, parameterBag, command);
+
+        PeerToPeerProcess ptpProcess = new PeerToPeerProcess(command, this.UID, this.Subdevice, parameterBag, dataTreeBranch);
+        await ptpProcess.Run();
+        if (ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Finished)
+            return ptpProcess.ResponsePayloadObject.ParsedObject ?? ptpProcess.ResponsePayloadObject;
+
+        return null;
     }
 
     private SemaphoreSlim updateSenaphoreSlim = new SemaphoreSlim(1);

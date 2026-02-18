@@ -11,7 +11,7 @@ public class TestInterfaceModlue
     private InterfaceModule? interfaceModule;
 
     private static UID CONTROLLER_UID = new UID(0x1fff, 333);
-    private static UID DEVCIE_UID = new UID(123, 555);
+    private static UID DEVCIE_UID = new UID(9231, 555);
     private const string TEST_INTERFACE_NAME = "Test Interface";
     private const string TEST_INTERFACE_HARDWARE_ADDRESS = "e0:63:da:5a:c4:fb";
     private const EARP_HardwareTypes TEST_INTERFACE_HARDWARE_TYPE = EARP_HardwareTypes.Ethernet;

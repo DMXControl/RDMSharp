@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using RDMSharp.RDM.Device;
+using RDMSharp.RDM.Device.Module;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -100,29 +101,17 @@ internal class ExtensionsManager
 
     public bool TryGetSupportedParametersExtensions(EManufacturer manufacturer, out IReadOnlyCollection<ISupportedParametersExtension> supportedParametersExtensionsResult)
     {
-        try
-        {
-            if (supportedParametersExtensions.IsEmpty)
-                LoadSupportedParametersExtension();
+        if (supportedParametersExtensions.IsEmpty)
+            LoadSupportedParametersExtension();
 
-            List<ISupportedParametersExtension> result = new();
+        List<ISupportedParametersExtension> result = new();
 
-            foreach (var spe in supportedParametersExtensions.Values)
-            {
-                if (spe.Manufacturer == EManufacturer.ESTA)
-                    result.Add(spe);
-                if (spe.Manufacturer == manufacturer)
-                    result.Add(spe);
-            }
-            supportedParametersExtensionsResult = result;
-            return true;
-        }
-        catch (Exception e)
-        {
-            Logger?.LogError(e, "Error while getting SupportedParametersExtensions");
-            supportedParametersExtensionsResult = Array.Empty<ISupportedParametersExtension>();
-            return false;
-        }
+        foreach (var spe in supportedParametersExtensions.Values)
+            if (spe.Manufacturer == EManufacturer.ESTA || spe.Manufacturer == manufacturer)
+                result.Add(spe);
+
+        supportedParametersExtensionsResult = result;
+        return true;
     }
     public bool TryGetSupportedParameterMetadata(EManufacturer manufacturer, ERDM_Parameter parameter, out SupportedParameterMetadata? supportedParameterMetadata)
     {
@@ -199,28 +188,29 @@ internal class ExtensionsManager
     }
     public bool TryGetModulesExtensions(EManufacturer manufacturer, out IReadOnlyCollection<IModulesExtension> modulesExtensionsResult)
     {
-        try
-        {
-            if (modulesExtensions.IsEmpty)
-                LoadModulesExtension();
+        if (modulesExtensions.IsEmpty)
+            LoadModulesExtension();
 
-            List<IModulesExtension> result = new();
+        List<IModulesExtension> result = new();
 
-            foreach (var spe in modulesExtensions.Values)
-            {
-                if (spe.Manufacturer == EManufacturer.ESTA)
-                    result.Add(spe);
-                if (spe.Manufacturer == manufacturer)
-                    result.Add(spe);
-            }
-            modulesExtensionsResult = result;
-            return true;
-        }
-        catch (Exception e)
-        {
-            Logger?.LogError(e, "Error while getting ModulesExtensions");
-            modulesExtensionsResult = Array.Empty<IModulesExtension>();
-            return false;
-        }
+        foreach (var spe in modulesExtensions.Values)
+            if (spe.Manufacturer == EManufacturer.ESTA || spe.Manufacturer == manufacturer)
+                result.Add(spe);
+
+        modulesExtensionsResult = result;
+        return true;
+    }
+
+    public bool TryGetMatchingModules(AbstractRemoteRDMDevice device, out IReadOnlyCollection<IModule> modulesResult)
+    {
+        List<IModule> result = new();
+        if (this.TryGetModulesExtensions((EManufacturer)device.UID.ManufacturerID, out IReadOnlyCollection<IModulesExtension> modulesExtensionsResult))
+            foreach (var modulesExtension in modulesExtensionsResult)
+                if (modulesExtension.TryGetModules(device.DeviceModel.GetSupportedParameters().Select(spm => spm.Parameter).ToArray(), out IReadOnlyCollection<Type> modulTypes))
+                    foreach (var modulType in modulTypes)
+                        if (modulesExtension.TryCreateModuleInstance(modulType, device, out IModule moduleInstance))
+                            result.Add(moduleInstance);
+        modulesResult = result.AsReadOnly();
+        return result.Count != 0;
     }
 }

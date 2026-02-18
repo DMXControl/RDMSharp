@@ -11,6 +11,8 @@ public class TestBootSoftwareVersionModule
     private static UID CONTROLLER_UID = new UID(0x1fff, 333);
     private static UID DEVCIE_UID = new UID(123, 555);
 
+    const string BOOT_SOFTWARE_VERSION_LABEL = "Dummy Bootloader Software";
+
     [OneTimeSetUp]
     public async Task OneTimeSetup()
     {
@@ -63,7 +65,6 @@ public class TestBootSoftwareVersionModule
     [Test, Order(31)]
     public void TestGetBOOT_SOFTWARE_VERSION_LABEL()
     {
-        const string BOOT_SOFTWARE_VERSION_LABEL = "Dummy Bootloader Software";
         #region Test Basic
         Assert.That(generated, Is.Not.Null);
         var bootSoftwareVersionModule = generated.Modules.OfType<BootSoftwareVersionModule>().Single();
@@ -104,5 +105,18 @@ public class TestBootSoftwareVersionModule
         Assert.That(response.ParameterData, Has.Length.EqualTo(bootSoftwareVersionModule.BootSoftwareVersionLabel.Length));
         Assert.That(response.Value, Is.EqualTo(bootSoftwareVersionModule.BootSoftwareVersionLabel));
         #endregion
+    }
+
+    [Test, Order(301)]
+    public async Task TestRemoteDevice()
+    {
+        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        while (!mockDevice.IsInitialized)
+            await Task.Delay(100);
+
+        var module = mockDevice.Modules.OfType<BootSoftwareVersionModule>().Single();
+        Assert.That(module, Is.Not.Null);
+        Assert.That(module, Is.Not.Null);
+        Assert.That(module.BootSoftwareVersionLabel, Is.EqualTo(BOOT_SOFTWARE_VERSION_LABEL));
     }
 }

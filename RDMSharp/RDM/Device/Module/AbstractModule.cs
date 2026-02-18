@@ -18,18 +18,27 @@ public abstract class AbstractModule : IModule
 
     public IReadOnlyCollection<ERDM_Parameter> SupportedParameters { get => _supportedParameters; }
 
-    protected AbstractGeneratedRDMDevice ParentDevice { get; private set; }
+    protected AbstractGeneratedRDMDevice ParentGeneratedDevice { get; private set; }
+    protected AbstractRemoteRDMDevice ParentRemoteDevice { get; private set; }
+    protected AbstractRDMDevice ParentDevice
+    {
+        get
+        {
+            if (ParentRemoteDevice is not null)
+                return ParentRemoteDevice;
 
-    private readonly IRDMRemoteDevice _remoteDevice;
+            return ParentGeneratedDevice;
+        }
+    }
 
     protected AbstractModule(string name, params ERDM_Parameter[] supportedParameters)
     {
         this._name = name;
         this._supportedParameters = supportedParameters;
     }
-    protected AbstractModule(IRDMRemoteDevice remoteDevice, string name, params ERDM_Parameter[] supportedParameters) : this(name, supportedParameters)
+    protected AbstractModule(AbstractRemoteRDMDevice remoteDevice, string name, params ERDM_Parameter[] supportedParameters) : this(name, supportedParameters)
     {
-        _remoteDevice = remoteDevice;
+        ParentRemoteDevice = remoteDevice;
         if (remoteDevice is AbstractRemoteRDMDevice device)
             SetRemoteParentDevice(device);
     }
@@ -67,18 +76,23 @@ public abstract class AbstractModule : IModule
 
     internal void SetGeneratedParentDevice(AbstractGeneratedRDMDevice device)
     {
-        if (ParentDevice is not null)
+        if (ParentGeneratedDevice is not null)
             return;
-        ParentDevice = device;
+        ParentGeneratedDevice = device;
         device.ParameterValueAdded += Device_ParameterValueAdded;
         device.ParameterValueChanged += Device_ParameterValueChanged;
-        OnParentDeviceChanged(ParentDevice);
+        OnParentGeneratedDeviceChanged(ParentGeneratedDevice);
     }
     private void SetRemoteParentDevice(AbstractRemoteRDMDevice device)
     {
         device.ParameterValueAdded += Device_ParameterValueAdded;
         device.ParameterValueChanged += Device_ParameterValueChanged;
-        OnParentDeviceChanged(ParentDevice);
+        OnRemoteParentDeviceChanged(device);
+    }
+
+    protected virtual void OnRemoteParentDeviceChanged(AbstractRemoteRDMDevice device)
+    {
+
     }
 
     private void Device_ParameterValueAdded(object sender, AbstractRDMCache.ParameterValueAddedEventArgs e)
@@ -91,7 +105,7 @@ public abstract class AbstractModule : IModule
     }
     protected abstract void ParameterChanged(ERDM_Parameter parameter, object? newValue, object? index);
 
-    protected abstract void OnParentDeviceChanged(AbstractGeneratedRDMDevice device);
+    protected abstract void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device);
 
     protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {

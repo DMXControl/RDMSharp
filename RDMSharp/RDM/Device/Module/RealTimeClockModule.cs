@@ -21,10 +21,13 @@ public sealed class RealTimeClockModule : AbstractModule
             }
             return null;
         }
-        internal set
+        set
         {
-            if (ParentDevice is not null)
-                ParentDevice.setParameterValue(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(value.Value));
+            if (ParentGeneratedDevice is not null)
+                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(value.Value));
+
+            if (ParentRemoteDevice is not null)
+                _ = ParentRemoteDevice.SetParameter(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(value.Value));
         }
     }
     public RealTimeClockModule() : base(
@@ -32,14 +35,14 @@ public sealed class RealTimeClockModule : AbstractModule
         _moduleParameter)
     {
     }
-    public RealTimeClockModule(IRDMRemoteDevice remoteDevice) : base(
+    public RealTimeClockModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameter)
     {
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         this.RealTimeClock = DateTime.Now;
         GlobalTimers.Instance.PresentUpdateTimerElapsed += Instance_PresentUpdateTimerElapsed;

@@ -1,4 +1,5 @@
 using RDMSharp.Metadata;
+using RDMSharp.RDM.Device.Module;
 using RDMSharpTests.Devices.Mock;
 
 namespace RDMSharpTests.RDM.Devices.Modules;
@@ -34,6 +35,10 @@ public class TestIdentifyDeviceModule
         #region Test Basic
         Assert.That(generated, Is.Not.Null);
         Assert.That(generated.Identify, Is.False);
+
+        var identifyDeviceModule = generated.Modules.OfType<IdentifyDeviceModule>().Single();
+        Assert.That(identifyDeviceModule, Is.Not.Null);
+        Assert.That(identifyDeviceModule.Identify, Is.False);
         RDMMessage request = new RDMMessage()
         {
             Command = ERDM_Command.GET_COMMAND,
@@ -126,5 +131,28 @@ public class TestIdentifyDeviceModule
         Assert.That(response.Value, Is.EqualTo(generated.Identify));
 
         #endregion
+    }
+
+    [Test, Order(301)]
+    public async Task TestRemoteDevice()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var generatedModule = generated.Modules.OfType<IdentifyDeviceModule>().Single();
+        Assert.That(generatedModule, Is.Not.Null);
+        Assert.That(generatedModule.Identify, Is.False);
+
+        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        while (!mockDevice.IsInitialized)
+            await Task.Delay(100);
+
+        var module = mockDevice.Modules.OfType<IdentifyDeviceModule>().Single();
+        Assert.That(module, Is.Not.Null);
+        Assert.That(module.Identify, Is.False);
+
+        module.Identify = true;
+        await Task.Delay(1000);
+
+        Assert.That(generatedModule.Identify, Is.True);
+        Assert.That(module.Identify, Is.True);
     }
 }

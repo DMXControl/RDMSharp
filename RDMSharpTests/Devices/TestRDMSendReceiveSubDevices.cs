@@ -114,7 +114,7 @@ public class TestRDMSendReceiveSubDevices
         Assert.That(remote.ParameterValues[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(deviceLabelModule.DeviceLabel));
         Assert.That(remote.ParameterValues[ERDM_Parameter.DEVICE_MODEL_DESCRIPTION], Is.EqualTo(deviceModelDescriptionModule.DeviceModelDescription));
         Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.MANUFACTURER_LABEL], Is.EqualTo(manufacturerLabelModule.ManufacturerLabel));
-        Assert.That(((RDMDMXPersonality)remote.ParameterValues[ERDM_Parameter.DMX_PERSONALITY]).Index, Is.EqualTo(generated.CurrentPersonality));
+        Assert.That(((RDMDMXPersonality)remote.ParameterValues[ERDM_Parameter.DMX_PERSONALITY]).Index, Is.EqualTo(generated.CurrentPersonalityId));
         //});
 
         await remote.SetParameter(ERDM_Parameter.DMX_START_ADDRESS, (ushort)512);
@@ -130,7 +130,7 @@ public class TestRDMSendReceiveSubDevices
             //Assert.Multiple(() =>
             //{
             Assert.That(remote.ParameterValues[ERDM_Parameter.DMX_PERSONALITY], Is.EqualTo(3));
-            Assert.That(generated.CurrentPersonality, Is.EqualTo(3));
+            Assert.That(generated.CurrentPersonalityId, Is.EqualTo(3));
             //});
         }
 

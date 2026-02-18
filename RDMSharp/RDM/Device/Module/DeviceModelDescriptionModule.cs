@@ -20,8 +20,8 @@ public sealed class DeviceModelDescriptionModule : AbstractModule
         internal set
         {
             _deviceModelDescriptionLabel = value;
-            if (ParentDevice is not null)
-                ParentDevice.setParameterValue(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION, value);
+            if (ParentGeneratedDevice is not null)
+                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION, value);
         }
     }
     public DeviceModelDescriptionModule(string manufacturerLabel) : base(
@@ -30,14 +30,14 @@ public sealed class DeviceModelDescriptionModule : AbstractModule
     {
         _deviceModelDescriptionLabel = manufacturerLabel;
     }
-    public DeviceModelDescriptionModule(IRDMRemoteDevice remoteDevice) : base(
+    public DeviceModelDescriptionModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameter)
     {
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         this.DeviceModelDescription = _deviceModelDescriptionLabel;
     }

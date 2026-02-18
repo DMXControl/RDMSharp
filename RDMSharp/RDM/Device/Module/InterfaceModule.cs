@@ -45,14 +45,14 @@ public sealed class InterfaceModule : AbstractModule
     {
         _interfaces = interfaces;
     }
-    public InterfaceModule(IRDMRemoteDevice remoteDevice) : base(
+    public InterfaceModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameters)
     {
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
 
         foreach (var iface in _interfaces)
@@ -66,13 +66,13 @@ public sealed class InterfaceModule : AbstractModule
             iface.PropertyChanged += Iface_PropertyChanged;
         }
 
-        ParentDevice.setParameterValue(ERDM_Parameter.INTERFACE_LABEL, lableDict);
-        ParentDevice.setParameterValue(ERDM_Parameter.INTERFACE_HARDWARE_ADDRESS_TYPE, hardwareAddressTypeDict);
-        ParentDevice.setParameterValue(ERDM_Parameter.IPV4_CURRENT_ADDRESS, currentAddressDict);
-        ParentDevice.setParameterValue(ERDM_Parameter.IPV4_STATIC_ADDRESS, staticAddressDict);
-        ParentDevice.setParameterValue(ERDM_Parameter.IPV4_DHCP_MODE, dhcpModeDict);
-        ParentDevice.setParameterValue(ERDM_Parameter.IPV4_ZEROCONF_MODE, zeroConfModeDict);
-        ParentDevice.setParameterValue(ERDM_Parameter.LIST_INTERFACES, _interfaces.Select(i => new InterfaceDescriptor(i.InterfaceId, i.HardwareType)).ToArray());
+        ParentGeneratedDevice.setParameterValue(ERDM_Parameter.INTERFACE_LABEL, lableDict);
+        ParentGeneratedDevice.setParameterValue(ERDM_Parameter.INTERFACE_HARDWARE_ADDRESS_TYPE, hardwareAddressTypeDict);
+        ParentGeneratedDevice.setParameterValue(ERDM_Parameter.IPV4_CURRENT_ADDRESS, currentAddressDict);
+        ParentGeneratedDevice.setParameterValue(ERDM_Parameter.IPV4_STATIC_ADDRESS, staticAddressDict);
+        ParentGeneratedDevice.setParameterValue(ERDM_Parameter.IPV4_DHCP_MODE, dhcpModeDict);
+        ParentGeneratedDevice.setParameterValue(ERDM_Parameter.IPV4_ZEROCONF_MODE, zeroConfModeDict);
+        ParentGeneratedDevice.setParameterValue(ERDM_Parameter.LIST_INTERFACES, _interfaces.Select(i => new InterfaceDescriptor(i.InterfaceId, i.HardwareType)).ToArray());
     }
 
     private void Iface_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -84,25 +84,25 @@ public sealed class InterfaceModule : AbstractModule
             case (nameof(Interface.DHCP)):
                 var newDHCPValue = new GetSetIPV4_xxx_Mode(iface.InterfaceId, iface.DHCP);
                 this.dhcpModeDict.AddOrUpdate(iface.InterfaceId, (_) => newDHCPValue, (_, _) => newDHCPValue);
-                this.ParentDevice.setParameterValue(ERDM_Parameter.IPV4_DHCP_MODE, this.dhcpModeDict, iface.InterfaceId);
+                this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.IPV4_DHCP_MODE, this.dhcpModeDict, iface.InterfaceId);
                 break;
             case (nameof(Interface.ZeroConf)):
                 var newZeroConfValue = new GetSetIPV4_xxx_Mode(iface.InterfaceId, iface.ZeroConf);
                 this.zeroConfModeDict.AddOrUpdate(iface.InterfaceId, (_) => newZeroConfValue, (_, _) => newZeroConfValue);
-                this.ParentDevice.setParameterValue(ERDM_Parameter.IPV4_ZEROCONF_MODE, this.zeroConfModeDict, iface.InterfaceId);
+                this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.IPV4_ZEROCONF_MODE, this.zeroConfModeDict, iface.InterfaceId);
                 break;
 
             case (nameof(Interface.StaticIP)):
             case (nameof(Interface.StaticSubnetMask)):
                 var newIPv4StaticAddressValue = new GetSetIPv4StaticAddress(iface.InterfaceId, iface.StaticIP, iface.StaticSubnetMask);
                 this.staticAddressDict.AddOrUpdate(iface.InterfaceId, (_) => newIPv4StaticAddressValue, (_, _) => newIPv4StaticAddressValue);
-                this.ParentDevice.setParameterValue(ERDM_Parameter.IPV4_STATIC_ADDRESS, this.staticAddressDict, iface.InterfaceId);
+                this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.IPV4_STATIC_ADDRESS, this.staticAddressDict, iface.InterfaceId);
                 break;
             case (nameof(Interface.CurrentIP)):
             case (nameof(Interface.CurrentSubnetMask)):
                 var newIPv4CurrentAddressValue = new GetIPv4CurrentAddressResponse(iface.InterfaceId, iface.StaticIP, iface.StaticSubnetMask);
                 this.currentAddressDict.AddOrUpdate(iface.InterfaceId, (_) => newIPv4CurrentAddressValue, (_, _) => newIPv4CurrentAddressValue);
-                this.ParentDevice.setParameterValue(ERDM_Parameter.IPV4_CURRENT_ADDRESS, this.currentAddressDict, iface.InterfaceId);
+                this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.IPV4_CURRENT_ADDRESS, this.currentAddressDict, iface.InterfaceId);
                 break;
         }
     }

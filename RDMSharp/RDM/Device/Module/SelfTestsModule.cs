@@ -14,14 +14,14 @@ public sealed class SelfTestsModule : AbstractModule
         _moduleParameters)
     {
     }
-    public SelfTestsModule(IRDMRemoteDevice remoteDevice) : base(
+    public SelfTestsModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameters)
     {
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         throw new System.NotImplementedException();
     }

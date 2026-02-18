@@ -15,11 +15,23 @@ public sealed class SlotsModule : AbstractModule
         ERDM_Parameter.DEFAULT_SLOT_VALUE
     };
 
+    public IPersonality CurrentPersonality
+    {
+        get
+        {
+            if (ParentGeneratedDevice is not null)
+                return dmxPersonalityModule.CurrentPersonality;
+            else if (ParentRemoteDevice is not null)
+                return ParentRemoteDevice.PersonalityModel.Personality;
+            return null;
+        }
+    }
+
     public IReadOnlyDictionary<ushort, Slot> Slots
     {
         get
         {
-            return dmxPersonalityModule?.Personalities?.FirstOrDefault(p => p.ID == dmxPersonalityModule.CurrentPersonality)?.Slots;
+            return CurrentPersonality?.Slots;
         }
     }
 
@@ -30,18 +42,22 @@ public sealed class SlotsModule : AbstractModule
         _moduleParameters)
     {
     }
-    public SlotsModule(IRDMRemoteDevice remoteDevice) : base(
+    public SlotsModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameters)
     {
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         dmxPersonalityModule = device.Modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
         dmxPersonalityModule.PropertyChanged += DmxPersonalityModule_PropertyChanged;
         updateParameterValues();
+    }
+    protected override void OnRemoteParentDeviceChanged(AbstractRemoteRDMDevice device)
+    {
+        device.PropertyChanged += DmxPersonalityModule_PropertyChanged;
     }
 
     private void DmxPersonalityModule_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -63,6 +79,24 @@ public sealed class SlotsModule : AbstractModule
     }
     private void updateParameterValues()
     {
+        if (dmxPersonalityModule is null)
+        {
+            if (ParentRemoteDevice is not null)
+            {
+                dmxPersonalityModule = ParentRemoteDevice.Modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
+                dmxPersonalityModule.PropertyChanged += DmxPersonalityModule_PropertyChanged;
+            }
+        }
+        if (ParentRemoteDevice is not null)
+        {
+            var pers = (RemotePersonality)CurrentPersonality;
+            if (!pers.AllDataPulled)
+                pers.PropertyChanged += Pers_PropertyChanged;
+            else
+                OnPropertyChanged(nameof(Slots));
+            return;
+        }
+
         var slots = this.Slots;
         var slotsCount = slots.Count;
         var slotInfos = new RDMSlotInfo[slotsCount];
@@ -75,9 +109,19 @@ public sealed class SlotsModule : AbstractModule
             slotDesc.TryAdd(slot.SlotId, new RDMSlotDescription(slot.SlotId, slot.Description));
             slotDefault[slot.SlotId] = new RDMDefaultSlotValue(slot.SlotId, slot.DefaultValue);
         }
-        ParentDevice.setParameterValue(ERDM_Parameter.SLOT_INFO, slotInfos);
-        ParentDevice.setParameterValue(ERDM_Parameter.SLOT_DESCRIPTION, slotDesc);
-        ParentDevice.setParameterValue(ERDM_Parameter.DEFAULT_SLOT_VALUE, slotDefault);
+        ParentGeneratedDevice.setParameterValue(ERDM_Parameter.SLOT_INFO, slotInfos);
+        ParentGeneratedDevice.setParameterValue(ERDM_Parameter.SLOT_DESCRIPTION, slotDesc);
+        ParentGeneratedDevice.setParameterValue(ERDM_Parameter.DEFAULT_SLOT_VALUE, slotDefault);
         OnPropertyChanged(nameof(Slots));
+    }
+
+    private void Pers_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        var pers = (RemotePersonality)sender;
+        pers.PropertyChanged -= Pers_PropertyChanged;
+
+        if (e.PropertyName == nameof(pers.AllDataPulled))
+            OnPropertyChanged(nameof(Slots));
+
     }
 }

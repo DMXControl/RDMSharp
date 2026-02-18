@@ -1,4 +1,5 @@
 using RDMSharp.Metadata;
+using RDMSharp.RDM.Device.Module;
 using RDMSharpTests.Devices.Mock;
 
 namespace RDMSharpTests.RDM.Devices.Modules;
@@ -34,6 +35,11 @@ public class TestDMX_StartAddressModule
     {
         #region Test Basic
         Assert.That(generated, Is.Not.Null);
+
+        var dmxStartAddressModule = generated.Modules.OfType<DMX_StartAddressModule>().Single();
+        Assert.That(dmxStartAddressModule, Is.Not.Null);
+        Assert.That(dmxStartAddressModule.DMXAddress, Is.EqualTo(1));
+
         RDMMessage request = new RDMMessage()
         {
             Command = ERDM_Command.GET_COMMAND,
@@ -71,5 +77,28 @@ public class TestDMX_StartAddressModule
         Assert.That(response.ParameterData, Has.Length.EqualTo(2));
         Assert.That(response.Value, Is.EqualTo(generated.DMXAddress));
         #endregion
+    }
+
+    [Test, Order(301)]
+    public async Task TestRemoteDevice()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var generatedModule = generated.Modules.OfType<DMX_StartAddressModule>().Single();
+        Assert.That(generatedModule, Is.Not.Null);
+        Assert.That(generatedModule.DMXAddress, Is.EqualTo(1));
+
+        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        while (!mockDevice.IsInitialized)
+            await Task.Delay(100);
+
+        var module = mockDevice.Modules.OfType<DMX_StartAddressModule>().Single();
+        Assert.That(module, Is.Not.Null);
+        Assert.That(module.DMXAddress, Is.EqualTo(1));
+
+        module.DMXAddress = 222;
+        await Task.Delay(1000);
+
+        Assert.That(generatedModule.DMXAddress, Is.EqualTo(222));
+        Assert.That(module.DMXAddress, Is.EqualTo(222));
     }
 }

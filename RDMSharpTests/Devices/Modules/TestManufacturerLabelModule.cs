@@ -59,4 +59,16 @@ public class TestManufacturerLabelModule
         Assert.That(response.Value, Is.EqualTo(manufacturerLabelModule.ManufacturerLabel));
         #endregion
     }
+
+    [Test, Order(301)]
+    public async Task TestRemoteDevice()
+    {
+        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        while (!mockDevice.IsInitialized)
+            await Task.Delay(100);
+
+        var module = mockDevice.Modules.OfType<ManufacturerLabelModule>().Single();
+        Assert.That(module, Is.Not.Null);
+        Assert.That(module.ManufacturerLabel, Is.EqualTo("Dummy Manufacturer 9FFF"));
+    }
 }

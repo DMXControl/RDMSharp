@@ -46,7 +46,7 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
             return softwareVersionModule?.SoftwareVersionId ?? 0;
         }
     }
-    public IReadOnlyCollection<GeneratedPersonality> Personalities { get { return dmxPersonalityModule?.Personalities ?? Array.Empty<GeneratedPersonality>(); } }
+    public IReadOnlyCollection<GeneratedPersonality> Personalities { get { return dmxPersonalityModule?.Personalities.OfType<GeneratedPersonality>().ToList().AsReadOnly() ?? Array.Empty<GeneratedPersonality>().AsReadOnly(); } }
     public sealed override IReadOnlyDictionary<byte, Sensor> Sensors { get { return sensorsModule?.Sensors; } }
     public sealed override IReadOnlyDictionary<ushort, Slot> Slots { get { return slotsModule?.Slots; } }
     public sealed override RDMDeviceInfo DeviceInfo { get { return deviceInfoModule?.DeviceInfo; } }
@@ -72,21 +72,24 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
         }
     }
 
-    public byte? CurrentPersonality
+    public byte? CurrentPersonalityId
     {
         get
         {
-            return dmxPersonalityModule.CurrentPersonality;
+            return dmxPersonalityModule.CurrentPersonality.ID;
         }
         set
         {
             if (dmxPersonalityModule is null)
                 return;
-            if (dmxPersonalityModule.CurrentPersonality == value)
+            if (dmxPersonalityModule.CurrentPersonality.ID == value)
                 return;
 
-            dmxPersonalityModule.CurrentPersonality = value;
-            this.OnPropertyChanged(nameof(this.CurrentPersonality));
+            Task.Run(async () =>
+            {
+                await dmxPersonalityModule.SetPersonality(value.Value);
+                this.OnPropertyChanged(nameof(this.CurrentPersonalityId));
+            }).GetAwaiter().GetResult();
         }
     }
     #endregion

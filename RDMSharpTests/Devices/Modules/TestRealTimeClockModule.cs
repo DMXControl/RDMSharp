@@ -10,7 +10,7 @@ public class TestRealTimeClockModule
     private RealTimeClockModuleMockDevice? generated;
 
     private static UID CONTROLLER_UID = new UID(0x1fff, 333);
-    private static UID DEVCIE_UID = new UID(123, 555);
+    private static UID DEVCIE_UID = new UID(876, 555198);
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()
@@ -19,10 +19,12 @@ public class TestRealTimeClockModule
     }
 
     [SetUp]
-    public void Setup()
+    public async Task Setup()
     {
         var defines = MetadataFactory.GetMetadataDefineVersions();
         generated = new RealTimeClockModuleMockDevice(DEVCIE_UID);
+        while (!generated.IsInitialized)
+            await Task.Delay(100);
     }
     [TearDown]
     public void TearDown()
@@ -37,6 +39,7 @@ public class TestRealTimeClockModule
         await Task.Delay(500);
         #region Test Basic
         Assert.That(generated, Is.Not.Null);
+        Assert.That(generated.Parameters.Contains(ERDM_Parameter.REAL_TIME_CLOCK), Is.True);
         await Task.Delay(1000);
         var realTimeClockModule = generated.Modules.OfType<RealTimeClockModule>().FirstOrDefault();
         Assert.That(realTimeClockModule, Is.Not.Null);
@@ -71,6 +74,38 @@ public class TestRealTimeClockModule
         #endregion
 
     }
+
+    [Test, Retry(3), Order(301)]
+    public async Task TestRemoteDevice()
+    {
+        Assert.That(generated, Is.Not.Null);
+        Assert.That(generated.Parameters.Contains(ERDM_Parameter.REAL_TIME_CLOCK), Is.True);
+        var generatedModule = generated.Modules.OfType<RealTimeClockModule>().Single();
+        Assert.That(generatedModule, Is.Not.Null);
+        Assert.That(generatedModule.RealTimeClock, Is.Not.Null);
+        Assert.That(generatedModule.RealTimeClock.Value.Minute, Is.EqualTo(DateTime.Now.Minute));
+
+        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        while (!mockDevice.IsInitialized)
+            await Task.Delay(100);
+
+        bool parameterPresent = mockDevice.DeviceModel.GetSupportedParameters().Any(sp => sp.Parameter == ERDM_Parameter.REAL_TIME_CLOCK);
+        Assert.That(parameterPresent, Is.True);
+        var module = mockDevice.Modules.OfType<RealTimeClockModule>().Single();
+        Assert.That(module, Is.Not.Null);
+        Assert.That(module.RealTimeClock, Is.Not.Null);
+        Assert.That(module.RealTimeClock.Value.Minute, Is.EqualTo(DateTime.Now.Minute));
+
+        SemaphoreSlim semaphoreSlim = new SemaphoreSlim(0, 1);
+        module.PropertyChanged += (o, e) =>
+        {
+            semaphoreSlim.Release();
+        };
+        DateTime newDate = new DateTime(2026, 12, 30, 23, 29, 45);
+        module.RealTimeClock = newDate;
+        await semaphoreSlim.WaitAsync();
+    }
+
     class RealTimeClockModuleMockDevice : MockGeneratedDevice1
     {
         public RealTimeClockModuleMockDevice(UID uid) : base(uid, new IModule[] { new RealTimeClockModule() })

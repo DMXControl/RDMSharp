@@ -75,4 +75,32 @@ public class TestDeviceLabelModule
         Assert.That(response.Value, Is.EqualTo(deviceLabelModule.DeviceLabel));
         #endregion
     }
+
+    [Test, Order(301)]
+    public async Task TestRemoteDevice()
+    {
+        var generatedModule = generated.Modules.OfType<DeviceLabelModule>().Single();
+        Assert.That(generatedModule, Is.Not.Null);
+        Assert.That(generatedModule.DeviceLabel, Is.EqualTo("Dummy Device 1"));
+
+        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        while (!mockDevice.IsInitialized)
+            await Task.Delay(100);
+
+        var module = mockDevice.Modules.OfType<DeviceLabelModule>().Single();
+        Assert.That(module, Is.Not.Null);
+        Assert.That(module.DeviceLabel, Is.EqualTo("Dummy Device 1"));
+
+        SemaphoreSlim semaphoreSlim = new SemaphoreSlim(0, 1);
+        module.PropertyChanged += (o, e) =>
+        {
+            semaphoreSlim.Release();
+        };
+        module.DeviceLabel = "Test Label";
+        await semaphoreSlim.WaitAsync();
+        await Task.Delay(1000);
+
+        Assert.That(generatedModule.DeviceLabel, Is.EqualTo("Test Label"));
+        Assert.That(module.DeviceLabel, Is.EqualTo("Test Label"));
+    }
 }

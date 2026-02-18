@@ -80,7 +80,7 @@ public class TestRDMSendReceive
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(deviceLabelModule.DeviceLabel));
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_MODEL_DESCRIPTION], Is.EqualTo(deviceModelDescriptionModule.DeviceModelDescription));
                 Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.MANUFACTURER_LABEL], Is.EqualTo(manufacturerLabelModule.ManufacturerLabel));
-                Assert.That(((RDMDMXPersonality)remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY]).Index, Is.EqualTo(generated.CurrentPersonality));
+                Assert.That(((RDMDMXPersonality)remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY]).Index, Is.EqualTo(generated.CurrentPersonalityId));
             });
 
         await remote.SetParameter(ERDM_Parameter.DMX_START_ADDRESS, (ushort)512);
@@ -94,7 +94,7 @@ public class TestRDMSendReceive
         Assert.Multiple(() =>
         {
             Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY], Is.EqualTo(new RDMDMXPersonality(3, 3)));
-            Assert.That(generated.CurrentPersonality, Is.EqualTo(3));
+            Assert.That(generated.CurrentPersonalityId, Is.EqualTo(3));
         });
 
         string label = "Changed Device Label";
@@ -484,7 +484,7 @@ public class TestRDMSendReceive
 
         generated.Identify = false;
         generated.DMXAddress = 44;
-        generated.CurrentPersonality = 2;
+        generated.CurrentPersonalityId = 2;
 
         await Task.Delay(400);
         parameterValuesRemote = remote.GetAllParameterValues();

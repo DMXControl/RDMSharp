@@ -22,16 +22,16 @@ public sealed class StatusMessageModule : AbstractModule
         _moduleParameters)
     {
     }
-    public StatusMessageModule(IRDMRemoteDevice remoteDevice) : base(
+    public StatusMessageModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameters)
     {
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
-        this.ParentDevice.setParameterValue(ERDM_Parameter.STATUS_MESSAGES, new RDMStatusMessage[0]);
+        this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.STATUS_MESSAGES, new RDMStatusMessage[0]);
     }
 
     protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
@@ -92,7 +92,7 @@ public sealed class StatusMessageModule : AbstractModule
             id = this.statusMessages.Max(s => s.Key) + 1;
         if (this.statusMessages.TryAdd(id, statusMessage))
         {
-            this.ParentDevice.setParameterValue(ERDM_Parameter.STATUS_MESSAGES, this.statusMessages.Select(sm => sm.Value).ToArray());
+            this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.STATUS_MESSAGES, this.statusMessages.Select(sm => sm.Value).ToArray());
             OnPropertyChanged(nameof(StatusMessages));
         }
     }
@@ -102,7 +102,7 @@ public sealed class StatusMessageModule : AbstractModule
         {
             s.Value.Clear();
         });
-        this.ParentDevice.setParameterValue(ERDM_Parameter.STATUS_MESSAGES, this.statusMessages.Select(sm => sm.Value).ToArray());
+        this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.STATUS_MESSAGES, this.statusMessages.Select(sm => sm.Value).ToArray());
         OnPropertyChanged(nameof(StatusMessages));
     }
     public void RemoveStatusMessage(RDMStatusMessage statusMessage)
@@ -115,7 +115,7 @@ public sealed class StatusMessageModule : AbstractModule
         });
         if (succes)
         {
-            this.ParentDevice.setParameterValue(ERDM_Parameter.STATUS_MESSAGES, this.statusMessages.Select(sm => sm.Value).ToArray());
+            this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.STATUS_MESSAGES, this.statusMessages.Select(sm => sm.Value).ToArray());
             OnPropertyChanged(nameof(StatusMessages));
         }
     }

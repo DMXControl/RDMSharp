@@ -69,7 +69,7 @@ public sealed class SensorsModule : AbstractModule
             sensor.PropertyChanged += Sensor_PropertyChanged;
         }
     }
-    public SensorsModule(IRDMRemoteDevice remoteDevice) : base(
+    public SensorsModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameters)
@@ -95,14 +95,14 @@ public sealed class SensorsModule : AbstractModule
         return supportedParameters.ToArray();
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
-        this.ParentDevice.setParameterValue(ERDM_Parameter.SENSOR_DEFINITION, sensorDef);
-        this.ParentDevice.setParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue);
+        this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.SENSOR_DEFINITION, sensorDef);
+        this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue);
         if (sensorUnit is not null)
-            this.ParentDevice.setParameterValue(ERDM_Parameter.SENSOR_UNIT_CUSTOM, sensorUnit);
+            this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.SENSOR_UNIT_CUSTOM, sensorUnit);
         if (sensorType is not null)
-            this.ParentDevice.setParameterValue(ERDM_Parameter.SENSOR_TYPE_CUSTOM, sensorType);
+            this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.SENSOR_TYPE_CUSTOM, sensorType);
     }
 
     protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
@@ -194,7 +194,7 @@ public sealed class SensorsModule : AbstractModule
             case nameof(Sensor.LowestHighestValueSupported):
             case nameof(Sensor.RecordedValueSupported):
                 sensorDef.AddOrUpdate(sensor.SensorId, (RDMSensorDefinition)sensor, (o1, o2) => (RDMSensorDefinition)sensor);
-                this.ParentDevice.setParameterValue(ERDM_Parameter.SENSOR_DEFINITION, sensorDef, sensor.SensorId);
+                this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.SENSOR_DEFINITION, sensorDef, sensor.SensorId);
                 OnPropertyChanged(nameof(Sensors));
                 break;
             case nameof(Sensor.PresentValue):
@@ -202,7 +202,7 @@ public sealed class SensorsModule : AbstractModule
             case nameof(Sensor.HighestValue):
             case nameof(Sensor.RecordedValue):
                 sensorValue.AddOrUpdate(sensor.SensorId, (RDMSensorValue)sensor, (o1, o2) => (RDMSensorValue)sensor);
-                this.ParentDevice.setParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue, sensor.SensorId);
+                this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.SENSOR_VALUE, sensorValue, sensor.SensorId);
                 OnPropertyChanged(nameof(Sensors));
                 break;
         }

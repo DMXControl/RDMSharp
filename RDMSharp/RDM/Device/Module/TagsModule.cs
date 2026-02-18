@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
@@ -21,10 +22,9 @@ public sealed class TagsModule : AbstractModule
         {
             IReadOnlyCollection<string> tagList = null;
             if (this.ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.LIST_TAGS, out object tags))
-            {
                 if (tags is IReadOnlyCollection<string> _tagList)
                     tagList = _tagList;
-            }
+
             return tagList;
         }
     }
@@ -33,16 +33,16 @@ public sealed class TagsModule : AbstractModule
         _moduleParameters)
     {
     }
-    public TagsModule(IRDMRemoteDevice remoteDevice) : base(
+    public TagsModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameters)
     {
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
-        this.ParentDevice.setParameterValue(ERDM_Parameter.LIST_TAGS, tags.ToArray());
+        this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.LIST_TAGS, tags.ToArray());
     }
 
     protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
@@ -104,7 +104,7 @@ public sealed class TagsModule : AbstractModule
                         }
                         if (!tags.Contains(tag))
                             tags.Add(tag);
-                        this.ParentDevice.setParameterValue(ERDM_Parameter.LIST_TAGS, tags.ToArray());
+                        this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.LIST_TAGS, tags.ToArray());
                         return new RDMMessage()
                         {
                             SourceUID = message.DestUID,
@@ -156,7 +156,7 @@ public sealed class TagsModule : AbstractModule
                             };
                         }
                         tags.Remove(tag2);
-                        this.ParentDevice.setParameterValue(ERDM_Parameter.LIST_TAGS, tags.ToArray());
+                        this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.LIST_TAGS, tags.ToArray());
                         return new RDMMessage()
                         {
                             SourceUID = message.DestUID,
@@ -240,7 +240,7 @@ public sealed class TagsModule : AbstractModule
                         throw new System.Exception("Simulated hardware fault for testing purposes.");
 #endif
                     tags.Clear();
-                    this.ParentDevice.setParameterValue(ERDM_Parameter.LIST_TAGS, tags.ToArray());
+                    this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.LIST_TAGS, tags.ToArray());
                 }
                 catch (System.Exception ex)
                 {
@@ -275,42 +275,65 @@ public sealed class TagsModule : AbstractModule
         };
     }
 
-    public void AddTag(string tag)
+    public async Task AddTag(string tag)
     {
         if (string.IsNullOrWhiteSpace(tag))
             throw new System.ArgumentException("Tag can't be null or whitespace.", nameof(tag));
         if (!validateTag(tag))
             throw new System.ArgumentOutOfRangeException(nameof(tag), "Tag must not exceed 32 characters.");
-        if (!tags.Contains(tag))
+        if (this.ParentGeneratedDevice is not null)
         {
-            tags.Add(tag);
-            this.ParentDevice.setParameterValue(ERDM_Parameter.LIST_TAGS, tags.ToArray());
+            if (!tags.Contains(tag))
+            {
+                tags.Add(tag);
+                this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.LIST_TAGS, tags.ToArray());
+            }
         }
+        else if (this.ParentRemoteDevice is not null)
+            await this.ParentRemoteDevice.SetParameter(ERDM_Parameter.ADD_TAG, tag);
     }
-    public void RemoveTag(string tag)
+    public async Task RemoveTag(string tag)
     {
         if (string.IsNullOrWhiteSpace(tag))
             throw new System.ArgumentException("Tag can't be null or whitespace.", nameof(tag));
         if (!validateTag(tag))
             throw new System.ArgumentOutOfRangeException(nameof(tag), "Tag must not exceed 32 characters.");
-        if (tags.Contains(tag))
+        if (this.ParentGeneratedDevice is not null)
         {
-            tags.Remove(tag);
-            this.ParentDevice.setParameterValue(ERDM_Parameter.LIST_TAGS, tags.ToArray());
+            if (tags.Contains(tag))
+            {
+                tags.Remove(tag);
+                if (this.ParentGeneratedDevice is not null)
+                    this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.LIST_TAGS, tags.ToArray());
+            }
         }
+        else if (this.ParentRemoteDevice is not null)
+            await this.ParentRemoteDevice.SetParameter(ERDM_Parameter.REMOVE_TAG, tag);
     }
-    public bool CheckTag(string tag)
+    public async Task<bool> CheckTag(string tag)
     {
         if (string.IsNullOrWhiteSpace(tag))
             throw new System.ArgumentException("Tag can't be null or whitespace.", nameof(tag));
         if (!validateTag(tag))
             throw new System.ArgumentOutOfRangeException(nameof(tag), "Tag must not exceed 32 characters.");
-        return tags.Contains(tag);
+
+        if (this.ParentGeneratedDevice is not null)
+            return tags.Contains(tag);
+        else if (this.ParentRemoteDevice is not null)
+        {
+            var result = await this.ParentRemoteDevice.RequestParameterWithPayload(ERDM_Command.GET_COMMAND, ERDM_Parameter.CHECK_TAG, tag);
+            if (result is bool _boolValue)
+                return _boolValue;
+        }
+        return false;
     }
-    public void ClearTags()
+    public async Task ClearTags()
     {
         tags.Clear();
-        this.ParentDevice.setParameterValue(ERDM_Parameter.LIST_TAGS, tags.ToArray());
+        if (this.ParentGeneratedDevice is not null)
+            this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.LIST_TAGS, tags.ToArray());
+        else if (this.ParentRemoteDevice is not null)
+            await this.ParentRemoteDevice.RequestParameter(ERDM_Command.SET_COMMAND, ERDM_Parameter.CLEAR_TAGS);
     }
     private bool validateTag(string tag)
     {

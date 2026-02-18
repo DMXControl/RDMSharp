@@ -29,8 +29,11 @@ public sealed class DMX_StartAddressModule : AbstractModule
                 throw new ArgumentOutOfRangeException($"{DMXAddress} can't be greater then 512");
 
             _dmxAddress = value.Value;
-            if (ParentDevice is not null)
-                ParentDevice.setParameterValue(ERDM_Parameter.DMX_START_ADDRESS, value);
+            if (ParentGeneratedDevice is not null)
+                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.DMX_START_ADDRESS, value);
+
+            if (ParentRemoteDevice is not null)
+                _ = ParentRemoteDevice.SetParameter(ERDM_Parameter.DMX_START_ADDRESS, value);
         }
     }
     public DMX_StartAddressModule(ushort dmxAddress) : base(
@@ -39,14 +42,14 @@ public sealed class DMX_StartAddressModule : AbstractModule
     {
         _dmxAddress = dmxAddress;
     }
-    public DMX_StartAddressModule(IRDMRemoteDevice remoteDevice) : base(
+    public DMX_StartAddressModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameter)
     {
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         this.DMXAddress = _dmxAddress;
     }

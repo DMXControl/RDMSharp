@@ -25,8 +25,8 @@ public sealed class BootSoftwareVersionModule : AbstractModule
         internal set
         {
             _bootSoftwareVersionId = value;
-            if (ParentDevice is not null)
-                ParentDevice.setParameterValue(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID, value);
+            if (ParentGeneratedDevice is not null)
+                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID, value);
         }
     }
     public string BootSoftwareVersionLabel
@@ -43,8 +43,8 @@ public sealed class BootSoftwareVersionModule : AbstractModule
         internal set
         {
             _bootSoftwareVersionLabel = value;
-            if (ParentDevice is not null)
-                ParentDevice.setParameterValue(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, value);
+            if (ParentGeneratedDevice is not null)
+                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, value);
         }
     }
     public BootSoftwareVersionModule(uint bootSoftwareVersionId, string bootSoftwareVersionLabel) : base(
@@ -54,14 +54,14 @@ public sealed class BootSoftwareVersionModule : AbstractModule
         _bootSoftwareVersionId = bootSoftwareVersionId;
         _bootSoftwareVersionLabel = bootSoftwareVersionLabel;
     }
-    public BootSoftwareVersionModule(IRDMRemoteDevice remoteDevice) : base(
+    public BootSoftwareVersionModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameters)
     {
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         this.BootSoftwareVersionId = _bootSoftwareVersionId;
         this.BootSoftwareVersionLabel = _bootSoftwareVersionLabel;

@@ -1,5 +1,6 @@
 using RDMSharp.Metadata;
 using RDMSharp.PayloadObject;
+using RDMSharp.RDM.Device.Module;
 using RDMSharpTests.Devices.Mock;
 
 namespace RDMSharpTests.RDM.Devices.Modules;
@@ -9,7 +10,7 @@ public class TestSlotModule
     private MockGeneratedDevice1? generated;
 
     private static UID CONTROLLER_UID = new UID(0x1fff, 333);
-    private static UID DEVCIE_UID = new UID(123, 555);
+    private static UID DEVCIE_UID = new UID(0x5439, 555);
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()
@@ -59,7 +60,7 @@ public class TestSlotModule
 
         #region Test Change Personality
         Assert.That(generated, Is.Not.Null);
-        generated.CurrentPersonality = 2; // Change to personality 2
+        generated.CurrentPersonalityId = 2; // Change to personality 2
         Assert.That(generated.Slots, Has.Count.EqualTo(8));
 
         response = generated.ProcessRequestMessage_Internal(request);
@@ -76,7 +77,7 @@ public class TestSlotModule
 
         #region Test Change Personality
         Assert.That(generated, Is.Not.Null);
-        generated.CurrentPersonality = 3; // Change to personality 3
+        generated.CurrentPersonalityId = 3; // Change to personality 3
         Assert.That(generated.Slots, Has.Count.EqualTo(9));
 
         response = generated.ProcessRequestMessage_Internal(request);
@@ -92,10 +93,9 @@ public class TestSlotModule
         #endregion
 
         #region Test Invalid Calls
-        Assert.Throws(typeof(NullReferenceException), () => generated.CurrentPersonality = null); // Change to personality null
-        Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonality = 0); // Change to personality 0
-        Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonality = 4); // Change to personality 4
-        Assert.DoesNotThrow(() => generated.CurrentPersonality = 3); // Change to personality 3
+        Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonalityId = 0); // Change to personality 0
+        Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonalityId = 4); // Change to personality 4
+        Assert.DoesNotThrow(() => generated.CurrentPersonalityId = 3); // Change to personality 3
         #endregion
     }
 
@@ -128,7 +128,7 @@ public class TestSlotModule
 
         #region Test Change Personality
         Assert.That(generated, Is.Not.Null);
-        generated.CurrentPersonality = 2; // Change to personality 2
+        generated.CurrentPersonalityId = 2; // Change to personality 2
         Assert.That(generated.Slots, Has.Count.EqualTo(8));
 
         response = generated.ProcessRequestMessage_Internal(request);
@@ -145,7 +145,7 @@ public class TestSlotModule
 
         #region Test Change Personality
         Assert.That(generated, Is.Not.Null);
-        generated.CurrentPersonality = 3; // Change to personality 3
+        generated.CurrentPersonalityId = 3; // Change to personality 3
         Assert.That(generated.Slots, Has.Count.EqualTo(9));
 
         response = generated.ProcessRequestMessage_Internal(request);
@@ -161,10 +161,9 @@ public class TestSlotModule
         #endregion
 
         #region Test Invalid Calls
-        Assert.Throws(typeof(NullReferenceException), () => generated.CurrentPersonality = null); // Change to personality null
-        Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonality = 0); // Change to personality 0
-        Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonality = 4); // Change to personality 4
-        Assert.DoesNotThrow(() => generated.CurrentPersonality = 3); // Change to personality 3
+        Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonalityId = 0); // Change to personality 0
+        Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonalityId = 4); // Change to personality 4
+        Assert.DoesNotThrow(() => generated.CurrentPersonalityId = 3); // Change to personality 3
         #endregion
     }
 
@@ -187,24 +186,23 @@ public class TestSlotModule
         #endregion
 
         #region Test Change Personality 2
-        generated.CurrentPersonality = 2; // Change to personality 2
+        generated.CurrentPersonalityId = 2; // Change to personality 2
         Assert.That(generated, Is.Not.Null);
         Assert.That(generated.Slots, Has.Count.EqualTo(8));
         doTests(generated.Slots.Values.ToArray());
         #endregion
 
         #region Test Change Personality 3
-        generated.CurrentPersonality = 3; // Change to personality 3
+        generated.CurrentPersonalityId = 3; // Change to personality 3
         Assert.That(generated, Is.Not.Null);
         Assert.That(generated.Slots, Has.Count.EqualTo(9));
         doTests(generated.Slots.Values.ToArray());
         #endregion
 
         #region Test Invalid Calls
-        Assert.Throws(typeof(NullReferenceException), () => generated.CurrentPersonality = null); // Change to personality null
-        Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonality = 0); // Change to personality 0
-        Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonality = 4); // Change to personality 4
-        Assert.DoesNotThrow(() => generated.CurrentPersonality = 3); // Change to personality 3
+        Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonalityId = 0); // Change to personality 0
+        Assert.Throws(typeof(ArgumentOutOfRangeException), () => generated.CurrentPersonalityId = 4); // Change to personality 4
+        Assert.DoesNotThrow(() => generated.CurrentPersonalityId = 3); // Change to personality 3
 
         request.ParameterData = new byte[] { (byte)((10 >> 8) & 0xFF), (byte)(10 & 0xFF) };
         response = generated.ProcessRequestMessage_Internal(request);
@@ -235,5 +233,45 @@ public class TestSlotModule
                 Assert.That(response.Value, Is.EqualTo(new RDMSlotDescription(slot.SlotId, slot.Description)));
             }
         }
+    }
+
+    [Test, Order(301)]
+    public async Task TestRemoteDevice()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var generatedModule = generated.Modules.OfType<SlotsModule>().Single();
+        Assert.That(generatedModule, Is.Not.Null);
+        Assert.That(generatedModule.Slots, Is.Not.Null);
+        Assert.That(generatedModule.Slots, Has.Count.EqualTo(5));
+
+        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        while (!mockDevice.IsInitialized)
+            await Task.Delay(100);
+
+        var module = mockDevice.Modules.OfType<SlotsModule>().Single();
+        var personalityModule = mockDevice.Modules.OfType<DMX_PersonalityModule>().Single();
+        Assert.That(module, Is.Not.Null);
+        Assert.That(module.Slots, Is.Not.Null);
+        Assert.That(module.Slots, Has.Count.EqualTo(5));
+        Assert.That(personalityModule.CurrentPersonality.ID, Is.EqualTo(1));
+        Assert.That(personalityModule.CurrentPersonality.SlotCount, Is.EqualTo(5));
+
+        SemaphoreSlim semaphoreSlim = new SemaphoreSlim(0, 1);
+        personalityModule.PropertyChanged += (o, e) =>
+        {
+            semaphoreSlim.Release();
+        };
+        await personalityModule.SetPersonality(2);
+        await semaphoreSlim.WaitAsync();
+        await Task.Delay(1000);
+
+        Assert.That(generatedModule.Slots, Has.Count.EqualTo(8));
+        Assert.That(generatedModule.Slots, Is.Not.Null);
+        while (!((RemotePersonality)module.CurrentPersonality).AllDataPulled)
+            await Task.Delay(100);
+        await Task.Delay(100);
+        Assert.That(personalityModule.CurrentPersonality.SlotCount, Is.EqualTo(8));
+        Assert.That(module.Slots, Is.Not.Null);
+        Assert.That(module.Slots, Has.Count.EqualTo(8));
     }
 }

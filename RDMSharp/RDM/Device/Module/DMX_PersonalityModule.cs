@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
@@ -14,34 +15,66 @@ public sealed class DMX_PersonalityModule : AbstractModule
         ERDM_Parameter.DMX_PERSONALITY,
         ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION
     };
-    private byte _currentPersonality;
-    public byte? CurrentPersonality
+
+    private IPersonality currentPersonality;
+    public IPersonality CurrentPersonality
     {
         get
         {
-            if (ParentDevice is null)
-                return _currentPersonality;
-            object res;
-            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.DMX_PERSONALITY, out res))
-                if (res is RDMDMXPersonality personality)
-                    return personality.CurrentPersonality;
-            return _currentPersonality;
+            return currentPersonality;
+            //if (ParentGeneratedDevice is not null)
+            //    return _generatedPersonalities?.FirstOrDefault(p => p.ID == CurrentPersonalityId);
+
+            //else if (ParentRemoteDevice is not null)
+            //    return ParentRemoteDevice.PersonalityModel.Personality;
+            //return null;
         }
-        set
+        private set
         {
-            if (!value.HasValue)
-                throw new NullReferenceException($"{CurrentPersonality} can't be null if {ERDM_Parameter.DMX_PERSONALITY} is Supported");
-            if (value.Value == 0)
-                throw new ArgumentOutOfRangeException($"{CurrentPersonality} can't 0 if {ERDM_Parameter.DMX_PERSONALITY} is Supported");
-
-            if (!this.Personalities.Any(p => p.ID == value.Value))
-                throw new ArgumentOutOfRangeException($"No Personality found with ID: {value.Value}");
-
-            _currentPersonality = value.Value;
-            if (ParentDevice is not null)
-                ParentDevice.setParameterValue(ERDM_Parameter.DMX_PERSONALITY, new RDMDMXPersonality(value.Value, PersonalitiesCount));
+            if (currentPersonality == value)
+                return;
+            currentPersonality = value;
+            if (ParentGeneratedDevice is not null)
+                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.DMX_PERSONALITY, new RDMDMXPersonality(value.ID, PersonalitiesCount));
+            OnPropertyChanged();
         }
     }
+    private byte _initialPersonalityId;
+    //public byte? CurrentPersonalityId
+    //{
+    //    get
+    //    {
+    //        if (ParentDevice is null)
+    //            return _currentPersonalityId;
+    //        object res;
+    //        if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.DMX_PERSONALITY, out res))
+    //            if (res is RDMDMXPersonality personality)
+    //                return personality.CurrentPersonality;
+    //        return _currentPersonalityId;
+    //    }
+    //    set
+    //    {
+    //        if (!value.HasValue)
+    //            throw new NullReferenceException($"{CurrentPersonalityId} can't be null if {ERDM_Parameter.DMX_PERSONALITY} is Supported");
+    //        if (value.Value == 0)
+    //            throw new ArgumentOutOfRangeException($"{CurrentPersonalityId} can't 0 if {ERDM_Parameter.DMX_PERSONALITY} is Supported");
+
+
+    //        _currentPersonalityId = value.Value;
+    //        if (ParentGeneratedDevice is not null)
+    //        {
+    //            if (!this._generatedPersonalities.Any(p => p.ID == value.Value))
+    //                throw new ArgumentOutOfRangeException($"No Personality found with ID: {value.Value}");
+    //            ParentGeneratedDevice.setParameterValue(ERDM_Parameter.DMX_PERSONALITY, new RDMDMXPersonality(value.Value, PersonalitiesCount));
+    //        }
+    //        if (ParentRemoteDevice is not null)
+    //        {
+    //            if (!this.PersonalityDesriptions.Any(p => p.PersonalityId == value.Value))
+    //                throw new ArgumentOutOfRangeException($"No Personality found with ID: {value.Value}");
+    //            _ = ParentRemoteDevice.SetParameter(ERDM_Parameter.DMX_PERSONALITY, value);
+    //        }
+    //    }
+    //}
     public IReadOnlyCollection<RDMDMXPersonalityDescription> PersonalityDesriptions
     {
         get
@@ -52,81 +85,97 @@ public sealed class DMX_PersonalityModule : AbstractModule
             return Array.Empty<RDMDMXPersonalityDescription>();
         }
     }
-    public readonly IReadOnlyCollection<GeneratedPersonality> Personalities;
-    public readonly byte PersonalitiesCount;
-    private ushort currentPersonalityFootprint;
-    public ushort CurrentPersonalityFootprint
+    public readonly IReadOnlyCollection<GeneratedPersonality> _generatedPersonalities = null;
+    public IReadOnlyCollection<IPersonality> Personalities
     {
         get
         {
-            return currentPersonalityFootprint;
-        }
-        private set
-        {
-            if (currentPersonalityFootprint == value)
-                return;
-            currentPersonalityFootprint = value;
-            OnPropertyChanged();
+            if (_generatedPersonalities is not null)
+                return _generatedPersonalities;
+
+            return ParentRemoteDevice.DeviceModel.KnownPersonalityModels.Select(pm => pm.Personality).ToList().AsReadOnly();
         }
     }
+    public readonly byte PersonalitiesCount;
+    //private ushort currentPersonalityFootprint;
+    //public ushort CurrentPersonalityFootprint
+    //{
+    //    get
+    //    {
+    //        return currentPersonalityFootprint;
+    //    }
+    //    private set
+    //    {
+    //        if (currentPersonalityFootprint == value)
+    //            return;
+    //        currentPersonalityFootprint = value;
+    //        OnPropertyChanged();
+    //    }
+    //}
 
-    public DMX_PersonalityModule(byte currentPersonality, params GeneratedPersonality[] personalities) : base(
+    public DMX_PersonalityModule(byte initialPersonalityId, params GeneratedPersonality[] personalities) : base(
         _moduleName,
         _moduleParameters)
     {
-        if (!personalities.Any(p => p.ID == currentPersonality))
-            throw new ArgumentOutOfRangeException($"No Personality found with ID: {currentPersonality}");
+        if (!personalities.Any(p => p.ID == initialPersonalityId))
+            throw new ArgumentOutOfRangeException($"No Personality found with ID: {initialPersonalityId}");
 
-        _currentPersonality = currentPersonality;
-        Personalities = (personalities ?? Array.Empty<GeneratedPersonality>()).ToList().AsReadOnly();
-        PersonalitiesCount = (byte)Personalities.Count;
+        _initialPersonalityId = initialPersonalityId;
+        _generatedPersonalities = (personalities ?? Array.Empty<GeneratedPersonality>()).ToList().AsReadOnly();
+        PersonalitiesCount = (byte)_generatedPersonalities.Count;
+
     }
-    public DMX_PersonalityModule(IRDMRemoteDevice remoteDevice) : base(
+    public DMX_PersonalityModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameters)
     {
+        CurrentPersonality = ParentRemoteDevice.PersonalityModel.Personality;
+        //currentPersonalityFootprint = ParentRemoteDevice.PersonalityModel.SlotCount;
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override async void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
-        if (Personalities is not null)
+        if (_generatedPersonalities is not null)
         {
-            if (Personalities.Count >= byte.MaxValue)
-                throw new ArgumentOutOfRangeException($"There to many {Personalities}! Maximum is {byte.MaxValue - 1}");
+            if (_generatedPersonalities.Count >= byte.MaxValue)
+                throw new ArgumentOutOfRangeException($"There to many {_generatedPersonalities}! Maximum is {byte.MaxValue - 1}");
 
-            if (Personalities.Count != 0)
+            if (_generatedPersonalities.Count != 0)
             {
                 var persDesc = new ConcurrentDictionary<object, object>();
-                foreach (var gPers in Personalities)
-                    if (!persDesc.TryAdd(gPers.ID, (RDMDMXPersonalityDescription)gPers))
+                foreach (var gPers in _generatedPersonalities)
+                    if (!persDesc.TryAdd(gPers.ID, new RDMDMXPersonalityDescription(gPers)))
                         throw new Exception($"{gPers.ID} already used as {nameof(gPers.ID)}");
 
                 device.setParameterValue(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION, persDesc);
             }
         }
-        this.CurrentPersonality = _currentPersonality;
+        await SetPersonality(_initialPersonalityId);
     }
-    protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
+    protected override async void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
     {
         switch (parameter)
         {
             case ERDM_Parameter.DMX_PERSONALITY:
-                OnPropertyChanged(nameof(CurrentPersonality));
-                byte? val = null;
                 if (newValue is RDMDMXPersonality personality)
-                    val = personality.OfPersonalities;
-                else if (newValue is byte b)
-                    val = b;
-                if (val.HasValue)
                 {
-                    CurrentPersonalityFootprint = Personalities.FirstOrDefault(p => p.ID == val.Value)?.SlotCount ?? 0;
-                    return;
+                    if (ParentGeneratedDevice is not null)
+                        await SetPersonality(personality.CurrentPersonality);
+
+                    else if (ParentRemoteDevice is not null)
+                    {
+                        var pm = ParentRemoteDevice.DeviceModel.KnownPersonalityModels.FirstOrDefault(p => p.Personality.ID == personality.CurrentPersonality);
+                        if (pm is null)
+                            pm = ParentRemoteDevice.DeviceModel.getPersonalityModel(ParentRemoteDevice, personality.CurrentPersonality);
+                        if (!pm.IsInitialized)
+                            await pm.Initialize();
+                        CurrentPersonality = pm.Personality;
+                    }
                 }
-                CurrentPersonalityFootprint = 0;
                 break;
-            case ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION:
-                OnPropertyChanged(nameof(Personalities));
+            case ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION when ParentGeneratedDevice is not null:
+                OnPropertyChanged(nameof(PersonalityDesriptions));
                 break;
         }
     }
@@ -145,8 +194,8 @@ public sealed class DMX_PersonalityModule : AbstractModule
                 {
                     try
                     {
-                        if (this.Personalities.Any(p => p.ID == b))
-                            CurrentPersonality = b;
+                        if (this._generatedPersonalities.FirstOrDefault(p => p.ID == b) is IPersonality pers)
+                            CurrentPersonality = pers;
                         else
                         {
                             return new RDMMessage(ERDM_NackReason.DATA_OUT_OF_RANGE)
@@ -186,5 +235,20 @@ public sealed class DMX_PersonalityModule : AbstractModule
                 };
             }
         return base.handleRequest(message);
+    }
+    public async Task SetPersonality(byte personalityId)
+    {
+        if (ParentGeneratedDevice is not null)
+        {
+            if (this._generatedPersonalities.FirstOrDefault(p => p.ID == personalityId) is not IPersonality pers)
+                throw new ArgumentOutOfRangeException($"No Personality found with ID: {personalityId}");
+            CurrentPersonality = pers;
+        }
+        if (ParentRemoteDevice is not null)
+        {
+            if (!this.PersonalityDesriptions.Any(p => p.PersonalityId == personalityId))
+                throw new ArgumentOutOfRangeException($"No Personality found with ID: {personalityId}");
+            await ParentRemoteDevice.SetParameter(ERDM_Parameter.DMX_PERSONALITY, personalityId);
+        }
     }
 }

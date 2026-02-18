@@ -10,7 +10,7 @@ public class TestProxiedDevicesModlue
     private ProxiedDevicesMockDevice? generated;
 
     private static UID CONTROLLER_UID = new UID(0x1fff, 3453);
-    private static UID DEVCIE_UID = new UID(123, 5225);
+    private static UID DEVCIE_UID = new UID(765, 5225);
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()

@@ -1,5 +1,6 @@
 using RDMSharp.Metadata;
 using RDMSharp.PayloadObject;
+using RDMSharp.RDM.Device.Module;
 using RDMSharpTests.Devices.Mock;
 
 namespace RDMSharpTests.RDM.Devices.Modules;
@@ -58,5 +59,18 @@ public class TestDeviceInfoModule
         Assert.That(deviceInfo, Is.Not.Null);
         Assert.That(deviceInfo.SensorCount, Is.EqualTo(5));
         #endregion
+    }
+
+    [Test, Order(11)]
+    public async Task TestRemoteDevice()
+    {
+        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        while (!mockDevice.IsInitialized)
+            await Task.Delay(100);
+
+        var module = mockDevice.Modules.OfType<DeviceInfoModule>().Single();
+        Assert.That(module, Is.Not.Null);
+        Assert.That(module.DeviceInfo, Is.Not.Null);
+        Assert.That(module.DeviceInfo.SensorCount, Is.EqualTo(5));
     }
 }

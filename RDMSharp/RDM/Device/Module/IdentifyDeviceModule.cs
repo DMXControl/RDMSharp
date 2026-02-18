@@ -17,11 +17,14 @@ public sealed class IdentifyDeviceModule : AbstractModule
                 return (bool)res;
             return _identify;
         }
-        internal set
+        set
         {
             _identify = value;
-            if (ParentDevice is not null)
-                ParentDevice.setParameterValue(ERDM_Parameter.IDENTIFY_DEVICE, value);
+            if (ParentGeneratedDevice is not null)
+                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.IDENTIFY_DEVICE, value);
+
+            if (ParentRemoteDevice is not null)
+                _ = ParentRemoteDevice.SetParameter(ERDM_Parameter.IDENTIFY_DEVICE, value);
         }
     }
 
@@ -30,14 +33,14 @@ public sealed class IdentifyDeviceModule : AbstractModule
         _moduleParameter)
     {
     }
-    public IdentifyDeviceModule(IRDMRemoteDevice remoteDevice) : base(
+    public IdentifyDeviceModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameter)
     {
     }
 
-    protected override void OnParentDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         this.Identify = _identify;
     }
