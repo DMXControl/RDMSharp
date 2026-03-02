@@ -324,7 +324,12 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         ParameterBag parameterBag = new ParameterBag(parameter, this.UID.ManufacturerID, this.deviceInfo.DeviceModelId, this.deviceInfo.SoftwareVersionId);
 
         PeerToPeerProcess ptpProcess = new PeerToPeerProcess(command, this.UID, this.Subdevice, parameterBag);
-        await ptpProcess.Run();
+        await runPeerToPeerProcess(ptpProcess);
+        if (!ptpProcess.ResponsePayloadObject.IsUnset)
+        {
+            updateParameterValuesDependeciePropertyBag(ptpProcess.ParameterBag.PID, ptpProcess.ResponsePayloadObject);
+            updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), ptpProcess.ResponsePayloadObject);
+        }
     }
     public async Task<object> RequestParameterWithPayload(ERDM_Command command, ERDM_Parameter parameter, object payload)
     {

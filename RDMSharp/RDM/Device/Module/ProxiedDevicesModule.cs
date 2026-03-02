@@ -47,12 +47,17 @@ public sealed class ProxiedDevicesModule : AbstractModule
         this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.PROXIED_DEVICES_COUNT, new RDMProxiedDeviceCount(0, false));
     }
 
-    protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
+    protected override async void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
     {
         switch (parameter)
         {
             case ERDM_Parameter.PROXIED_DEVICES:
                 OnPropertyChanged(nameof(DeviceUIDs));
+                break;
+
+            case ERDM_Parameter.PROXIED_DEVICES_COUNT:
+                if (newValue is RDMProxiedDeviceCount proxiedDeviceCount && proxiedDeviceCount.ListChange)
+                    await this.ParentRemoteDevice.RequestParameter(ERDM_Command.GET_COMMAND, ERDM_Parameter.PROXIED_DEVICES);
                 break;
         }
     }
