@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace RDMSharp.RDM.Device.Module;
@@ -97,6 +98,9 @@ public abstract class AbstractModule : IModule
 
     private void Device_ParameterValueAdded(object sender, AbstractRDMCache.ParameterValueAddedEventArgs e)
     {
+        if (!this.SupportedParameters.Contains(e.Parameter))
+            return;
+
         ParameterChanged(e.Parameter, e.Value, e.Index);
     }
     private void Device_ParameterValueChanged(object sender, AbstractRDMCache.ParameterValueChangedEventArgs e)

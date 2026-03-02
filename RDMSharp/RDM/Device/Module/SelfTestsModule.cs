@@ -28,7 +28,7 @@ public sealed class SelfTestsModule : AbstractModule
 
     protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
     {
-        throw new System.NotImplementedException();
+        //throw new System.NotImplementedException();
     }
 
     //protected override RDMMessage handleRequest(RDMMessage message)
