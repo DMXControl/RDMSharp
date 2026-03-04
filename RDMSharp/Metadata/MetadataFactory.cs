@@ -458,23 +458,30 @@ public static class MetadataFactory
 
     public static Type GetDefinedDataTreeObjectType(MetadataJSONObjectDefine define, Command.ECommandDublicate commandType)
     {
-        return GetDefinedDataTreeObjectType((ERDM_Parameter)define.PID, commandType);
+        return GetDefinedDataTreeObjectType((EManufacturer)define.ManufacturerID, (ERDM_Parameter)define.PID, commandType);
     }
     public static Type GetDefinedDataTreeObjectType(MetadataJSONObjectDefine define, ERDM_Command command)
     {
         Command.ECommandDublicate commandType = Tools.ConvertCommandDublicateToCommand(command);
-        return GetDefinedDataTreeObjectType((ERDM_Parameter)define.PID, commandType);
+        return GetDefinedDataTreeObjectType((EManufacturer)define.ManufacturerID, (ERDM_Parameter)define.PID, commandType);
     }
-    public static Type GetDefinedDataTreeObjectType(ERDM_Parameter parameter, ERDM_Command command)
+    public static Type GetDefinedDataTreeObjectType(EManufacturer manufacturer, ERDM_Parameter parameter, ERDM_Command command)
     {
         Command.ECommandDublicate commandType = Tools.ConvertCommandDublicateToCommand(command);
-        return GetDefinedDataTreeObjectType(parameter, commandType);
+        return GetDefinedDataTreeObjectType(manufacturer, parameter, commandType);
     }
-    public static Type GetDefinedDataTreeObjectType(ERDM_Parameter parameter, Command.ECommandDublicate commandType)
+    public static Type GetDefinedDataTreeObjectType(EManufacturer manufacturer, ERDM_Parameter parameter, Command.ECommandDublicate commandType)
     {
+        bool checkManufacturer(EManufacturer attrManu)
+        {
+            if (attrManu == EManufacturer.ESTA)
+                return true;
+
+            return attrManu == manufacturer;
+        }
         return DefinedDataTreeObjects.Where(t =>
         {
-            if (t.GetCustomAttributes<DataTreeObjectAttribute>().Any(attribute => attribute.Parameter == parameter && attribute.Command == commandType))
+            if (t.GetCustomAttributes<DataTreeObjectAttribute>().Any(attribute => attribute.Parameter == parameter && attribute.Command == commandType && checkManufacturer(attribute.Manufacturer)))
                 return true;
             return false;
         }).FirstOrDefault();

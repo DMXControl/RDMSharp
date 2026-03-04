@@ -64,20 +64,27 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
     {
         ushort pid = define.PID;
         var definedDataTreeObjectType = MetadataFactory.GetDefinedDataTreeObjectType(define, commandType);
-        return getParsedObject(pid, definedDataTreeObjectType, commandType);
+        return getParsedObject(define.ManufacturerID, pid, definedDataTreeObjectType, commandType);
     }
-    private object getParsedObject(ushort pid, Type definedDataTreeObjectType, Command.ECommandDublicate commandType)
+    private object getParsedObject(ushort manufacturerID, ushort pid, Type definedDataTreeObjectType, Command.ECommandDublicate commandType)
     {
         if (IsEmpty || IsUnset)
             return null;
         try
         {
+            bool checkManufacturer(ushort attrManuId)
+            {
+                if (attrManuId == (ushort)EManufacturer.ESTA)
+                    return true;
+
+                return attrManuId == manufacturerID;
+            }
 
             if (definedDataTreeObjectType != null)
             {
                 if (definedDataTreeObjectType.IsEnum)
                 {
-                    var enumAttribute = definedDataTreeObjectType.GetCustomAttributes<DataTreeEnumAttribute>().FirstOrDefault(a => (ushort)a.Parameter == pid && a.Command == commandType);
+                    var enumAttribute = definedDataTreeObjectType.GetCustomAttributes<DataTreeEnumAttribute>().FirstOrDefault(a => (ushort)a.Parameter == pid && a.Command == commandType && checkManufacturer((ushort)a.Manufacturer));
 
                     var eChildren = getChildrenUsingPath(enumAttribute, Children);
                     if (enumAttribute.IsArray)
@@ -92,7 +99,7 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
                 }
 
                 ConstructorInfo[] constructors = definedDataTreeObjectType.GetConstructors();
-                var objectAttribute = definedDataTreeObjectType.GetCustomAttributes<DataTreeObjectAttribute>().FirstOrDefault(a => (ushort)a.Parameter == pid && a.Command == commandType);
+                var objectAttribute = definedDataTreeObjectType.GetCustomAttributes<DataTreeObjectAttribute>().FirstOrDefault(a => (ushort)a.Parameter == pid && a.Command == commandType && checkManufacturer((ushort)a.Manufacturer));
 
 
                 var flatDataTree = flateningDateTree(Children);
