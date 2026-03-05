@@ -8,6 +8,8 @@ public enum EManufacturer : ushort
     ESTA = 0x0000,
     [Description("DMXControl-Projects e.V.")]
     DMXControlProjects_eV = 0x02b0,
+    [Description("Luminex")]
+    LUMINEX_Lighting_Control_Equipment_bvba = 0x4C4C,
     [Description("LumenRadio AB")]
     LumenRadio_AB = 0x4C55,
     [Description("Martin Professional A/S")]

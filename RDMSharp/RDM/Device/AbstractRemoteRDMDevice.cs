@@ -168,6 +168,8 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         await requestDeviceInfo(deviceInfo);
         UpdateModules();
         Logger?.LogDebug($"Remote RDM Device {UID} SubDevice: {Subdevice} initialized.");
+
+        RDMSharp.Instance.AddRemoteDeviceToCache(this);
     }
 
     private void UpdateModules()

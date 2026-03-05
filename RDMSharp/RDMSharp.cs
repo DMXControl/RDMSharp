@@ -1,6 +1,7 @@
 ﻿using RDMSharp.Metadata;
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,6 +26,7 @@ public class RDMSharp
 
     private readonly ConcurrentDictionary<UID, byte> transactionCounters = new ConcurrentDictionary<UID, byte>();
     private readonly ConcurrentDictionary<UID, SemaphoreSlim> transactionLock = new ConcurrentDictionary<UID, SemaphoreSlim>();
+    private readonly ConcurrentBag<AbstractRemoteRDMDevice> remoteDeviceCache = new ConcurrentBag<AbstractRemoteRDMDevice>();
 
     private RDMSharp(UID controllerUID, Func<RDMMessage, Task> sendMessage)
     {
@@ -131,5 +133,20 @@ public class RDMSharp
         {
             semaphore.Release();
         }
+    }
+
+    internal void AddRemoteDeviceToCache(AbstractRemoteRDMDevice abstractRemoteRDMDevice)
+    {
+        remoteDeviceCache.Add(abstractRemoteRDMDevice);
+    }
+    public bool TryGetRemoteDeviceFromCache(UID uid, SubDevice subDevice, out AbstractRemoteRDMDevice abstractRemoteRDMDevice)
+    {
+        abstractRemoteRDMDevice = null;
+        try
+        {
+            abstractRemoteRDMDevice = remoteDeviceCache.Where(rd => rd.UID.Equals(uid)).Where(rd => rd.Subdevice.Equals(subDevice)).FirstOrDefault(rd => !(rd.IsDisposed || rd.IsDisposing));
+        }
+        catch { return false; }
+        return abstractRemoteRDMDevice is not null;
     }
 }
