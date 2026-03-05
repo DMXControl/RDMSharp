@@ -31,7 +31,8 @@ public static class MetadataFactory
 
     public static void AddResourceProvider(Assembly assembly)
     {
-        resourceProvider.Add(assembly);
+        if (!resourceProvider.Contains(assembly))
+            resourceProvider.Add(assembly);
     }
     public static IReadOnlyDictionary<string, MetadataVersion> MetadataVersionList
     {
