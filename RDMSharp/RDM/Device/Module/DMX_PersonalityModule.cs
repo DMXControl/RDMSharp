@@ -236,7 +236,7 @@ public sealed class DMX_PersonalityModule : AbstractModule
             }
         return base.handleRequest(message);
     }
-    public async Task SetPersonality(byte personalityId)
+    public async Task<bool> SetPersonality(byte personalityId)
     {
         if (ParentGeneratedDevice is not null)
         {
@@ -248,7 +248,8 @@ public sealed class DMX_PersonalityModule : AbstractModule
         {
             if (!this.PersonalityDesriptions.Any(p => p.PersonalityId == personalityId))
                 throw new ArgumentOutOfRangeException($"No Personality found with ID: {personalityId}");
-            await ParentRemoteDevice.SetParameter(ERDM_Parameter.DMX_PERSONALITY, personalityId);
+            return await ParentRemoteDevice.SetParameter(ERDM_Parameter.DMX_PERSONALITY, personalityId);
         }
+        return true;
     }
 }

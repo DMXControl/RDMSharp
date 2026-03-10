@@ -1,4 +1,6 @@
-﻿namespace RDMSharp.RDM.Device.Module;
+﻿using RDMSharp.PayloadObject;
+
+namespace RDMSharp.RDM.Device.Module;
 
 public sealed class SoftwareVersionModule : AbstractModule
 {
@@ -11,6 +13,12 @@ public sealed class SoftwareVersionModule : AbstractModule
     {
         get
         {
+            if (ParentRemoteDevice is not null)
+            {
+                object res;
+                if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.DEVICE_INFO, out res))
+                    return ((RDMDeviceInfo)res).SoftwareVersionId;
+            }
             return _softwareVersionId;
         }
         internal set
@@ -22,10 +30,10 @@ public sealed class SoftwareVersionModule : AbstractModule
     {
         get
         {
-            if (ParentGeneratedDevice is null)
+            if (ParentGeneratedDevice is null && ParentRemoteDevice is null)
                 return _softwareVersionLabel;
             object res;
-            if (ParentGeneratedDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.SOFTWARE_VERSION_LABEL, out res))
+            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.SOFTWARE_VERSION_LABEL, out res))
                 return (string)res;
             return _softwareVersionLabel;
         }

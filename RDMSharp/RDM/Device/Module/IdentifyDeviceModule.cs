@@ -1,4 +1,6 @@
-﻿namespace RDMSharp.RDM.Device.Module;
+﻿using System.Threading.Tasks;
+
+namespace RDMSharp.RDM.Device.Module;
 
 public sealed class IdentifyDeviceModule : AbstractModule
 {
@@ -24,7 +26,7 @@ public sealed class IdentifyDeviceModule : AbstractModule
                 ParentGeneratedDevice.setParameterValue(ERDM_Parameter.IDENTIFY_DEVICE, value);
 
             if (ParentRemoteDevice is not null)
-                _ = ParentRemoteDevice.SetParameter(ERDM_Parameter.IDENTIFY_DEVICE, value);
+                _ = SetIdentify(value);
         }
     }
 
@@ -52,5 +54,10 @@ public sealed class IdentifyDeviceModule : AbstractModule
                 OnPropertyChanged(nameof(Identify));
                 break;
         }
+    }
+
+    public async Task<bool> SetIdentify(bool value)
+    {
+        return await ParentRemoteDevice.SetParameter(ERDM_Parameter.IDENTIFY_DEVICE, value);
     }
 }

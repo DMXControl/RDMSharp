@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
@@ -33,7 +34,7 @@ public sealed class DMX_StartAddressModule : AbstractModule
                 ParentGeneratedDevice.setParameterValue(ERDM_Parameter.DMX_START_ADDRESS, value);
 
             if (ParentRemoteDevice is not null)
-                _ = ParentRemoteDevice.SetParameter(ERDM_Parameter.DMX_START_ADDRESS, value);
+                _ = SetDMXAddress(value.Value);
         }
     }
     public DMX_StartAddressModule(ushort dmxAddress) : base(
@@ -61,5 +62,9 @@ public sealed class DMX_StartAddressModule : AbstractModule
                 OnPropertyChanged(nameof(DMXAddress));
                 break;
         }
+    }
+    public async Task<bool> SetDMXAddress(ushort dmxAddress)
+    {
+        return await ParentRemoteDevice.SetParameter(ERDM_Parameter.DMX_START_ADDRESS, dmxAddress);
     }
 }

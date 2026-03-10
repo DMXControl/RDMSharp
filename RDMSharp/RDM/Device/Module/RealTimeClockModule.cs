@@ -1,5 +1,6 @@
 ﻿using RDMSharp.PayloadObject;
 using System;
+using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
@@ -27,7 +28,7 @@ public sealed class RealTimeClockModule : AbstractModule
                 ParentGeneratedDevice.setParameterValue(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(value.Value));
 
             if (ParentRemoteDevice is not null)
-                _ = ParentRemoteDevice.SetParameter(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(value.Value));
+                _ = SetClock(value.Value);
         }
     }
     public RealTimeClockModule() : base(
@@ -60,5 +61,10 @@ public sealed class RealTimeClockModule : AbstractModule
                 OnPropertyChanged(nameof(RealTimeClock));
                 break;
         }
+    }
+
+    public async Task<bool> SetClock(DateTime dateTime)
+    {
+        return await ParentRemoteDevice.SetParameter(ERDM_Parameter.REAL_TIME_CLOCK, new RDMRealTimeClock(dateTime));
     }
 }
