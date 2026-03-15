@@ -351,7 +351,7 @@ public abstract class AbstractRDMCache : IDisposable
                                 DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
                                 PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
                                 await runPeerToPeerProcess(ptpProcess);
-                                if (ptpProcess.State == EPeerToPeerProcessState.Failed && ptpProcess.NackReason == ERDM_NackReason.DATA_OUT_OF_RANGE)
+                                if (ptpProcess.State == EPeerToPeerProcessState.Failed && (ptpProcess.NackReason == ERDM_NackReason.DATA_OUT_OF_RANGE || ptpProcess.NackReason is null))
                                 {
                                     if (((IComparable)dataOutOfRangeMin).CompareTo(i) < 0)
                                         return new RequestResult(ptpProcess);
