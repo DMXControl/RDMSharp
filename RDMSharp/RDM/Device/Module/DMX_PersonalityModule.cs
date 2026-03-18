@@ -130,7 +130,7 @@ public sealed class DMX_PersonalityModule : AbstractModule
         _moduleName,
         _moduleParameters)
     {
-        CurrentPersonality = ParentRemoteDevice.PersonalityModel.Personality;
+        CurrentPersonality = ParentRemoteDevice.PersonalityModel?.Personality;
         //currentPersonalityFootprint = ParentRemoteDevice.PersonalityModel.SlotCount;
     }
 

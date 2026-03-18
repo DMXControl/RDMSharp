@@ -204,12 +204,19 @@ internal class ExtensionsManager
     public bool TryGetMatchingModules(AbstractRemoteRDMDevice device, out IReadOnlyCollection<IModule> modulesResult)
     {
         List<IModule> result = new();
-        if (this.TryGetModulesExtensions((EManufacturer)device.UID.ManufacturerID, out IReadOnlyCollection<IModulesExtension> modulesExtensionsResult))
-            foreach (var modulesExtension in modulesExtensionsResult)
-                if (modulesExtension.TryGetModules(device.DeviceModel.GetSupportedParameters().Select(spm => spm.Parameter).ToArray(), out IReadOnlyCollection<Type> modulTypes))
-                    foreach (var modulType in modulTypes)
-                        if (modulesExtension.TryCreateModuleInstance(modulType, device, out IModule moduleInstance))
-                            result.Add(moduleInstance);
+        try
+        {
+            if (this.TryGetModulesExtensions((EManufacturer)device.UID.ManufacturerID, out IReadOnlyCollection<IModulesExtension> modulesExtensionsResult))
+                foreach (var modulesExtension in modulesExtensionsResult)
+                    if (modulesExtension.TryGetModules(device.DeviceModel.GetSupportedParameters().Select(spm => spm.Parameter).ToArray(), out IReadOnlyCollection<Type> modulTypes))
+                        foreach (var modulType in modulTypes)
+                            if (modulesExtension.TryCreateModuleInstance(modulType, device, out IModule moduleInstance))
+                                result.Add(moduleInstance);
+        }
+        catch (Exception e)
+        {
+            Logger?.LogError(e);
+        }
         modulesResult = result.AsReadOnly();
         return result.Count != 0;
     }

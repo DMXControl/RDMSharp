@@ -30,6 +30,8 @@ public abstract class AbstractRDMDevice : AbstractRDMCache, IRDMDevice
     public new bool IsDisposing { get; private set; }
     public new bool IsDisposed { get; private set; }
     public bool IsInitialized { get; private set; }
+    public bool IsInitializing { get; private set; }
+    protected virtual bool AutoInitialize { get { return true; } }
     public abstract bool IsGenerated { get; }
 
 
@@ -56,7 +58,8 @@ public abstract class AbstractRDMDevice : AbstractRDMCache, IRDMDevice
             if (this.subDevices.Distinct().Count() != this.subDevices.Count)
                 throw new InvalidOperationException($"The SubDevices of {this.UID} are not unique.");
 
-            _ = performInitialize();
+            if (AutoInitialize)
+                _ = performInitialize();
         }
     }
 
@@ -64,9 +67,10 @@ public abstract class AbstractRDMDevice : AbstractRDMCache, IRDMDevice
     {
         if (this.IsInitialized)
             return;
-
+        IsInitializing = true;
         await initialize(deviceInfo);
-        this.IsInitialized = true;
+        IsInitialized = true;
+        IsInitializing = false;
     }
 
     protected virtual async Task initialize(RDMDeviceInfo deviceInfo = null)

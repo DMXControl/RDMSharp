@@ -178,6 +178,10 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
 
             IsInitialized = true;
         }
+        catch (Exception e)
+        {
+            Logger?.LogError(e);
+        }
         finally
         {
             initializeSemaphoreSlim.Release();
@@ -278,7 +282,11 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
 
     public bool IsModelOf(UID uid, SubDevice subDevice, RDMDeviceInfo other)
     {
+
         var deviceInfo = this.DeviceInfo;
+        if (other is null || deviceInfo is null)
+            return false;
+
         if (this.ManufacturerID != uid.ManufacturerID)
             return false;
         if (this.CurrentUsedSubDevice != subDevice)

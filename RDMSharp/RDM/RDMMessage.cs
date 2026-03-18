@@ -95,6 +95,26 @@ public class RDMMessage : IEquatable<RDMMessage>
         ControllerFlags_or_MessageCounter = data[17];
         SubDevice = new SubDevice((ushort)((data[18] << 8) | data[19]));
         Command = (ERDM_Command)data[20];
+        if (Command.HasFlag(ERDM_Command.RESPONSE) && PortID_or_Responsetype != 0 && paramLength != 2)
+        {
+            switch (PortID_or_Responsetype)
+            {
+                case 0x03:
+                    if (MessageCounter == 0)
+                    {
+                        Logger?.LogWarning("There is something wrong in this Message, ResponseType is not matching PDL");
+                        PortID_or_Responsetype = 0;
+                    }
+                    break;
+                case 0x01:
+                case 0x02:
+                case 0x04:
+                default:
+                    Logger?.LogWarning("There is something wrong in this Message, ResponseType is not matching PDL");
+                    PortID_or_Responsetype = 0;
+                    break;
+            }
+        }
         Parameter = (ERDM_Parameter)((data[21] << 8) | data[22]);
         ParameterData = data.Skip(24).Take(paramLength).ToArray();
     }
@@ -130,7 +150,7 @@ public class RDMMessage : IEquatable<RDMMessage>
 
     public byte TransactionCounter { get; set; }
 
-    private byte portID_or_Responsetype;
+    private byte portID_or_Responsetype = 1;
     public byte PortID_or_Responsetype
     {
         get
@@ -259,15 +279,21 @@ public class RDMMessage : IEquatable<RDMMessage>
                 return _acknowledgeTimer;
 
             byte[] data = _parameterData.ToArray();
-
-            switch (ResponseType)
+            try
             {
-                case ERDM_ResponseType.ACK_TIMER:
-                    _acknowledgeTimer = _AcknowledgeTimer.FromPayloadData(data);
-                    break;
-                case ERDM_ResponseType.ACK_TIMER_HI_RES:
-                    _acknowledgeTimer = AcknowledgeTimerHighRes.FromPayloadData(data);
-                    break;
+                switch (ResponseType)
+                {
+                    case ERDM_ResponseType.ACK_TIMER:
+                        _acknowledgeTimer = _AcknowledgeTimer.FromPayloadData(data);
+                        break;
+                    case ERDM_ResponseType.ACK_TIMER_HI_RES:
+                        _acknowledgeTimer = AcknowledgeTimerHighRes.FromPayloadData(data);
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger?.LogWarning(e);
             }
             return _acknowledgeTimer;
         }

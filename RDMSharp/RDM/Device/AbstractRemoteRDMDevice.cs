@@ -166,14 +166,20 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         ParameterValueChanged += AbstractRDMDevice_ParameterValueChanged;
         ParameterRequested += AbstractRDMDevice_ParameterRequested;
         await requestDeviceInfo(deviceInfo);
-        UpdateModules();
+        await Task.Delay(100);
+        await UpdateModules();
         Logger?.LogDebug($"Remote RDM Device {UID} SubDevice: {Subdevice} initialized.");
 
         RDMSharp.Instance.AddRemoteDeviceToCache(this);
     }
 
-    private void UpdateModules()
+    private async Task UpdateModules()
     {
+        //while (deviceModel is null)
+        //{
+        //    await Task.Delay(100);
+        //}
+
         if (ExtensionsManager.Instance.TryGetMatchingModules(this, out var modules))
         {
             this._modules.Clear();
@@ -256,6 +262,11 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
                 updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ERDM_Parameter.DEVICE_INFO), ptpProcess.ResponsePayloadObject);
                 await getDeviceModelAndCollectAllParameters();
             }
+            else
+            {
+                await Task.Delay(1000);
+                await requestDeviceInfo();
+            }
         }
         else
         {
@@ -264,6 +275,10 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
             updateParameterValuesDependeciePropertyBag(ERDM_Parameter.DEVICE_INFO, rpl.Value);
             updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ERDM_Parameter.DEVICE_INFO), rpl.Value);
             await getDeviceModelAndCollectAllParameters();
+        }
+        if (DeviceModel is null)
+        {
+
         }
     }
     private async Task requestParameters()
@@ -463,6 +478,11 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         if (deviceModel != null)
             return;
         deviceModel = RDMDeviceModel.getDeviceModel(UID, Subdevice, DeviceInfo, new Func<RDMMessage, Task>(RDMSharp.Instance.SendMessage));
+
+        if (!deviceModel.IsInitialized)
+            while (deviceModel.IsInitializing)
+                await Task.Delay(3000);
+
         if (!deviceModel.IsInitialized)
         {
             deviceModel.Initialized += DeviceModel_Initialized;
@@ -476,6 +496,11 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         {
             InvkoeDeviceModelParameterValueAdded();
             await collectParameters();
+        }
+
+        if (deviceModel is null)
+        {
+
         }
         void InvkoeDeviceModelParameterValueAdded()
         {
