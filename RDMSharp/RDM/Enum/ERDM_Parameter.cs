@@ -113,13 +113,13 @@ public enum ERDM_Parameter : ushort
     [ParameterGroup("Display"), ParameterUpdateTime(308000)]
     DISPLAY_LEVEL = 0x0501,
 
-    [ParameterGroup("Pan/Tilt"), ParameterUpdateTime(60100)]
+    [ParameterGroup("Pan/Tilt"), ParameterUpdateTime(180100)]
     PAN_INVERT = 0x0600,
-    [ParameterGroup("Pan/Tilt"), ParameterUpdateTime(60200)]
+    [ParameterGroup("Pan/Tilt"), ParameterUpdateTime(180200)]
     TILT_INVERT = 0x0601,
-    [ParameterGroup("Pan/Tilt"), ParameterUpdateTime(60300)]
+    [ParameterGroup("Pan/Tilt"), ParameterUpdateTime(180300)]
     PAN_TILT_SWAP = 0x0602,
-    [ParameterUpdateTime(30000)]
+    [ParameterUpdateTime(300000)]
     REAL_TIME_CLOCK = 0x0603,
 
     [ParameterGroup("Control")]

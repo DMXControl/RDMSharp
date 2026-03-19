@@ -551,7 +551,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         switch (e.Parameter)
         {
             case ERDM_Parameter.DEVICE_INFO:
-                if (this.PersonalityModel.PersonalityID != this.DeviceInfo.Dmx512CurrentPersonality)
+                if (this.PersonalityModel?.PersonalityID != this.DeviceInfo.Dmx512CurrentPersonality)
                     goto case ERDM_Parameter.DMX_PERSONALITY;
                 break;
             case ERDM_Parameter.DMX_PERSONALITY:
