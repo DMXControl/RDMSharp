@@ -19,6 +19,8 @@ public interface IRDMRemoteDevice : IRDMDevice
     bool AllDataPulled { get; }
     bool Present { get; }
     DateTime LastSeen { get; }
+    ushort Universe { get; }
+
     Task<bool> SetParameter(ERDM_Parameter parameter, object value = null);
 }
 public interface IRDMRemoteSubDevice : IRDMRemoteDevice
@@ -146,6 +148,22 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
                 return;
             present = value;
             OnPropertyChanged(nameof(Present));
+        }
+    }
+
+    private ushort universe;
+    public ushort Universe
+    {
+        get
+        {
+            return universe;
+        }
+        protected set
+        {
+            if (universe == value)
+                return;
+            universe = value;
+            OnPropertyChanged(nameof(Universe));
         }
     }
 

@@ -41,6 +41,22 @@ public sealed class RealTimeClockModule : AbstractModule
         _moduleName,
         _moduleParameter)
     {
+        GlobalTimers.Instance.RealTimeClockUpdateTimerElapsed += Instance_RealTimeClockUpdateTimerElapsed;
+        Task.Run(async () =>
+        {
+            await Task.Delay(500);
+            var result = await SetClock(DateTime.Now);
+        });
+    }
+    ~RealTimeClockModule()
+    {
+        GlobalTimers.Instance.RealTimeClockUpdateTimerElapsed -= Instance_RealTimeClockUpdateTimerElapsed;
+        GlobalTimers.Instance.PresentUpdateTimerElapsed -= Instance_PresentUpdateTimerElapsed;
+    }
+
+    private async void Instance_RealTimeClockUpdateTimerElapsed(object sender, EventArgs e)
+    {
+        await SetClock(DateTime.Now);
     }
 
     protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)

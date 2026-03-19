@@ -40,7 +40,10 @@ public abstract class AbstractSupportedParametersExtension : ISupportedParameter
         registerHandler(deviceModel, handler);
         await registerAddSupportedParametersHandler(deviceModel, handler);
     }
-    protected abstract Task registerAddSupportedParametersHandler(IRDMDeviceModel deviceModel, Func<ERDM_Parameter[], Task> handler);
+    protected virtual async Task registerAddSupportedParametersHandler(IRDMDeviceModel deviceModel, Func<ERDM_Parameter[], Task> handler)
+    {
+        await Task.CompletedTask;
+    }
 
     public abstract bool TryGetParameterName(ERDM_Parameter parameter, out string name);
 

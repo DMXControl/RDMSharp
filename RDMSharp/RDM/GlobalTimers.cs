@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("RDMSharp.Tests")]
 namespace RDMSharp;
@@ -29,6 +30,7 @@ public class GlobalTimers
 
     public const int DefaultParameterUpdateTimerInterval = 7500; // 7.5 seconds
     public const int DefaultPresentUpdateTimerInterval = 500; // 0.5 seconds
+    public const int DefaultRealTimeClockUpdateTimerInterval = 1800000; // 30 minutes
     public int QueuedUpdateTime { get; set; } = DefaultQueuedUpdateTime;
     public int NonQueuedUpdateTime { get; set; } = DefaultNonQueuedUpdateTime;
     public int UpdateDelayBetweenRequests { get; set; } = DefaultUpdateDelayBetweenRequests;
@@ -68,8 +70,24 @@ public class GlobalTimers
         }
     }
 
+    private int realTimeClockUpdateTimerInterval = DefaultRealTimeClockUpdateTimerInterval;
+    public int RealTimeClockUpdateTimerInterval
+    {
+        get
+        {
+            return realTimeClockUpdateTimerInterval;
+        }
+        set
+        {
+            realTimeClockUpdateTimerInterval = value;
+            if (realTimeClockUpdateTimer != null)
+                realTimeClockUpdateTimer.Interval = value;
+        }
+    }
+
     private System.Timers.Timer parameterUpdateTimer = null;
     private System.Timers.Timer presentUpdateTimer = null;
+    private System.Timers.Timer realTimeClockUpdateTimer = null;
 
     private event EventHandler parameterUpdateTimerElapsed;
     public event EventHandler ParameterUpdateTimerElapsed
@@ -105,6 +123,25 @@ public class GlobalTimers
 
             if (presentUpdateTimerElapsed != null && presentUpdateTimerElapsed == null)
                 destroyPresentUpdateTimer();
+        }
+    }
+
+    private event EventHandler realTimeClockUpdateTimerElapsed;
+    public event EventHandler RealTimeClockUpdateTimerElapsed
+    {
+        add
+        {
+            if (realTimeClockUpdateTimerElapsed == null)
+                initializeRealTimeClockUpdateTimer();
+
+            realTimeClockUpdateTimerElapsed += value;
+        }
+        remove
+        {
+            realTimeClockUpdateTimerElapsed -= value;
+
+            if (realTimeClockUpdateTimerElapsed != null && realTimeClockUpdateTimerElapsed == null)
+                destroyRealTimeClockUpdateTimer();
         }
     }
     private void initializeParameterUpdateTimer()
@@ -146,6 +183,28 @@ public class GlobalTimers
         presentUpdateTimer.Dispose();
         presentUpdateTimer = null;
     }
+
+    private void initializeRealTimeClockUpdateTimer()
+    {
+        Logger?.LogInformation("InitializeRealTimeClockUpdateTimer");
+        if (parameterUpdateTimer != null)
+            return;
+        realTimeClockUpdateTimer = new System.Timers.Timer(RealTimeClockUpdateTimerInterval);
+        realTimeClockUpdateTimer.Elapsed += RealTimeClockUpdateTimer_Elapsed;
+        realTimeClockUpdateTimer.Enabled = true;
+    }
+    private void destroyRealTimeClockUpdateTimer()
+    {
+        Logger?.LogCritical("DestroyRealTimeClockUpdateTimer");
+        if (parameterUpdateTimer == null)
+            return;
+        realTimeClockUpdateTimer.Enabled = false;
+        realTimeClockUpdateTimer.Elapsed -= RealTimeClockUpdateTimer_Elapsed;
+        realTimeClockUpdateTimer.Dispose();
+        realTimeClockUpdateTimer = null;
+    }
+
+
     public void ResetAllTimersToDefault()
     {
         Logger?.LogCritical("ResetAllTimersToDefault");
@@ -213,7 +272,7 @@ public class GlobalTimers
                 {
                     try
                     {
-                        ((EventHandler)handler)?.Invoke(sender, EventArgs.Empty);
+                        ((EventHandler)handler)?.InvokeFailSafe(sender, EventArgs.Empty);
                     }
                     catch (Exception ex)
                     {
@@ -225,6 +284,33 @@ public class GlobalTimers
         catch (Exception ex)
         {
             Logger?.LogError(ex, "Error in PresentUpdateTimer_Elapsed");
+        }
+    }
+    private void RealTimeClockUpdateTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+    {
+        try
+        {
+            Random random = new Random();
+            var handlers = realTimeClockUpdateTimerElapsed?.GetInvocationList();
+            if (handlers != null)
+            {
+                System.Threading.Tasks.Parallel.ForEachAsync(handlers, async (handler, token) =>
+                {
+                    await Task.Delay(random.Next(1000, 15000)); //Add some randomness to distribute the load on the bus.
+                    try
+                    {
+                        ((EventHandler)handler)?.Invoke(sender, EventArgs.Empty);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger?.LogError(ex, "Error in RealTimeClockUpdateTimerElapsed handler");
+                    }
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "Error in RealTimeClockUpdateTimer_Elapsed");
         }
     }
 }

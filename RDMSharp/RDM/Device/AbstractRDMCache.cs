@@ -234,29 +234,29 @@ public abstract class AbstractRDMCache : IDisposable
     {
         define.GetCommand(Metadata.JSON.Command.ECommandDublicate.SetRequest, out var cmd);
         var req = cmd.Value.GetRequiredProperties();
-        if (req.Length == 1)
+        //if (req.Length == 1)
+        //{
+        DataTreeBranch dataTreeBranch = DataTreeBranch.FromObject(value, null, parameterBag, ERDM_Command.SET_COMMAND);
+        PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.SET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
+        await runPeerToPeerProcess(ptpProcess);
+        if (ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Failed)
+            throw new Exception($"Failed to set parameter {parameterBag.PID} with value {value}");
+        if (ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Finished)
         {
-            DataTreeBranch dataTreeBranch = DataTreeBranch.FromObject(value, null, parameterBag, ERDM_Command.SET_COMMAND);
-            PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.SET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
-            await runPeerToPeerProcess(ptpProcess);
-            if (ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Failed)
-                throw new Exception($"Failed to set parameter {parameterBag.PID} with value {value}");
-            if (ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Finished)
+            if (ptpProcess.ResponsePayloadObject.IsEmpty && define.GetResponse.HasValue)
             {
-                if (ptpProcess.ResponsePayloadObject.IsEmpty && define.GetResponse.HasValue)
+                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), dataTreeBranch);
+                if (this.ParameterValues.TryGetValue(parameterBag.PID, out object cacheValue))
                 {
-                    updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), dataTreeBranch);
-                    if (this.ParameterValues.TryGetValue(parameterBag.PID, out object cacheValue))
-                    {
-                        if (value != cacheValue)
-                            throw new Exception($"Failed to set parameter {parameterBag.PID} with value {value}, cache value is {cacheValue}");
-                    }
+                    if (value != cacheValue)
+                        throw new Exception($"Failed to set parameter {parameterBag.PID} with value {value}, cache value is {cacheValue}");
                 }
-                else if (!ptpProcess.ResponsePayloadObject.IsUnset && define.GetResponse.HasValue)
-                    updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), ptpProcess.ResponsePayloadObject);
-                return true;
             }
+            else if (!ptpProcess.ResponsePayloadObject.IsUnset && define.GetResponse.HasValue)
+                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), ptpProcess.ResponsePayloadObject);
+            return true;
         }
+        //}
         return false;
     }
 

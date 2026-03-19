@@ -107,9 +107,15 @@ public abstract class AbstractModule : IModule
     {
         ParameterChanged(e.Parameter, e.NewValue, e.Index);
     }
-    protected abstract void ParameterChanged(ERDM_Parameter parameter, object? newValue, object? index);
+    protected virtual void ParameterChanged(ERDM_Parameter parameter, object? newValue, object? index)
+    {
 
-    protected abstract void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device);
+    }
+
+    protected virtual void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
+    {
+
+    }
 
     protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
