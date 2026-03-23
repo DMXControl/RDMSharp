@@ -206,9 +206,19 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         }
     }
 
-    private void Instance_PresentUpdateTimerElapsed(object sender, EventArgs e)
+    private async void Instance_PresentUpdateTimerElapsed(object sender, EventArgs e)
     {
-        Present = DateTime.UtcNow - lastSeen < TimeSpan.FromMilliseconds(GlobalTimers.Instance.PresentLostTime);
+        bool result = DateTime.UtcNow - lastSeen < TimeSpan.FromMilliseconds(GlobalTimers.Instance.PresentLostTime);
+
+        if (!result)
+        {
+
+            _ = updateParameters();
+            await Task.Delay(1000);
+            result = DateTime.UtcNow - lastSeen < TimeSpan.FromMilliseconds(GlobalTimers.Instance.PresentLostTime);
+        }
+
+        Present = result;
     }
 
     private async void DeviceModel_Initialized(object sender, EventArgs e)
@@ -403,14 +413,17 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
                 if (loopDetectionCache.Any(b => b.Parameter == bag.Parameter && b.Index == bag.Index))
                     return;
 
-                if (DateTime.UtcNow - bag.Timestamp < updateTime)
-                {
-                    ParameterUpdatedBag.TryDequeue(out _);
-                    ParameterUpdatedBag.Enqueue(bag);
+                bool performRequestToDetectIsStillConnected = ((DateTime.UtcNow - this.lastSeen).TotalMilliseconds / (double)GlobalTimers.Instance.PresentLostTime) >= 0.9;
 
-                    loopDetectionCache.Add(bag);
-                    continue;
-                }
+                if (!performRequestToDetectIsStillConnected)
+                    if (DateTime.UtcNow - bag.Timestamp < updateTime)
+                    {
+                        ParameterUpdatedBag.TryDequeue(out _);
+                        ParameterUpdatedBag.Enqueue(bag);
+
+                        loopDetectionCache.Add(bag);
+                        continue;
+                    }
 
                 loopDetectionCache.Add(bag);
 

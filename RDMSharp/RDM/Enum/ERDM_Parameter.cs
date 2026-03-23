@@ -52,7 +52,7 @@ public enum ERDM_Parameter : ushort
     [ParameterGroup("Info")]
     ENUM_LABEL = 0x005A, //E1.20-2025
 
-    [ParameterGroup("Info"), ParameterUpdateTime(GlobalTimers.DefaultPresentLostTime - 5000)]
+    [ParameterGroup("Info"), ParameterUpdateTime(60000)]
     DEVICE_INFO = 0x0060,
     [ParameterGroup("Info"), ParameterUpdateTime(601000)]
     PRODUCT_DETAIL_ID_LIST = 0x0070,
@@ -119,7 +119,7 @@ public enum ERDM_Parameter : ushort
     TILT_INVERT = 0x0601,
     [ParameterGroup("Pan/Tilt"), ParameterUpdateTime(180300)]
     PAN_TILT_SWAP = 0x0602,
-    [ParameterUpdateTime(300000)]
+    [ParameterUpdateTime(7200000)]
     REAL_TIME_CLOCK = 0x0603,
 
     [ParameterGroup("Control")]
