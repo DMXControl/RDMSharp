@@ -5,7 +5,10 @@ namespace RDMSharp.RDM.Device.Module;
 public sealed class IdentifyDeviceModule : AbstractModule
 {
     private const string _moduleName = "IdentifyDevice";
+    private const string _moduleDisplayName = "Identify Device";
     private const ERDM_Parameter _moduleParameter = ERDM_Parameter.IDENTIFY_DEVICE;
+
+    public override string DisplayName => _moduleDisplayName;
 
     private bool _identify;
     public bool Identify

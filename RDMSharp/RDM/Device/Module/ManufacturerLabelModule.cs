@@ -5,7 +5,10 @@ namespace RDMSharp.RDM.Device.Module;
 public sealed class ManufacturerLabelModule : AbstractModule
 {
     private const string _moduleName = "ManufacturerLabel";
+    private const string _moduleDisplayName = "Manufacturer Label";
     private const ERDM_Parameter _moduleParameter = ERDM_Parameter.MANUFACTURER_LABEL;
+
+    public override string DisplayName => _moduleDisplayName;
 
     private string _manufacturerLabel;
     public string ManufacturerLabel

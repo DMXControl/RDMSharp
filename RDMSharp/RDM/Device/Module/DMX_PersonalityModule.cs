@@ -10,11 +10,14 @@ namespace RDMSharp.RDM.Device.Module;
 public sealed class DMX_PersonalityModule : AbstractModule
 {
     private const string _moduleName = "DMX_Personality";
+    private const string _moduleDisplayName = "DMX Personality";
     private static readonly ERDM_Parameter[] _moduleParameters = new ERDM_Parameter[]
     {
         ERDM_Parameter.DMX_PERSONALITY,
         ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION
     };
+
+    public override string DisplayName => _moduleDisplayName;
 
     private IPersonality currentPersonality;
     public IPersonality CurrentPersonality

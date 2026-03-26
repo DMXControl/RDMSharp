@@ -108,7 +108,7 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
     protected readonly DMX_PersonalityModule? dmxPersonalityModule;
     protected readonly SlotsModule? slotsModule;
     protected readonly SensorsModule? sensorsModule;
-    protected readonly StatusMessageModule? statusMessageModule;
+    protected readonly StatusMessagesModule? statusMessageModule;
 
     private bool discoveryMuted;
     public bool DiscoveryMuted
@@ -171,7 +171,7 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
         dmxPersonalityModule = _modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
         slotsModule = _modules.OfType<SlotsModule>().FirstOrDefault();
         sensorsModule = _modules.OfType<SensorsModule>().FirstOrDefault();
-        statusMessageModule = _modules.OfType<StatusMessageModule>().FirstOrDefault();
+        statusMessageModule = _modules.OfType<StatusMessagesModule>().FirstOrDefault();
         if (dmxPersonalityModule is not null)//Remove after Refactoring to Modules
             dmxPersonalityModule.PropertyChanged += DmxPersonalityModule_PropertyChanged;
 

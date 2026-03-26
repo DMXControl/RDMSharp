@@ -3,11 +3,14 @@
 public sealed class BootSoftwareVersionModule : AbstractModule
 {
     private const string _moduleName = "BootSoftwareVersion";
+    private const string _moduleDisplayName = "Boot Software Version";
     private static readonly ERDM_Parameter[] _moduleParameters = new ERDM_Parameter[]
     {
         ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID,
         ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL
     };
+
+    public override string DisplayName => _moduleDisplayName;
 
     private uint _bootSoftwareVersionId;
     private string _bootSoftwareVersionLabel;

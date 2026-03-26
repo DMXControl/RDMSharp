@@ -5,7 +5,10 @@ namespace RDMSharp.RDM.Device.Module;
 public sealed class SoftwareVersionModule : AbstractModule
 {
     private const string _moduleName = "SoftwareVersion";
+    private const string _moduleDisplayName = "Software Version";
     private const ERDM_Parameter _moduleParameter = ERDM_Parameter.SOFTWARE_VERSION_LABEL;
+
+    public override string DisplayName => _moduleDisplayName;
 
     private uint _softwareVersionId;
     private string _softwareVersionLabel;

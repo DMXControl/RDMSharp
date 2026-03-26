@@ -6,7 +6,10 @@ namespace RDMSharp.RDM.Device.Module;
 public sealed class DMX_StartAddressModule : AbstractModule
 {
     private const string _moduleName = "DMX_StartAddress";
+    private const string _moduleDisplayName = "DMX Start-Address";
     private const ERDM_Parameter _moduleParameter = ERDM_Parameter.DMX_START_ADDRESS;
+
+    public override string DisplayName => _moduleDisplayName;
 
     private ushort _dmxAddress;
     public ushort? DMXAddress

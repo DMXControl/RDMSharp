@@ -9,6 +9,7 @@ namespace RDMSharp.RDM.Device.Module;
 public sealed class InterfaceModule : AbstractModule
 {
     private const string _moduleName = "Interface";
+    private const string _moduleDisplayName = "Interface";
     private static readonly ERDM_Parameter[] _moduleParameters = new ERDM_Parameter[]
     {
         ERDM_Parameter.LIST_INTERFACES,
@@ -22,6 +23,8 @@ public sealed class InterfaceModule : AbstractModule
         ERDM_Parameter.INTERFACE_RELEASE_DHCP,
         ERDM_Parameter.INTERFACE_APPLY_CONFIGURATION
     };
+
+    public override string DisplayName => _moduleDisplayName;
 
     private IReadOnlyCollection<Interface> _interfaces;
     public IReadOnlyCollection<Interface> Interfaces

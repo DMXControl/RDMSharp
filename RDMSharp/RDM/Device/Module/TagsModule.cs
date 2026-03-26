@@ -6,6 +6,7 @@ namespace RDMSharp.RDM.Device.Module;
 public sealed class TagsModule : AbstractModule
 {
     private const string _moduleName = "Tags";
+    private const string _moduleDisplayName = "Tags";
     private static readonly ERDM_Parameter[] _moduleParameters = new ERDM_Parameter[]
     {
         ERDM_Parameter.LIST_TAGS,
@@ -14,6 +15,8 @@ public sealed class TagsModule : AbstractModule
         ERDM_Parameter.CHECK_TAG,
         ERDM_Parameter.CLEAR_TAGS
     };
+
+    public override string DisplayName => _moduleDisplayName;
 
     private List<string> tags = new List<string>();
     public IReadOnlyCollection<string> Tags

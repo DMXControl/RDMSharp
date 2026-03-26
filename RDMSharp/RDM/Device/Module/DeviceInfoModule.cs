@@ -7,8 +7,10 @@ namespace RDMSharp.RDM.Device.Module;
 public sealed class DeviceInfoModule : AbstractModule
 {
     private const string _moduleName = "DeviceInfo";
+    private const string _moduleDisplayName = "Device Info";
     private const ERDM_Parameter _moduleParameter = ERDM_Parameter.DEVICE_INFO;
 
+    public override string DisplayName => _moduleDisplayName;
     public RDMDeviceInfo DeviceInfo
     {
         get

@@ -8,12 +8,15 @@ namespace RDMSharp.RDM.Device.Module;
 public sealed class SlotsModule : AbstractModule
 {
     private const string _moduleName = "Slots";
+    private const string _moduleDisplayName = "Slots";
     private static readonly ERDM_Parameter[] _moduleParameters = new ERDM_Parameter[]
     {
         ERDM_Parameter.SLOT_INFO,
         ERDM_Parameter.SLOT_DESCRIPTION,
         ERDM_Parameter.DEFAULT_SLOT_VALUE
     };
+
+    public override string DisplayName => _moduleDisplayName;
 
     public IPersonality CurrentPersonality
     {

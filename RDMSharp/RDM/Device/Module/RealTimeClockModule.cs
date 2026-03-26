@@ -7,7 +7,10 @@ namespace RDMSharp.RDM.Device.Module;
 public sealed class RealTimeClockModule : AbstractModule
 {
     private const string _moduleName = "RealTimeClock";
+    private const string _moduleDisplayName = "Real Time Clock";
     private const ERDM_Parameter _moduleParameter = ERDM_Parameter.REAL_TIME_CLOCK;
+
+    public override string DisplayName => _moduleDisplayName;
 
     public DateTime? RealTimeClock
     {

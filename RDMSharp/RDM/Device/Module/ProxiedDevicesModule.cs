@@ -9,11 +9,14 @@ namespace RDMSharp.RDM.Device.Module;
 public sealed class ProxiedDevicesModule : AbstractModule
 {
     private const string _moduleName = "ProxiedDevices";
+    private const string _moduleDisplayName = "Proxied Devices";
     private static readonly ERDM_Parameter[] _moduleParameters = new ERDM_Parameter[]
     {
         ERDM_Parameter.PROXIED_DEVICES,
         ERDM_Parameter.PROXIED_DEVICES_COUNT
     };
+
+    public override string DisplayName => _moduleDisplayName;
 
     public IReadOnlyCollection<UID> DeviceUIDs
     {

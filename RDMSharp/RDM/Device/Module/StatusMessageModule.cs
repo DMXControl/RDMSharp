@@ -6,23 +6,26 @@ using System.Linq;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class StatusMessageModule : AbstractModule
+public sealed class StatusMessagesModule : AbstractModule
 {
-    private const string _moduleName = "StatusMessage";
+    private const string _moduleName = "StatusMessages";
+    private const string _moduleDisplayName = "Status Messages";
     private static readonly ERDM_Parameter[] _moduleParameters = new ERDM_Parameter[]
     {
         ERDM_Parameter.STATUS_MESSAGES,
         ERDM_Parameter.CLEAR_STATUS_ID
     };
 
+    public override string DisplayName => _moduleDisplayName;
+
     private ConcurrentDictionary<int, RDMStatusMessage> statusMessages = new ConcurrentDictionary<int, RDMStatusMessage>();
     public IReadOnlyDictionary<int, RDMStatusMessage> StatusMessages { get { return statusMessages.AsReadOnly(); } }
-    public StatusMessageModule() : base(
+    public StatusMessagesModule() : base(
         _moduleName,
         _moduleParameters)
     {
     }
-    public StatusMessageModule(AbstractRemoteRDMDevice remoteDevice) : base(
+    public StatusMessagesModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
         _moduleParameters)

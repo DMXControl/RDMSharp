@@ -10,6 +10,7 @@ namespace RDMSharp.RDM.Device.Module;
 public sealed class SensorsModule : AbstractModule
 {
     private const string _moduleName = "Sensors";
+    private const string _moduleDisplayName = "Sensors";
     private static readonly ERDM_Parameter[] _moduleParameters = new ERDM_Parameter[]
     {
             ERDM_Parameter.SENSOR_DEFINITION,
@@ -18,6 +19,8 @@ public sealed class SensorsModule : AbstractModule
             ERDM_Parameter.SENSOR_UNIT_CUSTOM,
             ERDM_Parameter.SENSOR_TYPE_CUSTOM
     };
+
+    public override string DisplayName => _moduleDisplayName;
 
     private readonly ConcurrentDictionary<byte, Sensor> sensors = new ConcurrentDictionary<byte, Sensor>();
     public IReadOnlyDictionary<byte, Sensor> Sensors

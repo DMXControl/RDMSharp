@@ -3,11 +3,14 @@
 public sealed class PresetsModule : AbstractModule
 {
     private const string _moduleName = "Presets";
+    private const string _moduleDisplayName = "Presets";
     private static readonly ERDM_Parameter[] _moduleParameters = new ERDM_Parameter[]
     {
         ERDM_Parameter.PRESET_PLAYBACK,
         ERDM_Parameter.CAPTURE_PRESET
     };
+    public override string DisplayName => _moduleDisplayName;
+
 
     public PresetsModule() : base(
         _moduleName,

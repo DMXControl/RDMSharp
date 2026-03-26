@@ -3,7 +3,10 @@
 public sealed class DeviceLabelModule : AbstractModule
 {
     private const string _moduleName = "DeviceLabel";
+    private const string _moduleDisplayName = "Device Label";
     private const ERDM_Parameter _moduleParameter = ERDM_Parameter.DEVICE_LABEL;
+
+    public override string DisplayName => _moduleDisplayName;
 
     private string _deviceLabel;
     public string DeviceLabel

@@ -3,11 +3,14 @@
 public sealed class SelfTestsModule : AbstractModule
 {
     private const string _moduleName = "SelfTests";
+    private const string _moduleDisplayName = "Self Tests";
     private static readonly ERDM_Parameter[] _moduleParameters = new ERDM_Parameter[]
     {
         ERDM_Parameter.PERFORM_SELFTEST,
         ERDM_Parameter.SELF_TEST_DESCRIPTION
     };
+
+    public override string DisplayName => _moduleDisplayName;
 
     public SelfTestsModule() : base(
         _moduleName,

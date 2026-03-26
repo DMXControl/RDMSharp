@@ -14,6 +14,7 @@ public abstract class AbstractModule : IModule
 
     private readonly string _name;
     public string Name { get => _name; }
+    public abstract string DisplayName { get; }
 
     private readonly IReadOnlyCollection<ERDM_Parameter> _supportedParameters;
 
