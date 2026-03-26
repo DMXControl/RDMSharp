@@ -245,6 +245,17 @@ public abstract class AbstractRDMCache : IDisposable
         {
             if (ptpProcess.ResponsePayloadObject.IsEmpty && define.GetResponse.HasValue)
             {
+                if (!(define.GetResponse.Equals(define.SetRequest) || define.SetRequest.Value.EnumValue == Metadata.JSON.Command.ECommandDublicate.GetResponse))
+                {
+                    if (define.GetResponse.Value.ListOfFields.Length == 1)
+                    {
+                        var first = dataTreeBranch.Children.FirstOrDefault(c => string.Equals(c.Name, define.GetResponse.Value.ListOfFields[0].ObjectType.Name));
+                        dataTreeBranch = DataTreeBranch.FromObject(first.Value, null, parameterBag, ERDM_Command.GET_COMMAND_RESPONSE);
+
+                        updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), dataTreeBranch);
+                    }
+                    return true;
+                }
                 updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), dataTreeBranch);
                 if (this.ParameterValues.TryGetValue(parameterBag.PID, out object cacheValue))
                 {
