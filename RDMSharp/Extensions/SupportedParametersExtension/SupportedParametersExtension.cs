@@ -118,6 +118,36 @@ public sealed class SupportedParametersExtension : AbstractSupportedParametersEx
             }
         }
 
+        #region Assuming support for DESCRIPTION Parameters based on presence of related Parameters
+        //Test it if the device supports CURVE Parameter, if not it will be labled as not supported later on
+        if (parameters.Contains(ERDM_Parameter.CURVE) && !parameters.Contains(ERDM_Parameter.CURVE_DESCRIPTION))
+        {
+            supportedParameters.Add(ERDM_Parameter.CURVE_DESCRIPTION);
+            Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for CURVE_DESCRIPTION Parameter.");
+        }
+
+        //Test it if the device supports OUTPUT_RESPONSE_TIME Parameter, if not it will be labled as not supported later on
+        if (parameters.Contains(ERDM_Parameter.OUTPUT_RESPONSE_TIME) && !parameters.Contains(ERDM_Parameter.OUTPUT_RESPONSE_TIME_DESCRIPTION))
+        {
+            supportedParameters.Add(ERDM_Parameter.OUTPUT_RESPONSE_TIME_DESCRIPTION);
+            Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for OUTPUT_RESPONSE_TIME_DESCRIPTION Parameter.");
+        }
+
+        //Test it if the device supports MODULATION_FREQUENCY Parameter, if not it will be labled as not supported later on
+        if (parameters.Contains(ERDM_Parameter.MODULATION_FREQUENCY) && !parameters.Contains(ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION))
+        {
+            supportedParameters.Add(ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION);
+            Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for MODULATION_FREQUENCY_DESCRIPTION Parameter.");
+        }
+
+        //Test it if the device supports LOCK_STATE Parameter, if not it will be labled as not supported later on
+        if (parameters.Contains(ERDM_Parameter.LOCK_STATE) && !parameters.Contains(ERDM_Parameter.LOCK_STATE_DESCRIPTION))
+        {
+            supportedParameters.Add(ERDM_Parameter.LOCK_STATE_DESCRIPTION);
+            Logger?.LogInformation($"Remote Device Model ID 0x{deviceInfo.DeviceModelId:X4} - Assuming support for LOCK_STATE_DESCRIPTION Parameter.");
+        }
+        #endregion
+
 
         //Test it if the device supports Identify Device Parameter, if not it will be labled as not supported later on
         if (!parameters.Contains(ERDM_Parameter.IDENTIFY_DEVICE))
