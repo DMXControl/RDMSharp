@@ -12,6 +12,13 @@ public class GlobalTestSetup
     [OneTimeSetUp]
     public async Task GlobalSetUp()
     {
+        //Logging.LoggerFactory = LoggerFactory.Create(builder =>
+        //{
+        //    builder
+        //        .ClearProviders()
+        //        .AddConsole(options => { options.TimestampFormat = "[HH:mm:ss.fff] "; })
+        //        .SetMinimumLevel(LogLevel.Trace);
+        //});
         GlobalTimers.Instance.InternalAllTimersToTestSpeed();
         await RDMSharp.RDMSharp.Initialize(new UID(), async (rdmMessage) =>
         {

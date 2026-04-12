@@ -57,6 +57,12 @@ public sealed class ModulesExtension : AbstractModulesExtension
         if (parameters.Contains(ERDM_Parameter.CURVE))
             _modules.Add(typeof(CurveModule));
 
+        if (parameters.Contains(ERDM_Parameter.OUTPUT_RESPONSE_TIME))
+            _modules.Add(typeof(OutputResponseTimeModule));
+
+        if (parameters.Contains(ERDM_Parameter.MODULATION_FREQUENCY))
+            _modules.Add(typeof(ModulationFrequencyModule));
+
         if (parameters.Contains(ERDM_Parameter.PERFORM_SELFTEST))
             _modules.Add(typeof(SelfTestsModule));
 
