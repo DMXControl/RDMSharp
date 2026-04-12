@@ -319,7 +319,7 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
 
     internal bool handleNACKReason(RDMMessage rdmMessage)
     {
-        if (rdmMessage.NackReason == ERDM_NackReason.FORMAT_ERROR || rdmMessage.NackReason == ERDM_NackReason.UNKNOWN_PID)
+        if (rdmMessage.NackReason == ERDM_NackReason.FORMAT_ERROR || rdmMessage.NackReason == ERDM_NackReason.UNKNOWN_PID || rdmMessage.NackReason == ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS)
         {
             if (this.supportedParameters.TryGetValue(rdmMessage.Parameter, out SupportedParameterMetadata supportedParameterMetadata))
                 supportedParameterMetadata.HandleNack(rdmMessage);

@@ -29,6 +29,21 @@ public class SupportedParameterMetadata : INotifyPropertyChanged
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSupported)));
         }
     }
+    private ERDM_CommandClass _unsupportedCommandClasses = ERDM_CommandClass.NONE;
+    public ERDM_CommandClass UnsupportedCommandClasses
+    {
+        get
+        {
+            return _unsupportedCommandClasses;
+        }
+        private set
+        {
+            if (_unsupportedCommandClasses == value)
+                return;
+            _unsupportedCommandClasses = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(UnsupportedCommandClasses)));
+        }
+    }
 
     public bool IsManufacturerSpecific
     {
@@ -129,6 +144,12 @@ public class SupportedParameterMetadata : INotifyPropertyChanged
             {
                 case ERDM_NackReason.UNKNOWN_PID:
                     this.IsSupported = false;
+                    break;
+                case ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS:
+                    if (message.Command == ERDM_Command.GET_COMMAND_RESPONSE)
+                        this.UnsupportedCommandClasses |= ERDM_CommandClass.GET;
+                    if (message.Command == ERDM_Command.SET_COMMAND_RESPONSE)
+                        this.UnsupportedCommandClasses |= ERDM_CommandClass.SET;
                     break;
             }
         }

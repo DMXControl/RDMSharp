@@ -139,7 +139,7 @@ public class TestDMX_PersonalityModule
         #endregion
     }
 
-    [Test, Order(301)]
+    [Test, Order(301), MaxTime(120000)]
     public async Task TestRemoteDevice()
     {
         Assert.That(generated, Is.Not.Null);

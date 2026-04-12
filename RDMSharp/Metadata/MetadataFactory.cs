@@ -338,7 +338,7 @@ public static class MetadataFactory
             return possibleDefines.MaxBy(d => d.Version);
         }
         if (parameter.ManufacturerID == 0)
-            throw new InvalidOperationException($"{parameter.ManufacturerID} of 0 should lead to exact 1 Define");
+            throw new InvalidOperationException($"Parameter: {parameter}, {parameter.ManufacturerID} of 0 should lead to exact 1 Define");
 
 
 

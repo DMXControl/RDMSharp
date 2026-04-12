@@ -551,7 +551,8 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
                             {
                                 Parameter = ERDM_Parameter.STATUS_MESSAGES,
                                 Command = ERDM_Command.GET_COMMAND_RESPONSE,
-                                ControllerFlags_or_MessageCounter = 0
+                                ControllerFlags_or_MessageCounter = 0,
+                                PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK
                             };
 
                             fillRDMMessageWithStatusMessageData(controllerCache, statusCode, ref response);

@@ -91,10 +91,12 @@ public class RDMMessage : IEquatable<RDMMessage>
         SourceUID = new UID(manIdSource, devIdSource);
         DestUID = new UID(manIdDest, devIdDest);
         TransactionCounter = data[15];
-        PortID_or_Responsetype = data[16];
+        var portIDorResponseType = data[16];
+        PortID_or_Responsetype = portIDorResponseType;
         ControllerFlags_or_MessageCounter = data[17];
         SubDevice = new SubDevice((ushort)((data[18] << 8) | data[19]));
         Command = (ERDM_Command)data[20];
+        PortID_or_Responsetype = portIDorResponseType;// Set again in case it was changed in Command-Setter
         if (Command.HasFlag(ERDM_Command.RESPONSE) && PortID_or_Responsetype != 0 && paramLength != 2)
         {
             switch (PortID_or_Responsetype)
@@ -227,6 +229,9 @@ public class RDMMessage : IEquatable<RDMMessage>
         {
             if (value == command)
                 return;
+
+            if (value.HasFlag(ERDM_Command.RESPONSE) && command == ERDM_Command.NONE && PortID_or_Responsetype == 1 && _acknowledgeTimer is null)
+                PortID_or_Responsetype = 0; // Set To ACK, bacause default as Request is 1 and 1 as Response is Timer... Bad!
             valueCache = null;
             command = value;
         }

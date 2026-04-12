@@ -460,7 +460,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
     private async Task requestQueuedMessages()
     {
         var supportedParameters = this.deviceModel?.GetSupportedNonBlueprintParameters();
-        if (supportedParameters.FirstOrDefault(spm => spm.Parameter == ERDM_Parameter.QUEUED_MESSAGE)?.IsSupported ?? false)
+        if (supportedParameters?.FirstOrDefault(spm => spm.Parameter == ERDM_Parameter.QUEUED_MESSAGE)?.IsSupported ?? false)
         {
             if (DateTime.UtcNow - lastSendQueuedMessage < TimeSpan.FromMilliseconds(GlobalTimers.Instance.QueuedUpdateTime))
                 return;
