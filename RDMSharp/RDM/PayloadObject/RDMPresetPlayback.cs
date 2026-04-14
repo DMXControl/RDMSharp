@@ -28,7 +28,7 @@ public class RDMPresetPlayback : AbstractRDMPayloadObject
     public override string ToString()
     {
         StringBuilder b = new StringBuilder();
-        b.AppendLine("RDMProxiedDeviceCount");
+        b.AppendLine("PresetPlayback");
         b.AppendLine($"Mode:  {EMode}({Mode})");
         b.AppendLine($"Level: {Level}");
 
