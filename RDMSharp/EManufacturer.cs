@@ -26,6 +26,8 @@ public enum EManufacturer : ushort
     Swisson_AG = 0x5377,
     [Description("GLP German Light Products GmbH")]
     GLP_German_Light_Products_GmbH = 0x676C,
+    [Description("Electronic Theatre Controls Inc.")]
+    Electronic_Theatre_Controls_Inc = 0x6574,
     [Description("Steinigke Showtechnic GmbH")]
     Steinigke_Showtechnic_GmbH = 0x29aa,
 }
