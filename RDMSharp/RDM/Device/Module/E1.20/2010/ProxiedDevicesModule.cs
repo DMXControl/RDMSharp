@@ -52,16 +52,24 @@ public sealed class ProxiedDevicesModule : AbstractModule
 
     protected override async void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
     {
-        switch (parameter)
+        try
         {
-            case ERDM_Parameter.PROXIED_DEVICES:
-                OnPropertyChanged(nameof(DeviceUIDs));
-                break;
+            switch (parameter)
+            {
+                case ERDM_Parameter.PROXIED_DEVICES:
+                    OnPropertyChanged(nameof(DeviceUIDs));
+                    break;
 
-            case ERDM_Parameter.PROXIED_DEVICES_COUNT:
-                if (newValue is RDMProxiedDeviceCount proxiedDeviceCount && proxiedDeviceCount.ListChange)
-                    await this.ParentRemoteDevice.RequestParameter(ERDM_Command.GET_COMMAND, ERDM_Parameter.PROXIED_DEVICES);
-                break;
+                case ERDM_Parameter.PROXIED_DEVICES_COUNT:
+                    if (newValue is RDMProxiedDeviceCount proxiedDeviceCount && proxiedDeviceCount.ListChange)
+                        if (this.ParentRemoteDevice is not null)
+                            await this.ParentRemoteDevice.RequestParameter(ERDM_Command.GET_COMMAND, ERDM_Parameter.PROXIED_DEVICES);
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex);
         }
     }
     public override bool IsHandlingParameter(ERDM_Parameter parameter, ERDM_Command command)

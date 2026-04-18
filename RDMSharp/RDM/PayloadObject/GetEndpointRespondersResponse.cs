@@ -16,8 +16,9 @@ public class GetEndpointRespondersResponse : AbstractRDMPayloadObject
     {
         this.EndpointId = endpointId;
         this.ListChangedNumber = listChangedNumber;
-        this.UIDs = uids;
+        this.UIDs = uids ?? new UID[0];
     }
+
     [DataTreeObjectProperty("endpoint_id", 0)]
     public ushort EndpointId { get; private set; }
 

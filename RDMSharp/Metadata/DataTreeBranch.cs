@@ -139,6 +139,7 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
                         if (pAttributes.Select(p => p.Name).SequenceEqual(flatDataTree.Keys))
                         {
                             List<object> parameters = new List<object>();
+                            bool _break = false;
                             for (int i = 0; i < cParameters.Length; i++)
                             {
                                 var constructorParameter = cParameters[i];
@@ -147,7 +148,11 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
                                 {
                                     Type expectedType = Nullable.GetUnderlyingType(constructorParameter.ParameterType) ?? constructorParameter.ParameterType;
 
-                                    if (expectedType == value?.GetType())
+                                    if (value is null)
+                                        if (expectedType.IsValueType)
+                                            value = Activator.CreateInstance(expectedType); // set to default value if null so it can be assigned to value types, if the parameter is nullable this will be overwritten to null in the constructor invoke and if not it will be set to default value which is the best we can do in this case
+
+                                    if (expectedType == value?.GetType() || value is null)
                                         parameters.Add(value);
                                     else if (value is object[] compoundObjectArray)
                                     {
@@ -159,12 +164,13 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
                                     }
                                     else
                                     {
-                                        Logger?.LogWarning($"Can't find propperty for {parameterAttribute.Name}, Expected Type: {constructorParameter.ParameterType}, Actual Type: {value?.GetType()}");
-
+                                        Logger?.LogInformation($"Can't find propperty for {parameterAttribute.Name}, Expected Type: {constructorParameter.ParameterType}, Actual Type: {value?.GetType()}");
+                                        _break = true;
                                     }
                                 }
                             }
-                            return constructor.Invoke(parameters.ToArray());
+                            if (!_break && cParameters.Count() == parameters.Count)
+                                return constructor.Invoke(parameters.ToArray());
                         }
                         //If the Command is only a List with one compound object, the Path can be the root key
                         else if (flatDataTree.Count == 1 &&

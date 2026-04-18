@@ -9,8 +9,8 @@ public class TestSlotModule
 {
     private MockGeneratedDevice1? generated;
 
-    private static UID CONTROLLER_UID = new UID(0x1fff, 333);
-    private static UID DEVCIE_UID = new UID(0x5439, 555);
+    private static UID CONTROLLER_UID = new UID(12538, 619451964);
+    private static UID DEVCIE_UID = new UID(0x5ab9, 55229915);
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()
@@ -267,10 +267,16 @@ public class TestSlotModule
 
         Assert.That(generatedModule.Slots, Has.Count.EqualTo(8));
         Assert.That(generatedModule.Slots, Is.Not.Null);
+        while (module.CurrentPersonality.ID != generatedModule.CurrentPersonality.ID)
+            await Task.Delay(100);
+
         while (!((RemotePersonality)module.CurrentPersonality).AllDataPulled)
             await Task.Delay(100);
+
         await Task.Delay(100);
         Assert.That(personalityModule.CurrentPersonality.SlotCount, Is.EqualTo(8));
+
+        Assert.That(module.CurrentPersonality.ID, Is.EqualTo(generatedModule.CurrentPersonality.ID));
         Assert.That(module.Slots, Is.Not.Null);
         Assert.That(module.Slots, Has.Count.EqualTo(8));
     }

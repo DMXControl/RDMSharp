@@ -81,6 +81,11 @@ public sealed class ModulesExtension : AbstractModulesExtension
         if (parameters.Contains(ERDM_Parameter.LIST_TAGS))
             _modules.Add(typeof(TagsModule));
 
+        #region E1.31-7 2019
+        if (parameters.Contains(ERDM_Parameter.ENDPOINT_LIST))
+            _modules.Add(typeof(EndpointsModule));
+        #endregion
+
         modules = _modules;
         return true;
     }

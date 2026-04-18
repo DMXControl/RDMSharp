@@ -122,13 +122,21 @@ public class RDMMessageTest
 
         byte[] erg = m.BuildMessage();
 
+
         byte[] expected = new byte[]
         {
             0xcc, 0x01, 0x18, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0x02, 0xb0, 0x00, 0x11,
-            0x22, 0x33, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x02, 0x00, 0x04, 0x79
+            0x22, 0x33, 0x00, 0x01, 0x00, 0x00, 0x00, 0x10, 0x00, 0x02, 0x00, 0x04, 0x7a
         };
+        var eM = new RDMMessage(expected);
+        Assert.That(m.DestUID, Is.EqualTo(eM.DestUID));
+        Assert.That(m.SourceUID, Is.EqualTo(eM.SourceUID));
+        Assert.That(m.Command, Is.EqualTo(eM.Command));
+        Assert.That(m.Parameter, Is.EqualTo(eM.Parameter));
+        Assert.That(m.PortID_or_Responsetype, Is.EqualTo(eM.PortID_or_Responsetype));
+        Assert.That(m.Checksum, Is.EqualTo(eM.Checksum));
 
-        Assert.That(erg.SequenceEqual(expected), Is.True);
+        Assert.That(expected, Is.EquivalentTo(erg));
     }
 
 

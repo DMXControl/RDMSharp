@@ -2456,6 +2456,27 @@ public class PayloadToParsedObjectTestSubject
             ERDM_Command.GET_COMMAND_RESPONSE,
             ERDM_Parameter.ENDPOINT_RESPONDERS,
             new byte[] {
+                0x00, 0x03, 0x00, 0x00, 0x00, 0x09,
+            },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetEndpointRespondersResponse)));
+
+                var obj = dataTreeBranch.ParsedObject as GetEndpointRespondersResponse;
+                Assert.That(obj, Is.Not.Null);
+                Assert.That(obj!.EndpointId, Is.EqualTo(3));
+                Assert.That(obj.ListChangedNumber, Is.EqualTo(9));
+                Assert.That(obj.UIDs, Is.Not.Null);
+                Assert.That(obj.UIDs.Length, Is.EqualTo(0));
+            }));
+
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.ENDPOINT_RESPONDERS,
+            new byte[] {
                 0x00, 0x03, 0x00, 0x00, 0x00, 0x09, 0x53, 0x47,
                 0x94, 0x71, 0xaf, 0x2f
             },
