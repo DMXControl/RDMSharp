@@ -142,6 +142,9 @@ public sealed class EndpointsModule : AbstractModule
         _moduleName,
         _moduleParameters)
     {
+        _endpoints = new Dictionary<ushort, Endpoint>();
+        _backgroundQueuedStatusPolicyDescriptions = new Dictionary<byte, string>();
+        _timingDescriptions = new Dictionary<byte, string>();
     }
 
     protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)

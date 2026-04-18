@@ -550,11 +550,14 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         await requestParameters();
     }
 
-    private async Task getPersonalityModelAndCollectAllParameters()
+    private async Task getPersonalityModelAndCollectAllParameters(byte? personalityId = null)
     {
-        byte? personalityId = DeviceInfo.Dmx512CurrentPersonality.Value;
-        if (parameterValues.TryGetValue(ERDM_Parameter.DMX_PERSONALITY, out object value) && value is RDMDMXPersonality personality)
-            personalityId = personality.CurrentPersonality;
+        if (personalityId is null)
+        {
+            personalityId ??= DeviceInfo.Dmx512CurrentPersonality.Value;
+            if (parameterValues.TryGetValue(ERDM_Parameter.DMX_PERSONALITY, out object value) && value is RDMDMXPersonality personality)
+                personalityId = personality.CurrentPersonality;
+        }
 
         PersonalityModel = DeviceModel.getPersonalityModel(this, personalityId ?? 0);
         if (!PersonalityModel.IsInitialized)
@@ -567,7 +570,10 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         {
             case ERDM_Parameter.DMX_PERSONALITY:
                 if (DeviceModel.IsInitialized)
-                    await getPersonalityModelAndCollectAllParameters();
+                {
+                    if (e.Value is RDMDMXPersonality personality)
+                        await getPersonalityModelAndCollectAllParameters(personality.CurrentPersonality);
+                }
                 break;
             case ERDM_Parameter.SENSOR_VALUE when e.Value is RDMSensorValue sensorValue:
                 var sensor = sensors.GetOrAdd(sensorValue.SensorId, (a) => new Sensor(a));

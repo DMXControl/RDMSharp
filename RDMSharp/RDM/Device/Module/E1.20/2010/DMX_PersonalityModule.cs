@@ -168,12 +168,19 @@ public sealed class DMX_PersonalityModule : AbstractModule
 
                     else if (ParentRemoteDevice is not null)
                     {
-                        var pm = ParentRemoteDevice.DeviceModel.KnownPersonalityModels.FirstOrDefault(p => p.Personality?.ID == personality.CurrentPersonality);
-                        if (pm is null)
-                            pm = ParentRemoteDevice.DeviceModel.getPersonalityModel(ParentRemoteDevice, personality.CurrentPersonality);
-                        if (!pm.IsInitialized)
-                            await pm.Initialize();
-                        CurrentPersonality = pm.Personality;
+                        try
+                        {
+                            var pm = ParentRemoteDevice.DeviceModel.KnownPersonalityModels.FirstOrDefault(p => p.Personality?.ID == personality.CurrentPersonality);
+                            if (pm is null)
+                                pm = ParentRemoteDevice.DeviceModel.getPersonalityModel(ParentRemoteDevice, personality.CurrentPersonality);
+                            if (!pm.IsInitialized)
+                                await pm.Initialize();
+                            CurrentPersonality = pm.Personality;
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger?.LogError(ex);
+                        }
                     }
                 }
                 break;

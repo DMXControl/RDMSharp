@@ -91,6 +91,11 @@ public class TestRDMSendReceive
                 });
 
         await remote.SetParameter(ERDM_Parameter.DMX_PERSONALITY, (byte)3);
+        while (remote.PersonalityModel.PersonalityID != generated.CurrentPersonalityId)
+            await Task.Delay(100);
+        while (!remote.PersonalityModel.IsInitialized)
+            await Task.Delay(100);
+
         Assert.Multiple(() =>
         {
             Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY], Is.EqualTo(new RDMDMXPersonality(3, 3)));
