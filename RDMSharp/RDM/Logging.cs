@@ -13,10 +13,10 @@ public static class Logging
         {
             return loggerFactory ??= Microsoft.Extensions.Logging.LoggerFactory.Create((builder) =>
             {
-                builder
-            .ClearProviders()
-            .AddConsole(options => { options.TimestampFormat = "[HH:mm:ss.fff] "; })
-            .SetMinimumLevel(LogLevel.Trace);
+                //builder
+                //.ClearProviders()
+                //.AddConsole(options => { options.TimestampFormat = "[HH:mm:ss.fff] "; })
+                //.SetMinimumLevel(LogLevel.Trace);
             });
         }
         set
