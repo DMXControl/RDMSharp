@@ -36,6 +36,9 @@ public sealed class ModulesExtension : AbstractModulesExtension
         if (parameters.Contains(ERDM_Parameter.DMX_START_ADDRESS))
             _modules.Add(typeof(DMX_StartAddressModule));
 
+        if (parameters.Contains(ERDM_Parameter.FACTORY_DEFAULTS))
+            _modules.Add(typeof(FactoryDefaultsModule));
+
         if (parameters.Contains(ERDM_Parameter.IDENTIFY_DEVICE))
             _modules.Add(typeof(IdentifyDeviceModule));
 

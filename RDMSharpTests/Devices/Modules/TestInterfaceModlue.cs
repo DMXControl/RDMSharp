@@ -1026,11 +1026,11 @@ public class TestInterfaceModlue
         public static IPv4Address DHCP_ADDRESS_3 = new IPv4Address("2.7.7.7");
         public InterfaceMock()
             : base(1,
+                  TEST_INTERFACE_HARDWARE_TYPE,
                   TEST_INTERFACE_NAME,
                   new IPv4Address(TEST_INTERFACE_IP_ADDRESS),
                   8,
-                  new MACAddress(TEST_INTERFACE_HARDWARE_ADDRESS),
-                  TEST_INTERFACE_HARDWARE_TYPE)
+                  new MACAddress(TEST_INTERFACE_HARDWARE_ADDRESS))
         {
         }
         public override void RenewDHCP()

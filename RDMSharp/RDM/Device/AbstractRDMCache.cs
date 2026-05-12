@@ -209,7 +209,7 @@ public abstract class AbstractRDMCache : IDisposable
             if (parameterMetadataBag.TryAdd(pid, new ParameterMetadata(pid)))
                 ParameterMetadataAdded?.InvokeFailSafe(this, parameterMetadataBag[pid]);
     }
-    protected async Task runPeerToPeerProcess(PeerToPeerProcess ptpProcess)
+    internal async Task runPeerToPeerProcess(PeerToPeerProcess ptpProcess)
     {
         ptpProcess.BeforeSendMessage = OnSendRDMMessage;
         ptpProcess.ResponseMessage = OnResponseMessage;

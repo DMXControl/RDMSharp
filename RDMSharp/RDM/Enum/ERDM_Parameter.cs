@@ -189,19 +189,19 @@ public enum ERDM_Parameter : ushort
     POWER_ON_SELF_TEST = 0x1044,
 
     //E1.37-2 - 2015
-    [ParameterGroup("Network")]
+    [ParameterGroup("Network"), ParameterUpdateTime(900000)]
     LIST_INTERFACES = 0x0700,
-    [ParameterGroup("Network")]
+    [ParameterGroup("Network"), ParameterUpdateTime(920000)]
     INTERFACE_LABEL = 0x0701,
-    [ParameterGroup("Network")]
+    [ParameterGroup("Network"), ParameterUpdateTime(940000)]
     INTERFACE_HARDWARE_ADDRESS_TYPE = 0x0702,
     [ParameterGroup("Network")]
     IPV4_DHCP_MODE = 0x0703,
     [ParameterGroup("Network")]
     IPV4_ZEROCONF_MODE = 0x0704,
-    [ParameterGroup("Network")]
+    [ParameterGroup("Network"), ParameterUpdateTime(30000)]
     IPV4_CURRENT_ADDRESS = 0x0705,
-    [ParameterGroup("Network")]
+    [ParameterGroup("Network"), ParameterUpdateTime(30000)]
     IPV4_STATIC_ADDRESS = 0x0706,
     [ParameterGroup("Network")]
     INTERFACE_RENEW_DHCP = 0x0707,
@@ -209,13 +209,13 @@ public enum ERDM_Parameter : ushort
     INTERFACE_RELEASE_DHCP = 0x0708,
     [ParameterGroup("Network")]
     INTERFACE_APPLY_CONFIGURATION = 0x0709,
-    [ParameterGroup("Network")]
+    [ParameterGroup("Network"), ParameterUpdateTime(91000)]
     IPV4_DEFAULT_ROUTE = 0x070A,
-    [ParameterGroup("Network")]
+    [ParameterGroup("Network"), ParameterUpdateTime(92000)]
     DNS_IPV4_NAME_SERVER = 0x070B,
-    [ParameterGroup("Network")]
+    [ParameterGroup("Network"), ParameterUpdateTime(93000)]
     DNS_HOSTNAME = 0x070C,
-    [ParameterGroup("Network")]
+    [ParameterGroup("Network"), ParameterUpdateTime(94000)]
     DNS_DOMAIN_NAME = 0x070D,
 
     //E1.33 - 2019 RDM-Net

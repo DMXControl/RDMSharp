@@ -31,7 +31,7 @@ public class RDMCommunicationStatus : AbstractRDMPayloadObject
     public override string ToString()
     {
         StringBuilder b = new StringBuilder();
-        b.AppendLine("RDMProxiedDeviceCount");
+        b.AppendLine("RDMCommunicationStatus");
         b.AppendLine($"ShortMessage:   {ShortMessage}");
         b.AppendLine($"LengthMismatch: {LengthMismatch}");
         b.AppendLine($"ChecksumFail:   {ChecksumFail}");

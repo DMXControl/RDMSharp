@@ -468,6 +468,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
             var define = MetadataFactory.GetDefine(parameterBag);
             if (define.GetRequest.HasValue)
             {
+                List<byte> backlog = new List<byte>();
                 byte mc = 0;
                 do
                 {
@@ -481,6 +482,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
                         sw?.Restart();
                         var result = await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice, ERDM_Status.ADVISORY);
                         mc = result.MessageCounter;
+                        backlog.Add(mc);
                         sw?.Stop();
                         if (result.State == PeerToPeerProcess.EPeerToPeerProcessState.Failed)
                             return;
@@ -496,10 +498,30 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
                         return;
                     }
 
+                    if (Last5AreEquals(backlog))
+                    {
+                        Logger?.LogTrace(task.Exception, $"Queue Parameter Returned five times the same MessageCount({mc}), probably bad Firmware from Manufacturer");
+                        return;
+                    }
                 }
                 while (mc != 0);
                 return;
             }
+        }
+        bool Last5AreEquals(List<byte> list)
+        {
+            if (list == null || list.Count < 5)
+                return false;
+
+            var last = list[list.Count - 1];
+
+            for (int i = list.Count - 5; i < list.Count; i++)
+            {
+                if (list[i] != last)
+                    return false;
+            }
+
+            return true;
         }
     }
 
