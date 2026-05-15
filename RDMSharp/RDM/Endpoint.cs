@@ -1,9 +1,12 @@
-﻿using System;
+﻿using RDMSharp.RDM.Device.Module;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("RDMSharpTests")]
 namespace RDMSharp;
@@ -167,7 +170,7 @@ public class Endpoint : INotifyPropertyChanged, IEquatable<Endpoint>
     public uint ResponderListChanged
     {
         get { return responderListChanged; }
-        private set
+        protected set
         {
             if (responderListChanged == value)
                 return;
@@ -251,4 +254,54 @@ public class Endpoint : INotifyPropertyChanged, IEquatable<Endpoint>
             this.BindingUid = bindingUid;
         }
     }
+}
+
+public class RemoteEndpoint : Endpoint
+{
+    private readonly EndpointsModule _module;
+    public new IReadOnlyCollection<UID> Responders
+    {
+        get { return base.Responders; }
+        internal set
+        {
+            foreach (UID uid in value)
+                AddResponder(uid);
+
+            foreach (UID uid in base.Responders)
+                if (!value.Contains(uid))
+                    RemoveResponder(uid);
+        }
+    }
+
+    public new uint ResponderListChanged
+    {
+        get { return base.ResponderListChanged; }
+        internal set { base.ResponderListChanged = value; }
+    }
+
+    public RemoteEndpoint(in EndpointsModule module, in ushort endpointId, in ERDM_EndpointType type) : base(endpointId, type)
+    {
+        _module = module;
+    }
+    internal new void AddResponder(UID responder)
+    {
+        base.AddResponder(responder);
+    }
+    internal new void RemoveResponder(UID responder)
+    {
+        base.RemoveResponder(responder);
+    }
+    public async Task<bool> SetMode(ERDM_EndpointMode mode)
+    {
+        return await _module.SetMode(this.EndpointId, mode);
+    }
+    public async Task<bool> SetRDMTraffic(bool rdmTraffic)
+    {
+        return await _module.SetRDMTraffic(this.EndpointId, rdmTraffic);
+    }
+    public async Task<bool> SetIdentify(bool identify)
+    {
+        return await _module.SetIdentify(this.EndpointId, identify);
+    }
+
 }

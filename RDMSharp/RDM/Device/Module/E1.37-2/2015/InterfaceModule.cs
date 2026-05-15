@@ -192,6 +192,7 @@ public sealed class InterfaceModule : AbstractModule
         {
             case ERDM_Parameter.LIST_INTERFACES:
                 OnPropertyChanged(nameof(Interfaces));
+                fillFromRemoteCache();
                 break;
 
             case ERDM_Parameter.INTERFACE_LABEL:
