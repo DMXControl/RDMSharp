@@ -32,8 +32,8 @@ public class Endpoint : INotifyPropertyChanged, IEquatable<Endpoint>
         }
     }
 
-    private bool identify;
-    public bool Identify
+    private bool? identify;
+    public bool? Identify
     {
         get { return identify; }
         set
@@ -45,8 +45,8 @@ public class Endpoint : INotifyPropertyChanged, IEquatable<Endpoint>
         }
     }
 
-    private ushort universe;
-    public ushort Universe
+    private ushort? universe;
+    public ushort? Universe
     {
         get { return universe; }
         set
@@ -58,8 +58,8 @@ public class Endpoint : INotifyPropertyChanged, IEquatable<Endpoint>
         }
     }
 
-    private ERDM_EndpointMode mode;
-    public ERDM_EndpointMode Mode
+    private ERDM_EndpointMode? mode;
+    public ERDM_EndpointMode? Mode
     {
         get { return mode; }
         set
@@ -71,8 +71,8 @@ public class Endpoint : INotifyPropertyChanged, IEquatable<Endpoint>
         }
     }
 
-    private bool rdmTraffic;
-    public bool RDMTraffic
+    private bool? rdmTraffic;
+    public bool? RDMTraffic
     {
         get { return rdmTraffic; }
         set
@@ -84,8 +84,8 @@ public class Endpoint : INotifyPropertyChanged, IEquatable<Endpoint>
         }
     }
 
-    private ERDM_DiscoveryState discoveryState;
-    public ERDM_DiscoveryState DiscoveryState
+    private ERDM_DiscoveryState? discoveryState;
+    public ERDM_DiscoveryState? DiscoveryState
     {
         get { return discoveryState; }
         set
@@ -110,8 +110,8 @@ public class Endpoint : INotifyPropertyChanged, IEquatable<Endpoint>
         }
     }
 
-    private bool backgroundDiscovery;
-    public bool BackgroundDiscovery
+    private bool? backgroundDiscovery;
+    public bool? BackgroundDiscovery
     {
         get { return backgroundDiscovery; }
         set
@@ -293,15 +293,38 @@ public class RemoteEndpoint : Endpoint
     }
     public async Task<bool> SetMode(ERDM_EndpointMode mode)
     {
-        return await _module.SetMode(this.EndpointId, mode);
+        if (Mode.HasValue)
+            return await _module.SetMode(this.EndpointId, mode);
+        return false;
+    }
+    public async Task<bool> SetDiscoveryState(ERDM_DiscoveryState discoveryState)
+    {
+        if (DiscoveryState.HasValue)
+            return await _module.SetDiscoveryState(this.EndpointId, discoveryState);
+        return false;
+    }
+    public async Task<bool> SetUniverse(ushort universe)
+    {
+        if (Universe.HasValue)
+            return await _module.SetUniverse(this.EndpointId, universe);
+        return false;
     }
     public async Task<bool> SetRDMTraffic(bool rdmTraffic)
     {
-        return await _module.SetRDMTraffic(this.EndpointId, rdmTraffic);
+        if (RDMTraffic.HasValue)
+            return await _module.SetRDMTraffic(this.EndpointId, rdmTraffic);
+        return false;
     }
     public async Task<bool> SetIdentify(bool identify)
     {
-        return await _module.SetIdentify(this.EndpointId, identify);
+        if (Identify.HasValue)
+            return await _module.SetIdentify(this.EndpointId, identify);
+        return false;
     }
-
+    public async Task<bool> SetBackgroundDiscovery(bool backgroundDiscovery)
+    {
+        if (BackgroundDiscovery.HasValue)
+            return await _module.SetBackgroundDiscovery(this.EndpointId, backgroundDiscovery);
+        return false;
+    }
 }

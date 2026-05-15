@@ -159,13 +159,26 @@ public sealed class EndpointsModule : AbstractModule
 
         foreach (var epoint in _endpoints.Values)
         {
-            identifyDict.TryAdd(epoint.EndpointId, new GetSetIdentifyEndpoint(epoint.EndpointId, epoint.Identify));
-            universeDict.TryAdd(epoint.EndpointId, new GetSetEndpointToUniverse(epoint.EndpointId, epoint.Universe));
-            modeDict.TryAdd(epoint.EndpointId, new GetSetEndpointMode(epoint.EndpointId, epoint.Mode));
+            if (epoint.Identify.HasValue)
+                identifyDict.TryAdd(epoint.EndpointId, new GetSetIdentifyEndpoint(epoint.EndpointId, epoint.Identify.Value));
+
+            if (epoint.Universe.HasValue)
+                universeDict.TryAdd(epoint.EndpointId, new GetSetEndpointToUniverse(epoint.EndpointId, epoint.Universe.Value));
+
+            if (epoint.Mode.HasValue)
+                modeDict.TryAdd(epoint.EndpointId, new GetSetEndpointMode(epoint.EndpointId, epoint.Mode.Value));
+
             lableDict.TryAdd(epoint.EndpointId, new GetSetEndpointLabel(epoint.EndpointId, epoint.Lable));
-            rdmTraficDict.TryAdd(epoint.EndpointId, new GetSetEndpointRDMTrafficEnable(epoint.EndpointId, epoint.RDMTraffic));
-            discoveryStateDict.TryAdd(epoint.EndpointId, new GetDiscoveryStateResponse(epoint.EndpointId, epoint.DiscoveryStateCount, epoint.DiscoveryState));
-            backgroundDiscoveryDict.TryAdd(epoint.EndpointId, new GetSetEndpointBackgroundDiscovery(epoint.EndpointId, epoint.BackgroundDiscovery));
+
+            if (epoint.RDMTraffic.HasValue)
+                rdmTraficDict.TryAdd(epoint.EndpointId, new GetSetEndpointRDMTrafficEnable(epoint.EndpointId, epoint.RDMTraffic.Value));
+
+            if (!epoint.DiscoveryState.HasValue)
+                discoveryStateDict.TryAdd(epoint.EndpointId, new GetDiscoveryStateResponse(epoint.EndpointId, epoint.DiscoveryStateCount, epoint.DiscoveryState.Value));
+
+            if (!epoint.BackgroundDiscovery.HasValue)
+                backgroundDiscoveryDict.TryAdd(epoint.EndpointId, new GetSetEndpointBackgroundDiscovery(epoint.EndpointId, epoint.BackgroundDiscovery.Value));
+
             timingDict.TryAdd(epoint.EndpointId, new GetEndpointTimingResponse(epoint.EndpointId, epoint.Timing, (byte)this.TimingDescriptions.Count));
             respondersDict.TryAdd(epoint.EndpointId, new GetEndpointRespondersResponse(epoint.EndpointId, epoint.ResponderListChanged, epoint.Responders.ToArray()));
             responderListChangedDict.TryAdd(epoint.EndpointId, new GetEndpointResponderListChangeResponse(epoint.EndpointId, epoint.ResponderListChanged));
@@ -303,17 +316,17 @@ public sealed class EndpointsModule : AbstractModule
         switch (e.PropertyName)
         {
             case (nameof(Endpoint.Identify)):
-                var newIdentifyValue = new GetSetIdentifyEndpoint(endpoint.EndpointId, endpoint.Identify);
+                var newIdentifyValue = new GetSetIdentifyEndpoint(endpoint.EndpointId, endpoint.Identify.Value);
                 this.identifyDict.AddOrUpdate(endpoint.EndpointId, (_) => newIdentifyValue, (_, _) => newIdentifyValue);
                 this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.IDENTIFY_ENDPOINT, this.identifyDict, endpoint.EndpointId);
                 break;
             case (nameof(Endpoint.Universe)):
-                var newUniverseValue = new GetSetEndpointToUniverse(endpoint.EndpointId, endpoint.Universe);
+                var newUniverseValue = new GetSetEndpointToUniverse(endpoint.EndpointId, endpoint.Universe.Value);
                 this.universeDict.AddOrUpdate(endpoint.EndpointId, (_) => newUniverseValue, (_, _) => newUniverseValue);
                 this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.ENDPOINT_TO_UNIVERSE, this.universeDict, endpoint.EndpointId);
                 break;
             case (nameof(Endpoint.Mode)):
-                var newModeValue = new GetSetEndpointMode(endpoint.EndpointId, endpoint.Mode);
+                var newModeValue = new GetSetEndpointMode(endpoint.EndpointId, endpoint.Mode.Value);
                 this.modeDict.AddOrUpdate(endpoint.EndpointId, (_) => newModeValue, (_, _) => newModeValue);
                 this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.ENDPOINT_MODE, this.modeDict, endpoint.EndpointId);
                 break;
@@ -323,18 +336,18 @@ public sealed class EndpointsModule : AbstractModule
                 this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.ENDPOINT_LABEL, this.lableDict, endpoint.EndpointId);
                 break;
             case (nameof(Endpoint.RDMTraffic)):
-                var newRDMTrafficValue = new GetSetEndpointRDMTrafficEnable(endpoint.EndpointId, endpoint.RDMTraffic);
+                var newRDMTrafficValue = new GetSetEndpointRDMTrafficEnable(endpoint.EndpointId, endpoint.RDMTraffic.Value);
                 this.rdmTraficDict.AddOrUpdate(endpoint.EndpointId, (_) => newRDMTrafficValue, (_, _) => newRDMTrafficValue);
                 this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.RDM_TRAFFIC_ENABLE, this.rdmTraficDict, endpoint.EndpointId);
                 break;
             case (nameof(Endpoint.DiscoveryState)):
             case (nameof(Endpoint.DiscoveryStateCount)):
-                var newDiscoveryStateValue = new GetDiscoveryStateResponse(endpoint.EndpointId, endpoint.DiscoveryStateCount, endpoint.DiscoveryState);
+                var newDiscoveryStateValue = new GetDiscoveryStateResponse(endpoint.EndpointId, endpoint.DiscoveryStateCount, endpoint.DiscoveryState.Value);
                 this.discoveryStateDict.AddOrUpdate(endpoint.EndpointId, (_) => newDiscoveryStateValue, (_, _) => newDiscoveryStateValue);
                 this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.DISCOVERY_STATE, this.discoveryStateDict, endpoint.EndpointId);
                 break;
             case (nameof(Endpoint.BackgroundDiscovery)):
-                var newBackgroundDiscoveryValue = new GetSetEndpointBackgroundDiscovery(endpoint.EndpointId, endpoint.BackgroundDiscovery);
+                var newBackgroundDiscoveryValue = new GetSetEndpointBackgroundDiscovery(endpoint.EndpointId, endpoint.BackgroundDiscovery.Value);
                 this.backgroundDiscoveryDict.AddOrUpdate(endpoint.EndpointId, (_) => newBackgroundDiscoveryValue, (_, _) => newBackgroundDiscoveryValue);
                 this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.BACKGROUND_DISCOVERY, this.backgroundDiscoveryDict, endpoint.EndpointId);
                 break;
@@ -640,6 +653,24 @@ public sealed class EndpointsModule : AbstractModule
         }
         return false;
     }
+    public async Task<bool> SetDiscoveryState(ushort endpointId, ERDM_DiscoveryState discoveryState)
+    {
+        if (await ParentRemoteDevice.SetParameter(ERDM_Parameter.DISCOVERY_STATE, new SetDiscoveryStateRequest(endpointId, discoveryState)))
+        {
+            ((RemoteEndpoint)Endpoints.FirstOrDefault(e => e.EndpointId == endpointId)).DiscoveryState = discoveryState;
+            return true;
+        }
+        return false;
+    }
+    public async Task<bool> SetUniverse(ushort endpointId, ushort universe)
+    {
+        if (await ParentRemoteDevice.SetParameter(ERDM_Parameter.ENDPOINT_TO_UNIVERSE, new GetSetEndpointToUniverse(endpointId, universe)))
+        {
+            ((RemoteEndpoint)Endpoints.FirstOrDefault(e => e.EndpointId == endpointId)).Universe = universe;
+            return true;
+        }
+        return false;
+    }
     public async Task<bool> SetRDMTraffic(ushort endpointId, bool rdmTraffic)
     {
         if (await ParentRemoteDevice.SetParameter(ERDM_Parameter.RDM_TRAFFIC_ENABLE, new GetSetEndpointRDMTrafficEnable(endpointId, rdmTraffic)))
@@ -654,6 +685,15 @@ public sealed class EndpointsModule : AbstractModule
         if (await ParentRemoteDevice.SetParameter(ERDM_Parameter.IDENTIFY_ENDPOINT, new GetSetIdentifyEndpoint(endpointId, identify)))
         {
             ((RemoteEndpoint)Endpoints.FirstOrDefault(e => e.EndpointId == endpointId)).Identify = identify;
+            return true;
+        }
+        return false;
+    }
+    public async Task<bool> SetBackgroundDiscovery(ushort endpointId, bool backgroundDiscovery)
+    {
+        if (await ParentRemoteDevice.SetParameter(ERDM_Parameter.BACKGROUND_DISCOVERY, new GetSetEndpointBackgroundDiscovery(endpointId, backgroundDiscovery)))
+        {
+            ((RemoteEndpoint)Endpoints.FirstOrDefault(e => e.EndpointId == endpointId)).BackgroundDiscovery = backgroundDiscovery;
             return true;
         }
         return false;
