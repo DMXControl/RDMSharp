@@ -79,16 +79,18 @@ public sealed class EndpointsModule : AbstractModule
         }
     }
 
-    private byte _backgroundQueuedStatusPolicy;
-    public byte BackgroundQueuedStatusPolicy
+    private byte? _backgroundQueuedStatusPolicy;
+    public byte? BackgroundQueuedStatusPolicy
     {
         get { return _backgroundQueuedStatusPolicy; }
         set
         {
+            if (!value.HasValue)
+                return;
             if (_backgroundQueuedStatusPolicy == value)
                 return;
             _backgroundQueuedStatusPolicy = value;
-            ParentGeneratedDevice.setParameterValue(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY, new GetBackgroundQueuedStatusPolicyResponse(this._backgroundQueuedStatusPolicy, (byte)this.backgroundQueueStatusPolicyDescriptionDict.Count));
+            ParentGeneratedDevice.setParameterValue(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY, new GetBackgroundQueuedStatusPolicyResponse(this._backgroundQueuedStatusPolicy.Value, (byte)this.backgroundQueueStatusPolicyDescriptionDict.Count));
             OnPropertyChanged(nameof(BackgroundQueuedStatusPolicy));
         }
     }
@@ -208,7 +210,8 @@ public sealed class EndpointsModule : AbstractModule
         ParentGeneratedDevice.setParameterValue(ERDM_Parameter.ENDPOINT_TIMING_DESCRIPTION, timingDescriptionDict);
 
         //ParentGeneratedDevice.setParameterValue(ERDM_Parameter.BINDING_CONTROL_FIELDS, null); // Handled dynamically in handleRequest, because of two identifiers (endpoint and responder UID)
-        ParentGeneratedDevice.setParameterValue(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY, new GetBackgroundQueuedStatusPolicyResponse(this._backgroundQueuedStatusPolicy, (byte)this.backgroundQueueStatusPolicyDescriptionDict.Count));
+        if (this._backgroundQueuedStatusPolicy.HasValue)
+            ParentGeneratedDevice.setParameterValue(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY, new GetBackgroundQueuedStatusPolicyResponse(this._backgroundQueuedStatusPolicy.Value, (byte)this.backgroundQueueStatusPolicyDescriptionDict.Count));
 
         ParentGeneratedDevice.setParameterValue(ERDM_Parameter.ENDPOINT_LIST, new GetEndpointListResponse(listChanged, _endpoints.Values.Select(ep => new EndpointDescriptor(ep.EndpointId, ep.Type)).ToArray()));
         ParentGeneratedDevice.setParameterValue(ERDM_Parameter.ENDPOINT_LIST_CHANGE, listChanged);
@@ -747,6 +750,16 @@ public sealed class EndpointsModule : AbstractModule
         if (await ParentRemoteDevice.SetParameter(ERDM_Parameter.ENDPOINT_TIMING, new SetEndpointTimingRequest(endpointId, timing)))
         {
             ((RemoteEndpoint)Endpoints.FirstOrDefault(e => e.EndpointId == endpointId)).Timing = timing;
+            return true;
+        }
+        return false;
+    }
+    public async Task<bool> SetBackgroundQueuedStatusPolicy(byte backgroundQueuedStatusPolicy)
+    {
+        if (await ParentRemoteDevice.SetParameter(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY, backgroundQueuedStatusPolicy))
+        {
+            this._backgroundQueuedStatusPolicy = backgroundQueuedStatusPolicy;
+            OnPropertyChanged(nameof(BackgroundQueuedStatusPolicy));
             return true;
         }
         return false;
