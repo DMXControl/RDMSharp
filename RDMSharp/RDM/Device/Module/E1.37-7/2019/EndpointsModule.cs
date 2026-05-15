@@ -168,18 +168,20 @@ public sealed class EndpointsModule : AbstractModule
             if (epoint.Mode.HasValue)
                 modeDict.TryAdd(epoint.EndpointId, new GetSetEndpointMode(epoint.EndpointId, epoint.Mode.Value));
 
-            lableDict.TryAdd(epoint.EndpointId, new GetSetEndpointLabel(epoint.EndpointId, epoint.Lable));
+            if (epoint.Lable != null)
+                lableDict.TryAdd(epoint.EndpointId, new GetSetEndpointLabel(epoint.EndpointId, epoint.Lable));
 
             if (epoint.RDMTraffic.HasValue)
                 rdmTraficDict.TryAdd(epoint.EndpointId, new GetSetEndpointRDMTrafficEnable(epoint.EndpointId, epoint.RDMTraffic.Value));
 
-            if (!epoint.DiscoveryState.HasValue)
-                discoveryStateDict.TryAdd(epoint.EndpointId, new GetDiscoveryStateResponse(epoint.EndpointId, epoint.DiscoveryStateCount, epoint.DiscoveryState.Value));
+            if (!epoint.DiscoveryState.HasValue && epoint.DiscoveryStateCount.HasValue)
+                discoveryStateDict.TryAdd(epoint.EndpointId, new GetDiscoveryStateResponse(epoint.EndpointId, epoint.DiscoveryStateCount.Value, epoint.DiscoveryState.Value));
 
             if (!epoint.BackgroundDiscovery.HasValue)
                 backgroundDiscoveryDict.TryAdd(epoint.EndpointId, new GetSetEndpointBackgroundDiscovery(epoint.EndpointId, epoint.BackgroundDiscovery.Value));
 
-            timingDict.TryAdd(epoint.EndpointId, new GetEndpointTimingResponse(epoint.EndpointId, epoint.Timing, (byte)this.TimingDescriptions.Count));
+            if (epoint.Timing.HasValue)
+                timingDict.TryAdd(epoint.EndpointId, new GetEndpointTimingResponse(epoint.EndpointId, epoint.Timing.Value, (byte)this.TimingDescriptions.Count));
             respondersDict.TryAdd(epoint.EndpointId, new GetEndpointRespondersResponse(epoint.EndpointId, epoint.ResponderListChanged, epoint.Responders.ToArray()));
             responderListChangedDict.TryAdd(epoint.EndpointId, new GetEndpointResponderListChangeResponse(epoint.EndpointId, epoint.ResponderListChanged));
             epoint.PropertyChanged += Endpoint_PropertyChanged;
@@ -213,99 +215,141 @@ public sealed class EndpointsModule : AbstractModule
     }
     private void fillFromRemoteCache()
     {
-        var values = ParentRemoteDevice.GetAllParameterValues();
-
-        object value = null;
-        values.TryGetValue(ERDM_Parameter.ENDPOINT_LIST, out value);
-        if (value is not EndpointDescriptor[] endpointDescriptors)
-            return;
-
-        if (values.TryGetValue(ERDM_Parameter.IDENTIFY_ENDPOINT, out value) && value is ConcurrentDictionary<object, object> _identifyDict)
-            identifyDict = _identifyDict;
-
-        if (values.TryGetValue(ERDM_Parameter.ENDPOINT_TO_UNIVERSE, out value) && value is ConcurrentDictionary<object, object> _universeDict)
-            universeDict = _universeDict;
-
-        if (values.TryGetValue(ERDM_Parameter.ENDPOINT_MODE, out value) && value is ConcurrentDictionary<object, object> _modeDict)
-            modeDict = _modeDict;
-
-        if (values.TryGetValue(ERDM_Parameter.ENDPOINT_LABEL, out value) && value is ConcurrentDictionary<object, object> _lableDict)
-            lableDict = _lableDict;
-
-        if (values.TryGetValue(ERDM_Parameter.RDM_TRAFFIC_ENABLE, out value) && value is ConcurrentDictionary<object, object> _rdmTraficDict)
-            rdmTraficDict = _rdmTraficDict;
-
-        if (values.TryGetValue(ERDM_Parameter.DISCOVERY_STATE, out value) && value is ConcurrentDictionary<object, object> _discoveryStateDict)
-            discoveryStateDict = _discoveryStateDict;
-
-        if (values.TryGetValue(ERDM_Parameter.BACKGROUND_DISCOVERY, out value) && value is ConcurrentDictionary<object, object> _backgroundDiscoveryDict)
-            backgroundDiscoveryDict = _backgroundDiscoveryDict;
-
-        if (values.TryGetValue(ERDM_Parameter.ENDPOINT_TIMING, out value) && value is ConcurrentDictionary<object, object> _timingDict)
-            timingDict = _timingDict;
-
-        if (values.TryGetValue(ERDM_Parameter.ENDPOINT_RESPONDERS, out value) && value is ConcurrentDictionary<object, object> _respondersDict)
-            respondersDict = _respondersDict;
-
-        if (values.TryGetValue(ERDM_Parameter.ENDPOINT_RESPONDER_LIST_CHANGE, out value) && value is ConcurrentDictionary<object, object> _responderListChangedDict)
-            responderListChangedDict = _responderListChangedDict;
-
-
-        if (values.TryGetValue(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY_DESCRIPTION, out value) && value is ConcurrentDictionary<object, object> _backgroundQueueStatusPolicyDescriptionDict)
-            backgroundQueueStatusPolicyDescriptionDict = _backgroundQueueStatusPolicyDescriptionDict;
-
-        if (values.TryGetValue(ERDM_Parameter.ENDPOINT_TIMING_DESCRIPTION, out value) && value is ConcurrentDictionary<object, object> _timingDescriptionDict)
-            timingDescriptionDict = _timingDescriptionDict;
-
-        if (values.TryGetValue(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY, out value) && value is GetBackgroundQueuedStatusPolicyResponse getBackgroundQueuedStatusPolicyResponse)
-            this._backgroundQueuedStatusPolicy = getBackgroundQueuedStatusPolicyResponse.PolicyId;
-
-        if (values.TryGetValue(ERDM_Parameter.ENDPOINT_LIST_CHANGE, out value) && value is uint _listChanged)
-            this.listChanged = _listChanged;
-
-
-        foreach (EndpointDescriptor endpointDescriptor in endpointDescriptors)
+        try
         {
-            ushort endpointId = endpointDescriptor.EndpointId;
-            RemoteEndpoint _endpoint = null;
-            if (!_endpoints.TryGetValue(endpointId, out Endpoint _epoint))
+            var values = ParentRemoteDevice.GetAllParameterValues();
+
+            object value = null;
+
+            if (values.TryGetValue(ERDM_Parameter.IDENTIFY_ENDPOINT, out value) && value is ConcurrentDictionary<object, object> _identifyDict)
+                identifyDict = _identifyDict;
+
+            if (values.TryGetValue(ERDM_Parameter.ENDPOINT_TO_UNIVERSE, out value) && value is ConcurrentDictionary<object, object> _universeDict)
+                universeDict = _universeDict;
+
+            if (values.TryGetValue(ERDM_Parameter.ENDPOINT_MODE, out value) && value is ConcurrentDictionary<object, object> _modeDict)
+                modeDict = _modeDict;
+
+            if (values.TryGetValue(ERDM_Parameter.ENDPOINT_LABEL, out value) && value is ConcurrentDictionary<object, object> _lableDict)
+                lableDict = _lableDict;
+
+            if (values.TryGetValue(ERDM_Parameter.RDM_TRAFFIC_ENABLE, out value) && value is ConcurrentDictionary<object, object> _rdmTraficDict)
+                rdmTraficDict = _rdmTraficDict;
+
+            if (values.TryGetValue(ERDM_Parameter.DISCOVERY_STATE, out value) && value is ConcurrentDictionary<object, object> _discoveryStateDict)
+                discoveryStateDict = _discoveryStateDict;
+
+            if (values.TryGetValue(ERDM_Parameter.BACKGROUND_DISCOVERY, out value) && value is ConcurrentDictionary<object, object> _backgroundDiscoveryDict)
+                backgroundDiscoveryDict = _backgroundDiscoveryDict;
+
+            if (values.TryGetValue(ERDM_Parameter.ENDPOINT_TIMING, out value) && value is ConcurrentDictionary<object, object> _timingDict)
+                timingDict = _timingDict;
+
+            if (values.TryGetValue(ERDM_Parameter.ENDPOINT_RESPONDERS, out value) && value is ConcurrentDictionary<object, object> _respondersDict)
+                respondersDict = _respondersDict;
+
+            if (values.TryGetValue(ERDM_Parameter.ENDPOINT_RESPONDER_LIST_CHANGE, out value) && value is ConcurrentDictionary<object, object> _responderListChangedDict)
+                responderListChangedDict = _responderListChangedDict;
+
+
+            if (values.TryGetValue(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY_DESCRIPTION, out value) && value is ConcurrentDictionary<object, object> _backgroundQueueStatusPolicyDescriptionDict)
+                backgroundQueueStatusPolicyDescriptionDict = _backgroundQueueStatusPolicyDescriptionDict;
+
+            if (values.TryGetValue(ERDM_Parameter.ENDPOINT_TIMING_DESCRIPTION, out value) && value is ConcurrentDictionary<object, object> _timingDescriptionDict)
+                timingDescriptionDict = _timingDescriptionDict;
+
+            if (values.TryGetValue(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY, out value) && value is GetBackgroundQueuedStatusPolicyResponse getBackgroundQueuedStatusPolicyResponse)
+                this._backgroundQueuedStatusPolicy = getBackgroundQueuedStatusPolicyResponse.PolicyId;
+
+            if (values.TryGetValue(ERDM_Parameter.ENDPOINT_LIST_CHANGE, out value) && value is uint _listChanged)
+                this.listChanged = _listChanged;
+
+
+            bool backgroundQueueStatusPolicyDescriptionChanged = false;
+            foreach (var backgroundQueueStatusPolicy in backgroundQueueStatusPolicyDescriptionDict)
             {
-                _endpoint = new RemoteEndpoint(this, endpointId, endpointDescriptor.EndpointType);
-                _endpoints.TryAdd(endpointId, _endpoint);
+                byte key = (byte)backgroundQueueStatusPolicy.Key;
+                if (!_backgroundQueuedStatusPolicyDescriptions.TryGetValue(key, out string description))
+                {
+                    _backgroundQueuedStatusPolicyDescriptions[key] = ((GetEndpointTimingDescriptionResponse)backgroundQueueStatusPolicy.Value).Description;
+                    backgroundQueueStatusPolicyDescriptionChanged = true;
+                }
+                else if (!string.Equals(description, ((GetEndpointTimingDescriptionResponse)backgroundQueueStatusPolicy.Value).Description))
+                {
+                    _backgroundQueuedStatusPolicyDescriptions[key] = ((GetEndpointTimingDescriptionResponse)backgroundQueueStatusPolicy.Value).Description;
+                    backgroundQueueStatusPolicyDescriptionChanged = true;
+                }
             }
 
-            if (_epoint is RemoteEndpoint)
-                _endpoint = (RemoteEndpoint)_epoint;
+            bool timingDescriptionChanged = false;
+            foreach (var timing in timingDescriptionDict)
+            {
+                byte key = (byte)timing.Key;
+                if (!_timingDescriptions.TryGetValue(key, out string description))
+                {
+                    _timingDescriptions[key] = ((GetEndpointTimingDescriptionResponse)timing.Value).Description;
+                    timingDescriptionChanged = true;
+                }
+                else if (!string.Equals(description, ((GetEndpointTimingDescriptionResponse)timing.Value).Description))
+                {
+                    _timingDescriptions[key] = ((GetEndpointTimingDescriptionResponse)timing.Value).Description;
+                    timingDescriptionChanged = true;
+                }
+            }
+            if (backgroundQueueStatusPolicyDescriptionChanged)
+                OnPropertyChanged(nameof(BackgroundQueuedStatusPolicyDescriptions));
+            if (timingDescriptionChanged)
+                OnPropertyChanged(nameof(TimingDescriptions));
 
-            if (identifyDict.TryGetValue(endpointId, out object identifyValue) && identifyValue is GetSetIdentifyEndpoint getSetIdentifyEndpoint)
-                _endpoint.Identify = getSetIdentifyEndpoint.IdentifyState;
 
-            if (universeDict.TryGetValue(endpointId, out object universeValue) && universeValue is GetSetEndpointToUniverse getSetEndpointToUniverse)
-                _endpoint.Universe = getSetEndpointToUniverse.Universe;
+            if (values.TryGetValue(ERDM_Parameter.ENDPOINT_LIST, out value) && value is EndpointDescriptor[] endpointDescriptors)
+                foreach (EndpointDescriptor endpointDescriptor in endpointDescriptors)
+                {
+                    ushort endpointId = endpointDescriptor.EndpointId;
+                    RemoteEndpoint _endpoint = null;
+                    if (!_endpoints.TryGetValue(endpointId, out Endpoint _epoint))
+                    {
+                        _endpoint = new RemoteEndpoint(this, endpointId, endpointDescriptor.EndpointType);
+                        _endpoints.TryAdd(endpointId, _endpoint);
+                    }
 
-            if (modeDict.TryGetValue(endpointId, out object modeValue) && modeValue is GetSetEndpointMode getSetEndpointMode)
-                _endpoint.Mode = getSetEndpointMode.EndpointMode;
+                    if (_epoint is RemoteEndpoint)
+                        _endpoint = (RemoteEndpoint)_epoint;
 
-            if (lableDict.TryGetValue(endpointId, out object lableValue) && lableValue is GetSetEndpointLabel getSetEndpointLabel)
-                _endpoint.Lable = getSetEndpointLabel.EndpointLabel;
+                    if (identifyDict.TryGetValue(endpointId, out object identifyValue) && identifyValue is GetSetIdentifyEndpoint getSetIdentifyEndpoint)
+                        _endpoint.Identify = getSetIdentifyEndpoint.IdentifyState;
 
-            if (rdmTraficDict.TryGetValue(endpointId, out object rdmTraficValue) && rdmTraficValue is GetSetEndpointRDMTrafficEnable getSetEndpointRDMTrafficEnable)
-                _endpoint.RDMTraffic = getSetEndpointRDMTrafficEnable.RDMTrafficEnabled;
+                    if (universeDict.TryGetValue(endpointId, out object universeValue) && universeValue is GetSetEndpointToUniverse getSetEndpointToUniverse)
+                        _endpoint.Universe = getSetEndpointToUniverse.Universe;
 
-            if (discoveryStateDict.TryGetValue(endpointId, out object discoveryStateValue) && discoveryStateValue is GetDiscoveryStateResponse getDiscoveryStateResponse)
-                _endpoint.DiscoveryState = getDiscoveryStateResponse.DiscoveryState;
+                    if (modeDict.TryGetValue(endpointId, out object modeValue) && modeValue is GetSetEndpointMode getSetEndpointMode)
+                        _endpoint.Mode = getSetEndpointMode.EndpointMode;
 
-            if (backgroundDiscoveryDict.TryGetValue(endpointId, out object backgroundDiscoveryValue) && backgroundDiscoveryValue is GetSetEndpointBackgroundDiscovery getSetEndpointBackgroundDiscovery)
-                _endpoint.BackgroundDiscovery = getSetEndpointBackgroundDiscovery.BackgroundDiscovery;
+                    if (lableDict.TryGetValue(endpointId, out object lableValue) && lableValue is GetSetEndpointLabel getSetEndpointLabel)
+                        _endpoint.Lable = getSetEndpointLabel.EndpointLabel;
 
-            if (timingDict.TryGetValue(endpointId, out object timingValue) && timingValue is GetEndpointTimingResponse getEndpointTimingResponse)
-                _endpoint.Timing = getEndpointTimingResponse.Timings;
+                    if (rdmTraficDict.TryGetValue(endpointId, out object rdmTraficValue) && rdmTraficValue is GetSetEndpointRDMTrafficEnable getSetEndpointRDMTrafficEnable)
+                        _endpoint.RDMTraffic = getSetEndpointRDMTrafficEnable.RDMTrafficEnabled;
 
-            if (respondersDict.TryGetValue(endpointId, out object respondersValue) && respondersValue is GetEndpointRespondersResponse getEndpointRespondersResponse)
-                _endpoint.Responders = getEndpointRespondersResponse.UIDs;
+                    if (discoveryStateDict.TryGetValue(endpointId, out object discoveryStateValue) && discoveryStateValue is GetDiscoveryStateResponse getDiscoveryStateResponse)
+                        _endpoint.DiscoveryState = getDiscoveryStateResponse.DiscoveryState;
 
-            if (responderListChangedDict.TryGetValue(endpointId, out object responderListChangedValue) && responderListChangedValue is GetEndpointResponderListChangeResponse getEndpointResponderListChangeResponse)
-                _endpoint.ResponderListChanged = getEndpointResponderListChangeResponse.ListChangeNumber;
+                    if (backgroundDiscoveryDict.TryGetValue(endpointId, out object backgroundDiscoveryValue) && backgroundDiscoveryValue is GetSetEndpointBackgroundDiscovery getSetEndpointBackgroundDiscovery)
+                        _endpoint.BackgroundDiscovery = getSetEndpointBackgroundDiscovery.BackgroundDiscovery;
+
+                    if (timingDict.TryGetValue(endpointId, out object timingValue) && timingValue is GetEndpointTimingResponse getEndpointTimingResponse)
+                        _endpoint.Timing = getEndpointTimingResponse.TimingId;
+
+                    if (respondersDict.TryGetValue(endpointId, out object respondersValue) && respondersValue is GetEndpointRespondersResponse getEndpointRespondersResponse)
+                        _endpoint.Responders = getEndpointRespondersResponse.UIDs;
+
+                    if (responderListChangedDict.TryGetValue(endpointId, out object responderListChangedValue) && responderListChangedValue is GetEndpointResponderListChangeResponse getEndpointResponderListChangeResponse)
+                        _endpoint.ResponderListChanged = getEndpointResponderListChangeResponse.ListChangeNumber;
+                }
+        }
+        catch (Exception e)
+        {
+            Logger?.LogError(e);
         }
     }
 
@@ -342,7 +386,7 @@ public sealed class EndpointsModule : AbstractModule
                 break;
             case (nameof(Endpoint.DiscoveryState)):
             case (nameof(Endpoint.DiscoveryStateCount)):
-                var newDiscoveryStateValue = new GetDiscoveryStateResponse(endpoint.EndpointId, endpoint.DiscoveryStateCount, endpoint.DiscoveryState.Value);
+                var newDiscoveryStateValue = new GetDiscoveryStateResponse(endpoint.EndpointId, endpoint.DiscoveryStateCount.Value, endpoint.DiscoveryState.Value);
                 this.discoveryStateDict.AddOrUpdate(endpoint.EndpointId, (_) => newDiscoveryStateValue, (_, _) => newDiscoveryStateValue);
                 this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.DISCOVERY_STATE, this.discoveryStateDict, endpoint.EndpointId);
                 break;
@@ -352,7 +396,7 @@ public sealed class EndpointsModule : AbstractModule
                 this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.BACKGROUND_DISCOVERY, this.backgroundDiscoveryDict, endpoint.EndpointId);
                 break;
             case (nameof(Endpoint.Timing)):
-                var newTimingValue = new GetEndpointTimingResponse(endpoint.EndpointId, endpoint.Timing, (byte)this.TimingDescriptions.Count);
+                var newTimingValue = new GetEndpointTimingResponse(endpoint.EndpointId, endpoint.Timing.Value, (byte)this.TimingDescriptions.Count);
                 this.timingDescriptionDict.AddOrUpdate(endpoint.EndpointId, (_) => newTimingValue, (_, _) => newTimingValue);
                 this.ParentGeneratedDevice.setParameterValue(ERDM_Parameter.ENDPOINT_TIMING, this.timingDescriptionDict, endpoint.EndpointId);
                 break;
@@ -431,7 +475,7 @@ public sealed class EndpointsModule : AbstractModule
 
             case ERDM_Parameter.ENDPOINT_TIMING:
                 if (endpoint is not null)
-                    endpoint.Timing = ((GetEndpointTimingResponse)newValue).Timings;
+                    endpoint.Timing = ((GetEndpointTimingResponse)newValue).TimingId;
                 break;
 
             case ERDM_Parameter.ENDPOINT_RESPONDERS:
@@ -694,6 +738,15 @@ public sealed class EndpointsModule : AbstractModule
         if (await ParentRemoteDevice.SetParameter(ERDM_Parameter.BACKGROUND_DISCOVERY, new GetSetEndpointBackgroundDiscovery(endpointId, backgroundDiscovery)))
         {
             ((RemoteEndpoint)Endpoints.FirstOrDefault(e => e.EndpointId == endpointId)).BackgroundDiscovery = backgroundDiscovery;
+            return true;
+        }
+        return false;
+    }
+    public async Task<bool> SetTiming(ushort endpointId, byte timing)
+    {
+        if (await ParentRemoteDevice.SetParameter(ERDM_Parameter.ENDPOINT_TIMING, new SetEndpointTimingRequest(endpointId, timing)))
+        {
+            ((RemoteEndpoint)Endpoints.FirstOrDefault(e => e.EndpointId == endpointId)).Timing = timing;
             return true;
         }
         return false;

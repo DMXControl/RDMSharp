@@ -97,8 +97,8 @@ public class Endpoint : INotifyPropertyChanged, IEquatable<Endpoint>
         }
     }
 
-    private ushort discoveryStateCount;
-    public ushort DiscoveryStateCount
+    private ushort? discoveryStateCount;
+    public ushort? DiscoveryStateCount
     {
         get { return discoveryStateCount; }
         set
@@ -123,8 +123,8 @@ public class Endpoint : INotifyPropertyChanged, IEquatable<Endpoint>
         }
     }
 
-    private byte timing;
-    public byte Timing
+    private byte? timing;
+    public byte? Timing
     {
         get { return timing; }
         set
@@ -136,8 +136,8 @@ public class Endpoint : INotifyPropertyChanged, IEquatable<Endpoint>
         }
     }
 
-    private HashSet<UID> responders = new HashSet<UID>();
-    public IReadOnlyCollection<UID> Responders
+    private HashSet<UID>? responders = new HashSet<UID>();
+    public IReadOnlyCollection<UID>? Responders
     {
         get { return responders; }
     }
@@ -325,6 +325,12 @@ public class RemoteEndpoint : Endpoint
     {
         if (BackgroundDiscovery.HasValue)
             return await _module.SetBackgroundDiscovery(this.EndpointId, backgroundDiscovery);
+        return false;
+    }
+    public async Task<bool> SetTiming(byte timing)
+    {
+        if (Timing.HasValue)
+            return await _module.SetTiming(this.EndpointId, timing);
         return false;
     }
 }
