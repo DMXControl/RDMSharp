@@ -205,7 +205,7 @@ public class TestEndpointsModlue
         Assert.That(getSetEndpointLable.IdentifyState, Is.EqualTo(false));
         #endregion
 
-        endpointsModule.Endpoints[1].Identify = true;
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).Identify = true;
 
         request.ParameterData = Tools.ValueToData((ushort)1);
         response = generated.ProcessRequestMessage_Internal(request);
@@ -284,7 +284,7 @@ public class TestEndpointsModlue
         Assert.That(getSetEndpointToUniverse.EndpointId, Is.EqualTo(9));
         Assert.That(getSetEndpointToUniverse.Universe, Is.EqualTo(2));
 
-        endpointsModule.Endpoints[9].Universe = 1;
+        endpointsModule.Endpoints.First(x => x.EndpointId == 9).Universe = 1;
 
         request.ParameterData = Tools.ValueToData((ushort)9);
         response = generated.ProcessRequestMessage_Internal(request);
@@ -302,7 +302,7 @@ public class TestEndpointsModlue
         Assert.That(getSetEndpointToUniverse.EndpointId, Is.EqualTo(9));
         Assert.That(getSetEndpointToUniverse.Universe, Is.EqualTo(1));
 
-        endpointsModule.Endpoints[9].Universe = 2;
+        endpointsModule.Endpoints.First(x => x.EndpointId == 9).Universe = 2;
     }
     [Test, Order(23)]
     public void TestGetENDPOINT_MODE()
@@ -365,7 +365,7 @@ public class TestEndpointsModlue
         Assert.That(getSetEndpointMode.EndpointId, Is.EqualTo(9));
         Assert.That(getSetEndpointMode.EndpointMode, Is.EqualTo(ERDM_EndpointMode.OUTPUT));
 
-        endpointsModule.Endpoints[9].Mode = ERDM_EndpointMode.DISABLED;
+        endpointsModule.Endpoints.First(x => x.EndpointId == 9).Mode = ERDM_EndpointMode.DISABLED;
 
         request.ParameterData = Tools.ValueToData((ushort)9);
         response = generated.ProcessRequestMessage_Internal(request);
@@ -383,7 +383,7 @@ public class TestEndpointsModlue
         Assert.That(getSetEndpointMode.EndpointId, Is.EqualTo(9));
         Assert.That(getSetEndpointMode.EndpointMode, Is.EqualTo(ERDM_EndpointMode.DISABLED));
 
-        endpointsModule.Endpoints[9].Mode = ERDM_EndpointMode.OUTPUT;
+        endpointsModule.Endpoints.First(x => x.EndpointId == 9).Mode = ERDM_EndpointMode.OUTPUT;
     }
     [Test, Order(24)]
     public void TestGetENDPOINT_LABEL()
@@ -446,7 +446,7 @@ public class TestEndpointsModlue
         Assert.That(getSetEndpointLable.EndpointId, Is.EqualTo(4));
         Assert.That(getSetEndpointLable.EndpointLabel, Is.EqualTo("Test Endpoint Output 4"));
 
-        endpointsModule.Endpoints[4].Lable = "Test Endpoint Output 4 renamed";
+        endpointsModule.Endpoints.First(x => x.EndpointId == 4).Lable = "Test Endpoint Output 4 renamed";
 
         request.ParameterData = Tools.ValueToData((ushort)4);
         response = generated.ProcessRequestMessage_Internal(request);
@@ -509,7 +509,7 @@ public class TestEndpointsModlue
         Assert.That(getSetEndpointRDMTrafficEnable.RDMTrafficEnabled, Is.EqualTo(true));
         #endregion
 
-        endpointsModule.Endpoints[1].RDMTraffic = false;
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).RDMTraffic = false;
 
         request.ParameterData = Tools.ValueToData((ushort)1);
         response = generated.ProcessRequestMessage_Internal(request);
@@ -527,7 +527,7 @@ public class TestEndpointsModlue
         Assert.That(getSetEndpointRDMTrafficEnable.EndpointId, Is.EqualTo(1));
         Assert.That(getSetEndpointRDMTrafficEnable.RDMTrafficEnabled, Is.EqualTo(false));
 
-        endpointsModule.Endpoints[1].RDMTraffic = true;
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).RDMTraffic = true;
     }
 
     [Test, Order(26)]
@@ -576,8 +576,8 @@ public class TestEndpointsModlue
         Assert.That(getDiscoveryStateResponse.DeviceCount, Is.EqualTo(0));
         #endregion
 
-        endpointsModule.Endpoints[1].DiscoveryState = ERDM_DiscoveryState.FULL;
-        endpointsModule.Endpoints[1].DiscoveryStateCount = 4;
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).DiscoveryState = ERDM_DiscoveryState.FULL;
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).DiscoveryStateCount = 4;
 
         request.ParameterData = Tools.ValueToData((ushort)1);
         response = generated.ProcessRequestMessage_Internal(request);
@@ -596,8 +596,8 @@ public class TestEndpointsModlue
         Assert.That(getDiscoveryStateResponse.DiscoveryState, Is.EqualTo(ERDM_DiscoveryState.FULL));
         Assert.That(getDiscoveryStateResponse.DeviceCount, Is.EqualTo(4));
 
-        endpointsModule.Endpoints[1].DiscoveryState = ERDM_DiscoveryState.INCOMPLETE;
-        endpointsModule.Endpoints[1].DiscoveryStateCount = 0;
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).DiscoveryState = ERDM_DiscoveryState.INCOMPLETE;
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).DiscoveryStateCount = 0;
     }
     [Test, Order(27)]
     public void TestGetBACKGROUND_DISCOVERY()
@@ -644,7 +644,7 @@ public class TestEndpointsModlue
         Assert.That(getSetEndpointBackgroundDiscovery.BackgroundDiscovery, Is.EqualTo(false));
         #endregion
 
-        endpointsModule.Endpoints[1].BackgroundDiscovery = true;
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).BackgroundDiscovery = true;
 
         request.ParameterData = Tools.ValueToData((ushort)1);
         response = generated.ProcessRequestMessage_Internal(request);
@@ -662,7 +662,7 @@ public class TestEndpointsModlue
         Assert.That(getSetEndpointBackgroundDiscovery.EndpointId, Is.EqualTo(1));
         Assert.That(getSetEndpointBackgroundDiscovery.BackgroundDiscovery, Is.EqualTo(true));
 
-        endpointsModule.Endpoints[1].BackgroundDiscovery = false;
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).BackgroundDiscovery = false;
     }
     [Test, Order(28)]
     public void TestGetENDPOINT_TIMING()
@@ -710,7 +710,7 @@ public class TestEndpointsModlue
         Assert.That(getEndpointTimingResponse.Timings, Is.EqualTo(5));
         #endregion
 
-        endpointsModule.Endpoints[1].Timing = 1;
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).Timing = 1;
 
         request.ParameterData = Tools.ValueToData((ushort)1);
         response = generated.ProcessRequestMessage_Internal(request);
@@ -729,7 +729,7 @@ public class TestEndpointsModlue
         Assert.That(getEndpointTimingResponse.TimingId, Is.EqualTo(1));
         Assert.That(getEndpointTimingResponse.Timings, Is.EqualTo(5));
 
-        endpointsModule.Endpoints[1].Timing = 2;
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).Timing = 2;
     }
     [Test, Order(29)]
     public void TestGetENDPOINT_TIMING_DESCRIPTION()
@@ -849,7 +849,7 @@ public class TestEndpointsModlue
         Assert.That(getEndpointRespondersResponse.UIDs, Is.EqualTo(new UID[0]));
         #endregion
 
-        ((EndpointMock)endpointsModule.Endpoints[1]).AddResponder(new UID(0x123456789ABC));
+        ((EndpointMock)endpointsModule.Endpoints.First(endpoint => endpoint.EndpointId == 1)).AddResponder(new UID(0x123456789ABC));
 
         request.ParameterData = Tools.ValueToData((ushort)1);
         response = generated.ProcessRequestMessage_Internal(request);
@@ -868,7 +868,7 @@ public class TestEndpointsModlue
         Assert.That(getEndpointRespondersResponse.ListChangedNumber, Is.EqualTo(1));
         Assert.That(getEndpointRespondersResponse.UIDs, Is.EqualTo(new UID[] { new UID(0x123456789ABC) }));
 
-        ((EndpointMock)endpointsModule.Endpoints[1]).RemoveResponder(new UID(0x123456789ABC));
+        ((EndpointMock)endpointsModule.Endpoints.First(endpoint => endpoint.EndpointId == 1)).RemoveResponder(new UID(0x123456789ABC));
 
         request.ParameterData = Tools.ValueToData((ushort)1);
         response = generated.ProcessRequestMessage_Internal(request);
@@ -922,7 +922,7 @@ public class TestEndpointsModlue
             SubDevice = SubDevice.Root,
         };
 
-        ((EndpointMock)endpointsModule.Endpoints[6]).SetBindingControlField(uid, 5, bindingUid);
+        ((EndpointMock)endpointsModule.Endpoints.First(endpoint => endpoint.EndpointId == 6)).SetBindingControlField(uid, 5, bindingUid);
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
@@ -954,7 +954,7 @@ public class TestEndpointsModlue
         Assert.That(getBindingAndControlFieldsResponse.BindingUID, Is.EqualTo(bindingUid));
         #endregion
 
-        ((EndpointMock)endpointsModule.Endpoints[6]).SetBindingControlField(uid, 4, bindingUid);
+        ((EndpointMock)endpointsModule.Endpoints.First(endpoint => endpoint.EndpointId == 6)).SetBindingControlField(uid, 4, bindingUid);
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
@@ -973,7 +973,7 @@ public class TestEndpointsModlue
         Assert.That(getBindingAndControlFieldsResponse.ControlField, Is.EqualTo(4));
         Assert.That(getBindingAndControlFieldsResponse.BindingUID, Is.EqualTo(bindingUid));
 
-        ((EndpointMock)endpointsModule.Endpoints[6]).RemoveBindingControlField(uid);
+        ((EndpointMock)endpointsModule.Endpoints.First(endpoint => endpoint.EndpointId == 6)).RemoveBindingControlField(uid);
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
@@ -1136,10 +1136,10 @@ public class TestEndpointsModlue
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
         Assert.That(response.Value, Is.Null);
 
-        Assert.That(endpointsModule.Endpoints[1].Identify, Is.EqualTo(false));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Identify, Is.EqualTo(false));
 
         bool changed = false;
-        endpointsModule.Endpoints[1].PropertyChanged += (s, e) =>
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).PropertyChanged += (s, e) =>
         {
             if (e.PropertyName == nameof(Endpoint.Identify))
                 changed = true;
@@ -1158,7 +1158,7 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         Assert.That(response.Value, Is.Null);
-        Assert.That(endpointsModule.Endpoints[1].Identify, Is.EqualTo(true));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Identify, Is.EqualTo(true));
         Assert.That(changed, Is.EqualTo(true));
         #endregion
 
@@ -1176,7 +1176,7 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         Assert.That(response.Value, Is.Null);
-        Assert.That(endpointsModule.Endpoints[1].Identify, Is.EqualTo(false));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Identify, Is.EqualTo(false));
         Assert.That(changed, Is.EqualTo(true));
 
         payload = new GetSetIdentifyEndpoint(20, false);
@@ -1231,10 +1231,10 @@ public class TestEndpointsModlue
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
         Assert.That(response.Value, Is.Null);
 
-        Assert.That(endpointsModule.Endpoints[1].Universe, Is.EqualTo(1));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Universe, Is.EqualTo(1));
 
         bool changed = false;
-        endpointsModule.Endpoints[1].PropertyChanged += (s, e) =>
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).PropertyChanged += (s, e) =>
         {
             if (e.PropertyName == nameof(Endpoint.Universe))
                 changed = true;
@@ -1253,7 +1253,7 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         Assert.That(response.Value, Is.Null);
-        Assert.That(endpointsModule.Endpoints[1].Universe, Is.EqualTo(99));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Universe, Is.EqualTo(99));
         Assert.That(changed, Is.EqualTo(true));
         #endregion
 
@@ -1271,7 +1271,7 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         Assert.That(response.Value, Is.Null);
-        Assert.That(endpointsModule.Endpoints[1].Universe, Is.EqualTo(1));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Universe, Is.EqualTo(1));
         Assert.That(changed, Is.EqualTo(true));
 
         payload = new GetSetEndpointToUniverse(20, 1);
@@ -1326,10 +1326,10 @@ public class TestEndpointsModlue
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
         Assert.That(response.Value, Is.Null);
 
-        Assert.That(endpointsModule.Endpoints[1].Mode, Is.EqualTo(ERDM_EndpointMode.INPUT));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Mode, Is.EqualTo(ERDM_EndpointMode.INPUT));
 
         bool changed = false;
-        endpointsModule.Endpoints[1].PropertyChanged += (s, e) =>
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).PropertyChanged += (s, e) =>
         {
             if (e.PropertyName == nameof(Endpoint.Mode))
                 changed = true;
@@ -1348,7 +1348,7 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         Assert.That(response.Value, Is.Null);
-        Assert.That(endpointsModule.Endpoints[1].Mode, Is.EqualTo(ERDM_EndpointMode.DISABLED));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Mode, Is.EqualTo(ERDM_EndpointMode.DISABLED));
         Assert.That(changed, Is.EqualTo(true));
         #endregion
 
@@ -1366,7 +1366,7 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         Assert.That(response.Value, Is.Null);
-        Assert.That(endpointsModule.Endpoints[1].Mode, Is.EqualTo(ERDM_EndpointMode.INPUT));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Mode, Is.EqualTo(ERDM_EndpointMode.INPUT));
         Assert.That(changed, Is.EqualTo(true));
 
         payload = new GetSetEndpointMode(20, ERDM_EndpointMode.INPUT);
@@ -1421,10 +1421,10 @@ public class TestEndpointsModlue
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
         Assert.That(response.Value, Is.Null);
 
-        Assert.That(endpointsModule.Endpoints[1].Lable, Is.EqualTo("Test Endpoint Input 1"));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Lable, Is.EqualTo("Test Endpoint Input 1"));
 
         bool changed = false;
-        endpointsModule.Endpoints[1].PropertyChanged += (s, e) =>
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).PropertyChanged += (s, e) =>
         {
             if (e.PropertyName == nameof(Endpoint.Lable))
                 changed = true;
@@ -1443,7 +1443,7 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         Assert.That(response.Value, Is.Null);
-        Assert.That(endpointsModule.Endpoints[1].Lable, Is.EqualTo("Test Endpoint Input 1 renamed"));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Lable, Is.EqualTo("Test Endpoint Input 1 renamed"));
         Assert.That(changed, Is.EqualTo(true));
         #endregion
 
@@ -1461,7 +1461,7 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         Assert.That(response.Value, Is.Null);
-        Assert.That(endpointsModule.Endpoints[1].Lable, Is.EqualTo("Test Endpoint Input 1"));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Lable, Is.EqualTo("Test Endpoint Input 1"));
         Assert.That(changed, Is.EqualTo(true));
 
         payload = new GetSetEndpointLabel(20, "Test Endpoint Input 20");
@@ -1516,10 +1516,10 @@ public class TestEndpointsModlue
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
         Assert.That(response.Value, Is.Null);
 
-        Assert.That(endpointsModule.Endpoints[1].RDMTraffic, Is.EqualTo(true));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).RDMTraffic, Is.EqualTo(true));
 
         bool changed = false;
-        endpointsModule.Endpoints[1].PropertyChanged += (s, e) =>
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).PropertyChanged += (s, e) =>
         {
             if (e.PropertyName == nameof(Endpoint.RDMTraffic))
                 changed = true;
@@ -1538,7 +1538,7 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         Assert.That(response.Value, Is.Null);
-        Assert.That(endpointsModule.Endpoints[1].RDMTraffic, Is.EqualTo(false));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).RDMTraffic, Is.EqualTo(false));
         Assert.That(changed, Is.EqualTo(true));
         #endregion
 
@@ -1556,7 +1556,7 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         Assert.That(response.Value, Is.Null);
-        Assert.That(endpointsModule.Endpoints[1].RDMTraffic, Is.EqualTo(true));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).RDMTraffic, Is.EqualTo(true));
         Assert.That(changed, Is.EqualTo(true));
 
         payload = new GetSetEndpointRDMTrafficEnable(20, true);
@@ -1610,10 +1610,10 @@ public class TestEndpointsModlue
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
         Assert.That(response.Value, Is.Null);
 
-        Assert.That(endpointsModule.Endpoints[1].DiscoveryState, Is.EqualTo(ERDM_DiscoveryState.INCOMPLETE));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).DiscoveryState, Is.EqualTo(ERDM_DiscoveryState.INCOMPLETE));
 
         bool changed = false;
-        endpointsModule.Endpoints[1].PropertyChanged += (s, e) =>
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).PropertyChanged += (s, e) =>
         {
             if (e.PropertyName == nameof(Endpoint.DiscoveryState))
                 changed = true;
@@ -1632,7 +1632,7 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         Assert.That(response.Value, Is.Null);
-        Assert.That(endpointsModule.Endpoints[1].DiscoveryState, Is.EqualTo(ERDM_DiscoveryState.FULL));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).DiscoveryState, Is.EqualTo(ERDM_DiscoveryState.FULL));
         Assert.That(changed, Is.EqualTo(true));
         #endregion
 
@@ -1650,7 +1650,7 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         Assert.That(response.Value, Is.Null);
-        Assert.That(endpointsModule.Endpoints[1].DiscoveryState, Is.EqualTo(ERDM_DiscoveryState.INCOMPLETE));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).DiscoveryState, Is.EqualTo(ERDM_DiscoveryState.INCOMPLETE));
         Assert.That(changed, Is.EqualTo(true));
 
         payload = new SetDiscoveryStateRequest(20, ERDM_DiscoveryState.INCOMPLETE);
@@ -1705,10 +1705,10 @@ public class TestEndpointsModlue
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
         Assert.That(response.Value, Is.Null);
 
-        Assert.That(endpointsModule.Endpoints[1].BackgroundDiscovery, Is.EqualTo(false));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).BackgroundDiscovery, Is.EqualTo(false));
 
         bool changed = false;
-        endpointsModule.Endpoints[1].PropertyChanged += (s, e) =>
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).PropertyChanged += (s, e) =>
         {
             if (e.PropertyName == nameof(Endpoint.BackgroundDiscovery))
                 changed = true;
@@ -1727,7 +1727,7 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         Assert.That(response.Value, Is.Null);
-        Assert.That(endpointsModule.Endpoints[1].BackgroundDiscovery, Is.EqualTo(true));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).BackgroundDiscovery, Is.EqualTo(true));
         Assert.That(changed, Is.EqualTo(true));
         #endregion
 
@@ -1745,7 +1745,7 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         Assert.That(response.Value, Is.Null);
-        Assert.That(endpointsModule.Endpoints[1].BackgroundDiscovery, Is.EqualTo(false));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).BackgroundDiscovery, Is.EqualTo(false));
         Assert.That(changed, Is.EqualTo(true));
 
         payload = new GetSetEndpointBackgroundDiscovery(20, false);
@@ -1800,10 +1800,10 @@ public class TestEndpointsModlue
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
         Assert.That(response.Value, Is.Null);
 
-        Assert.That(endpointsModule.Endpoints[1].Timing, Is.EqualTo(2));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Timing, Is.EqualTo(2));
 
         bool changed = false;
-        endpointsModule.Endpoints[1].PropertyChanged += (s, e) =>
+        endpointsModule.Endpoints.First(x => x.EndpointId == 1).PropertyChanged += (s, e) =>
         {
             if (e.PropertyName == nameof(Endpoint.Timing))
                 changed = true;
@@ -1822,7 +1822,7 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         Assert.That(response.Value, Is.Null);
-        Assert.That(endpointsModule.Endpoints[1].Timing, Is.EqualTo(4));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Timing, Is.EqualTo(4));
         Assert.That(changed, Is.EqualTo(true));
         #endregion
 
@@ -1840,7 +1840,7 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         Assert.That(response.Value, Is.Null);
-        Assert.That(endpointsModule.Endpoints[1].Timing, Is.EqualTo(2));
+        Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Timing, Is.EqualTo(2));
         Assert.That(changed, Is.EqualTo(true));
 
         payload = new SetEndpointTimingRequest(20, 3);
@@ -2045,6 +2045,9 @@ public class TestEndpointsModlue
             this.Mode = ERDM_EndpointMode.INPUT;
             base.Lable = $"Test Endpoint Input {endpointId}";
             base.Timing = 2;
+            base.Identify = false;
+            base.DiscoveryState = ERDM_DiscoveryState.INCOMPLETE;
+            base.BackgroundDiscovery = false;
         }
     }
     class EndpointOutputMock : EndpointMock

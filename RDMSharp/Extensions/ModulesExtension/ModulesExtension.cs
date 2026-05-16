@@ -69,6 +69,9 @@ public sealed class ModulesExtension : AbstractModulesExtension
         if (parameters.Contains(ERDM_Parameter.PERFORM_SELFTEST))
             _modules.Add(typeof(SelfTestsModule));
 
+        if (parameters.Contains(ERDM_Parameter.POWER_STATE))
+            _modules.Add(typeof(PowerStateModule));
+
         if (parameters.Contains(ERDM_Parameter.SENSOR_DEFINITION))
             _modules.Add(typeof(SensorsModule));
 

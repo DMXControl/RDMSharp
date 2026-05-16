@@ -7,7 +7,10 @@ public sealed class PresetsModule : AbstractModule
     private static readonly ERDM_Parameter[] _moduleParameters = new ERDM_Parameter[]
     {
         ERDM_Parameter.PRESET_PLAYBACK,
-        ERDM_Parameter.CAPTURE_PRESET
+        ERDM_Parameter.CAPTURE_PRESET,
+        ERDM_Parameter.PRESET_INFO,
+        ERDM_Parameter.PRESET_STATUS,
+        ERDM_Parameter.PRESET_MERGEMODE
     };
     public override string DisplayName => _moduleDisplayName;
 

@@ -176,10 +176,10 @@ public sealed class EndpointsModule : AbstractModule
             if (epoint.RDMTraffic.HasValue)
                 rdmTraficDict.TryAdd(epoint.EndpointId, new GetSetEndpointRDMTrafficEnable(epoint.EndpointId, epoint.RDMTraffic.Value));
 
-            if (!epoint.DiscoveryState.HasValue && epoint.DiscoveryStateCount.HasValue)
-                discoveryStateDict.TryAdd(epoint.EndpointId, new GetDiscoveryStateResponse(epoint.EndpointId, epoint.DiscoveryStateCount.Value, epoint.DiscoveryState.Value));
+            if (epoint.DiscoveryState.HasValue)
+                discoveryStateDict.TryAdd(epoint.EndpointId, new GetDiscoveryStateResponse(epoint.EndpointId, epoint.DiscoveryStateCount ?? 0, epoint.DiscoveryState.Value));
 
-            if (!epoint.BackgroundDiscovery.HasValue)
+            if (epoint.BackgroundDiscovery.HasValue)
                 backgroundDiscoveryDict.TryAdd(epoint.EndpointId, new GetSetEndpointBackgroundDiscovery(epoint.EndpointId, epoint.BackgroundDiscovery.Value));
 
             if (epoint.Timing.HasValue)
