@@ -5,7 +5,7 @@ using RDMSharpTests.Devices.Mock;
 
 namespace RDMSharpTests.RDM.Devices.Modules;
 
-public class TestInterfaceModlue
+public class TestInterfaceModule
 {
     private InterfaceMockDevice? generated;
     private InterfaceModule? interfaceModule;

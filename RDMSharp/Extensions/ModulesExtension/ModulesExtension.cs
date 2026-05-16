@@ -57,6 +57,10 @@ public sealed class ModulesExtension : AbstractModulesExtension
         if (parameters.Contains(ERDM_Parameter.REAL_TIME_CLOCK))
             _modules.Add(typeof(RealTimeClockModule));
 
+        if (parameters.Contains(ERDM_Parameter.LOCK_PIN) ||
+            parameters.Contains(ERDM_Parameter.LOCK_STATE))
+            _modules.Add(typeof(LockModule));
+
         if (parameters.Contains(ERDM_Parameter.CURVE))
             _modules.Add(typeof(CurveModule));
 
