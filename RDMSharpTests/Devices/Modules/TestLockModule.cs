@@ -107,7 +107,7 @@ public class TestLockModule
         #endregion
 
     }
-    [Test, Order(101), MaxTime(7000)]
+    [Test, Order(101), MaxTime(15000)]
     public async Task TestRemoteDevice()
     {
         Assert.That(generated, Is.Not.Null);

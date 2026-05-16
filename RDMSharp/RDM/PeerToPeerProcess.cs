@@ -148,7 +148,7 @@ public class PeerToPeerProcess : INotifyPropertyChanged
 
             byte[] parameterData = null;
             if (Define != null)
-                parameterData = MetadataFactory.ParsePayloadToData(Define, commandRequest, RequestPayloadObject).First();
+                parameterData = MetadataFactory.ParsePayloadToData(Define, commandRequest, RequestPayloadObject).FirstOrDefault();
             request = new RDMMessage()
             {
                 Command = Command,

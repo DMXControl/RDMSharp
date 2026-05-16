@@ -10,6 +10,7 @@ namespace RDMSharp.RDM.Device.Module;
 
 public sealed class LockModule : AbstractModule
 {
+    SemaphoreSlim semaphoreSlimLockPin = new SemaphoreSlim(1);
     SemaphoreSlim semaphoreSlimLockState = new SemaphoreSlim(1);
     private const string _moduleName = "Lock";
     private const string _moduleDisplayName = "Lock";
@@ -54,11 +55,11 @@ public sealed class LockModule : AbstractModule
 
             if (ParentRemoteDevice is not null)
             {
-                if (semaphoreSlimLockState.CurrentCount == 0)
+                if (semaphoreSlimLockPin.CurrentCount == 0)
                     return;
                 Task.Run(async () =>
                 {
-                    await semaphoreSlimLockState.WaitAsync(3000);
+                    await semaphoreSlimLockPin.WaitAsync(3000);
                     try
                     {
                         if (await SetLockPin(value.Value))
@@ -71,7 +72,7 @@ public sealed class LockModule : AbstractModule
                     }
                     finally
                     {
-                        semaphoreSlimLockState.Release();
+                        semaphoreSlimLockPin.Release();
                     }
                 });
             }

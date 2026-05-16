@@ -1,4 +1,6 @@
-﻿namespace RDMSharp.RDM.Device.Module;
+﻿using System.Threading.Tasks;
+
+namespace RDMSharp.RDM.Device.Module;
 
 public sealed class DeviceLabelModule : AbstractModule
 {
@@ -13,21 +15,17 @@ public sealed class DeviceLabelModule : AbstractModule
     {
         get
         {
-            if (ParentDevice is null)
-                return _deviceLabel;
-            object res;
-            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.DEVICE_LABEL, out res))
-                return (string)res;
-            return _deviceLabel;
+            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.DEVICE_LABEL, out object res) && res is string label)
+                return label;
+            return null;
         }
         set
         {
-            _deviceLabel = value;
             if (ParentGeneratedDevice is not null)
                 ParentGeneratedDevice.setParameterValue(ERDM_Parameter.DEVICE_LABEL, value);
 
             if (ParentRemoteDevice is not null)
-                _ = ParentRemoteDevice.SetParameter(ERDM_Parameter.DEVICE_LABEL, value);
+                _ = SetLabel(value);
         }
     }
     public DeviceLabelModule(string deviceLabel) : base(
@@ -55,5 +53,14 @@ public sealed class DeviceLabelModule : AbstractModule
                 OnPropertyChanged(nameof(DeviceLabel));
                 break;
         }
+    }
+    public async Task<bool> SetLabel(string label)
+    {
+        if (ParentGeneratedDevice is not null)
+            DeviceLabel = label;
+        if (ParentRemoteDevice is not null)
+            return await ParentRemoteDevice.SetParameter(ERDM_Parameter.DEVICE_LABEL, label);
+
+        return true;
     }
 }

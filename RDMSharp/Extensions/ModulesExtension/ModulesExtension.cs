@@ -16,7 +16,7 @@ public sealed class ModulesExtension : AbstractModulesExtension
     {
         var _modules = new List<Type>();
 
-        if (parameters.Contains(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID) &&
+        if (parameters.Contains(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID) ||
             parameters.Contains(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL))
             _modules.Add(typeof(BootSoftwareVersionModule));
 

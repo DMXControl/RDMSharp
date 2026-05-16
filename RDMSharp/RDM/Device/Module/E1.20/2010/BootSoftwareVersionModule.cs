@@ -12,9 +12,9 @@ public sealed class BootSoftwareVersionModule : AbstractModule
 
     public override string DisplayName => _moduleDisplayName;
 
-    private uint _bootSoftwareVersionId;
+    private uint? _bootSoftwareVersionId;
     private string _bootSoftwareVersionLabel;
-    public uint BootSoftwareVersionId
+    public uint? BootSoftwareVersionId
     {
         get
         {
