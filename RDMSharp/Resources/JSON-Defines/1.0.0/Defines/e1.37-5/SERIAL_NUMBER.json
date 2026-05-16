@@ -1,5 +1,6 @@
 {
   "name": "SERIAL_NUMBER",
+  "displayName": "Serial Number",
   "notes": "E1.37-5",
   "manufacturer_id": 0,
   "pid": 211,

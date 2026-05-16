@@ -1,0 +1,26 @@
+{
+  "name": "CONTROLLER_FLAG_SUPPORT",
+  "displayName": "Controller Flag Support",
+  "manufacturer_id": 0,
+  "pid": 86,
+  "version": 1,
+  "get_request_subdevice_range": [ "root" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "controller_flags",
+      "type": "bitField",
+      "size": 8,
+      "bits": [
+        {
+          "name": "unicode",
+          "index": 0
+        },
+        {
+          "name": "hi_res_ack_timer_support",
+          "index": 1
+        }
+      ]
+    }
+  ]
+}

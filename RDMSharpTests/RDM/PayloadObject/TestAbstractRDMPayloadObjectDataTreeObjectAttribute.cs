@@ -1,58 +1,57 @@
-﻿using Newtonsoft.Json.Linq;
-using RDMSharp.Metadata;
+﻿using RDMSharp.Metadata;
 using System.Reflection;
 
-namespace RDMSharpTests.RDM.PayloadObject.Attribute
+namespace RDMSharpTests.RDM.PayloadObject.Attribute;
+
+[TestFixtureSource(typeof(TestAbstractRDMPayloadObjectDataTreeObjectAttributeTestSubject), nameof(TestAbstractRDMPayloadObjectDataTreeObjectAttributeTestSubject.TestSubjects))]
+public class TestAbstractRDMPayloadObjectDataTreeObjectAttribute
 {
-    [TestFixtureSource(typeof(TestAbstractRDMPayloadObjectDataTreeObjectAttributeTestSubject), nameof(TestAbstractRDMPayloadObjectDataTreeObjectAttributeTestSubject.TestSubjects))]
-    public class TestAbstractRDMPayloadObjectDataTreeObjectAttribute
+    private readonly TestAbstractRDMPayloadObjectDataTreeObjectAttributeTestSubject testSubject;
+
+    public TestAbstractRDMPayloadObjectDataTreeObjectAttribute(TestAbstractRDMPayloadObjectDataTreeObjectAttributeTestSubject _TestSubject)
     {
-        private readonly TestAbstractRDMPayloadObjectDataTreeObjectAttributeTestSubject testSubject;
+        testSubject = _TestSubject;
+    }
+    [Test]
+    public void TestDataTreeObjectParameter_And_DataTreeObjectProperty()
+    {
+        Assert.That(testSubject.Type.GetCustomAttributes<DataTreeObjectAttribute>().ToArray(), Has.Length.AtLeast(1));
 
-        public TestAbstractRDMPayloadObjectDataTreeObjectAttribute(TestAbstractRDMPayloadObjectDataTreeObjectAttributeTestSubject _TestSubject)
+        List<DataTreeObjectPropertyAttribute> propertyAttributes = new List<DataTreeObjectPropertyAttribute>();
+        List<DataTreeObjectParameterAttribute> parameterAttributes = new List<DataTreeObjectParameterAttribute>();
+        var properties = testSubject.Type.GetProperties().Where(p => p.GetCustomAttributes<DataTreeObjectPropertyAttribute>().Count() != 0).ToArray();
+        foreach (var prop in properties)
+            if (prop.GetCustomAttributes<DataTreeObjectPropertyAttribute>() is IEnumerable<DataTreeObjectPropertyAttribute> pAttributes)
+                propertyAttributes.AddRange(pAttributes);
+
+        foreach (var constructor in testSubject.Type.GetConstructors())
+            foreach (var param in constructor.GetParameters())
+            {
+                if (param.GetCustomAttributes<DataTreeObjectParameterAttribute>() is IEnumerable<DataTreeObjectParameterAttribute> pAttributes)
+                    parameterAttributes.AddRange(pAttributes);
+            }
+        Assert.That(parameterAttributes, Has.Count.EqualTo(propertyAttributes.Count), testSubject.Name);
+
+        foreach (var para in parameterAttributes)
         {
-            testSubject = _TestSubject;
+            var prop = propertyAttributes.FirstOrDefault(prop => string.Equals(prop.Name, para.Name));
+            if (prop is null)
+                prop = propertyAttributes.FirstOrDefault(prop => prop.Name.Contains(para.Name + "/"));
+            Assert.That(prop, Is.Not.Null, $"No Property found using{nameof(DataTreeObjectPropertyAttribute)} with {nameof(DataTreeObjectPropertyAttribute.Name)}: {para.Name}");
         }
-        [Test]
-        public void TestDataTreeObjectParameter_And_DataTreeObjectProperty()
+        foreach (var prop in propertyAttributes)
         {
-            Assert.That(testSubject.Type.GetCustomAttributes<DataTreeObjectAttribute>().ToArray(), Has.Length.AtLeast(1));
-
-            List<DataTreeObjectPropertyAttribute> propertyAttributes = new List<DataTreeObjectPropertyAttribute>();
-            List<DataTreeObjectParameterAttribute> parameterAttributes = new List<DataTreeObjectParameterAttribute>();
-            var properties = testSubject.Type.GetProperties().Where(p => p.GetCustomAttributes<DataTreeObjectPropertyAttribute>().Count() != 0).ToArray();
-            foreach (var prop in properties)
-                if (prop.GetCustomAttributes<DataTreeObjectPropertyAttribute>() is IEnumerable<DataTreeObjectPropertyAttribute> pAttributes)
-                    propertyAttributes.AddRange(pAttributes);
-
-            foreach (var constructor in testSubject.Type.GetConstructors())
-                foreach (var param in constructor.GetParameters())
-                {
-                    if (param.GetCustomAttributes<DataTreeObjectParameterAttribute>() is IEnumerable<DataTreeObjectParameterAttribute> pAttributes)
-                        parameterAttributes.AddRange(pAttributes);
-                }
-            Assert.That(parameterAttributes, Has.Count.EqualTo(propertyAttributes.Count));
-
-            foreach(var para in parameterAttributes)
-            {
-                var prop = propertyAttributes.FirstOrDefault(prop=>string.Equals(prop.Name, para.Name));
-                Assert.That(prop, Is.Not.Null, $"No Property found using{nameof(DataTreeObjectPropertyAttribute)} with {nameof(DataTreeObjectPropertyAttribute.Name)}: {para.Name}");
-            }
-            foreach (var prop in propertyAttributes)
-            {
-                var para = parameterAttributes.FirstOrDefault(para => string.Equals(prop.Name, para.Name));
-                Assert.That(para, Is.Not.Null, $"No Parameter found using{nameof(DataTreeObjectParameterAttribute)} with {nameof(DataTreeObjectParameterAttribute.Name)}: {prop.Name}");
-            }
-            foreach (var prop in propertyAttributes)
-            {
-                var para = parameterAttributes.FirstOrDefault(para => string.Equals(prop.Name, para.Name));
-                Assert.That(para, Is.Not.Null, $"No Parameter found using{nameof(DataTreeObjectParameterAttribute)} with {nameof(DataTreeObjectParameterAttribute.Name)}: {prop.Name}");
-            }
-            foreach (var item in propertyAttributes.Where(p => !p.Name.Contains('/')).GroupBy(p => p.Parameter))
-            {
-                foreach (var item1 in item)
-                    Assert.That(item.Where(i => i.Index == item1.Index).ToList(), Has.Count.EqualTo(1));
-            }
+            DataTreeObjectParameterAttribute para = null;
+            if (!prop.Name.Contains("/"))
+                para = parameterAttributes.FirstOrDefault(para => string.Equals(prop.Name, para.Name));
+            else
+                para = parameterAttributes.FirstOrDefault(para => prop.Name.StartsWith(para.Name));
+            Assert.That(para, Is.Not.Null, $"No Parameter found using{nameof(DataTreeObjectParameterAttribute)} with {nameof(DataTreeObjectParameterAttribute.Name)}: {prop.Name}");
+        }
+        foreach (var item in propertyAttributes.Where(p => !p.Name.Contains('/')).GroupBy(p => p.Parameter))
+        {
+            foreach (var item1 in item)
+                Assert.That(item.Where(i => i.Index == item1.Index).ToList(), Has.Count.EqualTo(1));
         }
     }
 }

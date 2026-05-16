@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace RDMSharp
+namespace RDMSharp.PayloadObject;
+
+public interface IRDMPayloadObjectOneOf : IRDMPayloadObjectIndex
 {
-    public interface IRDMPayloadObjectOneOf : IRDMPayloadObjectIndex
-    {
-        Type IndexType { get; }
-        object Count { get; }
-        ERDM_Parameter DescriptorParameter { get; }
-    }
+    Type IndexType { get; }
+    object Count { get; }
+    ERDM_Parameter DescriptorParameter { get; }
 }

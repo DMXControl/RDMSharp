@@ -1,0 +1,125 @@
+﻿using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+
+namespace RDMSharp.RDM.Device.Module;
+
+public abstract class AbstractModule : IModule
+{
+    protected static ILogger Logger = Logging.CreateLogger<AbstractModule>();
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private readonly string _name;
+    public string Name { get => _name; }
+    public abstract string DisplayName { get; }
+
+    private readonly IReadOnlyCollection<ERDM_Parameter> _supportedParameters;
+
+    public IReadOnlyCollection<ERDM_Parameter> SupportedParameters { get => _supportedParameters; }
+
+    protected AbstractGeneratedRDMDevice ParentGeneratedDevice { get; private set; }
+    protected AbstractRemoteRDMDevice ParentRemoteDevice { get; private set; }
+    protected AbstractRDMDevice ParentDevice
+    {
+        get
+        {
+            if (ParentRemoteDevice is not null)
+                return ParentRemoteDevice;
+
+            return ParentGeneratedDevice;
+        }
+    }
+
+    protected AbstractModule(string name, params ERDM_Parameter[] supportedParameters)
+    {
+        this._name = name;
+        this._supportedParameters = supportedParameters;
+    }
+    protected AbstractModule(AbstractRemoteRDMDevice remoteDevice, string name, params ERDM_Parameter[] supportedParameters) : this(name, supportedParameters)
+    {
+        ParentRemoteDevice = remoteDevice;
+        if (remoteDevice is AbstractRemoteRDMDevice device)
+            SetRemoteParentDevice(device);
+    }
+    public RDMMessage? HandleRequest(RDMMessage message)
+    {
+        if (!this.IsHandlingParameter(message.Parameter, message.Command))
+            return null;
+
+        ERDM_NackReason? nackReason = null;
+        try
+        {
+            return handleRequest(message);
+        }
+        catch (System.Exception ex)
+        {
+            nackReason = ERDM_NackReason.HARDWARE_FAULT;
+        }
+        return new RDMMessage(nackReason ?? ERDM_NackReason.UNKNOWN_PID)
+        {
+            DestUID = message.SourceUID,
+            SourceUID = message.SourceUID,
+            Command = ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE,
+            Parameter = message.Parameter
+        };
+    }
+    protected virtual RDMMessage? handleRequest(RDMMessage message)
+    {
+        throw new System.NotImplementedException("This method should be overridden in derived classes to handle specific requests.");
+    }
+
+    public virtual bool IsHandlingParameter(ERDM_Parameter parameter, ERDM_Command command)
+    {
+        return false;
+    }
+
+    internal void SetGeneratedParentDevice(AbstractGeneratedRDMDevice device)
+    {
+        if (ParentGeneratedDevice is not null)
+            return;
+        ParentGeneratedDevice = device;
+        device.ParameterValueAdded += Device_ParameterValueAdded;
+        device.ParameterValueChanged += Device_ParameterValueChanged;
+        OnParentGeneratedDeviceChanged(ParentGeneratedDevice);
+    }
+    private void SetRemoteParentDevice(AbstractRemoteRDMDevice device)
+    {
+        device.ParameterValueAdded += Device_ParameterValueAdded;
+        device.ParameterValueChanged += Device_ParameterValueChanged;
+        OnRemoteParentDeviceChanged(device);
+    }
+
+    protected virtual void OnRemoteParentDeviceChanged(AbstractRemoteRDMDevice device)
+    {
+
+    }
+
+    private void Device_ParameterValueAdded(object sender, AbstractRDMCache.ParameterValueAddedEventArgs e)
+    {
+        if (!this.SupportedParameters.Contains(e.Parameter))
+            return;
+
+        ParameterChanged(e.Parameter, e.Value, e.Index);
+    }
+    private void Device_ParameterValueChanged(object sender, AbstractRDMCache.ParameterValueChangedEventArgs e)
+    {
+        ParameterChanged(e.Parameter, e.NewValue, e.Index);
+    }
+    protected virtual void ParameterChanged(ERDM_Parameter parameter, object? newValue, object? index)
+    {
+
+    }
+
+    protected virtual void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
+    {
+
+    }
+
+    protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+}
