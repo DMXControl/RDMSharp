@@ -3,12 +3,14 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
 public sealed class LockModule : AbstractModule
 {
+    SemaphoreSlim semaphoreSlimLockState = new SemaphoreSlim(1);
     private const string _moduleName = "Lock";
     private const string _moduleDisplayName = "Lock";
     private static readonly ERDM_Parameter[] _moduleParameters = new ERDM_Parameter[]
@@ -25,6 +27,11 @@ public sealed class LockModule : AbstractModule
     {
         get
         {
+            if (ParentDevice is null)
+                return lockPin;
+
+            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.LOCK_PIN, out object res) && res is ushort pin)
+                return lockPin = pin;
             return lockPin;
         }
         set
@@ -47,57 +54,76 @@ public sealed class LockModule : AbstractModule
 
             if (ParentRemoteDevice is not null)
             {
+                if (semaphoreSlimLockState.CurrentCount == 0)
+                    return;
                 Task.Run(async () =>
                 {
-                    if (await SetLockPin(value.Value))
-                        OnPropertyChanged(nameof(LockPin));
-                    else
+                    await semaphoreSlimLockState.WaitAsync(3000);
+                    try
                     {
-                        lockPin = backup;
-                        OnPropertyChanged(nameof(LockPin));
+                        if (await SetLockPin(value.Value))
+                            OnPropertyChanged(nameof(LockPin));
+                        else
+                        {
+                            lockPin = backup;
+                            OnPropertyChanged(nameof(LockPin));
+                        }
+                    }
+                    finally
+                    {
+                        semaphoreSlimLockState.Release();
                     }
                 });
             }
         }
     }
 
-    private byte? lockState;
+    private byte? _lockState;
     public byte? LockState
     {
         get
         {
-            return lockState;
+            return _lockState;
         }
         set
         {
             if (value is null)
                 return;
 
-            if (lockState == value)
+            if (_lockState == value)
                 return;
 
-            bool initial = lockState is null;
-            var backup = lockState;
-            lockState = value;
+            bool initial = _lockState is null;
+            var backup = _lockState;
+            _lockState = value;
 
             if (ParentGeneratedDevice is not null)
-            {
-                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.LOCK_STATE, new GetLockStateResponse(lockState.Value, this.count.Value));
-            }
+                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.LOCK_STATE, new GetLockStateResponse(_lockState.Value, count.Value));
 
             if (initial)
                 return;
 
             if (ParentRemoteDevice is not null)
             {
+                if (semaphoreSlimLockState.CurrentCount == 0)
+                    return;
                 Task.Run(async () =>
                 {
-                    if (await SetLockState(value.Value))
-                        OnPropertyChanged(nameof(LockState));
-                    else
+                    await semaphoreSlimLockState.WaitAsync(3000);
+                    try
                     {
-                        lockState = backup;
-                        OnPropertyChanged(nameof(LockState));
+                        if (await SetLockPin(value.Value))
+                            OnPropertyChanged(nameof(LockState));
+                        else
+                        {
+                            _lockState = backup;
+                            OnPropertyChanged(nameof(LockState));
+                        }
+                    }
+                    finally
+                    {
+                        await Task.Delay(200);
+                        semaphoreSlimLockState.Release();
                     }
                 });
             }
@@ -188,9 +214,28 @@ public sealed class LockModule : AbstractModule
                 break;
             case ERDM_Parameter.LOCK_STATE:
                 if (newValue is GetLockStateResponse lockStateResponse)
+                {
                     fillFromRemote(lockStateResponse);
-                if (newValue is SetLockStateRequest lockStateRequest)
-                    OnPropertyChanged(nameof(LockState));
+                    if (_lockState != lockStateResponse.CurrentLockStateId)
+                    {
+                        if (semaphoreSlimLockState.CurrentCount == 0)
+                            return;
+                        Task.Run(async () =>
+                        {
+                            await semaphoreSlimLockState.WaitAsync(3000);
+                            try
+                            {
+                                _lockState = lockStateResponse.CurrentLockStateId;
+                                OnPropertyChanged(nameof(LockState));
+                            }
+                            finally
+                            {
+                                await Task.Delay(2000);
+                                semaphoreSlimLockState.Release();
+                            }
+                        });
+                    }
+                }
                 break;
         }
     }
@@ -212,8 +257,8 @@ public sealed class LockModule : AbstractModule
                     idDescriptionPair.Add(i, $"Lock State {i}");
                 OnPropertyChanged(nameof(IdDescriptionPair));
             }
-
-        LockState = lockStateResponse.CurrentLockStateId;
+        //if (!LockState.HasValue)
+        //    LockState = lockStateResponse.CurrentLockStateId;
     }
 
     public override bool IsHandlingParameter(ERDM_Parameter parameter, ERDM_Command command)
@@ -342,6 +387,20 @@ public sealed class LockModule : AbstractModule
             if (!await ParentRemoteDevice.SetParameter(ERDM_Parameter.LOCK_STATE, new SetLockStateRequest(lockPin ?? 0, lockState)))
             {
                 throw new Exception($"Failed to set Lock State to {lockState}!, Wrong Pin ({lockPin})?");
+            }
+            if (_lockState != lockState)
+            {
+                await semaphoreSlimLockState.WaitAsync(3000);
+                try
+                {
+                    _lockState = lockState;
+                    OnPropertyChanged(nameof(LockState));
+                }
+                finally
+                {
+                    await Task.Delay(2000);
+                    semaphoreSlimLockState.Release();
+                }
             }
         }
         return true;
