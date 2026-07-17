@@ -8,12 +8,16 @@ public enum EManufacturer : ushort
     ESTA = 0x0000,
     [Description("DMXControl-Projects e.V.")]
     DMXControlProjects_eV = 0x02b0,
+    [Description("Adam Hall GmbH")]
+    Adam_Hall = 0x08A4,
     [Description("Magic FX B.V.")]
     Magic_FX_bv = 0x4658,
     [Description("Luminex")]
     LUMINEX_Lighting_Control_Equipment_bvba = 0x4C4C,
     [Description("LumenRadio AB")]
     LumenRadio_AB = 0x4C55,
+    [Description("MDG")]
+    MDG = 0x4D44,
     [Description("Martin Professional A/S")]
     Martin_Professional_AS = 0x4D50,
     [Description("SGM Technology For Lighting SPA")]
@@ -28,6 +32,8 @@ public enum EManufacturer : ushort
     GLP_German_Light_Products_GmbH = 0x676C,
     [Description("Electronic Theatre Controls Inc.")]
     Electronic_Theatre_Controls_Inc = 0x6574,
+    [Description("Roxx")]
+    Roxx = 0x6a6a,
     [Description("Steinigke Showtechnic GmbH")]
-    Steinigke_Showtechnic_GmbH = 0x29aa,
+    Steinigke_Showtechnic_GmbH = 0x29aa
 }

@@ -218,6 +218,20 @@ public enum ERDM_Parameter : ushort
     [ParameterGroup("Network"), ParameterUpdateTime(94000)]
     DNS_DOMAIN_NAME = 0x070D,
 
+    //E1.37-4 - Draft 2025
+    [ParameterGroup("File Transfer"), ParameterUpdateTime(999999999)]
+    FTC_INITIATE = 0x1200,
+    [ParameterGroup("File Transfer"), ParameterUpdateTime(999999999)]
+    FTC_TRANSFER_UPLOAD = 0x1201,
+    [ParameterGroup("File Transfer"), ParameterUpdateTime(999999999)]
+    FTC_COMMIT = 0x1202,
+    [ParameterGroup("File Transfer"), ParameterUpdateTime(999999999)]
+    FTC_CANCEL = 0x1203,
+    [ParameterGroup("File Transfer"), ParameterUpdateTime(999999999)]
+    FTC_FILELIST = 0x1204,
+    [ParameterGroup("File Transfer"), ParameterUpdateTime(999999999)]
+    FTC_TRANSFER_DOWNLOAD = 0x1205,
+
     //E1.33 - 2019 RDM-Net
     [ParameterGroup("E1.33")]
     COMPONENT_SCOPE = 0x0800,
