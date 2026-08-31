@@ -10,6 +10,8 @@ public enum EManufacturer : ushort
     DMXControlProjects_eV = 0x02b0,
     [Description("Adam Hall GmbH")]
     Adam_Hall = 0x08A4,
+    [Description("ARRI")]
+    ARRI = 0x20B9,
     [Description("Magic FX B.V.")]
     Magic_FX_bv = 0x4658,
     [Description("Luminex")]
