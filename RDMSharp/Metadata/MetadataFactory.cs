@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,6 +29,12 @@ public static class MetadataFactory
     private static List<Assembly> resourceProvider = new List<Assembly>() { typeof(MetadataFactory).Assembly };
     public static bool IsInitialized = false;
     private static readonly SemaphoreSlim fillDefaultMetadataVersionListSemaphoreSlim = new SemaphoreSlim(1, 1);
+    private static readonly SemaphoreSlim readSchemaSemaphoreSlim = new SemaphoreSlim(1, 1);
+
+    private static readonly EvaluationOptions options = new EvaluationOptions
+    {
+        OutputFormat = OutputFormat.List
+    };
 
     public static void AddResourceProvider(Assembly assembly)
     {
@@ -97,17 +104,20 @@ public static class MetadataFactory
         };
         await Parallel.ForEachAsync(nonSchemaVersions, parallelOptions, async (mv, token) =>
         {
+            EvaluationResults result = null;
             try
             {
                 var schema = schemaList.First(s => s.Version.Equals(mv.Version));
+                await readSchemaSemaphoreSlim.WaitAsync();
                 if (!versionSchemas.TryGetValue(schema.Version, out JsonSchema jsonSchema))
                 {
                     jsonSchema = JsonSchema.FromText(new MetadataBag(schema).Content);
                     versionSchemas.TryAdd(schema.Version, jsonSchema);
                 }
+                readSchemaSemaphoreSlim.Release();
                 MetadataBag metadataBag = new MetadataBag(mv);
                 var doc = JsonDocument.Parse(metadataBag.Content);
-                var result = jsonSchema.Evaluate(doc.RootElement);
+                result = jsonSchema.Evaluate(doc.RootElement, options);
                 if (result.IsValid)
                 {
                     MetadataJSONObjectDefine jsonDefine = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(metadataBag.Content);
@@ -123,7 +133,20 @@ public static class MetadataFactory
                         });
                 }
                 else
-                    throw new Exception($"Schema Invalid for {mv.Name}");
+                {
+                    StringBuilder sb = new StringBuilder();
+
+                    var errors = result.Details
+                        .Where(x => !x.IsValid)
+                        .SelectMany(x => x.Errors?.Select(error =>
+                            $"{x.InstanceLocation}: {error.Value}")
+                            ?? Enumerable.Empty<string>());
+
+                    foreach (var error in errors)
+                        sb.AppendLine($"{error}");
+                    string str = sb.ToString();
+                    throw new Exception($"Schema Invalid for {mv.Name}{Environment.NewLine}{Environment.NewLine}Schema result{str}");
+                }
             }
             catch (Exception e)
             {
