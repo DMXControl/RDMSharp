@@ -12,6 +12,8 @@ public enum EManufacturer : ushort
     Adam_Hall = 0x08A4,
     [Description("ARRI")]
     ARRI = 0x20B9,
+    [Description("Astera")]
+    Astera = 0x4173,
     [Description("Magic FX B.V.")]
     Magic_FX_bv = 0x4658,
     [Description("Luminex")]
