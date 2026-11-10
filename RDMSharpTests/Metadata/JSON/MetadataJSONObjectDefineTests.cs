@@ -1,9 +1,9 @@
 ﻿using Json.Schema;
-using Newtonsoft.Json.Linq;
 using RDMSharp.Metadata;
 using RDMSharp.Metadata.JSON;
 using RDMSharp.Metadata.JSON.OneOfTypes;
 using RDMSharp.RDM;
+using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace RDMSharpTests.Metadata.JSON;
@@ -12,18 +12,27 @@ namespace RDMSharpTests.Metadata.JSON;
 public class MetadataJSONObjectDefineTests
 {
     private readonly MetadataJSONObjectDefineTestSubject testSubject;
+    private readonly ConcurrentDictionary<string, JsonSchema> _schemaCache;
 
     public MetadataJSONObjectDefineTests(MetadataJSONObjectDefineTestSubject _TestSubject)
     {
         testSubject = _TestSubject;
+        _schemaCache = new ConcurrentDictionary<string, JsonSchema>();
     }
 
 
     [Test]
     public void TestValidateAgainstSchema()
     {
-        JsonSchema jsonSchema = JsonSchema.FromText(testSubject.Schema.Content);
-        var result = jsonSchema.Evaluate(JsonDocument.Parse(testSubject.Define.Content).RootElement);
+        JsonSchema jsonSchema = null;
+
+        if (!_schemaCache.TryGetValue(testSubject.Schema.Path, out jsonSchema))
+        {
+            jsonSchema = JsonSchema.FromText(testSubject.Schema.Content, new BuildOptions { SchemaRegistry = new SchemaRegistry() });
+            _schemaCache.TryAdd(testSubject.Schema.Path, jsonSchema);
+        }
+        using var jsonDocument = JsonDocument.Parse(testSubject.Define.Content);
+        var result = jsonSchema.Evaluate(jsonDocument.RootElement);
         Assert.That(result, Is.Not.Null);
         if (!testSubject.Define.Name.ToLower().Contains("invalid"))
             Assert.That(result.IsValid, Is.True);
@@ -44,12 +53,12 @@ public class MetadataJSONObjectDefineTests
             Assert.That(deserialized.Name, Is.Not.Empty);
             string serialized = JsonSerializer.Serialize(deserialized);
 
-            var original = JToken.Parse(PrittyJSON(testSubject.Define.Content));
-            var smashed = JToken.Parse(PrittyJSON(serialized));
+            using var original = JsonDocument.Parse(PrittyJSON(testSubject.Define.Content));
+            using var smashed = JsonDocument.Parse(PrittyJSON(serialized));
 
             Assert.Multiple(() =>
             {
-                Assert.That(JToken.DeepEquals(smashed, original));
+                Assert.That(JsonDeepEquals(smashed.RootElement, original.RootElement));
 
 
                 Warn.Unless(PrittyJSON(serialized), Is.EqualTo(PrittyJSON(testSubject.Define.Content)));
@@ -236,6 +245,32 @@ public class MetadataJSONObjectDefineTests
             if (integerType.Ranges != null)
                 foreach (Range<T> range in integerType.Ranges)
                     testString(range.ToString()!);
+        }
+    }
+
+    private static bool JsonDeepEquals(JsonElement a, JsonElement b)
+    {
+        if (a.ValueKind != b.ValueKind)
+            return false;
+
+        switch (a.ValueKind)
+        {
+            case JsonValueKind.Object:
+                var propsA = a.EnumerateObject().ToDictionary(p => p.Name, p => p.Value);
+                var propsB = b.EnumerateObject().ToDictionary(p => p.Name, p => p.Value);
+                return propsA.Count == propsB.Count
+                    && propsA.All(p => propsB.TryGetValue(p.Key, out var other) && JsonDeepEquals(p.Value, other));
+            case JsonValueKind.Array:
+                var itemsA = a.EnumerateArray().ToList();
+                var itemsB = b.EnumerateArray().ToList();
+                return itemsA.Count == itemsB.Count
+                    && itemsA.Zip(itemsB, JsonDeepEquals).All(r => r);
+            case JsonValueKind.String:
+                return a.GetString() == b.GetString();
+            case JsonValueKind.Number:
+                return a.GetDouble() == b.GetDouble();
+            default:
+                return true;
         }
     }
 

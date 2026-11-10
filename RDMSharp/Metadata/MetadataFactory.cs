@@ -30,6 +30,7 @@ public static class MetadataFactory
     public static bool IsInitialized = false;
     private static readonly SemaphoreSlim fillDefaultMetadataVersionListSemaphoreSlim = new SemaphoreSlim(1, 1);
     private static readonly SemaphoreSlim readSchemaSemaphoreSlim = new SemaphoreSlim(1, 1);
+    private static readonly BuildOptions schemaBuildOptions = new BuildOptions { SchemaRegistry = new SchemaRegistry() };
 
     private static readonly EvaluationOptions options = new EvaluationOptions
     {
@@ -72,92 +73,97 @@ public static class MetadataFactory
     }
     private static async Task fillDefaultMetadataVersionList()
     {
-        if (fillDefaultMetadataVersionListSemaphoreSlim.CurrentCount == 0)
-            return;
-        await fillDefaultMetadataVersionListSemaphoreSlim.WaitAsync();
-        if (metadataVersionDefinesBagDictionary != null)
-            return;
-
-        metadataVersionDefinesBagDictionary = new ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>>();
-        foreach (Assembly assembly in resourceProvider)
+        await fillDefaultMetadataVersionListSemaphoreSlim.WaitAsync().ConfigureAwait(false);
+        try
         {
-            try
-            {
-                var metaDataVersions = GetResources(assembly).Select(r => new MetadataVersion(r, assembly));
-                foreach (var mv in metaDataVersions)
-                    metadataVersionList.TryAdd(mv.Path, mv);
-            }
-            catch (Exception e)
-            {
-                Logger?.LogError(e);
-            }
-        }
+            if (metadataVersionDefinesBagDictionary != null)
+                return;
 
-        var schemaList = GetMetadataSchemaVersions();
-        ConcurrentDictionary<string, JsonSchema> versionSchemas = new ConcurrentDictionary<string, JsonSchema>();
-
-        var nonSchemaVersions = metadataVersionList.Values.Where(_mv => !_mv.IsSchema).ToList();
-
-        ParallelOptions parallelOptions = new ParallelOptions
-        {
-            MaxDegreeOfParallelism = Environment.ProcessorCount, // Optional: Set the maximum degree of parallelism
-        };
-        await Parallel.ForEachAsync(nonSchemaVersions, parallelOptions, async (mv, token) =>
-        {
-            EvaluationResults result = null;
-            try
+            metadataVersionDefinesBagDictionary = new ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>>();
+            foreach (Assembly assembly in resourceProvider)
             {
-                var schema = schemaList.First(s => s.Version.Equals(mv.Version));
-                await readSchemaSemaphoreSlim.WaitAsync();
-                if (!versionSchemas.TryGetValue(schema.Version, out JsonSchema jsonSchema))
+                try
                 {
-                    jsonSchema = JsonSchema.FromText(new MetadataBag(schema).Content);
-                    versionSchemas.TryAdd(schema.Version, jsonSchema);
+                    var metaDataVersions = GetResources(assembly).Select(r => new MetadataVersion(r, assembly));
+                    foreach (var mv in metaDataVersions)
+                        metadataVersionList.TryAdd(mv.Path, mv);
                 }
-                readSchemaSemaphoreSlim.Release();
-                MetadataBag metadataBag = new MetadataBag(mv);
-                var doc = JsonDocument.Parse(metadataBag.Content);
-                result = jsonSchema.Evaluate(doc.RootElement, options);
-                if (result.IsValid)
+                catch (Exception e)
                 {
-                    MetadataJSONObjectDefine jsonDefine = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(metadataBag.Content);
-                    metadataVersionDefinesBagDictionary.AddOrUpdate(schema,
-                        _ => new List<MetadataJSONObjectDefine> { jsonDefine },
-                        (_, list) =>
+                    Logger?.LogError(e);
+                }
+            }
+
+            var schemaList = GetMetadataSchemaVersions();
+            ConcurrentDictionary<string, JsonSchema> versionSchemas = new ConcurrentDictionary<string, JsonSchema>();
+            var nonSchemaVersions = metadataVersionList.Values.Where(_mv => !_mv.IsSchema).ToList();
+            ParallelOptions parallelOptions = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = Environment.ProcessorCount,
+            };
+
+            await Parallel.ForEachAsync(nonSchemaVersions, parallelOptions, async (mv, token) =>
+            {
+                try
+                {
+                    var schema = schemaList.First(s => s.Version.Equals(mv.Version));
+                    JsonSchema jsonSchema;
+                    await readSchemaSemaphoreSlim.WaitAsync(token).ConfigureAwait(false);
+                    try
+                    {
+                        if (!versionSchemas.TryGetValue(schema.Version, out jsonSchema))
                         {
-                            lock (list)
+                            jsonSchema = JsonSchema.FromText(new MetadataBag(schema).Content, schemaBuildOptions);
+                            versionSchemas.TryAdd(schema.Version, jsonSchema);
+                        }
+                    }
+                    finally
+                    {
+                        readSchemaSemaphoreSlim.Release();
+                    }
+
+                    MetadataBag metadataBag = new MetadataBag(mv);
+                    using JsonDocument doc = JsonDocument.Parse(metadataBag.Content);
+                    EvaluationResults result = jsonSchema.Evaluate(doc.RootElement, options);
+                    if (result.IsValid)
+                    {
+                        MetadataJSONObjectDefine jsonDefine = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(metadataBag.Content);
+                        metadataVersionDefinesBagDictionary.AddOrUpdate(schema,
+                            _ => new List<MetadataJSONObjectDefine> { jsonDefine },
+                            (_, list) =>
                             {
-                                list.Add(jsonDefine);
-                                return list;
-                            }
-                        });
+                                lock (list)
+                                {
+                                    list.Add(jsonDefine);
+                                    return list;
+                                }
+                            });
+                    }
+                    else
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        var errors = result.Details
+                            .Where(x => !x.IsValid)
+                            .SelectMany(x => x.Errors?.Select(error =>
+                                $"{x.InstanceLocation}: {error.Value}")
+                                ?? Enumerable.Empty<string>());
+
+                        foreach (var error in errors)
+                            sb.AppendLine(error);
+                        throw new Exception($"Schema Invalid for {mv.Name}{Environment.NewLine}{Environment.NewLine}Schema result{sb}");
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    StringBuilder sb = new StringBuilder();
-
-                    var errors = result.Details
-                        .Where(x => !x.IsValid)
-                        .SelectMany(x => x.Errors?.Select(error =>
-                            $"{x.InstanceLocation}: {error.Value}")
-                            ?? Enumerable.Empty<string>());
-
-                    foreach (var error in errors)
-                        sb.AppendLine($"{error}");
-                    string str = sb.ToString();
-                    throw new Exception($"Schema Invalid for {mv.Name}{Environment.NewLine}{Environment.NewLine}Schema result{str}");
+                    Logger?.LogError($"Exception while Deserialize {mv.Name}", e);
                 }
-            }
-            catch (Exception e)
-            {
-                Logger?.LogError($"Exception while Deserialize {mv.Name}", e);
-            }
-        });
-        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true, compacting: true);
-        GC.WaitForPendingFinalizers();
-        GC.Collect();
-        IsInitialized = true;
-        fillDefaultMetadataVersionListSemaphoreSlim.Release();
+            }).ConfigureAwait(false);
+            IsInitialized = true;
+        }
+        finally
+        {
+            fillDefaultMetadataVersionListSemaphoreSlim.Release();
+        }
     }
 
     public static IReadOnlyCollection<MetadataVersion> GetMetadataSchemaVersions()
@@ -172,7 +178,7 @@ public static class MetadataFactory
         }
         finally
         {
-            fillDefaultMetadataVersionList();
+            fillDefaultMetadataVersionList().GetAwaiter().GetResult();
         }
     }
     public static MetadataJSONObjectDefine GetDefine(ParameterBag parameter)
@@ -331,7 +337,7 @@ public static class MetadataFactory
         if (parameter.PID == ERDM_Parameter.QUEUED_MESSAGE && metadataVersionDefinesBagDictionary is not null)
             return metadataVersionDefinesBagDictionary[version].FirstOrDefault(d => d.PID == (ushort)parameter.PID);
 
-        fillDefaultMetadataVersionList();
+        fillDefaultMetadataVersionList().GetAwaiter().GetResult();
         var possibleDefines = metadataVersionDefinesBagDictionary[version].FindAll(d => d.PID == (ushort)parameter.PID && d.ManufacturerID == parameter.ManufacturerID);
         if (possibleDefines.Count == 1)
             return possibleDefines[0];
@@ -513,10 +519,6 @@ public static class MetadataFactory
 
     public static async Task AwaitInitialize()
     {
-        while (!IsInitialized)
-        {
-            GetMetadataDefineVersions();
-            await Task.Delay(100);
-        }
+        await fillDefaultMetadataVersionList().ConfigureAwait(false);
     }
 }
