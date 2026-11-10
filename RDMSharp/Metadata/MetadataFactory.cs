@@ -73,7 +73,9 @@ public static class MetadataFactory
     }
     private static async Task fillDefaultMetadataVersionList()
     {
-        await fillDefaultMetadataVersionListSemaphoreSlim.WaitAsync().ConfigureAwait(false);
+        if (fillDefaultMetadataVersionListSemaphoreSlim.CurrentCount == 0)
+            return;
+        await fillDefaultMetadataVersionListSemaphoreSlim.WaitAsync();
         try
         {
             if (metadataVersionDefinesBagDictionary != null)
@@ -101,14 +103,13 @@ public static class MetadataFactory
             {
                 MaxDegreeOfParallelism = Environment.ProcessorCount,
             };
-
             await Parallel.ForEachAsync(nonSchemaVersions, parallelOptions, async (mv, token) =>
             {
                 try
                 {
                     var schema = schemaList.First(s => s.Version.Equals(mv.Version));
                     JsonSchema jsonSchema;
-                    await readSchemaSemaphoreSlim.WaitAsync(token).ConfigureAwait(false);
+                    await readSchemaSemaphoreSlim.WaitAsync();
                     try
                     {
                         if (!versionSchemas.TryGetValue(schema.Version, out jsonSchema))
@@ -142,6 +143,7 @@ public static class MetadataFactory
                     else
                     {
                         StringBuilder sb = new StringBuilder();
+
                         var errors = result.Details
                             .Where(x => !x.IsValid)
                             .SelectMany(x => x.Errors?.Select(error =>
@@ -157,7 +159,7 @@ public static class MetadataFactory
                 {
                     Logger?.LogError($"Exception while Deserialize {mv.Name}", e);
                 }
-            }).ConfigureAwait(false);
+            });
             IsInitialized = true;
         }
         finally
@@ -178,7 +180,7 @@ public static class MetadataFactory
         }
         finally
         {
-            fillDefaultMetadataVersionList().GetAwaiter().GetResult();
+            fillDefaultMetadataVersionList();
         }
     }
     public static MetadataJSONObjectDefine GetDefine(ParameterBag parameter)
@@ -337,7 +339,7 @@ public static class MetadataFactory
         if (parameter.PID == ERDM_Parameter.QUEUED_MESSAGE && metadataVersionDefinesBagDictionary is not null)
             return metadataVersionDefinesBagDictionary[version].FirstOrDefault(d => d.PID == (ushort)parameter.PID);
 
-        fillDefaultMetadataVersionList().GetAwaiter().GetResult();
+        fillDefaultMetadataVersionList();
         var possibleDefines = metadataVersionDefinesBagDictionary[version].FindAll(d => d.PID == (ushort)parameter.PID && d.ManufacturerID == parameter.ManufacturerID);
         if (possibleDefines.Count == 1)
             return possibleDefines[0];
@@ -519,6 +521,10 @@ public static class MetadataFactory
 
     public static async Task AwaitInitialize()
     {
-        await fillDefaultMetadataVersionList().ConfigureAwait(false);
+        while (!IsInitialized)
+        {
+            GetMetadataDefineVersions();
+            await Task.Delay(100);
+        }
     }
 }
