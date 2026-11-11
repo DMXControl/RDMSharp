@@ -22,13 +22,14 @@ public sealed class ProxiedDevicesModule : AbstractModule
     {
         get
         {
-            IReadOnlyCollection<UID> uidList = null;
-            if (this.ParentGeneratedDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.PROXIED_DEVICES, out object proxiedDevices))
+            List<UID> uidList = new List<UID>();
+            if (this.ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.PROXIED_DEVICES, out object proxiedDevices))
             {
                 if (proxiedDevices is RDMProxiedDevices obj)
-                    uidList = obj.Devices.ToList().AsReadOnly();
+                    if (obj.Devices is not null)
+                        uidList.AddRange(obj.Devices.ToList());
             }
-            return uidList;
+            return uidList.AsReadOnly();
         }
     }
     private ConcurrentDictionary<UID, ConcurrentQueue<RDMMessage>> proxiedDevicesOngoingTransaktions = new ConcurrentDictionary<UID, ConcurrentQueue<RDMMessage>>();
