@@ -8,7 +8,7 @@ RDMSharp is a C# library that abstracts the communication using Remote Device Ma
 - **Device discovery** and management
 - **Support for all major RDM commands**
 - **Extensible architecture** for custom device types and parameters
-- **Cross-platform**: Works on .NET 6, .NET 7, .NET 8, .NET 9, .NET 10 and in future upcomming versions
+- **Cross-platform**: Works on .NET 8, .NET 9, .NET 10, and .NET 11
 - **Comprehensive error handling** and logging
 - **Unit tested** for reliability
 
@@ -16,7 +16,7 @@ RDMSharp is a C# library that abstracts the communication using Remote Device Ma
 
 ### Prerequisites
 
-- .NET 6 or higher
+- .NET 8 or higher
 - Visual Studio 2022 or later (recommended)
 
 ### Installation
@@ -33,11 +33,10 @@ Or via the NuGet Package Manager in Visual Studio.
 
 ## Supported Platforms
 
-- [![.NET 6](https://img.shields.io/badge/.NET%206-5C2D91?logo=.net&logoColor=white)](https://dotnet.microsoft.com/download/dotnet/6.0) (not recommended)
-- [![.NET 7](https://img.shields.io/badge/.NET%207-5C2D91?logo=.net&logoColor=white)](https://dotnet.microsoft.com/download/dotnet/7.0) (not recommended)
 - [![.NET 8](https://img.shields.io/badge/.NET%208-5C2D91?logo=.net&logoColor=white)](https://dotnet.microsoft.com/download/dotnet/8.0)
 - [![.NET 9](https://img.shields.io/badge/.NET%209-5C2D91?logo=.net&logoColor=white)](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [![.NET 10](https://img.shields.io/badge/.NET%2010-5C2D91?logo=.net&logoColor=white)](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [![.NET 11](https://img.shields.io/badge/.NET%2011-5C2D91?logo=.net&logoColor=white)](https://dotnet.microsoft.com/download/dotnet/11.0)
 
 ## Contributing
 

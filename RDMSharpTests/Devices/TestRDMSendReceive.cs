@@ -33,7 +33,7 @@ public class TestRDMSendReceive
         remote = null;
     }
 
-    [Test, Retry(3), Order(1)]
+    [Test, Retry(3)]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
     public async Task TestDevice1()
     {
@@ -132,7 +132,7 @@ public class TestRDMSendReceive
         });
     }
 
-    [Test, Order(2)]
+    [Test, DependsOnTest(nameof(TestDevice1))]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
     public void TestDevice1Slots()
     {
@@ -212,7 +212,7 @@ public class TestRDMSendReceive
         });
     }
 
-    [Test, CancelAfter(10000)]
+    [Test, DependsOnTest(nameof(TestDevice1Slots)), CancelAfter(10000)]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
     public async Task TestDevice1Sensor()
     {
@@ -465,7 +465,7 @@ public class TestRDMSendReceive
             }
         }
     }
-    [Test, Order(4), CancelAfter(10000)]
+    [Test, DependsOnTest(nameof(TestDevice1Slots)), CancelAfter(10000)]
     public async Task TestDevice1QueuedUpdates()
     {
         var parameterValuesRemote = remote!.GetAllParameterValues();

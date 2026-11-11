@@ -31,7 +31,7 @@ public class TestRDMSendReceive_SlotOverflow
         remote = null;
     }
 
-    [Test, Retry(3), Order(1)]
+    [Test, Retry(3)]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
     public async Task TestDevice1()
     {

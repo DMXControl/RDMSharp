@@ -34,7 +34,7 @@ public class TestAsyncRDMRequestHelper
         // Do nothing, just simulating sending a message
     }
 
-    [Test, Order(1)]
+    [Test]
     public async Task TestSimpleBackAndForth()
     {
         await testPackage(new UID(3, 56), new UID(55, 90), 1, SubDevice.Root, ERDM_Parameter.DMX_START_ADDRESS, ERDM_Command.GET_COMMAND, new byte[] { 0x00, 0x01 });
@@ -44,13 +44,13 @@ public class TestAsyncRDMRequestHelper
 
         await testPackage(new UID(3, 56), new UID(55, 90), 1, SubDevice.Root, ERDM_Parameter.DMX_START_ADDRESS, ERDM_Command.GET_COMMAND, new byte[] { 0x00, 0x01 }, 1000);
     }
-    [Test, Order(3), CancelAfter(10000)]
+    [Test, DependsOnTest(nameof(TestSimpleBackAndForth)), CancelAfter(10000)]
     public async Task TestDelayedResponse()
     {
         await testPackage(new UID(3, 56), new UID(55, 90), 1, SubDevice.Root, ERDM_Parameter.DMX_START_ADDRESS, ERDM_Command.GET_COMMAND, new byte[] { 0x00, 0x01 }, 8000);
     }
 
-    [Test, Order(6)]
+    [Test, DependsOnTest(nameof(TestDelayedResponse))]
     public async Task TestSimultanRequests()
     {
         await hold_Semaphore!.WaitAsync();
@@ -83,7 +83,7 @@ public class TestAsyncRDMRequestHelper
         await Task.WhenAll(tasks);
     }
 
-    [Test, Order(7)]
+    [Test, DependsOnTest(nameof(TestSimultanRequests))]
     public async Task TestSimultanRequestsSameTransactionID()
     {
         await hold_Semaphore!.WaitAsync();
