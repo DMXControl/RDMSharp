@@ -35,7 +35,7 @@ public class TestEndpointsModlue
         endpointsModule = null;
     }
 
-    [Test, Order(1)]
+    [Test]
     public void TestGetENDPOINT_LIST()
     {
         #region Test Basic (Empty)
@@ -160,7 +160,7 @@ public class TestEndpointsModlue
 
     }
 
-    [Test, Order(21)]
+    [Test, DependsOnTest(nameof(TestGetENDPOINT_LIST))]
     public void TestGetIDENTIFY_ENDPOINT()
     {
         #region Test Basic (Empty)
@@ -223,7 +223,8 @@ public class TestEndpointsModlue
         Assert.That(getSetEndpointLable.EndpointId, Is.EqualTo(1));
         Assert.That(getSetEndpointLable.IdentifyState, Is.EqualTo(true));
     }
-    [Test, Order(22)]
+
+    [Test, DependsOnTest(nameof(TestGetIDENTIFY_ENDPOINT))]
     public void TestGetENDPOINT_TO_UNIVERSE()
     {
         #region Test Basic (Empty)
@@ -304,7 +305,8 @@ public class TestEndpointsModlue
 
         endpointsModule.Endpoints.First(x => x.EndpointId == 9).Universe = 2;
     }
-    [Test, Order(23)]
+
+    [Test, DependsOnTest(nameof(TestGetENDPOINT_TO_UNIVERSE))]
     public void TestGetENDPOINT_MODE()
     {
         #region Test Basic (Empty)
@@ -385,7 +387,8 @@ public class TestEndpointsModlue
 
         endpointsModule.Endpoints.First(x => x.EndpointId == 9).Mode = ERDM_EndpointMode.OUTPUT;
     }
-    [Test, Order(24)]
+
+    [Test, DependsOnTest(nameof(TestGetENDPOINT_MODE))]
     public void TestGetENDPOINT_LABEL()
     {
         #region Test Basic (Empty)
@@ -464,7 +467,8 @@ public class TestEndpointsModlue
         Assert.That(getSetEndpointLable.EndpointId, Is.EqualTo(4));
         Assert.That(getSetEndpointLable.EndpointLabel, Is.EqualTo("Test Endpoint Output 4 renamed"));
     }
-    [Test, Order(25)]
+
+    [Test, DependsOnTest(nameof(TestGetENDPOINT_LABEL))]
     public void TestGetRDM_TRAFFIC_ENABLE()
     {
         #region Test Basic (Empty)
@@ -530,7 +534,7 @@ public class TestEndpointsModlue
         endpointsModule.Endpoints.First(x => x.EndpointId == 1).RDMTraffic = true;
     }
 
-    [Test, Order(26)]
+    [Test, DependsOnTest(nameof(TestGetRDM_TRAFFIC_ENABLE))]
     public void TestGetDISCOVERY_STATE()
     {
         #region Test Basic (Empty)
@@ -599,7 +603,8 @@ public class TestEndpointsModlue
         endpointsModule.Endpoints.First(x => x.EndpointId == 1).DiscoveryState = ERDM_DiscoveryState.INCOMPLETE;
         endpointsModule.Endpoints.First(x => x.EndpointId == 1).DiscoveryStateCount = 0;
     }
-    [Test, Order(27)]
+
+    [Test, DependsOnTest(nameof(TestGetDISCOVERY_STATE))]
     public void TestGetBACKGROUND_DISCOVERY()
     {
         #region Test Basic (Empty)
@@ -664,7 +669,8 @@ public class TestEndpointsModlue
 
         endpointsModule.Endpoints.First(x => x.EndpointId == 1).BackgroundDiscovery = false;
     }
-    [Test, Order(28)]
+
+    [Test, DependsOnTest(nameof(TestGetBACKGROUND_DISCOVERY))]
     public void TestGetENDPOINT_TIMING()
     {
         #region Test Basic (Empty)
@@ -731,7 +737,8 @@ public class TestEndpointsModlue
 
         endpointsModule.Endpoints.First(x => x.EndpointId == 1).Timing = 2;
     }
-    [Test, Order(29)]
+
+    [Test, DependsOnTest(nameof(TestGetENDPOINT_TIMING))]
     public void TestGetENDPOINT_TIMING_DESCRIPTION()
     {
         #region Test Basic (Empty)
@@ -779,7 +786,8 @@ public class TestEndpointsModlue
         }
         #endregion
     }
-    [Test, Order(30)]
+
+    [Test, DependsOnTest(nameof(TestGetENDPOINT_TIMING_DESCRIPTION))]
     public void TestGetENDPOINT_RESPONDERS()
     {
         #region Test Basic (Empty)
@@ -903,7 +911,8 @@ public class TestEndpointsModlue
         Assert.That(getEndpointResponderListChangeResponse.EndpointId, Is.EqualTo(1));
         Assert.That(getEndpointResponderListChangeResponse.ListChangeNumber, Is.EqualTo(2));
     }
-    [Test, Order(31)]
+
+    [Test, DependsOnTest(nameof(TestGetENDPOINT_RESPONDERS))]
     public void TestGetBINDING_CONTROL_FIELDS()
     {
         UID uid = new UID(0x123456789ABC);
@@ -1005,7 +1014,8 @@ public class TestEndpointsModlue
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
         Assert.That(response.Value, Is.Null);
     }
-    [Test, Order(32)]
+
+    [Test, DependsOnTest(nameof(TestGetBINDING_CONTROL_FIELDS))]
     public void TestGetBACKGROUND_QUEUED_STATUS_POLICY()
     {
         #region Test Basic (Empty)
@@ -1058,7 +1068,8 @@ public class TestEndpointsModlue
 
         endpointsModule.BackgroundQueuedStatusPolicy = 1;
     }
-    [Test, Order(33)]
+
+    [Test, DependsOnTest(nameof(TestGetBACKGROUND_QUEUED_STATUS_POLICY))]
     public void TestGetBACKGROUND_QUEUED_STATUS_POLICY_DESCRIPTION()
     {
         #region Test Basic (Empty)
@@ -1108,7 +1119,7 @@ public class TestEndpointsModlue
     }
 
 
-    [Test, Order(51)]
+    [Test, DependsOnTest(nameof(TestGetBACKGROUND_QUEUED_STATUS_POLICY_DESCRIPTION))]
     public void TestSetIDENTIFY_ENDPOINT()
     {
         #region Test Basic (Empty)
@@ -1203,7 +1214,8 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
     }
-    [Test, Order(52)]
+
+    [Test, DependsOnTest(nameof(TestSetIDENTIFY_ENDPOINT))]
     public void TestSetENDPOINT_TO_UNIVERSE()
     {
         #region Test Basic (Empty)
@@ -1298,7 +1310,8 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
     }
-    [Test, Order(53)]
+
+    [Test, DependsOnTest(nameof(TestSetENDPOINT_TO_UNIVERSE))]
     public void TestSetENDPOINT_MODE()
     {
         #region Test Basic (Empty)
@@ -1393,7 +1406,8 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
     }
-    [Test, Order(54)]
+
+    [Test, DependsOnTest(nameof(TestSetENDPOINT_MODE))]
     public void TestSetENDPOINT_LABEL()
     {
         #region Test Basic (Empty)
@@ -1488,7 +1502,8 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
     }
-    [Test, Order(55)]
+
+    [Test, DependsOnTest(nameof(TestSetENDPOINT_LABEL))]
     public void TestSetRDM_TRAFFIC_ENABLE()
     {
         #region Test Basic (Empty)
@@ -1583,7 +1598,8 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
     }
-    [Test, Order(56)]
+
+    [Test, DependsOnTest(nameof(TestSetRDM_TRAFFIC_ENABLE))]
     public void TestSetDISCOVERY_STATE()
     {
         #region Test Basic (Empty)
@@ -1677,7 +1693,8 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
     }
-    [Test, Order(57)]
+
+    [Test, DependsOnTest(nameof(TestSetDISCOVERY_STATE))]
     public void TestSetBACKGROUND_DISCOVERY()
     {
         #region Test Basic (Empty)
@@ -1772,7 +1789,8 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
     }
-    [Test, Order(58)]
+
+    [Test, DependsOnTest(nameof(TestSetBACKGROUND_DISCOVERY))]
     public void TestSetENDPOINT_TIMING()
     {
         #region Test Basic (Empty)
@@ -1867,7 +1885,8 @@ public class TestEndpointsModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
     }
-    [Test, Order(58)]
+
+    [Test, DependsOnTest(nameof(TestSetENDPOINT_TIMING))]
     public void TestSetBACKGROUND_QUEUED_STATUS_POLICY()
     {
         #region Test Basic (Empty)

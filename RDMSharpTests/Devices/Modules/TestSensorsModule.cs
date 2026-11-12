@@ -30,7 +30,7 @@ public class TestSensorsModule
         generated = null;
     }
 
-    [Test, Order(51)]
+    [Test]
     public void TestGetSENSOR_DEFINITION()
     {
         RDMMessage request = new RDMMessage()
@@ -67,7 +67,7 @@ public class TestSensorsModule
         }
     }
 
-    [Test, Order(52)]
+    [Test, DependsOnTest(nameof(TestGetSENSOR_DEFINITION))]
     public void TestGetSENSOR_VALUE()
     {
         RDMMessage request = new RDMMessage()
@@ -241,7 +241,8 @@ public class TestSensorsModule
             }
         }
     }
-    [Test, Order(53)]
+
+    [Test, DependsOnTest(nameof(TestGetSENSOR_VALUE))]
     public void TestGetRECORD_SENSORS()
     {
         RDMMessage request = new RDMMessage()

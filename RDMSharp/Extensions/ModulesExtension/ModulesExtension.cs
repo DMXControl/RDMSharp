@@ -29,7 +29,7 @@ public sealed class ModulesExtension : AbstractModulesExtension
         if (parameters.Contains(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION))
             _modules.Add(typeof(DeviceModelDescriptionModule));
 
-        if (parameters.Contains(ERDM_Parameter.DMX_PERSONALITY) &&
+        if (parameters.Contains(ERDM_Parameter.DMX_PERSONALITY) ||
             parameters.Contains(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION))
             _modules.Add(typeof(DMX_PersonalityModule));
 
@@ -41,6 +41,9 @@ public sealed class ModulesExtension : AbstractModulesExtension
 
         if (parameters.Contains(ERDM_Parameter.IDENTIFY_DEVICE))
             _modules.Add(typeof(IdentifyDeviceModule));
+
+        if (parameters.Contains(ERDM_Parameter.RESET_DEVICE))
+            _modules.Add(typeof(ResetDeviceModule));
 
         if (parameters.Contains(ERDM_Parameter.LIST_INTERFACES))
             _modules.Add(typeof(InterfaceModule));

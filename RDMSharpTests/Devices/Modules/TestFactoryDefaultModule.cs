@@ -29,7 +29,7 @@ public class TestFactoryDefaultModule
         generated?.Dispose();
         generated = null;
     }
-    [Test, Order(6)]
+    [Test]
     public async Task TestGetFACTORY_DEFAULTS()
     {
         #region Test Basic
@@ -106,7 +106,7 @@ public class TestFactoryDefaultModule
         #endregion
     }
 
-    [Test, Order(301)]
+    [Test, DependsOnTest(nameof(TestGetFACTORY_DEFAULTS))]
     public async Task TestRemoteDevice()
     {
         Assert.That(generated, Is.Not.Null);

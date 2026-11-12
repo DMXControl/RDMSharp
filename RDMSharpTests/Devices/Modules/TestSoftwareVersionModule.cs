@@ -30,7 +30,7 @@ public class TestSoftwareVersionModule
         generated = null;
     }
 
-    [Test, Order(32)]
+    [Test]
     public void TestGetSOFTWARE_VERSION_LABEL()
     {
         const string SOFTWARE_VERSION_LABEL = "Dummy Software";

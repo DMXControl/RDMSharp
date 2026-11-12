@@ -29,7 +29,7 @@ public class TestSupportedParametersModule
         generated = null;
     }
 
-    [Test, Order(1)]
+    [Test]
     public void TestGetSUPPORTED_PARAMETERS()
     {
         #region Test Basic

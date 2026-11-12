@@ -15,7 +15,7 @@ public class PayloadToParsedObjectTests
         testSubject = _TestSubject;
     }
 
-    [Test, Order(1)]
+    [Test]
     public void PayloadDataToObject()
     {
         Assert.DoesNotThrow(() =>
@@ -25,25 +25,25 @@ public class PayloadToParsedObjectTests
 
 
     }
-    [Test, Order(2)]
+    [Test, DependsOnTest(nameof(PayloadDataToObject))]
     public void TestPayloadAction()
     {
         testSubject.PayloadToParseBag.TestPayload.Invoke(dataTreeBranch);
     }
 
-    [Test, Order(3)]
+    [Test, DependsOnTest(nameof(TestPayloadAction))]
     public void ToPayloadDataTest()
     {
         if (dataTreeBranch.ParsedObject is IRDMPayloadObject obj)
             Assert.That(obj.ToPayloadData(), Is.EqualTo(testSubject.PayloadToParseBag.Payload));
     }
-    [Test, Order(4)]
+    [Test, DependsOnTest(nameof(ToPayloadDataTest))]
     public void ToStringTest()
     {
         if (dataTreeBranch.ParsedObject is IRDMPayloadObject obj)
             Assert.That(obj.ToString(), Is.Not.Null);
     }
-    [Test, Order(5)]
+    [Test, DependsOnTest(nameof(ToStringTest))]
     public void Reverse()
     {
         var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, new ParameterBag(testSubject.PayloadToParseBag.Parameter), testSubject.PayloadToParseBag.Command);

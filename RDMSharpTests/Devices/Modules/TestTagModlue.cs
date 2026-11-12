@@ -32,7 +32,7 @@ public class TestTagModlue
     }
 
 
-    [Test, Retry(3), Order(1)]
+    [Test, Retry(3)]
     public void TestGetLIST_TAGS()
     {
         #region Test Basic (Empty)
@@ -258,7 +258,8 @@ public class TestTagModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
         Assert.That(response.ParameterData, Has.Length.EqualTo(0));
     }
-    [Test, Retry(3), Order(2)]
+
+    [Test, Retry(3), DependsOnTest(nameof(TestGetLIST_TAGS))]
     public void TestSetADD_TAG()
     {
         #region Test Basic (Empty)
@@ -389,7 +390,8 @@ public class TestTagModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
     }
-    [Test, Retry(3), Order(3)]
+
+    [Test, Retry(3), DependsOnTest(nameof(TestSetADD_TAG))]
     public void TestSetREMOVE_TAG()
     {
         #region Test Basic (Empty)
@@ -520,7 +522,8 @@ public class TestTagModlue
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
     }
-    [Test, Retry(3), Order(3)]
+
+    [Test, Retry(3), DependsOnTest(nameof(TestSetREMOVE_TAG))]
     public void TestSetCHECK_TAG()
     {
         #region Test Basic (Empty)
@@ -653,7 +656,7 @@ public class TestTagModlue
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
     }
 
-    [Test, Retry(3), Order(4)]
+    [Test, Retry(3), DependsOnTest(nameof(TestSetCHECK_TAG))]
     public void TestSetCLEAR_TAG()
     {
         #region Test Basic (Empty)
@@ -721,7 +724,7 @@ public class TestTagModlue
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
     }
 
-    [Test, Retry(3), Order(301)]
+    [Test, Retry(3), DependsOnTest(nameof(TestSetCLEAR_TAG))]
     public async Task TestRemoteDevice()
     {
         Assert.That(generated, Is.Not.Null);

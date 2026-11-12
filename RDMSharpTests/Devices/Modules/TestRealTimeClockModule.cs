@@ -33,7 +33,7 @@ public class TestRealTimeClockModule
         generated = null;
     }
 
-    [Test, Retry(3), Order(1)]
+    [Test, Retry(3)]
     public async Task TestGetREAL_TIME_CLOCK()
     {
         await Task.Delay(500);
@@ -75,7 +75,7 @@ public class TestRealTimeClockModule
 
     }
 
-    [Test, Retry(3), Order(301)]
+    [Test, Retry(3), DependsOnTest(nameof(TestGetREAL_TIME_CLOCK))]
     public async Task TestRemoteDevice()
     {
         Assert.That(generated, Is.Not.Null);

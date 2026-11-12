@@ -32,7 +32,7 @@ public class TestModulationFrequencyModule
         generated?.Dispose();
         generated = null;
     }
-    [Test, Order(10)]
+    [Test]
     public void TestGetMODULATION_FREQUENCY_DESCRIPTION()
     {
         #region Test Basic
@@ -84,7 +84,8 @@ public class TestModulationFrequencyModule
         }
         #endregion
     }
-    [Test, Order(11)]
+
+    [Test, DependsOnTest(nameof(TestGetMODULATION_FREQUENCY_DESCRIPTION))]
     public async Task TestGetMODULATION_FREQUENCY()
     {
         await Task.Delay(500);
@@ -122,7 +123,8 @@ public class TestModulationFrequencyModule
         #endregion
 
     }
-    [Test, Retry(3), Order(101)]
+
+    [Test, DependsOnTest(nameof(TestGetMODULATION_FREQUENCY)), Retry(3)]
     public async Task TestRemoteDevice()
     {
         Assert.That(generated, Is.Not.Null);

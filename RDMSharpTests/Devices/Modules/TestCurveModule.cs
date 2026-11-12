@@ -32,7 +32,8 @@ public class TestCurveModule
         generated?.Dispose();
         generated = null;
     }
-    [Test, Order(10)]
+
+    [Test]
     public void TestGetCURVE_DESCRIPTION()
     {
         #region Test Basic
@@ -83,7 +84,8 @@ public class TestCurveModule
         }
         #endregion
     }
-    [Test, Order(11)]
+
+    [Test, DependsOnTest(nameof(TestGetCURVE_DESCRIPTION))]
     public async Task TestGetCURVE()
     {
         await Task.Delay(500);
@@ -121,7 +123,8 @@ public class TestCurveModule
         #endregion
 
     }
-    [Test, Retry(3), Order(101)]
+
+    [Test, Retry(3), DependsOnTest(nameof(TestGetCURVE))]
     public async Task TestRemoteDevice()
     {
         Assert.That(generated, Is.Not.Null);

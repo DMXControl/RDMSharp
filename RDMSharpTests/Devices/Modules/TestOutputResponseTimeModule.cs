@@ -32,7 +32,7 @@ public class TestOutputResponseTimeModule
         generated?.Dispose();
         generated = null;
     }
-    [Test, Order(10)]
+    [Test]
     public void TestGetOUTPUT_RESPONSE_TIME_DESCRIPTION()
     {
         #region Test Basic
@@ -83,7 +83,8 @@ public class TestOutputResponseTimeModule
         }
         #endregion
     }
-    [Test, Order(11)]
+
+    [Test, DependsOnTest(nameof(TestGetOUTPUT_RESPONSE_TIME_DESCRIPTION))]
     public async Task TestGetOUTPUT_RESPONSE_TIME()
     {
         await Task.Delay(500);
@@ -121,7 +122,8 @@ public class TestOutputResponseTimeModule
         #endregion
 
     }
-    [Test, Retry(3), Order(101)]
+
+    [Test, Retry(3), DependsOnTest(nameof(TestGetOUTPUT_RESPONSE_TIME))]
     public async Task TestRemoteDevice()
     {
         Assert.That(generated, Is.Not.Null);

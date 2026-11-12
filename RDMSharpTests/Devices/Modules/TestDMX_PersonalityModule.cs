@@ -31,7 +31,7 @@ public class TestDMX_PersonalityModule
         generated = null;
     }
 
-    [Test, Order(10)]
+    [Test]
     public void TestGetDMX_PERSONALITY_DESCRIPTION()
     {
         #region Test Basic
@@ -81,7 +81,8 @@ public class TestDMX_PersonalityModule
         }
         #endregion
     }
-    [Test, Order(11)]
+
+    [Test, DependsOnTest(nameof(TestGetDMX_PERSONALITY_DESCRIPTION))]
     public void TestGetDMX_PERSONALITY()
     {
         #region Test Basic
@@ -139,7 +140,7 @@ public class TestDMX_PersonalityModule
         #endregion
     }
 
-    [Test, Order(301), MaxTime(120000)]
+    [Test, DependsOnTest(nameof(TestGetDMX_PERSONALITY)), MaxTime(120000)]
     public async Task TestRemoteDevice()
     {
         Assert.That(generated, Is.Not.Null);

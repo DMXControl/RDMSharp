@@ -30,7 +30,7 @@ public class TestDeviceModelDescriptionModule
         generated = null;
     }
 
-    [Test, Order(16)]
+    [Test]
     public void TestGetDEVICE_MODEL_DESCRIPTION()
     {
         #region Test Basic
@@ -60,7 +60,7 @@ public class TestDeviceModelDescriptionModule
         #endregion
     }
 
-    [Test, Order(301)]
+    [Test, DependsOnTest(nameof(TestGetDEVICE_MODEL_DESCRIPTION))]
     public async Task TestRemoteDevice()
     {
         MockDevice mockDevice = new MockDevice(DEVCIE_UID);

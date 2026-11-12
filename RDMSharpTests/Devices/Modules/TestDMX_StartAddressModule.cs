@@ -30,7 +30,7 @@ public class TestDMX_StartAddressModule
         generated = null;
     }
 
-    [Test, Order(7)]
+    [Test]
     public void TestGetDMX_START_ADDRESS()
     {
         #region Test Basic
@@ -79,7 +79,7 @@ public class TestDMX_StartAddressModule
         #endregion
     }
 
-    [Test, Order(301)]
+    [Test, DependsOnTest(nameof(TestGetDMX_START_ADDRESS))]
     public async Task TestRemoteDevice()
     {
         Assert.That(generated, Is.Not.Null);

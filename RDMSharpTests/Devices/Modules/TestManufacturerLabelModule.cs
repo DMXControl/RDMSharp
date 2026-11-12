@@ -30,7 +30,7 @@ public class TestManufacturerLabelModule
         generated = null;
     }
 
-    [Test, Order(15)]
+    [Test]
     public void TestGetMANUFACTURER_LABEL()
     {
         #region Test Basic
@@ -60,7 +60,7 @@ public class TestManufacturerLabelModule
         #endregion
     }
 
-    [Test, Order(301)]
+    [Test, DependsOnTest(nameof(TestGetMANUFACTURER_LABEL))]
     public async Task TestRemoteDevice()
     {
         MockDevice mockDevice = new MockDevice(DEVCIE_UID);

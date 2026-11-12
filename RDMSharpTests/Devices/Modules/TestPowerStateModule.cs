@@ -31,7 +31,8 @@ public class TestPowerStateModule
         generated?.Dispose();
         generated = null;
     }
-    [Test, Order(10)]
+
+    [Test]
     public async Task TestGetPOWER_STATE()
     {
         await Task.Delay(500);
@@ -68,7 +69,8 @@ public class TestPowerStateModule
         #endregion
 
     }
-    [Test, Retry(3), Order(101)]
+
+    [Test, Retry(3), DependsOnTest(nameof(TestGetPOWER_STATE))]
     public async Task TestRemoteDevice()
     {
         Assert.That(generated, Is.Not.Null);

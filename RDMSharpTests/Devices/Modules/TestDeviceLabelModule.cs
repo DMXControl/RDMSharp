@@ -30,7 +30,7 @@ public class TestDeviceLabelModule
         generated = null;
     }
 
-    [Test, Order(9)]
+    [Test]
     public void TestGetDEVICE_LABEL()
     {
         #region Test Basic
@@ -76,7 +76,7 @@ public class TestDeviceLabelModule
         #endregion
     }
 
-    [Test, Order(301)]
+    [Test, DependsOnTest(nameof(TestGetDEVICE_LABEL))]
     public async Task TestRemoteDevice()
     {
         var generatedModule = generated.Modules.OfType<DeviceLabelModule>().Single();

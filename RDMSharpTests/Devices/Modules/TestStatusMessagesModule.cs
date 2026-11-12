@@ -30,7 +30,7 @@ public class TestStatusMessagesModule
         generated = null;
     }
 
-    [Test, Order(100)]
+    [Test]
     public void TestGetSTATUS_MESSAGES()
     {
         #region Test Empty Status Messages

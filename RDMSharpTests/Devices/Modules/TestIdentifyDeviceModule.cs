@@ -29,7 +29,7 @@ public class TestIdentifyDeviceModule
         generated?.Dispose();
         generated = null;
     }
-    [Test, Order(6)]
+    [Test]
     public void TestGetIDENTIFY_DEVICE()
     {
         #region Test Basic
@@ -133,7 +133,7 @@ public class TestIdentifyDeviceModule
         #endregion
     }
 
-    [Test, Order(301)]
+    [Test, DependsOnTest(nameof(TestGetIDENTIFY_DEVICE))]
     public async Task TestRemoteDevice()
     {
         Assert.That(generated, Is.Not.Null);

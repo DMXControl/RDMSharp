@@ -33,7 +33,7 @@ public class TestBootSoftwareVersionModule
         generated = null;
     }
 
-    [Test, Order(30)]
+    [Test]
     public void TestGetBOOT_SOFTWARE_VERSION_ID()
     {
         #region Test Basic
@@ -62,7 +62,8 @@ public class TestBootSoftwareVersionModule
         Assert.That(response.Value, Is.EqualTo(bootSoftwareVersionModule.BootSoftwareVersionId));
         #endregion
     }
-    [Test, Order(31)]
+
+    [Test, DependsOnTest(nameof(TestGetBOOT_SOFTWARE_VERSION_ID))]
     public void TestGetBOOT_SOFTWARE_VERSION_LABEL()
     {
         #region Test Basic
@@ -107,7 +108,7 @@ public class TestBootSoftwareVersionModule
         #endregion
     }
 
-    [Test, Order(301)]
+    [Test, DependsOnTest(nameof(TestGetBOOT_SOFTWARE_VERSION_LABEL))]
     public async Task TestRemoteDevice()
     {
         MockDevice mockDevice = new MockDevice(DEVCIE_UID);

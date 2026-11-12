@@ -31,7 +31,7 @@ public class TestSlotModule
         generated = null;
     }
 
-    [Test, Order(40)]
+    [Test]
     public void TestGetSLOT_INFO()
     {
         #region Test Basic
@@ -99,7 +99,7 @@ public class TestSlotModule
         #endregion
     }
 
-    [Test, Order(41)]
+    [Test, DependsOnTest(nameof(TestGetSLOT_INFO))]
     public void TestGetDEFAULT_SLOT_VALUE()
     {
         #region Test Basic
@@ -167,7 +167,7 @@ public class TestSlotModule
         #endregion
     }
 
-    [Test, Order(42)]
+    [Test, DependsOnTest(nameof(TestGetDEFAULT_SLOT_VALUE))]
     public void TestGetSLOT_DESCRIPTION()
     {
         RDMMessage request = new RDMMessage()
@@ -235,7 +235,7 @@ public class TestSlotModule
         }
     }
 
-    [Test, Order(301)]
+    [Test, DependsOnTest(nameof(TestGetSLOT_DESCRIPTION))]
     public async Task TestRemoteDevice()
     {
         Assert.That(generated, Is.Not.Null);

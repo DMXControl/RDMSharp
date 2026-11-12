@@ -32,7 +32,7 @@ public class TestProxiedDevicesModlue
     }
 
 
-    [Test, Retry(3), Order(1)]
+    [Test, Retry(3)]
     public void TestGetPROXIED_DEVICES_COUNT()
     {
         #region Test Basic (Empty)

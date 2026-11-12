@@ -32,7 +32,8 @@ public class TestLockModule
         generated?.Dispose();
         generated = null;
     }
-    [Test, Order(10)]
+
+    [Test]
     public async Task TestGetLOCK_STATE()
     {
         await Task.Delay(500);
@@ -70,7 +71,8 @@ public class TestLockModule
         #endregion
 
     }
-    [Test, Order(11)]
+
+    [Test, DependsOnTest(nameof(TestGetLOCK_STATE))]
     public async Task TestGetLOCK_PIN()
     {
         await Task.Delay(500);
@@ -107,7 +109,8 @@ public class TestLockModule
         #endregion
 
     }
-    [Test, Order(101), MaxTime(15000)]
+
+    [Test, DependsOnTest(nameof(TestGetLOCK_PIN)), MaxTime(15000)]
     public async Task TestRemoteDevice()
     {
         Assert.That(generated, Is.Not.Null);

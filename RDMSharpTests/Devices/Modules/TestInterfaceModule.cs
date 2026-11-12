@@ -48,7 +48,7 @@ public class TestInterfaceModule
         interfaceModule = null;
     }
 
-    [Test, Order(1)]
+    [Test]
     public void TestGetLIST_INTERFACES()
     {
         #region Test Basic (Empty)
@@ -84,7 +84,8 @@ public class TestInterfaceModule
         #endregion
 
     }
-    [Test, Order(2)]
+
+    [Test, DependsOnTest(nameof(TestGetLIST_INTERFACES))]
     public void TestGetINTERFACE_LABEL()
     {
         #region Test Basic (Empty)
@@ -141,7 +142,8 @@ public class TestInterfaceModule
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
         Assert.That(response.Value, Is.Null);
     }
-    [Test, Order(3)]
+
+    [Test, DependsOnTest(nameof(TestGetINTERFACE_LABEL))]
     public void TestGetINTERFACE_HARDWARE_ADDRESS_TYPE()
     {
         #region Test Basic (Empty)
@@ -198,7 +200,8 @@ public class TestInterfaceModule
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
         Assert.That(response.Value, Is.Null);
     }
-    [Test, Order(4)]
+
+    [Test, DependsOnTest(nameof(TestGetINTERFACE_HARDWARE_ADDRESS_TYPE))]
     public void TestGetIPV4_CURRENT_ADDRESS()
     {
         #region Test Basic (Empty)
@@ -258,7 +261,7 @@ public class TestInterfaceModule
         Assert.That(response.Value, Is.Null);
     }
 
-    [Test, Order(5)]
+    [Test, DependsOnTest(nameof(TestGetIPV4_CURRENT_ADDRESS))]
     public void TestGetIPV4_DHCP_MODE()
     {
         #region Test Basic (Empty)
@@ -333,7 +336,8 @@ public class TestInterfaceModule
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
         Assert.That(response.Value, Is.Null);
     }
-    [Test, Order(6)]
+
+    [Test, DependsOnTest(nameof(TestGetIPV4_DHCP_MODE))]
     public void TestSetIPV4_DHCP_MODE()
     {
         #region Test Basic (Empty)
@@ -428,7 +432,7 @@ public class TestInterfaceModule
         Assert.That(response.Value, Is.Null);
     }
 
-    [Test, Order(7)]
+    [Test, DependsOnTest(nameof(TestSetIPV4_DHCP_MODE))]
     public void TestGetIPV4_ZEROCONF_MODE()
     {
         #region Test Basic (Empty)
@@ -505,7 +509,7 @@ public class TestInterfaceModule
         Assert.That(response.Value, Is.Null);
     }
 
-    [Test, Order(8)]
+    [Test, DependsOnTest(nameof(TestGetIPV4_ZEROCONF_MODE))]
     public void TestSetIPV4_ZEROCONF_MODE()
     {
         #region Test Basic (Empty)
@@ -602,7 +606,7 @@ public class TestInterfaceModule
         Assert.That(response.Value, Is.Null);
     }
 
-    [Test, Order(9)]
+    [Test, DependsOnTest(nameof(TestSetIPV4_ZEROCONF_MODE))]
     public void TestGetIPV4_STATIC_ADDRESS()
     {
         #region Test Basic (Empty)
@@ -682,7 +686,8 @@ public class TestInterfaceModule
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
         Assert.That(response.Value, Is.Null);
     }
-    [Test, Order(10)]
+
+    [Test, DependsOnTest(nameof(TestGetIPV4_STATIC_ADDRESS))]
     public void TestSetIPV4_STATIC_ADDRESS()
     {
         IPv4Address oneDotOneDotOneDotOne = new IPv4Address("1.1.1.1");
@@ -782,7 +787,7 @@ public class TestInterfaceModule
         Assert.That(response.Value, Is.Null);
     }
 
-    [Test, Order(11)]
+    [Test, DependsOnTest(nameof(TestSetIPV4_STATIC_ADDRESS))]
     public void TestSetINTERFACE_APPLY_CONFIGURATION()
     {
         #region Test Basic (Empty)
@@ -837,7 +842,7 @@ public class TestInterfaceModule
         Assert.That(response.Value, Is.Null);
     }
 
-    [Test, Order(11)]
+    [Test, DependsOnTest(nameof(TestSetINTERFACE_APPLY_CONFIGURATION))]
     public void TestSetINTERFACE_RENEW_DHCP()
     {
         var iface = interfaceModule.Interfaces.First();
@@ -936,7 +941,8 @@ public class TestInterfaceModule
         Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
         Assert.That(response.Value, Is.Null);
     }
-    [Test, Order(12)]
+
+    [Test, DependsOnTest(nameof(TestSetINTERFACE_RENEW_DHCP))]
     public void TestSetINTERFACE_RELEASE_DHCP()
     {
         var iface = interfaceModule.Interfaces.First();
