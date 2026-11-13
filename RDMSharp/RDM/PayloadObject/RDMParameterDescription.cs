@@ -9,7 +9,6 @@ namespace RDMSharp.PayloadObject;
 [DataTreeObject(ERDM_Parameter.PARAMETER_DESCRIPTION, Command.ECommandDublicate.GetResponse)]
 public class RDMParameterDescription : AbstractRDMPayloadObject
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060")]
     public RDMParameterDescription(
         ushort parameterId = 0,
         byte pdlSize = 0,
@@ -107,7 +106,9 @@ public class RDMParameterDescription : AbstractRDMPayloadObject
         data.AddRange(Tools.ValueToData(this.PDLSize));
         data.AddRange(Tools.ValueToData(this.DataType));
         data.AddRange(Tools.ValueToData(this.CommandClass));
+#pragma warning disable CS0612 // Typ oder Element ist veraltet
         data.AddRange(Tools.ValueToData(this.Type));
+#pragma warning restore CS0612 // Typ oder Element ist veraltet
         data.AddRange(Tools.ValueToData(this.Unit));
         data.AddRange(Tools.ValueToData(this.Prefix));
         data.AddRange(Tools.ValueToData(this.MinValidValue));

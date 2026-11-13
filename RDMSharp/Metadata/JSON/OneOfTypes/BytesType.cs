@@ -92,12 +92,12 @@ public class BytesType : CommonPropertiesForNamed
     public override PDL GetDataLength()
     {
         uint length = 0;
-        bool noFixedSize = false;
+        //bool noFixedSize = false;
         if (Extensions.ExtensionsManager.Instance.TryGetBytesParser(baseFormat, out Extensions.IBytesParser bytesParser))
         {
             if (!bytesParser.PayloadDataLength.HasValue)
             {
-                noFixedSize = true;
+                //noFixedSize = true;
                 goto END;
             }
             var pdl = bytesParser.PayloadDataLength.Value;
@@ -109,7 +109,7 @@ public class BytesType : CommonPropertiesForNamed
             }
             return pdl;
         }
-        noFixedSize = true;
+        //noFixedSize = true;
     END:
         if (formatIsArray && length != 0)
             return new PDL(0, (uint)(Math.Truncate((double)PDL.MAX_LENGTH / length) * length));
@@ -136,9 +136,9 @@ public class BytesType : CommonPropertiesForNamed
         else
             return Tools.EncaseData(parseData(baseFormat, dataTree.Value));
 
-        byte[] parseData(string format, object value)
+        static byte[] parseData(string format, object value)
         {
-            Exception e = null;
+            Exception e;
             try
             {
                 if (Extensions.ExtensionsManager.Instance.TryGetBytesParser(format, out Extensions.IBytesParser bytesParser))
@@ -170,7 +170,7 @@ public class BytesType : CommonPropertiesForNamed
     public override DataTree ParseDataToPayload(ref byte[] data)
     {
         List<DataTreeIssue> issueList = new List<DataTreeIssue>();
-        object value = null;
+        object value;
         if (formatIsArray)
         {
             List<object> list = new List<object>();

@@ -21,8 +21,8 @@ public class RDMSharp
     public readonly UID ControllerUID;
     public readonly Func<RDMMessage, Task> SendMessage;
     public readonly AsyncRDMRequestHelper AsyncRDMRequestHelper;
-    public event EventHandler<RDMMessage>? ResponseReceivedEvent;
-    public event EventHandler<RequestReceivedEventArgs>? RequestReceivedEvent;
+    public event EventHandler<RDMMessage> ResponseReceivedEvent;
+    public event EventHandler<RequestReceivedEventArgs> RequestReceivedEvent;
 
     private readonly ConcurrentDictionary<UID, byte> transactionCounters = new ConcurrentDictionary<UID, byte>();
     private readonly ConcurrentDictionary<UID, SemaphoreSlim> transactionLock = new ConcurrentDictionary<UID, SemaphoreSlim>();
@@ -129,7 +129,7 @@ public class RDMSharp
     }
     internal void unlockTransaktion(UID uid)
     {
-        if (transactionLock.TryGetValue(uid, out SemaphoreSlim? semaphore))
+        if (transactionLock.TryGetValue(uid, out SemaphoreSlim semaphore))
         {
             semaphore.Release();
         }

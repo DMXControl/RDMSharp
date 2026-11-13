@@ -9,8 +9,8 @@ public class TestCurveModule
 {
     private CurveModuleMockDevice? generated;
 
-    private static UID CONTROLLER_UID = new UID(0x1fff, 333);
-    private static UID DEVCIE_UID = new UID(871, 5215198);
+    private static readonly UID CONTROLLER_UID = new UID(0x1fff, 333);
+    private static readonly UID DEVCIE_UID = new UID(871, 5215198);
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()
@@ -22,6 +22,7 @@ public class TestCurveModule
     public async Task Setup()
     {
         var defines = MetadataFactory.GetMetadataDefineVersions();
+        Assert.That(defines, Is.Not.Null);
         generated = new CurveModuleMockDevice(DEVCIE_UID);
         while (!generated.IsInitialized)
             await Task.Delay(100);
@@ -86,6 +87,7 @@ public class TestCurveModule
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             var expected = curveModule._generatedCurves.FirstOrDefault(gen => gen.CurveId == id);
+            Assert.That(expected, Is.Not.Null);
             Assert.That(response.ParameterData, Has.Length.EqualTo(expected.ToPayloadData().Length));
             Assert.That(response.Value, Is.EqualTo(expected));
             Assert.That(((RDMCurveDescription)response.Value).Index, Is.EqualTo(expected.Index));

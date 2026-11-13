@@ -99,13 +99,13 @@ public class PeerToPeerProcess : INotifyPropertyChanged
     public Func<RDMMessage, Task> BeforeSendMessage;
     public Func<RDMMessage, Task> ResponseMessage;
 
-    private ConcurrentBag<RequestResponseHistoryEntry> requestResponseHistory = new ConcurrentBag<RequestResponseHistoryEntry>();
+    private readonly ConcurrentBag<RequestResponseHistoryEntry> requestResponseHistory = new ConcurrentBag<RequestResponseHistoryEntry>();
     public IEnumerable<RequestResponseHistoryEntry> RequestResponseHistory => requestResponseHistory.ToList();
 
     internal event EventHandler<RequestResponseHistoryEntry> OnRequestResponseHistoryAdded;
 
     public byte MessageCounter => response?.MessageCounter ?? 0;
-    private SemaphoreSlim SemaphoreSlim = new SemaphoreSlim(1);
+    private readonly SemaphoreSlim SemaphoreSlim = new SemaphoreSlim(1);
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -121,7 +121,7 @@ public class PeerToPeerProcess : INotifyPropertyChanged
         ParameterBag = parameterBag;
         RequestPayloadObject = payloadObject ?? DataTreeBranch.Unset;
 
-        Logger?.LogTrace($"Create PeerToPeerProcess: {Command} UID: {UID} SubDevice: {SubDevice} Parameter: {ParameterBag.PID} PayloadObject: {RequestPayloadObject.ToString()}");
+        Logger?.LogTrace($"Create PeerToPeerProcess: {Command} UID: {UID} SubDevice: {SubDevice} Parameter: {ParameterBag.PID} PayloadObject: {RequestPayloadObject}");
 
         //if (ParameterBag.PID != ERDM_Parameter.QUEUED_MESSAGE)
         Define = MetadataFactory.GetDefine(ParameterBag);
@@ -296,7 +296,7 @@ public class PeerToPeerProcess : INotifyPropertyChanged
         }
         catch (TimeoutException te)
         {
-            Logger?.LogInformation($"Timeout while running PeerToPeerProcess: {Command} UID: {UID} SubDevice: {SubDevice} Parameter: {ParameterBag.PID}");
+            Logger?.LogInformation(te, $"Timeout while running PeerToPeerProcess: {Command} UID: {UID} SubDevice: {SubDevice} Parameter: {ParameterBag.PID}");
             State = EPeerToPeerProcessState.Failed;
         }
         catch (Exception e)

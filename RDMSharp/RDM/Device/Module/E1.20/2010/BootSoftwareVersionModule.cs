@@ -20,16 +20,14 @@ public sealed class BootSoftwareVersionModule : AbstractModule
         {
             if (ParentDevice is null)
                 return _bootSoftwareVersionId;
-            object res;
-            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID, out res))
+            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID, out object res))
                 return (uint)res;
             return _bootSoftwareVersionId;
         }
         internal set
         {
             _bootSoftwareVersionId = value;
-            if (ParentGeneratedDevice is not null)
-                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID, value);
+            ParentGeneratedDevice?.setParameterValue(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID, value);
         }
     }
     public string BootSoftwareVersionLabel
@@ -38,16 +36,14 @@ public sealed class BootSoftwareVersionModule : AbstractModule
         {
             if (ParentDevice is null)
                 return _bootSoftwareVersionLabel;
-            object res;
-            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, out res))
+            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, out object res))
                 return (string)res;
             return _bootSoftwareVersionLabel;
         }
         internal set
         {
             _bootSoftwareVersionLabel = value;
-            if (ParentGeneratedDevice is not null)
-                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, value);
+            ParentGeneratedDevice?.setParameterValue(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL, value);
         }
     }
     public BootSoftwareVersionModule(uint bootSoftwareVersionId, string bootSoftwareVersionLabel) : base(

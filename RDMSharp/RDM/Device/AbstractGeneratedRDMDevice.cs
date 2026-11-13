@@ -96,19 +96,19 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
 
     public sealed override IReadOnlyDictionary<int, RDMStatusMessage> StatusMessages { get { return statusMessageModule?.StatusMessages; } }
 
-    private ConcurrentDictionary<UID, ControllerCommunicationCache> controllerCommunicationCache = new ConcurrentDictionary<UID, ControllerCommunicationCache>();
-    private ConcurrentDictionary<UID, OverflowCacheBag> overflowCacheBags = new ConcurrentDictionary<UID, OverflowCacheBag>();
+    private readonly ConcurrentDictionary<UID, ControllerCommunicationCache> controllerCommunicationCache = new ConcurrentDictionary<UID, ControllerCommunicationCache>();
+    private readonly ConcurrentDictionary<UID, OverflowCacheBag> overflowCacheBags = new ConcurrentDictionary<UID, OverflowCacheBag>();
 
     private readonly IReadOnlyCollection<IModule> _modules;
     public IReadOnlyCollection<IModule> Modules { get => _modules; }
 
     protected readonly DeviceInfoModule deviceInfoModule;
     protected readonly IdentifyDeviceModule identifyDeviceModule;
-    protected readonly DMX_StartAddressModule? dmxStartAddressModule;
-    protected readonly DMX_PersonalityModule? dmxPersonalityModule;
-    protected readonly SlotsModule? slotsModule;
-    protected readonly SensorsModule? sensorsModule;
-    protected readonly StatusMessagesModule? statusMessageModule;
+    protected readonly DMX_StartAddressModule dmxStartAddressModule;
+    protected readonly DMX_PersonalityModule dmxPersonalityModule;
+    protected readonly SlotsModule slotsModule;
+    protected readonly SensorsModule sensorsModule;
+    protected readonly StatusMessagesModule statusMessageModule;
 
     private bool discoveryMuted;
     public bool DiscoveryMuted
@@ -142,7 +142,7 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
         }
     }
 
-    private bool _initialized = false;
+    private readonly bool _initialized = false;
 
     protected AbstractGeneratedRDMDevice(UID uid, IRDMDevice[] subDevices = null, IReadOnlyCollection<IModule> modules = null) : this(uid, SubDevice.Root, subDevices, modules)
     {
@@ -172,8 +172,7 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
         slotsModule = _modules.OfType<SlotsModule>().FirstOrDefault();
         sensorsModule = _modules.OfType<SensorsModule>().FirstOrDefault();
         statusMessageModule = _modules.OfType<StatusMessagesModule>().FirstOrDefault();
-        if (dmxPersonalityModule is not null)//Remove after Refactoring to Modules
-            dmxPersonalityModule.PropertyChanged += DmxPersonalityModule_PropertyChanged;
+        dmxPersonalityModule?.PropertyChanged += DmxPersonalityModule_PropertyChanged;
 
         var _params = new HashSet<ERDM_Parameter>();
 
@@ -319,7 +318,7 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
         }
         bool raiseAddedEvent = false;
         bool raiseUpdatedEvent = false;
-        object? ov = null;
+        object ov = null;
         parameterValues.AddOrUpdate(parameter, (_) =>
         {
             try
@@ -883,7 +882,7 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
                 rdmMessage.ParameterData = data.ToArray();
             }
         }
-        bool matchStausCode(ERDM_Status statusCode, RDMStatusMessage statusMessage)
+        static bool matchStausCode(ERDM_Status statusCode, RDMStatusMessage statusMessage)
         {
             if (statusCode == ERDM_Status.GET_LAST_MESSAGE)
                 throw new NotSupportedException($"The StatusCode: {statusCode}, not supported in this Method.");
@@ -971,8 +970,7 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
 
         public void SetLastSendStatusMessageID(ERDM_Status statusCode, int id)
         {
-            if (lastSendStatusMessageID == null)
-                lastSendStatusMessageID = new ConcurrentDictionary<ERDM_Status, int>();
+            lastSendStatusMessageID ??= new ConcurrentDictionary<ERDM_Status, int>();
 
             lastSendStatusMessageID.AddOrUpdate(statusCode, id, (o, p) => id);
         }

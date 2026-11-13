@@ -18,7 +18,7 @@ public sealed class StatusMessagesModule : AbstractModule
 
     public override string DisplayName => _moduleDisplayName;
 
-    private ConcurrentDictionary<int, RDMStatusMessage> statusMessages = new ConcurrentDictionary<int, RDMStatusMessage>();
+    private readonly ConcurrentDictionary<int, RDMStatusMessage> statusMessages = new ConcurrentDictionary<int, RDMStatusMessage>();
     public IReadOnlyDictionary<int, RDMStatusMessage> StatusMessages { get { return statusMessages.AsReadOnly(); } }
     public StatusMessagesModule() : base(
         _moduleName,

@@ -9,8 +9,8 @@ public class TestRealTimeClockModule
 {
     private RealTimeClockModuleMockDevice? generated;
 
-    private static UID CONTROLLER_UID = new UID(0x1fff, 333);
-    private static UID DEVCIE_UID = new UID(876, 555198);
+    private static readonly UID CONTROLLER_UID = new UID(0x1fff, 333);
+    private static readonly UID DEVCIE_UID = new UID(876, 555198);
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()
@@ -22,6 +22,7 @@ public class TestRealTimeClockModule
     public async Task Setup()
     {
         var defines = MetadataFactory.GetMetadataDefineVersions();
+        Assert.That(defines, Is.Not.Null);
         generated = new RealTimeClockModuleMockDevice(DEVCIE_UID);
         while (!generated.IsInitialized)
             await Task.Delay(100);

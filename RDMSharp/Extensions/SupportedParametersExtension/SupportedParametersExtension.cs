@@ -30,7 +30,7 @@ public sealed class SupportedParametersExtension : AbstractSupportedParametersEx
         }
 
         var define = MetadataFactory.GetDefine(new ParameterBag(parameter));
-        if (define is not MetadataJSONObjectDefine parameterDefine)
+        if (define is not MetadataJSONObjectDefine)
         {
             name = parameter.ToString();
             return true;

@@ -30,7 +30,7 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
 
     }
 
-    private ConcurrentDictionary<byte, RDMPersonalityModel> knownPersonalityModels = new ConcurrentDictionary<byte, RDMPersonalityModel>();
+    private readonly ConcurrentDictionary<byte, RDMPersonalityModel> knownPersonalityModels = new ConcurrentDictionary<byte, RDMPersonalityModel>();
     public IReadOnlyCollection<RDMPersonalityModel> KnownPersonalityModels => knownPersonalityModels.Values.ToList();
     internal RDMPersonalityModel getPersonalityModel(IRDMRemoteDevice remoteRDMDevice, byte personalityId)
     {
@@ -159,7 +159,7 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
         this.ParameterValueAdded += RDMDeviceModel_ParameterValueAdded;
     }
 
-    private SemaphoreSlim initializeSemaphoreSlim = new SemaphoreSlim(1);
+    private readonly SemaphoreSlim initializeSemaphoreSlim = new SemaphoreSlim(1);
     internal async Task Initialize()
     {
         if (IsInitialized)

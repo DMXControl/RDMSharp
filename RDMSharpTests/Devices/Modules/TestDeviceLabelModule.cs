@@ -8,8 +8,8 @@ public class TestDeviceLabelModule
 {
     private MockGeneratedDevice1? generated;
 
-    private static UID CONTROLLER_UID = new UID(0x1fff, 333);
-    private static UID DEVCIE_UID = new UID(123, 555);
+    private static readonly UID CONTROLLER_UID = new UID(0x1fff, 333);
+    private static readonly UID DEVCIE_UID = new UID(123, 555);
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()
@@ -21,6 +21,7 @@ public class TestDeviceLabelModule
     public void Setup()
     {
         var defines = MetadataFactory.GetMetadataDefineVersions();
+        Assert.That(defines, Is.Not.Null);
         generated = new MockGeneratedDevice1(DEVCIE_UID);
     }
     [TearDown]
@@ -88,6 +89,7 @@ public class TestDeviceLabelModule
     [Test, DependsOnTest(nameof(TestGetDEVICE_LABEL))]
     public async Task TestRemoteDevice()
     {
+        Assert.That(generated, Is.Not.Null);
         var generatedModule = generated.Modules.OfType<DeviceLabelModule>().Single();
         Assert.That(generatedModule, Is.Not.Null);
         Assert.That(generatedModule.DeviceLabel, Is.EqualTo("Dummy Device 1"));

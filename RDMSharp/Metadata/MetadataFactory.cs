@@ -26,7 +26,7 @@ public static class MetadataFactory
     private static ConcurrentDictionary<string, MetadataVersion> metadataVersionList;
     private static ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>> metadataVersionDefinesBagDictionary;
     private static ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine> parameterBagDefineCache;
-    private static List<Assembly> resourceProvider = new List<Assembly>() { typeof(MetadataFactory).Assembly };
+    private static readonly List<Assembly> resourceProvider = new List<Assembly>() { typeof(MetadataFactory).Assembly };
     public static bool IsInitialized = false;
     private static readonly SemaphoreSlim fillDefaultMetadataVersionListSemaphoreSlim = new SemaphoreSlim(1, 1);
     private static readonly SemaphoreSlim readSchemaSemaphoreSlim = new SemaphoreSlim(1, 1);
@@ -187,8 +187,7 @@ public static class MetadataFactory
     {
         try
         {
-            if (parameterBagDefineCache == null)
-                parameterBagDefineCache = new ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine>();
+            parameterBagDefineCache ??= new ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine>();
 
             if (parameterBagDefineCache.TryGetValue(parameter, out var define))
                 return define;
@@ -361,8 +360,7 @@ public static class MetadataFactory
                     {
                         define = possibleDefines.FirstOrDefault(d => d.SoftwareVersionID == parameter.SoftwareVersionID) ?? define;
 
-                        if (define == null)
-                            define = possibleDefines.MinBy(d => parameter.SoftwareVersionID - d.SoftwareVersionID);
+                        define ??= possibleDefines.MinBy(d => parameter.SoftwareVersionID - d.SoftwareVersionID);
                     }
                 }
             }

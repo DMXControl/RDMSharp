@@ -55,7 +55,7 @@ public sealed class RDMPersonalityModel : AbstractRDMCache
     public IReadOnlyDictionary<ushort, Slot> Slots => Personality.Slots;
     public readonly IReadOnlyCollection<ERDM_Parameter> SupportedPersonalityBlueprintParameters;
 
-    private UID currentUsedUid;
+    private readonly UID currentUsedUid;
 
     public string Description { get; private set; }
     public ushort SlotCount { get; private set; }
@@ -86,7 +86,7 @@ public sealed class RDMPersonalityModel : AbstractRDMCache
             }
         }
     }
-    private SemaphoreSlim initializeSemaphoreSlim = new SemaphoreSlim(1);
+    private readonly SemaphoreSlim initializeSemaphoreSlim = new SemaphoreSlim(1);
     internal async Task Initialize()
     {
         if (IsInitialized)

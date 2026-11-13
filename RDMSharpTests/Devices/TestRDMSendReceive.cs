@@ -9,7 +9,7 @@ public class TestRDMSendReceive
 {
     private MockGeneratedDevice1? generated;
     private MockDevice? remote;
-    private Random random = new Random();
+    private readonly Random random = new Random();
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()
@@ -34,7 +34,6 @@ public class TestRDMSendReceive
     }
 
     [Test, Retry(3)]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
     public async Task TestDevice1()
     {
         var parameterValuesRemote = remote!.GetAllParameterValues();
@@ -133,7 +132,6 @@ public class TestRDMSendReceive
     }
 
     [Test, DependsOnTest(nameof(TestDevice1))]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
     public void TestDevice1Slots()
     {
         var slotIntensity = remote!.Slots[0];
@@ -213,7 +211,6 @@ public class TestRDMSendReceive
     }
 
     [Test, DependsOnTest(nameof(TestDevice1Slots)), CancelAfter(10000)]
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
     public async Task TestDevice1Sensor()
     {
         var sensorsRemote = remote!.Sensors.Values.ToList();

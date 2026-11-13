@@ -12,8 +12,7 @@ public abstract class AbstractSimpleStringModule : AbstractSimpleModule
         {
             if (ParentDevice is null)
                 return _value;
-            object res;
-            if (ParentDevice.GetAllParameterValues().TryGetValue(ModuleParameter, out res))
+            if (ParentDevice.GetAllParameterValues().TryGetValue(ModuleParameter, out object res))
                 return (string)res;
             return _value;
         }
@@ -28,15 +27,14 @@ public abstract class AbstractSimpleStringModule : AbstractSimpleModule
 
             _value = value;
             initialized = true;
-            if (ParentGeneratedDevice is not null)
-                ParentGeneratedDevice.setParameterValue(ModuleParameter, value);
+            ParentGeneratedDevice?.setParameterValue(ModuleParameter, value);
 
             if (ParentRemoteDevice is not null)
                 _ = SetValue(value);
         }
     }
 
-    private string _initialValue;
+    private readonly string _initialValue;
     public AbstractSimpleStringModule(
         string initialValue,
         string name,

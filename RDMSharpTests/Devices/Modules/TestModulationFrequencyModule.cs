@@ -9,8 +9,8 @@ public class TestModulationFrequencyModule
 {
     private ModulationFrequencyModuleMockDevice? generated;
 
-    private static UID CONTROLLER_UID = new UID(0x1fff, 333);
-    private static UID DEVCIE_UID = new UID(873, 5215200);
+    private static readonly UID CONTROLLER_UID = new UID(0x1fff, 333);
+    private static readonly UID DEVCIE_UID = new UID(873, 5215200);
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()
@@ -22,6 +22,7 @@ public class TestModulationFrequencyModule
     public async Task Setup()
     {
         var defines = MetadataFactory.GetMetadataDefineVersions();
+        Assert.That(defines, Is.Not.Null);
         generated = new ModulationFrequencyModuleMockDevice(DEVCIE_UID);
         while (!generated.IsInitialized)
             await Task.Delay(100);
@@ -86,6 +87,7 @@ public class TestModulationFrequencyModule
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             var expected = modulationFrequencyModule._generatedModulationFrequencys.FirstOrDefault(gen => gen.ModulationFrequencyId == id);
+            Assert.That(expected, Is.Not.Null);
             Assert.That(response.ParameterData, Has.Length.EqualTo(expected.ToPayloadData().Length));
             Assert.That(response.Value, Is.EqualTo(expected));
             Assert.That(((RDMModulationFrequencyDescription)response.Value).Index, Is.EqualTo(expected.Index));

@@ -16,8 +16,7 @@ internal class ExtensionsManager
     {
         get
         {
-            if (_instance == null)
-                _instance = new ExtensionsManager();
+            _instance ??= new ExtensionsManager();
             return _instance;
         }
     }
@@ -58,7 +57,7 @@ internal class ExtensionsManager
                 Logger?.LogInformation($"Registered BytesParser for format '{bytesParser.FormatIdentifyer}'");
     }
 
-    public bool TryGetBytesParser(string formatIdentifyer, out IBytesParser? bytesParser)
+    public bool TryGetBytesParser(string formatIdentifyer, out IBytesParser bytesParser)
     {
         if (string.IsNullOrWhiteSpace(formatIdentifyer))
         {
@@ -113,7 +112,7 @@ internal class ExtensionsManager
         supportedParametersExtensionsResult = result;
         return true;
     }
-    public bool TryGetSupportedParameterMetadata(EManufacturer manufacturer, ERDM_Parameter parameter, out SupportedParameterMetadata? supportedParameterMetadata)
+    public bool TryGetSupportedParameterMetadata(EManufacturer manufacturer, ERDM_Parameter parameter, out SupportedParameterMetadata supportedParameterMetadata)
     {
         try
         {

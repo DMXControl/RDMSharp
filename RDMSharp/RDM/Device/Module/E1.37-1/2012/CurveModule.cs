@@ -38,8 +38,7 @@ public sealed class CurveModule : AbstractModule
             var backup = currentId;
             currentId = value;
 
-            if (ParentGeneratedDevice is not null)
-                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.CURVE, new RDMCurve(currentId.Value, this.count.Value));
+            ParentGeneratedDevice?.setParameterValue(ERDM_Parameter.CURVE, new RDMCurve(currentId.Value, this.count.Value));
 
             if (initial)
                 return;
@@ -75,12 +74,12 @@ public sealed class CurveModule : AbstractModule
         }
     }
 
-    private Dictionary<byte, string> idDescriptionPair = new Dictionary<byte, string>();
+    private readonly Dictionary<byte, string> idDescriptionPair = new Dictionary<byte, string>();
     public IReadOnlyDictionary<byte, string> IdDescriptionPair => idDescriptionPair;
 
     public readonly IReadOnlyCollection<RDMCurveDescription> _generatedCurves = null;
 
-    private byte _initialCurveId;
+    private readonly byte _initialCurveId;
 
     public CurveModule(byte initialCurveId, params RDMCurveDescription[] curves) : base(
         _moduleName,

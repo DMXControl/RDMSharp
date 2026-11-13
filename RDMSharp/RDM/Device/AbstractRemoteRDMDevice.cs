@@ -277,7 +277,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
 
     private async Task requestDeviceInfo(RDMDeviceInfo deviceInfo = null)
     {
-        DataTreeBranch? rpl = null;
+        DataTreeBranch? rpl;
         if (deviceInfo == null)
         {
             PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, UID, Subdevice, new ParameterBag(ERDM_Parameter.DEVICE_INFO));
@@ -389,7 +389,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         return null;
     }
 
-    private SemaphoreSlim updateSenaphoreSlim = new SemaphoreSlim(1);
+    private readonly SemaphoreSlim updateSenaphoreSlim = new SemaphoreSlim(1);
     private async Task updateParameters()
     {
         var supportedParameters = this.DeviceModel?.GetSupportedNonBlueprintParameters();
@@ -508,7 +508,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
                 return;
             }
         }
-        bool Last5AreEquals(List<byte> list)
+        static bool Last5AreEquals(List<byte> list)
         {
             if (list == null || list.Count < 5)
                 return false;

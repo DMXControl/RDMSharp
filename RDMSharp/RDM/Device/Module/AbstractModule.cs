@@ -44,18 +44,19 @@ public abstract class AbstractModule : IModule
         if (remoteDevice is AbstractRemoteRDMDevice device)
             SetRemoteParentDevice(device);
     }
-    public RDMMessage? HandleRequest(RDMMessage message)
+    public RDMMessage HandleRequest(RDMMessage message)
     {
         if (!this.IsHandlingParameter(message.Parameter, message.Command))
             return null;
 
-        ERDM_NackReason? nackReason = null;
+        ERDM_NackReason? nackReason;
         try
         {
             return handleRequest(message);
         }
         catch (System.Exception ex)
         {
+            Logger.LogError(ex, "Error handling request for parameter {Parameter} with command {Command}", message.Parameter, message.Command);
             nackReason = ERDM_NackReason.HARDWARE_FAULT;
         }
         return new RDMMessage(nackReason ?? ERDM_NackReason.UNKNOWN_PID)
@@ -66,7 +67,7 @@ public abstract class AbstractModule : IModule
             Parameter = message.Parameter
         };
     }
-    protected virtual RDMMessage? handleRequest(RDMMessage message)
+    protected virtual RDMMessage handleRequest(RDMMessage message)
     {
         throw new System.NotImplementedException("This method should be overridden in derived classes to handle specific requests.");
     }
@@ -108,7 +109,7 @@ public abstract class AbstractModule : IModule
     {
         ParameterChanged(e.Parameter, e.NewValue, e.Index);
     }
-    protected virtual void ParameterChanged(ERDM_Parameter parameter, object? newValue, object? index)
+    protected virtual void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
     {
 
     }

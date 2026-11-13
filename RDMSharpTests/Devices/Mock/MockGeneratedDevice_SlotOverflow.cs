@@ -17,7 +17,7 @@ internal class MockGeneratedDevice_SlotOverflow : AbstractMockGeneratedDevice
     public override ERDM_ProductCategoryCoarse ProductCategoryCoarse => ERDM_ProductCategoryCoarse.CONTROL;
     public override ERDM_ProductCategoryFine ProductCategoryFine => ERDM_ProductCategoryFine.DATA_CONVERSION;
 
-    private static byte[] SLOT_INFO_RAW = new byte[] {
+    private static readonly byte[] SLOT_INFO_RAW = new byte[] {
             0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x01, 0x01,
             0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x02, 0x00,
             0x03, 0x01, 0x00, 0x02, 0x00, 0x04, 0x00, 0x05,

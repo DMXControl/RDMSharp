@@ -10,8 +10,8 @@ namespace RDMSharp.RDM.Device.Module;
 
 public sealed class LockModule : AbstractModule
 {
-    SemaphoreSlim semaphoreSlimLockPin = new SemaphoreSlim(1);
-    SemaphoreSlim semaphoreSlimLockState = new SemaphoreSlim(1);
+    private readonly SemaphoreSlim semaphoreSlimLockPin = new SemaphoreSlim(1);
+    private readonly SemaphoreSlim semaphoreSlimLockState = new SemaphoreSlim(1);
     private const string _moduleName = "Lock";
     private const string _moduleDisplayName = "Lock";
     private static readonly ERDM_Parameter[] _moduleParameters = new ERDM_Parameter[]
@@ -47,8 +47,7 @@ public sealed class LockModule : AbstractModule
             var backup = lockPin;
             lockPin = value;
 
-            if (ParentGeneratedDevice is not null)
-                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.LOCK_PIN, lockPin.Value);
+            ParentGeneratedDevice?.setParameterValue(ERDM_Parameter.LOCK_PIN, lockPin.Value);
 
             if (initial)
                 return;
@@ -98,8 +97,7 @@ public sealed class LockModule : AbstractModule
             var backup = _lockState;
             _lockState = value;
 
-            if (ParentGeneratedDevice is not null)
-                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.LOCK_STATE, new GetLockStateResponse(_lockState.Value, count.Value));
+            ParentGeneratedDevice?.setParameterValue(ERDM_Parameter.LOCK_STATE, new GetLockStateResponse(_lockState.Value, count.Value));
 
             if (initial)
                 return;
@@ -146,13 +144,13 @@ public sealed class LockModule : AbstractModule
         }
     }
 
-    private Dictionary<byte, string> idDescriptionPair = new Dictionary<byte, string>();
+    private readonly Dictionary<byte, string> idDescriptionPair = new Dictionary<byte, string>();
     public IReadOnlyDictionary<byte, string> IdDescriptionPair => idDescriptionPair;
 
     public readonly IReadOnlyCollection<RDMLockStateDescription> _generatedLockStates = null;
 
-    private byte _initialLockStateId;
-    private ushort? _initialLockPin;
+    private readonly byte _initialLockStateId;
+    private readonly ushort? _initialLockPin;
 
     public LockModule(byte initialLockStateId, ushort? initialLockPin = null, params RDMLockStateDescription[] lockStates) : base(
         _moduleName,

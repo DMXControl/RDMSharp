@@ -9,8 +9,8 @@ public class TestSensorsModule
 {
     private MockGeneratedDevice1? generated;
 
-    private static UID CONTROLLER_UID = new UID(0x1fff, 333);
-    private static UID DEVCIE_UID = new UID(123, 555);
+    private static readonly UID CONTROLLER_UID = new UID(0x1fff, 333);
+    private static readonly UID DEVCIE_UID = new UID(123, 555);
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()
@@ -22,6 +22,7 @@ public class TestSensorsModule
     public void Setup()
     {
         var defines = MetadataFactory.GetMetadataDefineVersions();
+        Assert.That(defines, Is.Not.Null);
         generated = new MockGeneratedDevice1(DEVCIE_UID);
     }
     [TearDown]
@@ -51,7 +52,7 @@ public class TestSensorsModule
             Parameter = ERDM_Parameter.SENSOR_DEFINITION,
             SubDevice = SubDevice.Root,
         };
-        RDMMessage? response = null;
+        RDMMessage? response;
         #region Test Basic
         Assert.That(generated, Is.Not.Null);
         Assert.That(generated.Sensors, Has.Count.EqualTo(5));
@@ -236,9 +237,9 @@ public class TestSensorsModule
             {
                 request.ParameterData = new byte[] { sensor.SensorId };
                 response = generated.ProcessRequestMessage_Internal(request);
+                Assert.That(response, Is.Not.Null);
                 Assert.Multiple(() =>
                 {
-                    Assert.That(response, Is.Not.Null);
                     Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
                     Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
                     Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));

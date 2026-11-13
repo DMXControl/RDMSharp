@@ -18,8 +18,7 @@ public sealed class SoftwareVersionModule : AbstractModule
         {
             if (ParentRemoteDevice is not null)
             {
-                object res;
-                if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.DEVICE_INFO, out res))
+                if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.DEVICE_INFO, out object res))
                     return ((RDMDeviceInfo)res).SoftwareVersionId;
             }
             return _softwareVersionId;
@@ -35,16 +34,14 @@ public sealed class SoftwareVersionModule : AbstractModule
         {
             if (ParentGeneratedDevice is null && ParentRemoteDevice is null)
                 return _softwareVersionLabel;
-            object res;
-            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.SOFTWARE_VERSION_LABEL, out res))
+            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.SOFTWARE_VERSION_LABEL, out object res))
                 return (string)res;
             return _softwareVersionLabel;
         }
         internal set
         {
             _softwareVersionLabel = value;
-            if (ParentGeneratedDevice is not null)
-                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.SOFTWARE_VERSION_LABEL, value);
+            ParentGeneratedDevice?.setParameterValue(ERDM_Parameter.SOFTWARE_VERSION_LABEL, value);
         }
     }
     public SoftwareVersionModule(uint softwareVersionId, string softwareVersionLabel) : base(

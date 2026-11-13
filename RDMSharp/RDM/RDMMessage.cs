@@ -271,9 +271,9 @@ public class RDMMessage : IEquatable<RDMMessage>
             return _nackReason;
         }
     }
-    private IAcknowledgeTimer? _acknowledgeTimer = null;
+    private IAcknowledgeTimer _acknowledgeTimer = null;
 
-    public IAcknowledgeTimer? AcknowledgeTimer
+    public IAcknowledgeTimer AcknowledgeTimer
     {
         get
         {
@@ -314,6 +314,8 @@ public class RDMMessage : IEquatable<RDMMessage>
                 case ERDM_ResponseType.ACK_TIMER:
                 case ERDM_ResponseType.ACK_TIMER_HI_RES:
                     return 2;
+                default:
+                    break;
             }
             return (byte)ParameterData.Length;
         }
@@ -330,6 +332,8 @@ public class RDMMessage : IEquatable<RDMMessage>
                 case ERDM_ResponseType.ACK_TIMER:
                 case ERDM_ResponseType.ACK_TIMER_HI_RES:
                     return Tools.ValueToData(_acknowledgeTimer);
+                default:
+                    break;
             }
             return _parameterData;
         }
@@ -545,7 +549,7 @@ public class RDMMessage : IEquatable<RDMMessage>
                     b.AppendLine("SubDevice: " + SubDevice);
                     b.AppendLine("Command: " + Command);
                     b.AppendLine("Parameter: " + ((ERDM_Parameter)Parameter).ToString());
-                    Logger?.LogError(ex, $"Message: {b.ToString()}");
+                    Logger?.LogError(ex, $"Message: {b}");
                     throw ex;
                 }
             }

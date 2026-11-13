@@ -9,8 +9,8 @@ public class TestSlotModule
 {
     private MockGeneratedDevice1? generated;
 
-    private static UID CONTROLLER_UID = new UID(12538, 619451964);
-    private static UID DEVCIE_UID = new UID(0x5ab9, 55229915);
+    private static readonly UID CONTROLLER_UID = new UID(12538, 619451964);
+    private static readonly UID DEVCIE_UID = new UID(0x5ab9, 55229915);
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()
@@ -22,6 +22,7 @@ public class TestSlotModule
     public void Setup()
     {
         var defines = MetadataFactory.GetMetadataDefineVersions();
+        Assert.That(defines, Is.Not.Null);
         generated = new MockGeneratedDevice1(DEVCIE_UID);
     }
     [TearDown]

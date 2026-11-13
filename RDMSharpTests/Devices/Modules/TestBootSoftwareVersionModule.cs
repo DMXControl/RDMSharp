@@ -8,8 +8,8 @@ public class TestBootSoftwareVersionModule
 {
     private MockGeneratedDevice1? generated;
 
-    private static UID CONTROLLER_UID = new UID(0x1fff, 333);
-    private static UID DEVCIE_UID = new UID(123, 555);
+    private static readonly UID CONTROLLER_UID = new UID(0x1fff, 333);
+    private static readonly UID DEVCIE_UID = new UID(123, 555);
 
     const string BOOT_SOFTWARE_VERSION_LABEL = "Dummy Bootloader Software";
 
@@ -22,8 +22,8 @@ public class TestBootSoftwareVersionModule
     [SetUp]
     public void Setup()
     {
-
         var defines = MetadataFactory.GetMetadataDefineVersions();
+        Assert.That(defines, Is.Not.Null);
         generated = new MockGeneratedDevice1(DEVCIE_UID);
     }
     [TearDown]

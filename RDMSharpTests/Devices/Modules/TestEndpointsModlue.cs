@@ -10,8 +10,8 @@ public class TestEndpointsModlue
     private EndpointsMockDevice? generated;
     private EndpointsModule? endpointsModule;
 
-    private static UID CONTROLLER_UID = new UID(0x1fff, 876545);
-    private static UID DEVCIE_UID = new UID(9031, 45862713);
+    private static readonly UID CONTROLLER_UID = new UID(0x1fff, 876545);
+    private static readonly UID DEVCIE_UID = new UID(9031, 45862713);
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()
@@ -24,6 +24,7 @@ public class TestEndpointsModlue
     public void Setup()
     {
         var defines = MetadataFactory.GetMetadataDefineVersions();
+        Assert.That(defines, Is.Not.Null);
         generated = new EndpointsMockDevice(DEVCIE_UID);
         endpointsModule = generated.Modules.OfType<EndpointsModule>().FirstOrDefault();
     }

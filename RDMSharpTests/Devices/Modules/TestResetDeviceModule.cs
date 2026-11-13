@@ -8,8 +8,8 @@ public class TestResetDeviceModule
 {
     private ResetDeviceMockDevice? generated;
 
-    private static UID CONTROLLER_UID = new UID(0x7f1f, 412354401);
-    private static UID DEVCIE_UID = new UID(13234, 801411117);
+    private static readonly UID CONTROLLER_UID = new UID(0x7f1f, 412354401);
+    private static readonly UID DEVCIE_UID = new UID(13234, 801411117);
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()
@@ -21,6 +21,7 @@ public class TestResetDeviceModule
     public void Setup()
     {
         var defines = MetadataFactory.GetMetadataDefineVersions();
+        Assert.That(defines, Is.Not.Null);
         generated = new ResetDeviceMockDevice(DEVCIE_UID);
     }
     [TearDown]

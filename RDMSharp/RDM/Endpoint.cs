@@ -136,8 +136,8 @@ public class Endpoint : INotifyPropertyChanged, IEquatable<Endpoint>
         }
     }
 
-    private HashSet<UID>? responders = new HashSet<UID>();
-    public IReadOnlyCollection<UID>? Responders
+    private readonly HashSet<UID> responders = new HashSet<UID>();
+    public IReadOnlyCollection<UID> Responders
     {
         get { return responders; }
     }
@@ -179,7 +179,7 @@ public class Endpoint : INotifyPropertyChanged, IEquatable<Endpoint>
         }
     }
 
-    private ConcurrentDictionary<UID, BindingControlField> bindingControlFields = new ConcurrentDictionary<UID, BindingControlField>();
+    private readonly ConcurrentDictionary<UID, BindingControlField> bindingControlFields = new ConcurrentDictionary<UID, BindingControlField>();
 
     public IReadOnlyDictionary<UID, BindingControlField> BindingControlFields
     {

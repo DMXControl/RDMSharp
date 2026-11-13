@@ -9,8 +9,8 @@ public class TestLockModule
 {
     private LockModuleMockDevice? generated;
 
-    private static UID CONTROLLER_UID = new UID(0x18f, 20933);
-    private static UID DEVCIE_UID = new UID(211, 51500598);
+    private static readonly UID CONTROLLER_UID = new UID(0x18f, 20933);
+    private static readonly UID DEVCIE_UID = new UID(211, 51500598);
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()
@@ -22,6 +22,7 @@ public class TestLockModule
     public async Task Setup()
     {
         var defines = MetadataFactory.GetMetadataDefineVersions();
+        Assert.That(defines, Is.Not.Null);
         generated = new LockModuleMockDevice(DEVCIE_UID);
         while (!generated.IsInitialized)
             await Task.Delay(100);

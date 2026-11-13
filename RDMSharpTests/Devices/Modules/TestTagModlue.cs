@@ -9,8 +9,8 @@ public class TestTagModlue
 {
     private TagsMockDevice? generated;
 
-    private static UID CONTROLLER_UID = new UID(0x1fff, 333);
-    private static UID DEVCIE_UID = new UID(0x1e2e, 555);
+    private static readonly UID CONTROLLER_UID = new UID(0x1fff, 333);
+    private static readonly UID DEVCIE_UID = new UID(0x1e2e, 555);
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()
@@ -22,6 +22,7 @@ public class TestTagModlue
     public void Setup()
     {
         var defines = MetadataFactory.GetMetadataDefineVersions();
+        Assert.That(defines, Is.Not.Null);
         generated = new TagsMockDevice(DEVCIE_UID);
     }
     [TearDown]
@@ -81,6 +82,7 @@ public class TestTagModlue
         };
 
         response = generated.ProcessRequestMessage_Internal(request);
+        Assert.That(response, Is.Not.Null);
         Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
         Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
         Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
@@ -120,6 +122,7 @@ public class TestTagModlue
         };
 
         response = generated.ProcessRequestMessage_Internal(request);
+        Assert.That(response, Is.Not.Null);
         Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
         Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
         Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));

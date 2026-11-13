@@ -26,7 +26,7 @@ public sealed class InterfaceModule : AbstractModule
 
     public override string DisplayName => _moduleDisplayName;
 
-    private ConcurrentDictionary<uint, Interface> _interfaces = new ConcurrentDictionary<uint, Interface>();
+    private readonly ConcurrentDictionary<uint, Interface> _interfaces = new ConcurrentDictionary<uint, Interface>();
     public IReadOnlyCollection<Interface> Interfaces
     {
         get
@@ -41,7 +41,7 @@ public sealed class InterfaceModule : AbstractModule
     private ConcurrentDictionary<object, object> dhcpModeDict = new ConcurrentDictionary<object, object>();
     private ConcurrentDictionary<object, object> zeroConfModeDict = new ConcurrentDictionary<object, object>();
 
-    private ConcurrentDictionary<uint, ConcurrentQueue<RDMMessage>> applyConfigQueueDict = new ConcurrentDictionary<uint, ConcurrentQueue<RDMMessage>>();
+    private readonly ConcurrentDictionary<uint, ConcurrentQueue<RDMMessage>> applyConfigQueueDict = new ConcurrentDictionary<uint, ConcurrentQueue<RDMMessage>>();
     public InterfaceModule(IReadOnlyCollection<Interface> interfaces) : base(
         _moduleName,
         _moduleParameters)
@@ -84,8 +84,7 @@ public sealed class InterfaceModule : AbstractModule
     {
         var values = ParentRemoteDevice.GetAllParameterValues();
 
-        object value = null;
-        values.TryGetValue(ERDM_Parameter.LIST_INTERFACES, out value);
+        values.TryGetValue(ERDM_Parameter.LIST_INTERFACES, out object value);
         if (value is not InterfaceDescriptor[] interfaceDescriptors)
             return;
 
@@ -111,8 +110,7 @@ public sealed class InterfaceModule : AbstractModule
         foreach (InterfaceDescriptor interfaceDescriptor in interfaceDescriptors)
         {
             uint interfaceId = interfaceDescriptor.InterfaceId;
-            Interface _interface = null;
-            if (!_interfaces.TryGetValue(interfaceId, out _interface))
+            if (!_interfaces.TryGetValue(interfaceId, out Interface _interface))
             {
                 _interface = new Interface(interfaceId, interfaceDescriptor.HardwareType);
                 _interfaces.TryAdd(interfaceId, _interface);
@@ -181,7 +179,7 @@ public sealed class InterfaceModule : AbstractModule
 
     protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
     {
-        Interface? iface = null;
+        Interface iface = null;
         if (index is not null && index is uint ui)
             iface = _interfaces?.Values.FirstOrDefault(iface => iface.InterfaceId == ui);
 
@@ -196,12 +194,10 @@ public sealed class InterfaceModule : AbstractModule
                 break;
 
             case ERDM_Parameter.INTERFACE_LABEL:
-                if (iface is not null)
-                    iface.Lable = ((GetInterfaceNameResponse)newValue).Label;
+                iface?.Lable = ((GetInterfaceNameResponse)newValue).Label;
                 break;
             case ERDM_Parameter.INTERFACE_HARDWARE_ADDRESS_TYPE:
-                if (iface is not null)
-                    iface.MACAddress = ((GetHardwareAddressResponse)newValue).HardwareAddress;
+                iface?.MACAddress = ((GetHardwareAddressResponse)newValue).HardwareAddress;
                 break;
             case ERDM_Parameter.IPV4_CURRENT_ADDRESS:
                 if (iface is not null)
@@ -219,12 +215,10 @@ public sealed class InterfaceModule : AbstractModule
                 }
                 break;
             case ERDM_Parameter.IPV4_DHCP_MODE:
-                if (iface is not null)
-                    iface.DHCP = ((GetSetIPV4_xxx_Mode)newValue).Enabled;
+                iface?.DHCP = ((GetSetIPV4_xxx_Mode)newValue).Enabled;
                 break;
             case ERDM_Parameter.IPV4_ZEROCONF_MODE:
-                if (iface is not null)
-                    iface.ZeroConf = ((GetSetIPV4_xxx_Mode)newValue).Enabled;
+                iface?.ZeroConf = ((GetSetIPV4_xxx_Mode)newValue).Enabled;
                 break;
         }
     }
@@ -357,7 +351,6 @@ public sealed class InterfaceModule : AbstractModule
                     Command = ERDM_Command.SET_COMMAND_RESPONSE,
                     Parameter = message.Parameter
                 };
-                break;
             default:
                 break;
         }

@@ -34,7 +34,7 @@ public sealed class EndpointsModule : AbstractModule
 
     public override string DisplayName => _moduleDisplayName;
 
-    private ConcurrentDictionary<ushort, Endpoint> _endpoints;
+    private readonly ConcurrentDictionary<ushort, Endpoint> _endpoints;
     public IReadOnlyCollection<Endpoint> Endpoints
     {
         get
@@ -94,12 +94,12 @@ public sealed class EndpointsModule : AbstractModule
             OnPropertyChanged(nameof(BackgroundQueuedStatusPolicy));
         }
     }
-    private IDictionary<byte, string> _backgroundQueuedStatusPolicyDescriptions;
+    private readonly IDictionary<byte, string> _backgroundQueuedStatusPolicyDescriptions;
     public IReadOnlyDictionary<byte, string> BackgroundQueuedStatusPolicyDescriptions
     {
         get { return _backgroundQueuedStatusPolicyDescriptions.AsReadOnly(); }
     }
-    private IDictionary<byte, string> _timingDescriptions;
+    private readonly IDictionary<byte, string> _timingDescriptions;
     public IReadOnlyDictionary<byte, string> TimingDescriptions
     {
         get { return _timingDescriptions.AsReadOnly(); }
@@ -222,9 +222,8 @@ public sealed class EndpointsModule : AbstractModule
         {
             var values = ParentRemoteDevice.GetAllParameterValues();
 
-            object value = null;
 
-            if (values.TryGetValue(ERDM_Parameter.IDENTIFY_ENDPOINT, out value) && value is ConcurrentDictionary<object, object> _identifyDict)
+            if (values.TryGetValue(ERDM_Parameter.IDENTIFY_ENDPOINT, out object value) && value is ConcurrentDictionary<object, object> _identifyDict)
                 identifyDict = _identifyDict;
 
             if (values.TryGetValue(ERDM_Parameter.ENDPOINT_TO_UNIVERSE, out value) && value is ConcurrentDictionary<object, object> _universeDict)
@@ -418,7 +417,7 @@ public sealed class EndpointsModule : AbstractModule
 
     protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
     {
-        RemoteEndpoint? endpoint = null;
+        RemoteEndpoint endpoint = null;
         if (index is not null && index is ushort ui)
             endpoint = _endpoints.Values.FirstOrDefault(epoint => epoint.EndpointId == ui) as RemoteEndpoint;
 
@@ -442,53 +441,43 @@ public sealed class EndpointsModule : AbstractModule
                 break;
 
             case ERDM_Parameter.IDENTIFY_ENDPOINT:
-                if (endpoint is not null)
-                    endpoint.Identify = ((GetSetIdentifyEndpoint)newValue).IdentifyState;
+                endpoint?.Identify = ((GetSetIdentifyEndpoint)newValue).IdentifyState;
                 break;
 
             case ERDM_Parameter.ENDPOINT_TO_UNIVERSE:
-                if (endpoint is not null)
-                    endpoint.Universe = ((GetSetEndpointToUniverse)newValue).Universe;
+                endpoint?.Universe = ((GetSetEndpointToUniverse)newValue).Universe;
                 break;
 
             case ERDM_Parameter.ENDPOINT_MODE:
-                if (endpoint is not null)
-                    endpoint.Mode = ((GetSetEndpointMode)newValue).EndpointMode;
+                endpoint?.Mode = ((GetSetEndpointMode)newValue).EndpointMode;
                 break;
 
             case ERDM_Parameter.ENDPOINT_LABEL:
-                if (endpoint is not null)
-                    endpoint.Lable = ((GetSetEndpointLabel)newValue).EndpointLabel;
+                endpoint?.Lable = ((GetSetEndpointLabel)newValue).EndpointLabel;
                 break;
 
             case ERDM_Parameter.RDM_TRAFFIC_ENABLE:
-                if (endpoint is not null)
-                    endpoint.RDMTraffic = ((GetSetEndpointRDMTrafficEnable)newValue).RDMTrafficEnabled;
+                endpoint?.RDMTraffic = ((GetSetEndpointRDMTrafficEnable)newValue).RDMTrafficEnabled;
                 break;
 
             case ERDM_Parameter.DISCOVERY_STATE:
-                if (endpoint is not null)
-                    endpoint.DiscoveryState = ((GetDiscoveryStateResponse)newValue).DiscoveryState;
+                endpoint?.DiscoveryState = ((GetDiscoveryStateResponse)newValue).DiscoveryState;
                 break;
 
             case ERDM_Parameter.BACKGROUND_DISCOVERY:
-                if (endpoint is not null)
-                    endpoint.BackgroundDiscovery = ((GetSetEndpointBackgroundDiscovery)newValue).BackgroundDiscovery;
+                endpoint?.BackgroundDiscovery = ((GetSetEndpointBackgroundDiscovery)newValue).BackgroundDiscovery;
                 break;
 
             case ERDM_Parameter.ENDPOINT_TIMING:
-                if (endpoint is not null)
-                    endpoint.Timing = ((GetEndpointTimingResponse)newValue).TimingId;
+                endpoint?.Timing = ((GetEndpointTimingResponse)newValue).TimingId;
                 break;
 
             case ERDM_Parameter.ENDPOINT_RESPONDERS:
-                if (endpoint is not null)
-                    endpoint.Responders = ((GetEndpointRespondersResponse)newValue).UIDs;
+                endpoint?.Responders = ((GetEndpointRespondersResponse)newValue).UIDs;
                 break;
 
             case ERDM_Parameter.ENDPOINT_RESPONDER_LIST_CHANGE:
-                if (endpoint is not null)
-                    endpoint.ResponderListChanged = ((GetEndpointResponderListChangeResponse)newValue).ListChangeNumber;
+                endpoint?.ResponderListChanged = ((GetEndpointResponderListChangeResponse)newValue).ListChangeNumber;
                 break;
 
             case ERDM_Parameter.ENDPOINT_LIST_CHANGE:
@@ -610,8 +599,9 @@ public sealed class EndpointsModule : AbstractModule
                 GetBindingAndControlFieldsResponse payload = null;
                 if (endpoint.BindingControlFields.TryGetValue(getBindingAndControlFieldsRequest.UID, out Endpoint.BindingControlField bindingControlField))
                     payload = new GetBindingAndControlFieldsResponse(endpoint.EndpointId, bindingControlField.Uid, bindingControlField.ControlField, bindingControlField.BindingUid);
-                if (payload is null)
-                    payload = new GetBindingAndControlFieldsResponse(endpoint.EndpointId, getBindingAndControlFieldsRequest.UID, 0, new UID(0, 0));
+
+                payload ??= new GetBindingAndControlFieldsResponse(endpoint.EndpointId, getBindingAndControlFieldsRequest.UID, 0, new UID(0, 0));
+
                 return new RDMMessage()
                 {
                     SourceUID = message.DestUID,

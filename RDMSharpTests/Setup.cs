@@ -7,7 +7,7 @@ namespace RDMSharpTests;
 public class GlobalTestSetup
 {
     private readonly ConcurrentDictionary<long, RDMMessage> identifyer = new ConcurrentDictionary<long, RDMMessage>();
-    private Random rnd = new Random();
+    private readonly Random rnd = new Random();
     public static bool ImitateRealConditions { get; set; } = false; // Set to false to use the Mock SendReceivePipeline
     [OneTimeSetUp]
     public async Task GlobalSetUp()

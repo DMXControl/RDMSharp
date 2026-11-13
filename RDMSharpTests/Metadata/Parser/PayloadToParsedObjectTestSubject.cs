@@ -245,7 +245,9 @@ public class PayloadToParsedObjectTestSubject
                 Assert.That(obj.PDLSize, Is.EqualTo(0x02));
                 Assert.That(obj.DataType, Is.EqualTo(ERDM_DataType.UINT16));
                 Assert.That(obj.CommandClass, Is.EqualTo(ERDM_CommandClass.GET));
+#pragma warning disable CS0612 // Typ oder Element ist veraltet
                 Assert.That(obj.Type, Is.EqualTo(127));
+#pragma warning restore CS0612 // Typ oder Element ist veraltet
                 Assert.That(obj.Unit, Is.EqualTo(ERDM_SensorUnit.NONE));
                 Assert.That(obj.Prefix, Is.EqualTo(ERDM_UnitPrefix.NONE));
                 Assert.That(obj.MinValidValue, Is.EqualTo(0));

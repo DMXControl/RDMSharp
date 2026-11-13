@@ -101,7 +101,7 @@ public class SupportedParameterMetadata : INotifyPropertyChanged
         }
     }
 
-    private ConcurrentDictionary<int, ERDM_NackReason> NackReasons = new();
+    private readonly ConcurrentDictionary<int, ERDM_NackReason> NackReasons = new();
 
     private SupportedParameterMetadata(
         in ERDM_Parameter parameter,

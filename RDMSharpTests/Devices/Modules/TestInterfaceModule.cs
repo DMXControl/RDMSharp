@@ -10,13 +10,13 @@ public class TestInterfaceModule
     private InterfaceMockDevice? generated;
     private InterfaceModule? interfaceModule;
 
-    private static UID CONTROLLER_UID = new UID(0x1fff, 333);
-    private static UID DEVCIE_UID = new UID(9231, 555);
+    private static readonly UID CONTROLLER_UID = new UID(0x1fff, 333);
+    private static readonly UID DEVCIE_UID = new UID(9231, 555);
     private const string TEST_INTERFACE_NAME = "Test Interface";
     private const string TEST_INTERFACE_HARDWARE_ADDRESS = "e0:63:da:5a:c4:fb";
     private const EARP_HardwareTypes TEST_INTERFACE_HARDWARE_TYPE = EARP_HardwareTypes.Ethernet;
     private const string TEST_INTERFACE_IP_ADDRESS = "2.3.4.5";
-    private static RDMMessage APPLY_CONFIG_MESSAGE = new RDMMessage()
+    private static readonly RDMMessage APPLY_CONFIG_MESSAGE = new RDMMessage()
     {
         Command = ERDM_Command.SET_COMMAND,
         DestUID = DEVCIE_UID,
@@ -37,6 +37,7 @@ public class TestInterfaceModule
     public void Setup()
     {
         var defines = MetadataFactory.GetMetadataDefineVersions();
+        Assert.That(defines, Is.Not.Null);
         generated = new InterfaceMockDevice(DEVCIE_UID);
         interfaceModule = generated.Modules.OfType<InterfaceModule>().FirstOrDefault();
     }
@@ -854,6 +855,7 @@ public class TestInterfaceModule
     [Test, DependsOnTest(nameof(TestSetINTERFACE_APPLY_CONFIGURATION))]
     public void TestSetINTERFACE_RENEW_DHCP()
     {
+        Assert.That(interfaceModule, Is.Not.Null);
         var iface = interfaceModule.Interfaces.First();
         iface.DHCP = true;
         #region Test Basic (Empty)
@@ -954,6 +956,7 @@ public class TestInterfaceModule
     [Test, DependsOnTest(nameof(TestSetINTERFACE_RENEW_DHCP))]
     public void TestSetINTERFACE_RELEASE_DHCP()
     {
+        Assert.That(interfaceModule, Is.Not.Null);
         var iface = interfaceModule.Interfaces.First();
         iface.DHCP = true;
         iface.SetStaticIP(IPv4Address.Empty, 0);

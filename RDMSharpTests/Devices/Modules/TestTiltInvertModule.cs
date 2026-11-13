@@ -9,8 +9,8 @@ public class TestTiltInvertModule
     private TiltInvertMockDevice? generated;
 
     private const ERDM_Parameter MODULE_PARAMETER = ERDM_Parameter.TILT_INVERT;
-    private static UID CONTROLLER_UID = new UID(0x1fff + (ushort)MODULE_PARAMETER, 333);
-    private static UID DEVCIE_UID = new UID(123 + (ushort)MODULE_PARAMETER, 555);
+    private static readonly UID CONTROLLER_UID = new UID(0x1fff + (ushort)MODULE_PARAMETER, 333);
+    private static readonly UID DEVCIE_UID = new UID(123 + (ushort)MODULE_PARAMETER, 555);
 
     [OneTimeSetUp]
     public async Task OneTimeSetup()
@@ -22,6 +22,7 @@ public class TestTiltInvertModule
     public void Setup()
     {
         var defines = MetadataFactory.GetMetadataDefineVersions();
+        Assert.That(defines, Is.Not.Null);
         generated = new TiltInvertMockDevice(DEVCIE_UID);
     }
     [TearDown]

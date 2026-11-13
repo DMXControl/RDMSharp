@@ -12,8 +12,7 @@ public abstract class AbstractSimpleBooleanModule : AbstractSimpleModule
         {
             if (ParentDevice is null)
                 return _value;
-            object res;
-            if (ParentDevice.GetAllParameterValues().TryGetValue(ModuleParameter, out res))
+            if (ParentDevice.GetAllParameterValues().TryGetValue(ModuleParameter, out object res))
                 return (bool)res;
             return _value;
         }
@@ -28,15 +27,14 @@ public abstract class AbstractSimpleBooleanModule : AbstractSimpleModule
 
             _value = value.Value;
             initialized = true;
-            if (ParentGeneratedDevice is not null)
-                ParentGeneratedDevice.setParameterValue(ModuleParameter, value);
+            ParentGeneratedDevice?.setParameterValue(ModuleParameter, value);
 
             if (ParentRemoteDevice is not null)
                 _ = SetValue(value.Value);
         }
     }
 
-    private bool _initialValue;
+    private readonly bool _initialValue;
     public AbstractSimpleBooleanModule(
         bool initialValue,
         string name,
