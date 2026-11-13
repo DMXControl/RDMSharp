@@ -1,0 +1,73 @@
+﻿using System;
+using System.Threading.Tasks;
+
+namespace RDMSharp.RDM.Device.Module;
+
+public sealed class DMX_StartAddressModule : AbstractModule
+{
+    private const string _moduleName = "DMX_StartAddress";
+    private const string _moduleDisplayName = "DMX Start-Address";
+    private const ERDM_Parameter _moduleParameter = ERDM_Parameter.DMX_START_ADDRESS;
+
+    public override string DisplayName => _moduleDisplayName;
+
+    private ushort _dmxAddress;
+    public ushort? DMXAddress
+    {
+        get
+        {
+            if (ParentDevice is null)
+                return _dmxAddress;
+            object res;
+            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.DMX_START_ADDRESS, out res))
+                return (ushort?)res;
+            return _dmxAddress;
+        }
+        set
+        {
+            if (!value.HasValue)
+                throw new NullReferenceException($"{DMXAddress} can't be null if {ERDM_Parameter.DMX_START_ADDRESS} is Supported");
+            if (value.Value == 0)
+                throw new ArgumentOutOfRangeException($"{DMXAddress} can't 0 if {ERDM_Parameter.DMX_START_ADDRESS} is Supported");
+            if (value.Value > 512)
+                throw new ArgumentOutOfRangeException($"{DMXAddress} can't be greater then 512");
+
+            _dmxAddress = value.Value;
+            if (ParentGeneratedDevice is not null)
+                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.DMX_START_ADDRESS, value);
+
+            if (ParentRemoteDevice is not null)
+                _ = SetDMXAddress(value.Value);
+        }
+    }
+    public DMX_StartAddressModule(ushort dmxAddress) : base(
+        _moduleName,
+        _moduleParameter)
+    {
+        _dmxAddress = dmxAddress;
+    }
+    public DMX_StartAddressModule(AbstractRemoteRDMDevice remoteDevice) : base(
+        remoteDevice,
+        _moduleName,
+        _moduleParameter)
+    {
+    }
+
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
+    {
+        this.DMXAddress = _dmxAddress;
+    }
+    protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
+    {
+        switch (parameter)
+        {
+            case ERDM_Parameter.DMX_START_ADDRESS:
+                OnPropertyChanged(nameof(DMXAddress));
+                break;
+        }
+    }
+    public async Task<bool> SetDMXAddress(ushort dmxAddress)
+    {
+        return await ParentRemoteDevice.SetParameter(ERDM_Parameter.DMX_START_ADDRESS, dmxAddress);
+    }
+}

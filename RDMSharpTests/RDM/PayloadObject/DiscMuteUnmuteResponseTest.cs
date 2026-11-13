@@ -1,115 +1,116 @@
-namespace RDMSharpTests.RDM.PayloadObject
+using RDMSharp.PayloadObject;
+
+namespace RDMSharpTests.RDM.PayloadObject;
+
+public class DiscMuteUnmuteResponseTest
 {
-    public class DiscMuteUnmuteResponseTest
+    [SetUp]
+    public void Setup()
     {
-        [SetUp]
-        public void Setup()
+    }
+
+    [Test]
+    public void ToPayloadAndFromMessageTest()
+    {
+        DiscMuteUnmuteResponse discMute = new DiscMuteUnmuteResponse(true, bindingUID: new UID(223, 434));
+
+        byte[] data = discMute.ToPayloadData();
+
+        RDMMessage message = new RDMMessage()
         {
-        }
+            PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK,
+            Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE,
+            Parameter = ERDM_Parameter.DISC_MUTE,
+            ParameterData = data,
+        };
 
-        [Test]
-        public void ToPayloadAndFromMessageTest()
+        DiscMuteUnmuteResponse resultDiscMute = DiscMuteUnmuteResponse.FromMessage(message);
+        Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { DiscMuteUnmuteResponse.FromPayloadData(data.ToList().Concat(new byte[2]).ToArray()); });
+
+        Assert.That(resultDiscMute, Is.EqualTo(discMute));
+
+        var res = resultDiscMute.ToString();
+        var src = discMute.ToString();
+        Assert.Multiple(() =>
         {
-            DiscMuteUnmuteResponse discMute = new DiscMuteUnmuteResponse(true, bindingUID: new UID(223, 434));
-
-            byte[] data = discMute.ToPayloadData();
-
-            RDMMessage message = new RDMMessage()
-            {
-                PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK,
-                Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE,
-                Parameter = ERDM_Parameter.DISC_MUTE,
-                ParameterData = data,
-            };
-
-            DiscMuteUnmuteResponse resultDiscMute = DiscMuteUnmuteResponse.FromMessage(message);
-            Assert.Throws(typeof(RDMMessageInvalidPDLException), () => { DiscMuteUnmuteResponse.FromPayloadData(data.ToList().Concat(new byte[2]).ToArray()); });
-
-            Assert.That(resultDiscMute, Is.EqualTo(discMute));
-
-            var res = resultDiscMute.ToString();
-            var src = discMute.ToString();
-            Assert.Multiple(() =>
-            {
-                Assert.That(res, Is.Not.Null);
-                Assert.That(src, Is.Not.Null);
-                Assert.That(res, Is.EqualTo(src));
-            });
-
-            discMute = new DiscMuteUnmuteResponse(false, true, bindingUID: new UID(223, 434));
-
-            data = discMute.ToPayloadData();
-
-            message = new RDMMessage()
-            {
-                PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK,
-                Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE,
-                Parameter = ERDM_Parameter.DISC_UN_MUTE,
-                ParameterData = data,
-            };
-
-            resultDiscMute = DiscMuteUnmuteResponse.FromMessage(message);
-
-            Assert.That(resultDiscMute, Is.EqualTo(discMute));
-
-            res = resultDiscMute.ToString();
-            src = discMute.ToString();
-            Assert.Multiple(() =>
-            {
-                Assert.That(res, Is.Not.Null);
-                Assert.That(src, Is.Not.Null);
-                Assert.That(res, Is.EqualTo(src));
-            });
-
-            discMute = new DiscMuteUnmuteResponse(false, false, true, bindingUID: new UID(223, 434));
-
-            data = discMute.ToPayloadData();
-
-            message = new RDMMessage()
-            {
-                PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK,
-                Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE,
-                Parameter = ERDM_Parameter.DISC_UN_MUTE,
-                ParameterData = data,
-            };
-
-            resultDiscMute = DiscMuteUnmuteResponse.FromMessage(message);
-
-            Assert.That(resultDiscMute, Is.EqualTo(discMute));
-
-            res = resultDiscMute.ToString();
-            src = discMute.ToString();
-            Assert.Multiple(() =>
-            {
-                Assert.That(res, Is.Not.Null);
-                Assert.That(src, Is.Not.Null);
-            });
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
             Assert.That(res, Is.EqualTo(src));
+        });
 
-            discMute = new DiscMuteUnmuteResponse(false, false, false, true);
+        discMute = new DiscMuteUnmuteResponse(false, true, bindingUID: new UID(223, 434));
 
-            data = discMute.ToPayloadData();
+        data = discMute.ToPayloadData();
 
-            message = new RDMMessage()
-            {
-                PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK,
-                Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE,
-                Parameter = ERDM_Parameter.DISC_UN_MUTE,
-                ParameterData = data,
-            };
+        message = new RDMMessage()
+        {
+            PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK,
+            Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE,
+            Parameter = ERDM_Parameter.DISC_UN_MUTE,
+            ParameterData = data,
+        };
 
-            resultDiscMute = DiscMuteUnmuteResponse.FromMessage(message);
+        resultDiscMute = DiscMuteUnmuteResponse.FromMessage(message);
 
-            Assert.That(resultDiscMute, Is.EqualTo(discMute));
+        Assert.That(resultDiscMute, Is.EqualTo(discMute));
 
-            res = resultDiscMute.ToString();
-            src = discMute.ToString();
-            Assert.Multiple(() =>
-            {
-                Assert.That(res, Is.Not.Null);
-                Assert.That(src, Is.Not.Null);
-            });
+        res = resultDiscMute.ToString();
+        src = discMute.ToString();
+        Assert.Multiple(() =>
+        {
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
             Assert.That(res, Is.EqualTo(src));
-        }
+        });
+
+        discMute = new DiscMuteUnmuteResponse(false, false, true, bindingUID: new UID(223, 434));
+
+        data = discMute.ToPayloadData();
+
+        message = new RDMMessage()
+        {
+            PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK,
+            Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE,
+            Parameter = ERDM_Parameter.DISC_UN_MUTE,
+            ParameterData = data,
+        };
+
+        resultDiscMute = DiscMuteUnmuteResponse.FromMessage(message);
+
+        Assert.That(resultDiscMute, Is.EqualTo(discMute));
+
+        res = resultDiscMute.ToString();
+        src = discMute.ToString();
+        Assert.Multiple(() =>
+        {
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+        });
+        Assert.That(res, Is.EqualTo(src));
+
+        discMute = new DiscMuteUnmuteResponse(false, false, false, true);
+
+        data = discMute.ToPayloadData();
+
+        message = new RDMMessage()
+        {
+            PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK,
+            Command = ERDM_Command.DISCOVERY_COMMAND_RESPONSE,
+            Parameter = ERDM_Parameter.DISC_UN_MUTE,
+            ParameterData = data,
+        };
+
+        resultDiscMute = DiscMuteUnmuteResponse.FromMessage(message);
+
+        Assert.That(resultDiscMute, Is.EqualTo(discMute));
+
+        res = resultDiscMute.ToString();
+        src = discMute.ToString();
+        Assert.Multiple(() =>
+        {
+            Assert.That(res, Is.Not.Null);
+            Assert.That(src, Is.Not.Null);
+        });
+        Assert.That(res, Is.EqualTo(src));
     }
 }

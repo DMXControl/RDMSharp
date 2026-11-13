@@ -1,0 +1,68 @@
+{
+  "name": "SELFTEST_ENHANCED",
+  "displayName": "Selftest Enhanced",
+  "manufacturer_id": 0,
+  "pid": 4130,
+  "version": 1,
+  "get_request_subdevice_range": [ "root", "subdevices" ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "pid",
+      "notes": "A Responder may declare a Manufacturer-specific PID value that provides enumeration of the Manufacturer-specific Result Codes. This field shall contain the Value of that PID",
+      "type": "uint16"
+    },
+    {
+      "name": "pids",
+      "type": "list",
+      "itemType": {
+        "type": "compound",
+        "subtypes": [
+          {
+            "name": "self_test_num",
+            "type": "uint8"
+          },
+          {
+            "name": "self_test_status",
+            "type": "uint8"
+          },
+          {
+            "name": "self_test_capability",
+            "type": "bitField",
+            "size": 16,
+            "bits": [
+              {
+                "name": "auto_termitates",
+                "index": 0
+              },
+              {
+                "name": "dmx512_start_code_operation_restricted",
+                "index": 1
+              },
+              {
+                "name": "rdm_operation_restricted",
+                "index": 2
+              },
+              {
+                "name": "self_test_all_ignores_individual_test_auto_terminate_flag",
+                "index": 3
+              },
+              {
+                "name": "manufacturer_specific_result_codes_available",
+                "index": 4
+              },
+              {
+                "name": "status_messages_generated",
+                "index": 5
+              }
+            ]
+          },
+          {
+            "name": "result_code",
+            "type": "uint16"
+          }
+        ]
+      }
+    }
+  ]
+}

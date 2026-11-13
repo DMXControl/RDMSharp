@@ -2,53 +2,52 @@
 using RDMSharp.Metadata.JSON;
 using System.Collections.Generic;
 
-namespace RDMSharp
+namespace RDMSharp.PayloadObject;
+
+[DataTreeObject(ERDM_Parameter.BROKER_STATUS, Command.ECommandDublicate.GetRequest)]
+public class GetBrokerStatusResponse : AbstractRDMPayloadObject
 {
-    [DataTreeObject(ERDM_Parameter.BROKER_STATUS, Command.ECommandDublicate.GetRequest)]
-    public class GetBrokerStatusResponse : AbstractRDMPayloadObject
+    [DataTreeObjectConstructor]
+    public GetBrokerStatusResponse(
+        [DataTreeObjectParameter("setAllowed")] bool setAllowed = default,
+        [DataTreeObjectParameter("brokerStatus")] ERDM_BrokerStatus brokerStatus = default)
     {
-        [DataTreeObjectConstructor]
-        public GetBrokerStatusResponse(
-            [DataTreeObjectParameter("setAllowed")] bool setAllowed = default,
-            [DataTreeObjectParameter("brokerStatus")] ERDM_BrokerStatus brokerStatus = default)
-        {
-            this.SetAllowed = setAllowed;
-            this.BrokerStatus = brokerStatus;
-        }
-        [DataTreeObjectProperty("setAllowed", 0)]
-        public bool SetAllowed { get; private set; }
-        [DataTreeObjectProperty("brokerStatus", 1)]
-        public ERDM_BrokerStatus BrokerStatus { get; private set; }
-        public const int PDL = 0x02;
+        this.SetAllowed = setAllowed;
+        this.BrokerStatus = brokerStatus;
+    }
+    [DataTreeObjectProperty("setAllowed", 0)]
+    public bool SetAllowed { get; private set; }
+    [DataTreeObjectProperty("brokerStatus", 1)]
+    public ERDM_BrokerStatus BrokerStatus { get; private set; }
+    public const int PDL = 0x02;
 
-        public override string ToString()
-        {
-            return $"SetAllowed: {SetAllowed} - BrokerStatus: {BrokerStatus}";
-        }
+    public override string ToString()
+    {
+        return $"SetAllowed: {SetAllowed} - BrokerStatus: {BrokerStatus}";
+    }
 
-        public static GetBrokerStatusResponse FromMessage(RDMMessage msg)
-        {
-            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.BROKER_STATUS, PDL);
+    public static GetBrokerStatusResponse FromMessage(RDMMessage msg)
+    {
+        RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.BROKER_STATUS, PDL);
 
-            return FromPayloadData(msg.ParameterData);
-        }
-        public static GetBrokerStatusResponse FromPayloadData(byte[] data)
-        {
-            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
+        return FromPayloadData(msg.ParameterData);
+    }
+    public static GetBrokerStatusResponse FromPayloadData(byte[] data)
+    {
+        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
 
-            var i = new GetBrokerStatusResponse(
-                setAllowed: Tools.DataToBool(ref data),
-                brokerStatus: Tools.DataToEnum<ERDM_BrokerStatus>(ref data));
+        var i = new GetBrokerStatusResponse(
+            setAllowed: Tools.DataToBool(ref data),
+            brokerStatus: Tools.DataToEnum<ERDM_BrokerStatus>(ref data));
 
-            return i;
-        }
+        return i;
+    }
 
-        public override byte[] ToPayloadData()
-        {
-            List<byte> data = new List<byte>();
-            data.AddRange(Tools.ValueToData(this.SetAllowed));
-            data.AddRange(Tools.ValueToData(this.BrokerStatus));
-            return data.ToArray();
-        }
+    public override byte[] ToPayloadData()
+    {
+        List<byte> data = new List<byte>();
+        data.AddRange(Tools.ValueToData(this.SetAllowed));
+        data.AddRange(Tools.ValueToData(this.BrokerStatus));
+        return data.ToArray();
     }
 }

@@ -1,0 +1,37 @@
+{
+  "name": "ENUM_LABEL",
+  "displayName": "Enum Label",
+  "manufacturer_id": 0,
+  "pid": 90,
+  "version": 1,
+  "get_request_subdevice_range": [ "root" ],
+  "get_request": [
+    {
+      "name": "pid",
+      "type": "uint16"
+    },
+    {
+      "name": "enum_index",
+      "type": "uint32"
+    }
+  ],
+  "get_response": [
+    {
+      "name": "pid",
+      "type": "uint16"
+    },
+    {
+      "name": "enum_index",
+      "type": "uint32"
+    },
+    {
+      "name": "enum_index_maximum",
+      "type": "uint32"
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "maxLength": 32
+    }
+  ]
+}

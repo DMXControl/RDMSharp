@@ -1,3 +1,4 @@
+using RDMSharp.Metadata;
 using RDMSharpTests.Devices.Mock;
 
 namespace RDMSharpTests.RDM.Devices;
@@ -7,6 +8,13 @@ public class TestRDMSendReceive_SlotOverflow
     private MockGeneratedDevice_SlotOverflow? generated;
     private MockDevice? remote;
     private Random random = new Random();
+
+    [OneTimeSetUp]
+    public async Task OneTimeSetup()
+    {
+        await MetadataFactory.AwaitInitialize();
+    }
+
     [SetUp]
     public void Setup()
     {

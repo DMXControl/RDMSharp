@@ -19,6 +19,10 @@ public class DataTreeObjectParameterAttribute : Attribute
     {
         Parameter = parameter;
     }
+    public DataTreeObjectParameterAttribute(ERDM_Parameter parameter, string name, bool isArray) : this(parameter, name)
+    {
+        IsArray = isArray;
+    }
     public override string ToString()
     {
         return $"{Parameter} -> {Name}";
