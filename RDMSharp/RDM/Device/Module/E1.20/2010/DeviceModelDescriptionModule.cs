@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.RDM.Device.Module;
 
-public sealed class DeviceModelDescriptionModule : AbstractModule
+public sealed class DeviceModelDescriptionModule : AbstractSimpleStringModule
 {
     private const string _moduleName = "DeviceModelDescription";
     private const string _moduleDisplayName = "Device Model Description";
@@ -8,49 +8,32 @@ public sealed class DeviceModelDescriptionModule : AbstractModule
 
     public override string DisplayName => _moduleDisplayName;
 
-    private string _deviceModelDescriptionLabel;
     public string DeviceModelDescription
     {
         get
         {
-            if (ParentDevice is null)
-                return _deviceModelDescriptionLabel;
-            object res;
-            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION, out res))
-                return (string)res;
-            return _deviceModelDescriptionLabel;
-        }
-        internal set
-        {
-            _deviceModelDescriptionLabel = value;
-            if (ParentGeneratedDevice is not null)
-                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION, value);
+            return base.Value;
         }
     }
-    public DeviceModelDescriptionModule(string manufacturerLabel) : base(
+    public DeviceModelDescriptionModule(string deviceModelDescription) : base(
+        deviceModelDescription,
         _moduleName,
-        _moduleParameter)
+        _moduleParameter,
+        ERDM_CommandClass.GET)
     {
-        _deviceModelDescriptionLabel = manufacturerLabel;
     }
     public DeviceModelDescriptionModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
-        _moduleParameter)
+        _moduleParameter,
+        ERDM_CommandClass.GET)
     {
     }
 
-    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnPropertyChanged(string propertyName = null)
     {
-        this.DeviceModelDescription = _deviceModelDescriptionLabel;
-    }
-    protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
-    {
-        switch (parameter)
-        {
-            case ERDM_Parameter.DEVICE_MODEL_DESCRIPTION:
-                OnPropertyChanged(nameof(DeviceModelDescription));
-                break;
-        }
+        base.OnPropertyChanged(propertyName);
+        if (string.Equals(nameof(Value), propertyName))
+            OnPropertyChanged(nameof(DeviceModelDescription));
     }
 }

@@ -68,6 +68,35 @@ public class TestManufacturerLabelModule
         Assert.That(response.Value, Is.EqualTo(manufacturerLabelModule.ManufacturerLabel));
         #endregion
     }
+    [Test, DependsOnTest(nameof(TestGetMANUFACTURER_LABEL))]
+    public void TestSetMANUFACTURER_LABEL()
+    {
+        #region Test Basic
+        Assert.That(generated, Is.Not.Null);
+        var manufacturerLabelModule = generated.Modules.OfType<ManufacturerLabelModule>().Single();
+        Assert.That(manufacturerLabelModule, Is.Not.Null);
+        Assert.That(manufacturerLabelModule.ManufacturerLabel, Is.EqualTo("Dummy Manufacturer 9FFF"));
+        RDMMessage request = new RDMMessage()
+        {
+            Command = ERDM_Command.SET_COMMAND,
+            DestUID = DEVCIE_UID,
+            SourceUID = CONTROLLER_UID,
+            Parameter = ERDM_Parameter.MANUFACTURER_LABEL,
+            SubDevice = SubDevice.Root,
+            ParameterData = Tools.ValueToData("New Manufacturer Label")
+        };
+
+        RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.MANUFACTURER_LABEL));
+        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
+        #endregion
+    }
 
     [Test, DependsOnTest(nameof(TestGetMANUFACTURER_LABEL))]
     public async Task TestRemoteDevice()

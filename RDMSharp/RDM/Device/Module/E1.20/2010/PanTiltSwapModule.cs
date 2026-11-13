@@ -24,13 +24,15 @@ public sealed class PanTiltSwapModule : AbstractSimpleBooleanModule
     public PanTiltSwapModule() : base(
         false,
         _moduleName,
-        _moduleParameter)
+        _moduleParameter,
+        ERDM_CommandClass.GET | ERDM_CommandClass.SET)
     {
     }
     public PanTiltSwapModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
-        _moduleParameter)
+        _moduleParameter,
+        ERDM_CommandClass.GET | ERDM_CommandClass.SET)
     {
     }
 

@@ -24,13 +24,15 @@ public sealed class TiltInvertModule : AbstractSimpleBooleanModule
     public TiltInvertModule() : base(
         false,
         _moduleName,
-        _moduleParameter)
+        _moduleParameter,
+        ERDM_CommandClass.GET | ERDM_CommandClass.SET)
     {
     }
     public TiltInvertModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
-        _moduleParameter)
+        _moduleParameter,
+        ERDM_CommandClass.GET | ERDM_CommandClass.SET)
     {
     }
 

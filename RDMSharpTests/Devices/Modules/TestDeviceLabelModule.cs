@@ -105,7 +105,7 @@ public class TestDeviceLabelModule
         {
             semaphoreSlim.Release();
         };
-        module.DeviceLabel = "Test Label";
+        await module.SetDeviceLabel("Test Label");
         await semaphoreSlim.WaitAsync();
         await Task.Delay(1000);
 

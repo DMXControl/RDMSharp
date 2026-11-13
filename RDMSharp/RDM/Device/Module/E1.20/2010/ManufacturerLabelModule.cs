@@ -2,7 +2,7 @@
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class ManufacturerLabelModule : AbstractModule
+public sealed class ManufacturerLabelModule : AbstractSimpleStringModule
 {
     private const string _moduleName = "ManufacturerLabel";
     private const string _moduleDisplayName = "Manufacturer Label";
@@ -10,51 +10,44 @@ public sealed class ManufacturerLabelModule : AbstractModule
 
     public override string DisplayName => _moduleDisplayName;
 
-    private string _manufacturerLabel;
     public string ManufacturerLabel
     {
         get
         {
-            if (ParentDevice is null)
-                return _manufacturerLabel;
-            object res;
-            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.MANUFACTURER_LABEL, out res))
-                return (string)res;
-            return _manufacturerLabel;
+            return base.Value;
         }
-        internal set
+        private set
         {
-            _manufacturerLabel = value;
-            if (ParentGeneratedDevice is not null)
-                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.MANUFACTURER_LABEL, value);
+            base.Value = value;
         }
     }
-    public ManufacturerLabelModule(string manufacturerLabel) : base(
+    public ManufacturerLabelModule(string manufacturerLabel = null) : base(
+        manufacturerLabel,
         _moduleName,
-        _moduleParameter)
+        _moduleParameter,
+        ERDM_CommandClass.GET)
     {
-        _manufacturerLabel = manufacturerLabel;
     }
     public ManufacturerLabelModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
-        _moduleParameter)
+        _moduleParameter,
+        ERDM_CommandClass.GET)
     {
     }
 
     protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
-        if (string.IsNullOrWhiteSpace(_manufacturerLabel))
-            _manufacturerLabel = Enum.GetName(typeof(EManufacturer), (EManufacturer)device.UID.ManufacturerID);
-        this.ManufacturerLabel = _manufacturerLabel;
+        if (string.IsNullOrWhiteSpace(ManufacturerLabel))
+            ManufacturerLabel = Enum.GetName(typeof(EManufacturer), (EManufacturer)device.UID.ManufacturerID);
+
+        base.OnParentGeneratedDeviceChanged(device);
     }
-    protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
+
+    protected override void OnPropertyChanged(string propertyName = null)
     {
-        switch (parameter)
-        {
-            case ERDM_Parameter.MANUFACTURER_LABEL:
-                OnPropertyChanged(nameof(ManufacturerLabel));
-                break;
-        }
+        base.OnPropertyChanged(propertyName);
+        if (string.Equals(nameof(Value), propertyName))
+            OnPropertyChanged(nameof(ManufacturerLabel));
     }
 }

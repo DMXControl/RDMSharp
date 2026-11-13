@@ -2,7 +2,7 @@
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class IdentifyDeviceModule : AbstractModule
+public sealed class IdentifyDeviceModule : AbstractSimpleBooleanModule
 {
     private const string _moduleName = "IdentifyDevice";
     private const string _moduleDisplayName = "Identify Device";
@@ -10,57 +10,43 @@ public sealed class IdentifyDeviceModule : AbstractModule
 
     public override string DisplayName => _moduleDisplayName;
 
-    private bool _identify;
-    public bool Identify
+    public bool? Identify
     {
         get
         {
-            if (ParentDevice is null)
-                return _identify;
-            object res;
-            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.IDENTIFY_DEVICE, out res))
-                return (bool)res;
-            return _identify;
+            return base.Value;
         }
         set
         {
-            _identify = value;
-            if (ParentGeneratedDevice is not null)
-                ParentGeneratedDevice.setParameterValue(ERDM_Parameter.IDENTIFY_DEVICE, value);
-
-            if (ParentRemoteDevice is not null)
-                _ = SetIdentify(value);
+            base.Value = value;
         }
     }
 
     public IdentifyDeviceModule() : base(
+        false,
         _moduleName,
-        _moduleParameter)
+        _moduleParameter,
+        ERDM_CommandClass.GET | ERDM_CommandClass.SET)
     {
     }
     public IdentifyDeviceModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
-        _moduleParameter)
+        _moduleParameter,
+        ERDM_CommandClass.GET | ERDM_CommandClass.SET)
     {
     }
 
-    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnPropertyChanged(string propertyName = null)
     {
-        this.Identify = _identify;
-    }
-    protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
-    {
-        switch (parameter)
-        {
-            case ERDM_Parameter.IDENTIFY_DEVICE:
-                OnPropertyChanged(nameof(Identify));
-                break;
-        }
+        base.OnPropertyChanged(propertyName);
+        if (string.Equals(nameof(Value), propertyName))
+            OnPropertyChanged(nameof(Identify));
     }
 
-    public async Task<bool> SetIdentify(bool value)
+
+    public async Task<bool> SetIdentify(bool identify)
     {
-        return await ParentRemoteDevice.SetParameter(ERDM_Parameter.IDENTIFY_DEVICE, value);
+        return await base.SetValue(identify);
     }
 }

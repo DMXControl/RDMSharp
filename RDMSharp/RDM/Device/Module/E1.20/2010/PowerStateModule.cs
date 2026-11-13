@@ -25,13 +25,15 @@ public sealed class PowerStateModule : AbstractSimpleEnumModule<ERDM_PowerState>
     public PowerStateModule(ERDM_PowerState initialPowerState) : base(
         initialPowerState,
         _moduleName,
-        _moduleParameter)
+        _moduleParameter,
+        ERDM_CommandClass.GET | ERDM_CommandClass.SET)
     {
     }
     public PowerStateModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
-        _moduleParameter)
+        _moduleParameter,
+        ERDM_CommandClass.GET | ERDM_CommandClass.SET)
     {
     }
 

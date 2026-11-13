@@ -25,13 +25,15 @@ public sealed class DisplayInvertModule : AbstractSimpleEnumModule<ERDM_DisplayI
     public DisplayInvertModule(ERDM_DisplayInvert initialDisplayInvert = ERDM_DisplayInvert.AUTO) : base(
         initialDisplayInvert,
         _moduleName,
-        _moduleParameter)
+        _moduleParameter,
+        ERDM_CommandClass.GET | ERDM_CommandClass.SET)
     {
     }
     public DisplayInvertModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
         _moduleName,
-        _moduleParameter)
+        _moduleParameter,
+        ERDM_CommandClass.GET | ERDM_CommandClass.SET)
     {
     }
 

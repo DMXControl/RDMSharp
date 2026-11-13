@@ -57,6 +57,21 @@ public sealed class ModulesExtension : AbstractModulesExtension
         if (parameters.Contains(ERDM_Parameter.PROXIED_DEVICES))
             _modules.Add(typeof(ProxiedDevicesModule));
 
+        if (parameters.Contains(ERDM_Parameter.DEVICE_HOURS))
+            _modules.Add(typeof(DeviceHoursModule));
+
+        if (parameters.Contains(ERDM_Parameter.LAMP_HOURS))
+            _modules.Add(typeof(LampHoursModule));
+
+        if (parameters.Contains(ERDM_Parameter.LAMP_STRIKES))
+            _modules.Add(typeof(LampStrikesModule));
+
+        if (parameters.Contains(ERDM_Parameter.LAMP_STATE))
+            _modules.Add(typeof(LampStateModule));
+
+        if (parameters.Contains(ERDM_Parameter.LAMP_ON_MODE))
+            _modules.Add(typeof(LampOnModeModule));
+
         if (parameters.Contains(ERDM_Parameter.DISPLAY_INVERT))
             _modules.Add(typeof(DisplayInvertModule));
 

@@ -2,11 +2,11 @@
 
 namespace RDMSharp.RDM.Device.Module;
 
-public abstract class AbstractSimpleBooleanModule : AbstractModule
+public abstract class AbstractSimpleBooleanModule : AbstractSimpleModule
 {
-    protected ERDM_Parameter ModuleParameter { get; private set; }
+    private bool initialized = false;
     private bool _value;
-    public bool? Value
+    protected bool? Value
     {
         get
         {
@@ -22,10 +22,12 @@ public abstract class AbstractSimpleBooleanModule : AbstractModule
             if (value is null)
                 return;
 
-            if (bool.Equals(_value, value.Value))
-                return;
+            if (initialized)
+                if (bool.Equals(_value, value.Value))
+                    return;
 
             _value = value.Value;
+            initialized = true;
             if (ParentGeneratedDevice is not null)
                 ParentGeneratedDevice.setParameterValue(ModuleParameter, value);
 
@@ -35,18 +37,27 @@ public abstract class AbstractSimpleBooleanModule : AbstractModule
     }
 
     private bool _initialValue;
-    public AbstractSimpleBooleanModule(bool initialValue, string name, ERDM_Parameter supportedParameter) : base(name, supportedParameter)
+    public AbstractSimpleBooleanModule(
+        bool initialValue,
+        string name,
+        ERDM_Parameter supportedParameter,
+        ERDM_CommandClass supportedCommandClass) : base(
+            name,
+            supportedParameter,
+            supportedCommandClass)
     {
         _initialValue = initialValue;
-        _value = !initialValue;
-        ModuleParameter = supportedParameter;
     }
-    public AbstractSimpleBooleanModule(AbstractRemoteRDMDevice remoteDevice, string name, ERDM_Parameter supportedParameter) : base(
-        remoteDevice,
-        name,
-        supportedParameter)
+    public AbstractSimpleBooleanModule(
+        AbstractRemoteRDMDevice remoteDevice,
+        string name,
+        ERDM_Parameter supportedParameter,
+        ERDM_CommandClass supportedCommandClass) : base(
+            remoteDevice,
+            name,
+            supportedParameter,
+            supportedCommandClass)
     {
-        ModuleParameter = supportedParameter;
     }
 
     protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
@@ -59,7 +70,7 @@ public abstract class AbstractSimpleBooleanModule : AbstractModule
             OnPropertyChanged(nameof(Value));
     }
 
-    public async Task<bool> SetValue(bool value)
+    protected async Task<bool> SetValue(bool value)
     {
         return await ParentRemoteDevice.SetParameter(ModuleParameter, value);
     }

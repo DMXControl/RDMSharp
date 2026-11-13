@@ -70,6 +70,36 @@ public class TestDeviceModelDescriptionModule
     }
 
     [Test, DependsOnTest(nameof(TestGetDEVICE_MODEL_DESCRIPTION))]
+    public void TestSetDEVICE_MODEL_DESCRIPTION()
+    {
+        #region Test Basic
+        Assert.That(generated, Is.Not.Null);
+        var deviceModelDescriptionModule = generated.Modules.OfType<DeviceModelDescriptionModule>().Single();
+        Assert.That(deviceModelDescriptionModule, Is.Not.Null);
+        Assert.That(deviceModelDescriptionModule.DeviceModelDescription, Is.EqualTo("Test Model Description"));
+        RDMMessage request = new RDMMessage()
+        {
+            Command = ERDM_Command.SET_COMMAND,
+            DestUID = DEVCIE_UID,
+            SourceUID = CONTROLLER_UID,
+            Parameter = ERDM_Parameter.DEVICE_MODEL_DESCRIPTION,
+            SubDevice = SubDevice.Root,
+            ParameterData = Tools.ValueToData("New Model Description")
+        };
+
+        RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION));
+        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
+        #endregion
+    }
+
+    [Test, DependsOnTest(nameof(TestSetDEVICE_MODEL_DESCRIPTION))]
     public async Task TestRemoteDevice()
     {
         MockDevice mockDevice = new MockDevice(DEVCIE_UID);

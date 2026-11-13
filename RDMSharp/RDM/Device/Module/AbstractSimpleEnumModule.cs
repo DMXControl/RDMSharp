@@ -3,11 +3,11 @@ using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public abstract class AbstractSimpleEnumModule<T> : AbstractModule where T : struct, Enum
+public abstract class AbstractSimpleEnumModule<T> : AbstractSimpleModule where T : struct, Enum
 {
-    protected ERDM_Parameter ModuleParameter { get; private set; }
+    private bool initialized = false;
     private T _value;
-    public T? Value
+    protected T? Value
     {
         get
         {
@@ -23,10 +23,12 @@ public abstract class AbstractSimpleEnumModule<T> : AbstractModule where T : str
             if (value is null)
                 return;
 
-            if (Object.Equals(_value, value.Value))
-                return;
+            if (initialized)
+                if (Object.Equals(_value, value.Value))
+                    return;
 
             _value = value.Value;
+            initialized = true;
             if (ParentGeneratedDevice is not null)
                 ParentGeneratedDevice.setParameterValue(ModuleParameter, value);
 
@@ -36,17 +38,27 @@ public abstract class AbstractSimpleEnumModule<T> : AbstractModule where T : str
     }
 
     private T _initialValue;
-    public AbstractSimpleEnumModule(T initialValue, string name, ERDM_Parameter supportedParameter) : base(name, supportedParameter)
+    public AbstractSimpleEnumModule(
+        T initialValue,
+        string name,
+        ERDM_Parameter supportedParameter,
+        ERDM_CommandClass supportedCommandClass) : base(
+            name,
+            supportedParameter,
+            supportedCommandClass)
     {
         _initialValue = initialValue;
-        ModuleParameter = supportedParameter;
     }
-    public AbstractSimpleEnumModule(AbstractRemoteRDMDevice remoteDevice, string name, ERDM_Parameter supportedParameter) : base(
-        remoteDevice,
-        name,
-        supportedParameter)
+    public AbstractSimpleEnumModule(
+        AbstractRemoteRDMDevice remoteDevice,
+        string name,
+        ERDM_Parameter supportedParameter,
+        ERDM_CommandClass supportedCommandClass) : base(
+            remoteDevice,
+            name,
+            supportedParameter,
+            supportedCommandClass)
     {
-        ModuleParameter = supportedParameter;
     }
 
     protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
@@ -59,7 +71,7 @@ public abstract class AbstractSimpleEnumModule<T> : AbstractModule where T : str
             OnPropertyChanged(nameof(Value));
     }
 
-    public async Task<bool> SetValue(T value)
+    protected async Task<bool> SetValue(T value)
     {
         return await ParentRemoteDevice.SetParameter(ModuleParameter, value);
     }

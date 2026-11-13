@@ -130,7 +130,7 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
     {
         get
         {
-            return identifyDeviceModule.Identify;
+            return identifyDeviceModule.Identify ?? false;
         }
         set
         {
