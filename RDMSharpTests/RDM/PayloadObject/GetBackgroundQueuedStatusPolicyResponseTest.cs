@@ -9,7 +9,7 @@ public class GetBackgroundQueuedStatusPolicyResponseTest
     {
         GetBackgroundQueuedStatusPolicyResponse getBackgroundQueuedStatusPolicyResponse = new GetBackgroundQueuedStatusPolicyResponse(9, 123);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(getBackgroundQueuedStatusPolicyResponse.Count, Is.EqualTo(123));
             Assert.That(getBackgroundQueuedStatusPolicyResponse.Policies, Is.EqualTo(123));
@@ -18,6 +18,6 @@ public class GetBackgroundQueuedStatusPolicyResponseTest
             Assert.That(getBackgroundQueuedStatusPolicyResponse.MinIndex, Is.EqualTo(1));
             Assert.That(getBackgroundQueuedStatusPolicyResponse.IndexType, Is.EqualTo(typeof(byte)));
             Assert.That(getBackgroundQueuedStatusPolicyResponse.DescriptorParameter, Is.EqualTo(ERDM_Parameter.BACKGROUND_QUEUED_STATUS_POLICY_DESCRIPTION));
-        });
+        }
     }
 }

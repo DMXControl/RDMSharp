@@ -42,7 +42,7 @@ public class TestRDMSendReceive
         Console.WriteLine($"Generated: {String.Join(", ", parameterValuesGenerated.OrderBy(p => p.Key).Select(x => $"{x.Key}"))}");
         Console.WriteLine($"Remote:    {String.Join(", ", parameterValuesRemote.OrderBy(p => p.Key).Select(x => $"{x.Key}"))}");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(parameterValuesGenerated.Keys, Is.EquivalentTo(parameterValuesRemote.Keys));
             foreach (var parameter in parameterValuesGenerated.Keys)
@@ -68,26 +68,26 @@ public class TestRDMSendReceive
                 });
             }
             Assert.That(parameterValuesRemote, Has.Count.EqualTo(parameterValuesGenerated.Count));
-        });
+        }
 
         var deviceLabelModule = generated.Modules.OfType<DeviceLabelModule>().Single();
         var manufacturerLabelModule = generated.Modules.OfType<ManufacturerLabelModule>().Single();
         var deviceModelDescriptionModule = generated.Modules.OfType<DeviceModelDescriptionModule>().Single();
-        Assert.Multiple(() =>
-            {
-                Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_INFO], Is.EqualTo(generated.DeviceInfo));
-                Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(deviceLabelModule.DeviceLabel));
-                Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_MODEL_DESCRIPTION], Is.EqualTo(deviceModelDescriptionModule.DeviceModelDescription));
-                Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.MANUFACTURER_LABEL], Is.EqualTo(manufacturerLabelModule.ManufacturerLabel));
-                Assert.That(((RDMDMXPersonality)remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY]).Index, Is.EqualTo(generated.CurrentPersonalityId));
-            });
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_INFO], Is.EqualTo(generated.DeviceInfo));
+            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(deviceLabelModule.DeviceLabel));
+            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_MODEL_DESCRIPTION], Is.EqualTo(deviceModelDescriptionModule.DeviceModelDescription));
+            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.MANUFACTURER_LABEL], Is.EqualTo(manufacturerLabelModule.ManufacturerLabel));
+            Assert.That(((RDMDMXPersonality)remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY]).Index, Is.EqualTo(generated.CurrentPersonalityId));
+        }
 
         await remote.SetParameter(ERDM_Parameter.DMX_START_ADDRESS, (ushort)512);
-        Assert.Multiple(() =>
-                {
-                    Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(512));
-                    Assert.That(generated.DMXAddress, Is.EqualTo(512));
-                });
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(512));
+            Assert.That(generated.DMXAddress, Is.EqualTo(512));
+        }
 
         await remote.SetParameter(ERDM_Parameter.DMX_PERSONALITY, (byte)3);
         while (remote.PersonalityModel.PersonalityID != generated.CurrentPersonalityId)
@@ -95,20 +95,20 @@ public class TestRDMSendReceive
         while (!remote.PersonalityModel.IsInitialized)
             await Task.Delay(100);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DMX_PERSONALITY], Is.EqualTo(new RDMDMXPersonality(3, 3)));
             Assert.That(generated.CurrentPersonalityId, Is.EqualTo(3));
-        });
+        }
 
         string label = "Changed Device Label";
         await remote.SetParameter(ERDM_Parameter.DEVICE_LABEL, label);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo(label));
             Assert.That(deviceLabelModule.DeviceLabel, Is.EqualTo(label));
-        });
-        Assert.Multiple(async () =>
+        }
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
             Assert.That(generated.GetAllParameterValues()[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
@@ -118,8 +118,8 @@ public class TestRDMSendReceive
             await remote.SetParameter(ERDM_Parameter.IDENTIFY_DEVICE, false);
             Assert.That(remote.GetAllParameterValues()[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
             Assert.That(generated.GetAllParameterValues()[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
-        });
-        Assert.Multiple(() =>
+        }
+        using (Assert.EnterMultipleScope())
         {
             Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DEVICE_INFO, new RDMDeviceInfo()); });
             Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION, new RDMDMXPersonalityDescription(1, 2, "dasdad")); });
@@ -128,7 +128,7 @@ public class TestRDMSendReceive
             Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DEVICE_LABEL, "Test"); });
             Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DISC_MUTE, null); });
             Assert.Throws(typeof(NotSupportedException), () => { generated.TrySetParameter(ERDM_Parameter.DEVICE_LABEL, new RDMDeviceInfo()); });
-        });
+        }
     }
 
     [Test, DependsOnTest(nameof(TestDevice1))]
@@ -140,7 +140,7 @@ public class TestRDMSendReceive
         var slotGreen = remote.Slots[3];
         var slotBlue = remote.Slots[4];
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(slotIntensity, Is.EqualTo(generated!.Personalities.ElementAt(0).Slots[0]));
             Assert.That(slotStrobe, Is.EqualTo(generated.Personalities.ElementAt(0).Slots[1]));
@@ -207,7 +207,7 @@ public class TestRDMSendReceive
             Assert.That(slots.Add(slotBlue), Is.True);
             Assert.That(slots.Add(slotBlue), Is.False);
             Assert.That(slots, Does.Contain(slotBlue));
-        });
+        }
     }
 
     [Test, DependsOnTest(nameof(TestDevice1Slots)), CancelAfter(10000)]
@@ -215,7 +215,7 @@ public class TestRDMSendReceive
     {
         var sensorsRemote = remote!.Sensors.Values.ToList();
         var sensorsGenerated = generated!.Sensors.Values.ToList();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(generated.Sensors[0].PresentValue, Is.EqualTo(3000));
             Assert.That(generated.Sensors[1].PresentValue, Is.EqualTo(8000));
@@ -229,18 +229,18 @@ public class TestRDMSendReceive
             Assert.That(generated.Sensors[0].RecordedValue, Is.EqualTo(0));
             Assert.That(generated.Sensors[1].RecordedValue, Is.EqualTo(0));
             Assert.That(generated.Sensors[2].RecordedValue, Is.EqualTo(0));
-        });
-        Assert.Multiple(() =>
+        }
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(remote.DeviceModel.GetSupportedBlueprintModelParameters().Select(spm => spm.Parameter), Contains.Item(ERDM_Parameter.SENSOR_DEFINITION));
             Assert.That(remote.DeviceModel.GetSupportedNonBlueprintParameters().Select(spm => spm.Parameter), Contains.Item(ERDM_Parameter.SENSOR_VALUE));
-        });
+        }
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(sensorsRemote, Has.Count.EqualTo(sensorsGenerated.Count));
             Assert.That(sensorsRemote, Is.EqualTo(sensorsGenerated));
-        });
+        }
 
         await Task.Delay(100);
 
@@ -248,7 +248,7 @@ public class TestRDMSendReceive
         ((MockGeneratedSensor)generated.Sensors[0]).UpdateValue(200);
         ((MockGeneratedSensor)generated.Sensors[1]).UpdateValue(500);
         ((MockGeneratedSensor)generated.Sensors[2]).UpdateValue(800);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(generated.Sensors[0].PresentValue, Is.EqualTo(200));
             Assert.That(generated.Sensors[1].PresentValue, Is.EqualTo(500));
@@ -262,7 +262,7 @@ public class TestRDMSendReceive
             Assert.That(generated.Sensors[0].RecordedValue, Is.EqualTo(0));
             Assert.That(generated.Sensors[1].RecordedValue, Is.EqualTo(0));
             Assert.That(generated.Sensors[2].RecordedValue, Is.EqualTo(0));
-        });
+        }
 
         await Task.Delay(400);
         doTests(remote.Sensors.Values.ToArray(), generated.Sensors.Values.ToArray());
@@ -272,7 +272,7 @@ public class TestRDMSendReceive
         ((MockGeneratedSensor)generated.Sensors[0]).RecordValue();
         ((MockGeneratedSensor)generated.Sensors[1]).RecordValue();
         ((MockGeneratedSensor)generated.Sensors[2]).RecordValue();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(generated.Sensors[0].PresentValue, Is.EqualTo(200));
             Assert.That(generated.Sensors[1].PresentValue, Is.EqualTo(500));
@@ -286,7 +286,7 @@ public class TestRDMSendReceive
             Assert.That(generated.Sensors[0].RecordedValue, Is.EqualTo(200));
             Assert.That(generated.Sensors[1].RecordedValue, Is.EqualTo(500));
             Assert.That(generated.Sensors[2].RecordedValue, Is.EqualTo(800));
-        });
+        }
 
         await Task.Delay(400);
         doTests(remote.Sensors.Values.ToArray(), generated.Sensors.Values.ToArray());
@@ -296,7 +296,7 @@ public class TestRDMSendReceive
         ((MockGeneratedSensor)generated.Sensors[0]).UpdateValue(4400);
         ((MockGeneratedSensor)generated.Sensors[1]).UpdateValue(6600);
         ((MockGeneratedSensor)generated.Sensors[2]).UpdateValue(7700);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(generated.Sensors[0].PresentValue, Is.EqualTo(4400));
             Assert.That(generated.Sensors[1].PresentValue, Is.EqualTo(6600));
@@ -310,14 +310,14 @@ public class TestRDMSendReceive
             Assert.That(generated.Sensors[0].RecordedValue, Is.EqualTo(200));
             Assert.That(generated.Sensors[1].RecordedValue, Is.EqualTo(500));
             Assert.That(generated.Sensors[2].RecordedValue, Is.EqualTo(800));
-        });
+        }
 
         await Task.WhenAll(
             remote.SetParameter(ERDM_Parameter.RECORD_SENSORS, generated.Sensors[0].SensorId),
             remote.SetParameter(ERDM_Parameter.RECORD_SENSORS, generated.Sensors[1].SensorId),
             remote.SetParameter(ERDM_Parameter.RECORD_SENSORS, generated.Sensors[2].SensorId));
         await Task.Delay(400);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(generated.Sensors[0].PresentValue, Is.EqualTo(4400));
             Assert.That(generated.Sensors[1].PresentValue, Is.EqualTo(6600));
@@ -331,7 +331,7 @@ public class TestRDMSendReceive
             Assert.That(generated.Sensors[0].RecordedValue, Is.EqualTo(4400));
             Assert.That(generated.Sensors[1].RecordedValue, Is.EqualTo(6600));
             Assert.That(generated.Sensors[2].RecordedValue, Is.EqualTo(7700));
-        });
+        }
 
         await Task.Delay(400);
         doTests(remote.Sensors.Values.ToArray(), generated.Sensors.Values.ToArray());
@@ -341,7 +341,7 @@ public class TestRDMSendReceive
         ((MockGeneratedSensor)generated.Sensors[0]).ResetValues();
         ((MockGeneratedSensor)generated.Sensors[1]).ResetValues();
         ((MockGeneratedSensor)generated.Sensors[2]).ResetValues();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(generated.Sensors[0].PresentValue, Is.EqualTo(4400));
             Assert.That(generated.Sensors[1].PresentValue, Is.EqualTo(6600));
@@ -355,7 +355,7 @@ public class TestRDMSendReceive
             Assert.That(generated.Sensors[0].RecordedValue, Is.EqualTo(4400));
             Assert.That(generated.Sensors[1].RecordedValue, Is.EqualTo(6600));
             Assert.That(generated.Sensors[2].RecordedValue, Is.EqualTo(7700));
-        });
+        }
 
         await Task.Delay(400);
         doTests(remote.Sensors.Values.ToArray(), generated.Sensors.Values.ToArray());
@@ -365,7 +365,7 @@ public class TestRDMSendReceive
         ((MockGeneratedSensor)generated.Sensors[0]).UpdateValue(1);
         ((MockGeneratedSensor)generated.Sensors[1]).UpdateValue(1);
         ((MockGeneratedSensor)generated.Sensors[2]).UpdateValue(1);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(generated.Sensors[0].PresentValue, Is.EqualTo(1));
             Assert.That(generated.Sensors[1].PresentValue, Is.EqualTo(1));
@@ -379,11 +379,11 @@ public class TestRDMSendReceive
             Assert.That(generated.Sensors[0].RecordedValue, Is.EqualTo(4400));
             Assert.That(generated.Sensors[1].RecordedValue, Is.EqualTo(6600));
             Assert.That(generated.Sensors[2].RecordedValue, Is.EqualTo(7700));
-        });
+        }
 
         await remote.SetParameter(ERDM_Parameter.RECORD_SENSORS, (byte)0xff);
         await Task.Delay(400);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(generated.Sensors[0].PresentValue, Is.EqualTo(1));
             Assert.That(generated.Sensors[1].PresentValue, Is.EqualTo(1));
@@ -397,7 +397,7 @@ public class TestRDMSendReceive
             Assert.That(generated.Sensors[0].RecordedValue, Is.EqualTo(1));
             Assert.That(generated.Sensors[1].RecordedValue, Is.EqualTo(1));
             Assert.That(generated.Sensors[2].RecordedValue, Is.EqualTo(1));
-        });
+        }
 
         await Task.Delay(400);
         doTests(remote.Sensors.Values.ToArray(), generated.Sensors.Values.ToArray());
@@ -407,7 +407,7 @@ public class TestRDMSendReceive
         ((MockGeneratedSensor)generated.Sensors[0]).UpdateValue(2);
         ((MockGeneratedSensor)generated.Sensors[1]).UpdateValue(2);
         ((MockGeneratedSensor)generated.Sensors[2]).UpdateValue(2);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(generated.Sensors[0].PresentValue, Is.EqualTo(2));
             Assert.That(generated.Sensors[1].PresentValue, Is.EqualTo(2));
@@ -421,11 +421,11 @@ public class TestRDMSendReceive
             Assert.That(generated.Sensors[0].RecordedValue, Is.EqualTo(1));
             Assert.That(generated.Sensors[1].RecordedValue, Is.EqualTo(1));
             Assert.That(generated.Sensors[2].RecordedValue, Is.EqualTo(1));
-        });
+        }
 
         await remote.SetParameter(ERDM_Parameter.SENSOR_VALUE, (byte)0xff);
         await Task.Delay(400);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(generated.Sensors[0].PresentValue, Is.EqualTo(2));
             Assert.That(generated.Sensors[1].PresentValue, Is.EqualTo(2));
@@ -439,7 +439,7 @@ public class TestRDMSendReceive
             Assert.That(generated.Sensors[0].RecordedValue, Is.EqualTo(2));
             Assert.That(generated.Sensors[1].RecordedValue, Is.EqualTo(2));
             Assert.That(generated.Sensors[2].RecordedValue, Is.EqualTo(2));
-        });
+        }
 
         await Task.Delay(400);
         doTests(remote.Sensors.Values.ToArray(), generated.Sensors.Values.ToArray());
@@ -451,14 +451,14 @@ public class TestRDMSendReceive
             {
                 var remoteSensor = remoteSensors[s];
                 var generatedSensor = generatedSensors[s];
-                Assert.Multiple(() =>
+                using (Assert.EnterMultipleScope())
                 {
                     Assert.That(remoteSensor.PresentValue, Is.EqualTo(generatedSensor.PresentValue));
                     Assert.That(remoteSensor.LowestValue, Is.EqualTo(generatedSensor.LowestValue));
                     Assert.That(remoteSensor.HighestValue, Is.EqualTo(generatedSensor.HighestValue));
                     Assert.That(remoteSensor.RecordedValue, Is.EqualTo(generatedSensor.RecordedValue));
                     Assert.That(remoteSensor, Is.EqualTo(generatedSensor));
-                });
+                }
             }
         }
     }
@@ -480,9 +480,12 @@ public class TestRDMSendReceive
         await Task.Delay(400);
         parameterValuesRemote = remote.GetAllParameterValues();
 
-        Assert.That(parameterValuesRemote[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(69));
-        Assert.That(parameterValuesRemote[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo("Test Label QUEUE"));
-        Assert.That(parameterValuesRemote[ERDM_Parameter.IDENTIFY_DEVICE], Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(parameterValuesRemote[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(69));
+            Assert.That(parameterValuesRemote[ERDM_Parameter.DEVICE_LABEL], Is.EqualTo("Test Label QUEUE"));
+            Assert.That(parameterValuesRemote[ERDM_Parameter.IDENTIFY_DEVICE], Is.True);
+        }
 
         generated.Identify = false;
         generated.DMXAddress = 44;
@@ -490,8 +493,11 @@ public class TestRDMSendReceive
 
         await Task.Delay(400);
         parameterValuesRemote = remote.GetAllParameterValues();
-        Assert.That(parameterValuesRemote[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
-        Assert.That(parameterValuesRemote[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(44));
-        Assert.That(parameterValuesRemote[ERDM_Parameter.DMX_PERSONALITY], Is.EqualTo(new RDMDMXPersonality(2, 3)));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(parameterValuesRemote[ERDM_Parameter.IDENTIFY_DEVICE], Is.False);
+            Assert.That(parameterValuesRemote[ERDM_Parameter.DMX_START_ADDRESS], Is.EqualTo(44));
+            Assert.That(parameterValuesRemote[ERDM_Parameter.DMX_PERSONALITY], Is.EqualTo(new RDMDMXPersonality(2, 3)));
+        }
     }
 }

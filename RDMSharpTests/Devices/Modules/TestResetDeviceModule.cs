@@ -69,26 +69,32 @@ public class TestResetDeviceModule
         Assert.That(received, Is.Null);
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.RESET_DEVICE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
-        Assert.That(received, Is.EqualTo(ERDM_ResetType.Warm));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.RESET_DEVICE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+            Assert.That(received, Is.EqualTo(ERDM_ResetType.Warm));
+        }
 
         request.ParameterData = Tools.ValueToData(ERDM_ResetType.Cold);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.RESET_DEVICE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
-        Assert.That(received, Is.EqualTo(ERDM_ResetType.Cold));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.RESET_DEVICE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+            Assert.That(received, Is.EqualTo(ERDM_ResetType.Cold));
+        }
         #endregion
 
 
@@ -96,45 +102,57 @@ public class TestResetDeviceModule
         request.ParameterData = Tools.ValueToData("Warm");
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.RESET_DEVICE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.RESET_DEVICE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+        }
 
         request.ParameterData = Tools.ValueToData((int)0xeeee);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.RESET_DEVICE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.RESET_DEVICE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+        }
 
         request.ParameterData = Tools.ValueToData((byte)0x09);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.RESET_DEVICE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.RESET_DEVICE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+        }
 
         request.SourceUID = new UID(0xeeee, 0xf0f0f0f0); //Hardware Failure trigger
         request.ParameterData = Tools.ValueToData(ERDM_ResetType.Cold);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.RESET_DEVICE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.RESET_DEVICE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
+        }
         #endregion
     }
 
@@ -160,13 +178,16 @@ public class TestResetDeviceModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.RESET_DEVICE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.RESET_DEVICE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
+        }
         #endregion
     }
 
@@ -190,9 +211,12 @@ public class TestResetDeviceModule
             received = e;
         };
 
-        Assert.That(module, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(module, Is.Not.Null);
 
-        Assert.That(received, Is.Null);
+            Assert.That(received, Is.Null);
+        }
         await module.SetReset(ERDM_ResetType.Warm);
         await Task.Delay(1000);
 

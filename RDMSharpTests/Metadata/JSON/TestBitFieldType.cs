@@ -42,7 +42,7 @@ namespace RDMSharpTests.Metadata.JSON
         }
         private void DoParseDataTest(BitFieldType bitFieldType, DataTree dataTree, byte[] expectedData, string? message = null)
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(dataTree.Value, Is.Null);
                 Assert.That(dataTree.Children, Is.Not.Null);
@@ -84,7 +84,7 @@ namespace RDMSharpTests.Metadata.JSON
                 children = dataTree.Children!.ToArray();
                 children[1] = new DataTree(children[1].Name, children[1].Index, 3);
                 Assert.Throws(typeof(ArithmeticException), () => data = bitFieldType.ParsePayloadToData(new DataTree(dataTree.Name, dataTree.Index, children: children)).SelectMany(en => en).ToArray(), message!);
-            });
+            }
         }
     }
 }

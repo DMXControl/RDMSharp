@@ -11,11 +11,11 @@ public class RDMCurveDescriptionTest
         Assert.That(resultCurveDescription.Description, Has.Length.EqualTo(32));
 
         resultCurveDescription = new RDMCurveDescription(6, description: "");
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(string.IsNullOrEmpty(resultCurveDescription.Description), Is.True);
             Assert.That(resultCurveDescription.MinIndex, Is.EqualTo(1));
             Assert.That(resultCurveDescription.Index, Is.EqualTo(6));
-        });
+        }
     }
 }

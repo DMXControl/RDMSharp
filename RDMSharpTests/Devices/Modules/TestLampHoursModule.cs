@@ -61,85 +61,103 @@ public class TestLampHoursModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LAMP_HOURS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(4));
-        Assert.That(response.Value, Is.EqualTo(module.LampHours));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LAMP_HOURS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(4));
+            Assert.That(response.Value, Is.EqualTo(module.LampHours));
+            Assert.That(module.LampHours, Is.EqualTo(0));
+        }
         #endregion
 
         #region Test Lamp Hours changed (GET)
-        Assert.That(module.LampHours, Is.EqualTo(0));
         module.LampHours = 1;
         Assert.That(module.LampHours, Is.EqualTo(1));
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LAMP_HOURS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(4));
-        Assert.That(response.Value, Is.EqualTo(module.LampHours));
-        #endregion
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LAMP_HOURS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(4));
+            Assert.That(response.Value, Is.EqualTo(module.LampHours));
+            #endregion
 
 
-        #region Test Lamp Hours changed (SET)
-        Assert.That(module.LampHours, Is.EqualTo(1));
+            #region Test Lamp Hours changed (SET)
+            Assert.That(module.LampHours, Is.EqualTo(1));
+        }
         request.ParameterData = Tools.ValueToData((uint)0x0990);
         request.Command = ERDM_Command.SET_COMMAND;
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LAMP_HOURS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LAMP_HOURS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
 
-        Assert.That(module.LampHours, Is.EqualTo(0x0990));
+            Assert.That(module.LampHours, Is.EqualTo(0x0990));
+        }
         request.Command = ERDM_Command.GET_COMMAND;
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LAMP_HOURS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(4));
-        Assert.That(response.Value, Is.EqualTo(module.LampHours));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LAMP_HOURS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(4));
+            Assert.That(response.Value, Is.EqualTo(module.LampHours));
+        }
 
         request.ParameterData = Tools.ValueToData((uint)0x9009);
         request.Command = ERDM_Command.SET_COMMAND;
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LAMP_HOURS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LAMP_HOURS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
 
-        Assert.That(module.LampHours, Is.EqualTo(0x9009));
+            Assert.That(module.LampHours, Is.EqualTo(0x9009));
+        }
 
         request.Command = ERDM_Command.GET_COMMAND;
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LAMP_HOURS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(4));
-        Assert.That(response.Value, Is.EqualTo(module.LampHours));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LAMP_HOURS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(4));
+            Assert.That(response.Value, Is.EqualTo(module.LampHours));
+        }
 
         #endregion
     }
@@ -164,8 +182,11 @@ public class TestLampHoursModule
         await module.SetLampHours(0x1234);
         await Task.Delay(1000);
 
-        Assert.That(generatedModule.LampHours, Is.EqualTo(0x1234));
-        Assert.That(module.LampHours, Is.EqualTo(0x1234));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generatedModule.LampHours, Is.EqualTo(0x1234));
+            Assert.That(module.LampHours, Is.EqualTo(0x1234));
+        }
     }
     class LampHoursMockDevice : MockGeneratedDevice1
     {

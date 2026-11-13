@@ -10,7 +10,7 @@ public class RDMMessageTest
     {
         RDMMessage? m = new RDMMessage();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(m.ParameterData, Is.Empty);
             Assert.That(m.PDL, Is.EqualTo(0));
@@ -41,7 +41,7 @@ public class RDMMessageTest
             var m2 = new RDMMessage(m.BuildMessage());
             Assert.That(m2, Is.EqualTo(m));
             Assert.That(m2.GetHashCode(), Is.EqualTo(m.GetHashCode()));
-        });
+        }
     }
 
     [Test]
@@ -52,11 +52,11 @@ public class RDMMessageTest
             ParameterData = new byte[17]
         };
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(m.PDL, Is.EqualTo(17));
             Assert.That(m.MessageLength, Is.EqualTo(24 + 17));
-        });
+        }
     }
 
     [Test]

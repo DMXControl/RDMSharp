@@ -62,13 +62,16 @@ public class TestTagModlue
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LIST_TAGS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LIST_TAGS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        }
         #endregion
 
         request = new RDMMessage()
@@ -83,13 +86,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        }
 
         request = new RDMMessage()
         {
@@ -102,13 +108,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LIST_TAGS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(10));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LIST_TAGS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(10));
+        }
 
 
         request = new RDMMessage()
@@ -123,13 +132,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        }
 
         request = new RDMMessage()
         {
@@ -142,13 +154,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LIST_TAGS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(17));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LIST_TAGS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(17));
+        }
 
         request = new RDMMessage()
         {
@@ -162,14 +177,17 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(1));
-        Assert.That(response.Value, Is.EqualTo(true));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(1));
+            Assert.That(response.Value, Is.EqualTo(true));
+        }
 
         request = new RDMMessage()
         {
@@ -183,13 +201,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        }
 
         request = new RDMMessage()
         {
@@ -202,13 +223,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LIST_TAGS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(10));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LIST_TAGS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(10));
+        }
 
         request = new RDMMessage()
         {
@@ -222,14 +246,17 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(1));
-        Assert.That(response.Value, Is.EqualTo(false));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(1));
+            Assert.That(response.Value, Is.EqualTo(false));
+        }
 
 
         request = new RDMMessage()
@@ -243,13 +270,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CLEAR_TAGS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CLEAR_TAGS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        }
 
         request = new RDMMessage()
         {
@@ -262,13 +292,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LIST_TAGS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LIST_TAGS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        }
     }
 
     [Test, Retry(3), DependsOnTest(nameof(TestGetLIST_TAGS))]
@@ -292,13 +325,16 @@ public class TestTagModlue
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        }
         #endregion
 
         request = new RDMMessage()
@@ -312,13 +348,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+        }
 
         request = new RDMMessage()
         {
@@ -332,13 +371,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+        }
 
 
         request = new RDMMessage()
@@ -353,13 +395,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+        }
 
 
         request = new RDMMessage()
@@ -374,13 +419,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
+        }
 
 
         request = new RDMMessage()
@@ -394,13 +442,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
+        }
     }
 
     [Test, Retry(3), DependsOnTest(nameof(TestSetADD_TAG))]
@@ -424,13 +475,16 @@ public class TestTagModlue
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+        }
         #endregion
 
         request = new RDMMessage()
@@ -444,13 +498,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+        }
 
         request = new RDMMessage()
         {
@@ -464,13 +521,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+        }
 
 
         request = new RDMMessage()
@@ -485,13 +545,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+        }
 
 
         request = new RDMMessage()
@@ -506,13 +569,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
+        }
 
 
         request = new RDMMessage()
@@ -526,13 +592,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
+        }
     }
 
     [Test, Retry(3), DependsOnTest(nameof(TestSetREMOVE_TAG))]
@@ -556,14 +625,17 @@ public class TestTagModlue
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(1));
-        Assert.That(response.Value, Is.False);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(1));
+            Assert.That(response.Value, Is.False);
+        }
         #endregion
 
         request = new RDMMessage()
@@ -577,13 +649,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+        }
 
         request = new RDMMessage()
         {
@@ -597,13 +672,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+        }
 
 
         request = new RDMMessage()
@@ -618,13 +696,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+        }
 
 
         request = new RDMMessage()
@@ -639,13 +720,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
+        }
 
 
         request = new RDMMessage()
@@ -659,13 +743,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
+        }
     }
 
     [Test, Retry(3), DependsOnTest(nameof(TestSetCHECK_TAG))]
@@ -689,13 +776,16 @@ public class TestTagModlue
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CLEAR_TAGS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CLEAR_TAGS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        }
         #endregion
 
         request = new RDMMessage()
@@ -709,13 +799,16 @@ public class TestTagModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.Not.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CLEAR_TAGS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.Not.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CLEAR_TAGS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.HARDWARE_FAULT));
+        }
 
         request = new RDMMessage()
         {
@@ -727,13 +820,16 @@ public class TestTagModlue
         };
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CLEAR_TAGS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CLEAR_TAGS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS));
+        }
     }
 
     [Test, Retry(3), DependsOnTest(nameof(TestSetCLEAR_TAG))]
@@ -752,8 +848,11 @@ public class TestTagModlue
         bool parameterPresent = mockDevice.DeviceModel.GetSupportedParameters().Any(sp => sp.Parameter == ERDM_Parameter.LIST_TAGS);
         Assert.That(parameterPresent, Is.True);
         var module = mockDevice.Modules.OfType<TagsModule>().Single();
-        Assert.That(module, Is.Not.Null);
-        Assert.That(generatedModule.Tags, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(module, Is.Not.Null);
+            Assert.That(generatedModule.Tags, Is.Not.Null);
+        }
 
         SemaphoreSlim semaphoreSlim = new SemaphoreSlim(0, 1);
         module.PropertyChanged += (o, e) =>
@@ -767,92 +866,122 @@ public class TestTagModlue
         await module.AddTag(FRONT_TRUSS);
         await semaphoreSlim.WaitAsync();
 
-        Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS));
-        Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS));
+            Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS));
+        }
 
         semaphoreSlim = new SemaphoreSlim(0, 1);
         await module.AddTag(MID_TRUSS);
         await semaphoreSlim.WaitAsync();
 
-        Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS));
-        Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS));
+            Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS));
+        }
 
         semaphoreSlim = new SemaphoreSlim(0, 1);
         await module.AddTag(BACK_TRUSS);
         await semaphoreSlim.WaitAsync();
 
-        Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS).And.Contain(BACK_TRUSS));
-        Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS).And.Contain(BACK_TRUSS));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS).And.Contain(BACK_TRUSS));
+            Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS).And.Contain(BACK_TRUSS));
 
 
-        Assert.That(await module.CheckTag(FRONT_TRUSS), Is.True);
-        Assert.That(await module.CheckTag(MID_TRUSS), Is.True);
-        Assert.That(await module.CheckTag(BACK_TRUSS), Is.True);
+            Assert.That(await module.CheckTag(FRONT_TRUSS), Is.True);
+            Assert.That(await module.CheckTag(MID_TRUSS), Is.True);
+            Assert.That(await module.CheckTag(BACK_TRUSS), Is.True);
+        }
 
         semaphoreSlim = new SemaphoreSlim(0, 1);
         await module.RemoveTag(MID_TRUSS);
         await semaphoreSlim.WaitAsync();
 
-        Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(BACK_TRUSS));
-        Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(BACK_TRUSS));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(BACK_TRUSS));
+            Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(BACK_TRUSS));
 
-        Assert.That(await module.CheckTag(FRONT_TRUSS), Is.True);
-        Assert.That(await module.CheckTag(MID_TRUSS), Is.False);
-        Assert.That(await module.CheckTag(BACK_TRUSS), Is.True);
+            Assert.That(await module.CheckTag(FRONT_TRUSS), Is.True);
+            Assert.That(await module.CheckTag(MID_TRUSS), Is.False);
+            Assert.That(await module.CheckTag(BACK_TRUSS), Is.True);
+        }
 
         await module.ClearTags();
 
-        Assert.That(await module.CheckTag(FRONT_TRUSS), Is.False);
-        Assert.That(await module.CheckTag(MID_TRUSS), Is.False);
-        Assert.That(await module.CheckTag(BACK_TRUSS), Is.False);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(await module.CheckTag(FRONT_TRUSS), Is.False);
+            Assert.That(await module.CheckTag(MID_TRUSS), Is.False);
+            Assert.That(await module.CheckTag(BACK_TRUSS), Is.False);
 
-        Assert.That(generatedModule.Tags.ToArray(), Does.Not.Contain(FRONT_TRUSS).And.Not.Contain(MID_TRUSS).And.Not.Contain(BACK_TRUSS));
+            Assert.That(generatedModule.Tags.ToArray(), Does.Not.Contain(FRONT_TRUSS).And.Not.Contain(MID_TRUSS).And.Not.Contain(BACK_TRUSS));
+        }
 
 
 
         await generatedModule.AddTag(FRONT_TRUSS);
         await semaphoreSlim.WaitAsync();
 
-        Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS));
-        Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS));
+            Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS));
+        }
 
         semaphoreSlim = new SemaphoreSlim(0, 1);
         await generatedModule.AddTag(MID_TRUSS);
         await semaphoreSlim.WaitAsync();
 
-        Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS));
-        Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS));
+            Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS));
+        }
 
         semaphoreSlim = new SemaphoreSlim(0, 1);
         await generatedModule.AddTag(BACK_TRUSS);
         await semaphoreSlim.WaitAsync();
 
-        Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS).And.Contain(BACK_TRUSS));
-        Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS).And.Contain(BACK_TRUSS));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS).And.Contain(BACK_TRUSS));
+            Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(MID_TRUSS).And.Contain(BACK_TRUSS));
 
 
-        Assert.That(await generatedModule.CheckTag(FRONT_TRUSS), Is.True);
-        Assert.That(await generatedModule.CheckTag(MID_TRUSS), Is.True);
-        Assert.That(await generatedModule.CheckTag(BACK_TRUSS), Is.True);
+            Assert.That(await generatedModule.CheckTag(FRONT_TRUSS), Is.True);
+            Assert.That(await generatedModule.CheckTag(MID_TRUSS), Is.True);
+            Assert.That(await generatedModule.CheckTag(BACK_TRUSS), Is.True);
+        }
 
         semaphoreSlim = new SemaphoreSlim(0, 1);
         await generatedModule.RemoveTag(MID_TRUSS);
         await semaphoreSlim.WaitAsync();
 
-        Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(BACK_TRUSS));
-        Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(BACK_TRUSS));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generatedModule.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(BACK_TRUSS));
+            Assert.That(module.Tags.ToArray(), Does.Contain(FRONT_TRUSS).And.Contain(BACK_TRUSS));
 
-        Assert.That(await generatedModule.CheckTag(FRONT_TRUSS), Is.True);
-        Assert.That(await generatedModule.CheckTag(MID_TRUSS), Is.False);
-        Assert.That(await generatedModule.CheckTag(BACK_TRUSS), Is.True);
+            Assert.That(await generatedModule.CheckTag(FRONT_TRUSS), Is.True);
+            Assert.That(await generatedModule.CheckTag(MID_TRUSS), Is.False);
+            Assert.That(await generatedModule.CheckTag(BACK_TRUSS), Is.True);
+        }
 
         await generatedModule.ClearTags();
 
-        Assert.That(await generatedModule.CheckTag(FRONT_TRUSS), Is.False);
-        Assert.That(await generatedModule.CheckTag(MID_TRUSS), Is.False);
-        Assert.That(await generatedModule.CheckTag(BACK_TRUSS), Is.False);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(await generatedModule.CheckTag(FRONT_TRUSS), Is.False);
+            Assert.That(await generatedModule.CheckTag(MID_TRUSS), Is.False);
+            Assert.That(await generatedModule.CheckTag(BACK_TRUSS), Is.False);
 
-        Assert.That(generatedModule.Tags.ToArray(), Does.Not.Contain(FRONT_TRUSS).And.Not.Contain(MID_TRUSS).And.Not.Contain(BACK_TRUSS));
+            Assert.That(generatedModule.Tags.ToArray(), Does.Not.Contain(FRONT_TRUSS).And.Not.Contain(MID_TRUSS).And.Not.Contain(BACK_TRUSS));
+        }
     }
 
     class TagsMockDevice : MockGeneratedDevice1

@@ -30,11 +30,11 @@ public class RDMDMXPersonalityDescriptionTest
 
         var res = resultRdmDmxPersonalityDescription.ToString();
         var src = rdmDmxPersonalityDescription.ToString();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
-        });
+        }
         Assert.That(res, Is.EqualTo(src));
     }
 
@@ -44,10 +44,10 @@ public class RDMDMXPersonalityDescriptionTest
         RDMDMXPersonalityDescription rdmDmxPersonalityDescription = new RDMDMXPersonalityDescription(description: "Pseudo Personality 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0");
         Assert.That(rdmDmxPersonalityDescription.Description, Has.Length.EqualTo(32));
         rdmDmxPersonalityDescription = new RDMDMXPersonalityDescription(description: "");
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(string.IsNullOrWhiteSpace(rdmDmxPersonalityDescription.Description), Is.True);
             Assert.That(rdmDmxPersonalityDescription.MinIndex, Is.EqualTo(1));
-        });
+        }
     }
 }

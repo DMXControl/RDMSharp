@@ -56,13 +56,13 @@ public class MetadataJSONObjectDefineTests
             using var original = JsonDocument.Parse(PrittyJSON(testSubject.Define.Content));
             using var smashed = JsonDocument.Parse(PrittyJSON(serialized));
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(JsonDeepEquals(smashed.RootElement, original.RootElement));
 
 
                 Warn.Unless(PrittyJSON(serialized), Is.EqualTo(PrittyJSON(testSubject.Define.Content)));
-            });
+            }
         }
         catch (JsonException ex)
         {

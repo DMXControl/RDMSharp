@@ -32,11 +32,11 @@ public class TCPCommsEntryTest
 
         var res = resultTCPCommsEntryTest.ToString();
         var src = tcpCommsEntryTest.ToString();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
-        });
+        }
         Assert.That(res, Is.EqualTo(src));
 
         tcpCommsEntryTest = new TCPCommsEntry("Pseudo TCPCommsEntryTest", IPAddress.Parse("2001:db8:0:0:0:0:1428:57ab"), 2347, 99);
@@ -58,11 +58,11 @@ public class TCPCommsEntryTest
 
         res = resultTCPCommsEntryTest.ToString();
         src = tcpCommsEntryTest.ToString();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
-        });
+        }
         Assert.That(res, Is.EqualTo(src));
     }
     [Test]

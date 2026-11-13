@@ -46,14 +46,17 @@ public class TestSupportedParametersModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SUPPORTED_PARAMETERS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(generated.Parameters.Count * 2));
-        Assert.That(response.Value, Is.TypeOf(typeof(ERDM_Parameter[])));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SUPPORTED_PARAMETERS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(generated.Parameters.Count * 2));
+            Assert.That(response.Value, Is.TypeOf(typeof(ERDM_Parameter[])));
+        }
         var parametersRemote = ((ERDM_Parameter[])response.Value).OrderBy(p => p).ToArray();
         var parametersGenerated = generated.Parameters.OrderBy(p => p).ToArray();
         Assert.That(parametersRemote, Is.EquivalentTo(parametersGenerated));

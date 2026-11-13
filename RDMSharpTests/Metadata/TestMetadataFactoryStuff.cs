@@ -29,7 +29,7 @@ public class TestMetadataFactoryStuff
     public void TestMetadataFactoryESTAParameterHaseDefine()
     {
         var parameters = Enum.GetValues<ERDM_Parameter>().Where(p => (ushort)p >= 30).ToList().AsReadOnly();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             foreach (var parameter in parameters)
             {
@@ -45,7 +45,7 @@ public class TestMetadataFactoryStuff
                 var define = MetadataFactory.GetDefine(new ParameterBag(parameter));
                 Assert.That(define, Is.Not.Null, $"Parameter: {parameter} has no matchig Define");
             }
-        });
+        }
     }
 
     [Test]
@@ -53,7 +53,7 @@ public class TestMetadataFactoryStuff
     {
         var mv = new MetadataVersion("RDMSharp.Resources.JSON_Defines._1._0._0.Defines.e1._20.BOOT_SOFTWARE_VERSION_ID.json", typeof(MetadataFactory).Assembly);
         testString(mv.ToString());
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.Throws(typeof(ArgumentNullException), () => MetadataVersion.getVersion(null));
             Assert.Throws(typeof(ArgumentNullException), () => MetadataVersion.getName(null));
@@ -64,7 +64,7 @@ public class TestMetadataFactoryStuff
             Assert.Throws(typeof(ArgumentException), () => MetadataVersion.getVersion("RDMSharp.Resources.JSON_Defines._1._0._0.Defines.e1._20.BOOT_SOFTWARE_VERSION_ID.jsan"));
             Assert.Throws(typeof(FormatException), () => MetadataVersion.getName("RDMSharp.Resources.JSON_Defines._1._0._0.Defines.e1._20.BOOT_SOFTWARE_VERSION_ID.jsan"));
             Assert.Throws(typeof(ArgumentException), () => MetadataVersion.getIsSchema("RDMSharp.Resources.JSON_Defines._1._0._0.Defines.e1._20.BOOT_SOFTWARE_VERSION_ID.jsan"));
-        });
+        }
     }
 
     [Test]

@@ -20,7 +20,7 @@ public class TestManyObjects
     {
         RDMDiscoveryStatus status1 = new RDMDiscoveryStatus(3, (ulong)(UID.Broadcast - 1), "Test", new UID(0x1234, 0x56789fab), 11);
         RDMDiscoveryStatus status2 = new RDMDiscoveryStatus(6, (ulong)(UID.Broadcast - 1) / 2, "Test2", new UID(0x1234, 0x56789fab), 22);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(status1, Is.Not.EqualTo(status2));
             Assert.That((object)status1, Is.Not.EqualTo(status2));
@@ -36,14 +36,14 @@ public class TestManyObjects
             Assert.That(str1, Is.Not.EqualTo(str2));
             Assert.That(str1, Has.Length.AtLeast(10));
             Assert.That(str2, Has.Length.AtLeast(10));
-        });
+        }
     }
     [Test]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2043:Use ComparisonConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
     public void TestSubDevice()
     {
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             List<SubDevice> subdevices = new List<SubDevice>();
             subdevices.Add(SubDevice.Root);
@@ -99,14 +99,14 @@ public class TestManyObjects
                 ushort id = (ushort)rnd.Next((ushort)0x0201, (ushort)(0xFFFF - 1));
                 Assert.Throws(typeof(ArgumentOutOfRangeException), () => new SubDevice(id));
             }
-        });
+        }
     }
     [Test]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
     public void TestIPv4Address()
     {
         var address = IPv4Address.LocalHost;
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(address.ToString(), Is.EqualTo("127.0.0.1"));
             Assert.That(address, Is.EqualTo(new IPv4Address(address.ToString())));
@@ -155,13 +155,13 @@ public class TestManyObjects
                         }
 
             Assert.Throws(typeof(ArgumentException), () => { var ip = (IPv4Address)System.Net.IPAddress.IPv6Any; });
-        });
+        }
     }
     [Test]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
     public void TestMACAddress()
     {
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             var address = MACAddress.Empty;
             Assert.That(address.ToString(), Is.EqualTo("00:00:00:00:00:00"));
@@ -204,7 +204,7 @@ public class TestManyObjects
                                     var res = dict.TryAdd(address, address.ToString());
                                     Assert.That(res, Is.True);
                                 }
-        });
+        }
     }
     [Test]
     public void TestSlot()
@@ -215,13 +215,13 @@ public class TestManyObjects
         MethodInfo updateSlotDefaultValue = slot.GetType().GetMethod("UpdateSlotDefaultValue", BindingFlags.NonPublic | BindingFlags.Instance)!;
         MethodInfo updateSlotInfo = slot.GetType().GetMethod("UpdateSlotInfo", BindingFlags.NonPublic | BindingFlags.Instance)!;
         MethodInfo updateSlotDescription = slot.GetType().GetMethod("UpdateSlotDescription", BindingFlags.NonPublic | BindingFlags.Instance)!;
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.Throws(typeof(InvalidOperationException), () => Helper.ThrowInnerException<TargetInvocationException>(() => updateSlotDefaultValue.Invoke(slot, new object[] { new RDMDefaultSlotValue(2) })));
             Assert.Throws(typeof(InvalidOperationException), () => Helper.ThrowInnerException<TargetInvocationException>(() => updateSlotInfo.Invoke(slot, new object[] { new RDMSlotInfo(2) })));
             Assert.Throws(typeof(InvalidOperationException), () => Helper.ThrowInnerException<TargetInvocationException>(() => updateSlotDescription.Invoke(slot, new object[] { new RDMSlotDescription(2) })));
-        });
-        Assert.Multiple(() =>
+        }
+        using (Assert.EnterMultipleScope())
         {
             Assert.DoesNotThrow(() => { updateSlotDefaultValue.Invoke(slot, new object[] { new RDMDefaultSlotValue(1, 200) }); });
             Assert.DoesNotThrow(() => { updateSlotInfo.Invoke(slot, new object[] { new RDMSlotInfo(1, ERDM_SlotType.SEC_TIMING, ERDM_SlotCategory.CIE_X) }); });
@@ -230,12 +230,12 @@ public class TestManyObjects
             Assert.That(slot.Type, Is.EqualTo(ERDM_SlotType.SEC_TIMING));
             Assert.That(slot.Category, Is.EqualTo(ERDM_SlotCategory.CIE_X));
             Assert.That(slot.Description, Is.EqualTo("rrrr"));
-        });
+        }
         byte fired = 0;
         slot.PropertyChanged += (o, e) => { fired++; };
         for (int i = 0; i < 2; i++)// To Cover Unnessicerry Updates run two times
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.DoesNotThrow(() => { updateSlotDefaultValue.Invoke(slot, new object[] { new RDMDefaultSlotValue(1, 100) }); });
                 Assert.DoesNotThrow(() => { updateSlotInfo.Invoke(slot, new object[] { new RDMSlotInfo(1, ERDM_SlotType.PRIMARY, ERDM_SlotCategory.COLOR_SCROLL) }); });
@@ -245,7 +245,7 @@ public class TestManyObjects
                 Assert.That(slot.Type, Is.EqualTo(ERDM_SlotType.PRIMARY));
                 Assert.That(slot.Category, Is.EqualTo(ERDM_SlotCategory.COLOR_SCROLL));
                 Assert.That(slot.Description, Is.EqualTo("aaa"));
-            });
+            }
         }
     }
     [Test]
@@ -277,7 +277,7 @@ public class TestManyObjects
             new Slot(3, ERDM_SlotCategory.COLOR_ADD_GREEN, "Green"),
             new Slot(4, ERDM_SlotCategory.COLOR_ADD_BLUE, "Blue"));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(pers.ToString(), Contains.Substring(pers.ID.ToString()));
             Assert.That(pers.ToString(), Contains.Substring(pers.SlotCount.ToString()));
@@ -285,12 +285,12 @@ public class TestManyObjects
             Assert.That(pers.SlotCount, Is.EqualTo(5));
             Assert.That(pers.Description, Is.EqualTo("5CH RGB"));
             Assert.That(pers.ID, Is.EqualTo(1));
-        });
+        }
     }
     [Test]
     public void TestPDL()
     {
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             PDL pdl = new PDL();
             Assert.That(pdl.Value.HasValue, Is.True);
@@ -358,13 +358,13 @@ public class TestManyObjects
             Assert.Throws(typeof(ArgumentOutOfRangeException), () => new PDL(uint.MaxValue));
             Assert.Throws(typeof(ArgumentOutOfRangeException), () => new PDL(uint.MaxValue, 9));
             Assert.Throws(typeof(ArgumentOutOfRangeException), () => new PDL(1, uint.MaxValue));
-        });
+        }
     }
 
     [Test]
     public void TestParameterUpdatedBag()
     {
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             ParameterUpdatedBag bag = new ParameterUpdatedBag(ERDM_Parameter.SENSOR_DEFINITION, 1);
             Assert.That(bag.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_DEFINITION));
@@ -384,12 +384,12 @@ public class TestManyObjects
             Assert.That(bag.ToString(), Contains.Substring("ADD_TAG"));
             formattedDate = utc.ToString("d", System.Globalization.CultureInfo.CurrentCulture);
             Assert.That(bag.ToString(), Contains.Substring(formattedDate));
-        });
+        }
     }
     [Test]
     public void TestParameterDataCacheBag()
     {
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             ParameterDataCacheBag bag = new ParameterDataCacheBag(ERDM_Parameter.SENSOR_DEFINITION, 1);
             Assert.That(bag.Parameter, Is.EqualTo(ERDM_Parameter.SENSOR_DEFINITION));
@@ -401,7 +401,7 @@ public class TestManyObjects
             Assert.That(bag.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
             Assert.That(bag.Index, Is.Null);
             Assert.That(bag.ToString(), Is.EqualTo("ADD_TAG"));
-        });
+        }
     }
     [Test]
     public void TestPeerToPeerProcess()
@@ -409,13 +409,13 @@ public class TestManyObjects
 
         ParameterBag bag = new ParameterBag(ERDM_Parameter.DMX_START_ADDRESS, 1234, 333, 4);
         PeerToPeerProcess ptp = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, new UID(1234, 5678), SubDevice.Root, bag);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(ptp.Command, Is.EqualTo(ERDM_Command.GET_COMMAND));
             Assert.That(ptp.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(ptp.RequestPayloadObject, Is.EqualTo(DataTreeBranch.Unset));
-        });
-        Assert.Multiple(() =>
+        }
+        using (Assert.EnterMultipleScope())
         {
             Assert.Throws(typeof(ArgumentException), () => new PeerToPeerProcess(ERDM_Command.DISCOVERY_COMMAND, new UID(1234, 5678), SubDevice.Root, bag, DataTreeBranch.Unset));
             Assert.Throws(typeof(ArgumentException), () => new PeerToPeerProcess(ERDM_Command.DISCOVERY_COMMAND_RESPONSE, new UID(1234, 5678), SubDevice.Root, bag, DataTreeBranch.Unset));
@@ -423,7 +423,7 @@ public class TestManyObjects
             Assert.Throws(typeof(ArgumentException), () => new PeerToPeerProcess(ERDM_Command.SET_COMMAND_RESPONSE, new UID(1234, 5678), SubDevice.Root, bag, DataTreeBranch.Unset));
             Assert.Throws(typeof(ArgumentException), () => new PeerToPeerProcess(ERDM_Command.NONE, new UID(1234, 5678), SubDevice.Root, bag, DataTreeBranch.Unset));
             Assert.Throws(typeof(ArgumentException), () => new PeerToPeerProcess(ERDM_Command.RESPONSE, new UID(1234, 5678), SubDevice.Root, bag, DataTreeBranch.Unset));
-        });
+        }
     }
 
     [Test]
@@ -434,7 +434,7 @@ public class TestManyObjects
         Assert.DoesNotThrow(() => { sensor.PropertyChanged += Sensor_PropertyChanged; });
         sensor.UpdateDescription(new RDMSensorDefinition(2, 1, 2, 3, 4, 5, 6, 7, true, true, "test"));
         sensor.UpdateValue(new RDMSensorValue(2, 44, 33, 55, 40));
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(sensor, Is.Not.Null);
             Assert.That(Sensor.Equals(sensor, null), Is.False);
@@ -463,7 +463,7 @@ public class TestManyObjects
             Assert.That(sensor.ToString(), Contains.Substring("RecordedValue: 40"));
             Assert.That(sensor.ToString(), Contains.Substring("Description: test"));
             Assert.DoesNotThrow(() => { sensor.PropertyChanged -= Sensor_PropertyChanged; });
-        });
+        }
         Assert.Throws(typeof(InvalidOperationException), () => sensor.UpdateDescription(new RDMSensorDefinition(5, 1, 2, 3, 4, 5, 6, 7, true, true, "test")));
         Assert.Throws(typeof(InvalidOperationException), () => sensor.UpdateValue(new RDMSensorValue(9, 44, 33, 55, 40)));
         Assert.Throws(typeof(ArgumentNullException), () => new Sensor(1, ERDM_SensorType.TIME, ERDM_SensorUnit.NEWTON, ERDM_UnitPrefix.PETA, null, 1, 2, 3, 4, true, false));

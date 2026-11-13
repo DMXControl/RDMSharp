@@ -32,11 +32,11 @@ public class GetSetIPv4StaticAddressTest
 
         var res = resultGetSetIPv4StaticAddress.ToString();
         var src = getSetIPv4StaticAddress.ToString();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
-        });
+        }
         Assert.That(res, Is.EqualTo(src));
     }
 }

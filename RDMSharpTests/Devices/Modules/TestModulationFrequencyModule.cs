@@ -51,8 +51,11 @@ public class TestModulationFrequencyModule
 
         var modulationFrequencyModule = generated.Modules.OfType<ModulationFrequencyModule>().Single();
         Assert.That(modulationFrequencyModule, Is.Not.Null);
-        Assert.That(modulationFrequencyModule.CurrentId, Is.EqualTo(1));
-        Assert.That(modulationFrequencyModule.Count, Is.EqualTo(4));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(modulationFrequencyModule.CurrentId, Is.EqualTo(1));
+            Assert.That(modulationFrequencyModule.Count, Is.EqualTo(4));
+        }
 
         RDMMessage request = new RDMMessage()
         {
@@ -66,13 +69,16 @@ public class TestModulationFrequencyModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+        }
 
         for (byte b = 0; b < modulationFrequencyModule.Count; b++)
         {
@@ -80,19 +86,25 @@ public class TestModulationFrequencyModule
             request.ParameterData = new byte[] { id };
             response = generated.ProcessRequestMessage_Internal(request);
             Assert.That(response, Is.Not.Null);
-            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION));
-            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+                Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+                Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION));
+                Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            }
             var expected = modulationFrequencyModule._generatedModulationFrequencys.FirstOrDefault(gen => gen.ModulationFrequencyId == id);
-            Assert.That(expected, Is.Not.Null);
-            Assert.That(response.ParameterData, Has.Length.EqualTo(expected.ToPayloadData().Length));
-            Assert.That(response.Value, Is.EqualTo(expected));
-            Assert.That(((RDMModulationFrequencyDescription)response.Value).Index, Is.EqualTo(expected.Index));
-            Assert.That(((RDMModulationFrequencyDescription)response.Value).Frequency, Is.EqualTo(expected.Frequency));
-            Assert.That(((RDMModulationFrequencyDescription)response.Value).Description, Is.EqualTo(expected.Description));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(expected, Is.Not.Null);
+                Assert.That(response.ParameterData, Has.Length.EqualTo(expected.ToPayloadData().Length));
+                Assert.That(response.Value, Is.EqualTo(expected));
+                Assert.That(((RDMModulationFrequencyDescription)response.Value).Index, Is.EqualTo(expected.Index));
+                Assert.That(((RDMModulationFrequencyDescription)response.Value).Frequency, Is.EqualTo(expected.Frequency));
+                Assert.That(((RDMModulationFrequencyDescription)response.Value).Description, Is.EqualTo(expected.Description));
+            }
         }
         #endregion
     }
@@ -120,17 +132,23 @@ public class TestModulationFrequencyModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.MODULATION_FREQUENCY));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(2));
-        Assert.That(response.Value, Is.TypeOf(typeof(RDMModulationFrequency)));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.MODULATION_FREQUENCY));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(2));
+            Assert.That(response.Value, Is.TypeOf(typeof(RDMModulationFrequency)));
+        }
         RDMModulationFrequency modulationFrequency = (RDMModulationFrequency)response.Value;
-        Assert.That(modulationFrequency.ModulationFrequencyId, Is.EqualTo(1));
-        Assert.That(modulationFrequency.ModulationFrequencys, Is.EqualTo(4));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(modulationFrequency.ModulationFrequencyId, Is.EqualTo(1));
+            Assert.That(modulationFrequency.ModulationFrequencys, Is.EqualTo(4));
+        }
 
         #endregion
 
@@ -162,8 +180,11 @@ public class TestModulationFrequencyModule
         await semaphoreSlim.WaitAsync();
         await Task.Delay(1000);
 
-        Assert.That(generatedModule.CurrentId, Is.EqualTo(2));
-        Assert.That(module.CurrentId, Is.EqualTo(2));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generatedModule.CurrentId, Is.EqualTo(2));
+            Assert.That(module.CurrentId, Is.EqualTo(2));
+        }
     }
 
     class ModulationFrequencyModuleMockDevice : MockGeneratedDevice1

@@ -62,8 +62,11 @@ public class TestInterfaceModule
     public void TestGetLIST_INTERFACES()
     {
         #region Test Basic (Empty)
-        Assert.That(generated, Is.Not.Null);
-        Assert.That(interfaceModule, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(interfaceModule, Is.Not.Null);
+        }
         Assert.That(interfaceModule.Interfaces, Is.Not.Null);
         Assert.That(interfaceModule.Interfaces, Has.Count.Not.EqualTo(0));
         RDMMessage request = new RDMMessage()
@@ -77,19 +80,25 @@ public class TestInterfaceModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LIST_INTERFACES));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(6));
-        Assert.That(response.Value, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LIST_INTERFACES));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(6));
+            Assert.That(response.Value, Is.Not.Null);
+        }
         Assert.That(response.Value, Is.TypeOf(typeof(InterfaceDescriptor[])));
         var interfaces = (InterfaceDescriptor[])response.Value;
         Assert.That(interfaces, Has.Length.EqualTo(1));
-        Assert.That(interfaces[0].InterfaceId, Is.EqualTo(1));
-        Assert.That(interfaces[0].HardwareType, Is.EqualTo(EARP_HardwareTypes.Ethernet));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(interfaces[0].InterfaceId, Is.EqualTo(1));
+            Assert.That(interfaces[0].HardwareType, Is.EqualTo(EARP_HardwareTypes.Ethernet));
+        }
 
         #endregion
 
@@ -99,8 +108,11 @@ public class TestInterfaceModule
     public void TestGetINTERFACE_LABEL()
     {
         #region Test Basic (Empty)
-        Assert.That(generated, Is.Not.Null);
-        Assert.That(interfaceModule, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(interfaceModule, Is.Not.Null);
+        }
         Assert.That(interfaceModule.Interfaces, Is.Not.Null);
         Assert.That(interfaceModule.Interfaces, Has.Count.Not.EqualTo(0));
         RDMMessage request = new RDMMessage()
@@ -114,51 +126,66 @@ public class TestInterfaceModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_LABEL));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_LABEL));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+            Assert.That(response.Value, Is.Null);
+        }
 
         request.ParameterData = Tools.ValueToData((uint)1);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_LABEL));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(18));
-        Assert.That(response.Value, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_LABEL));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(18));
+            Assert.That(response.Value, Is.Not.Null);
+        }
         Assert.That(response.Value, Is.TypeOf(typeof(GetInterfaceNameResponse)));
         var interfaceNameResponse = (GetInterfaceNameResponse)response.Value;
-        Assert.That(interfaceNameResponse.InterfaceId, Is.EqualTo(1));
-        Assert.That(interfaceNameResponse.Label, Is.EqualTo(TEST_INTERFACE_NAME));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(interfaceNameResponse.InterfaceId, Is.EqualTo(1));
+            Assert.That(interfaceNameResponse.Label, Is.EqualTo(TEST_INTERFACE_NAME));
+        }
         #endregion
 
         request.ParameterData = Tools.ValueToData((uint)2);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_LABEL));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_LABEL));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+            Assert.That(response.Value, Is.Null);
+        }
     }
 
     [Test, DependsOnTest(nameof(TestGetINTERFACE_LABEL))]
     public void TestGetINTERFACE_HARDWARE_ADDRESS_TYPE()
     {
         #region Test Basic (Empty)
-        Assert.That(generated, Is.Not.Null);
-        Assert.That(interfaceModule, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(interfaceModule, Is.Not.Null);
+        }
         Assert.That(interfaceModule.Interfaces, Is.Not.Null);
         Assert.That(interfaceModule.Interfaces, Has.Count.Not.EqualTo(0));
         RDMMessage request = new RDMMessage()
@@ -172,51 +199,66 @@ public class TestInterfaceModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_HARDWARE_ADDRESS_TYPE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_HARDWARE_ADDRESS_TYPE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+            Assert.That(response.Value, Is.Null);
+        }
 
         request.ParameterData = Tools.ValueToData((uint)1);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_HARDWARE_ADDRESS_TYPE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(10));
-        Assert.That(response.Value, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_HARDWARE_ADDRESS_TYPE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(10));
+            Assert.That(response.Value, Is.Not.Null);
+        }
         Assert.That(response.Value, Is.TypeOf(typeof(GetHardwareAddressResponse)));
         var interfaceHardwareAddressResponse = (GetHardwareAddressResponse)response.Value;
-        Assert.That(interfaceHardwareAddressResponse.InterfaceId, Is.EqualTo(1));
-        Assert.That(interfaceHardwareAddressResponse.HardwareAddress, Is.EqualTo(new MACAddress(TEST_INTERFACE_HARDWARE_ADDRESS)));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(interfaceHardwareAddressResponse.InterfaceId, Is.EqualTo(1));
+            Assert.That(interfaceHardwareAddressResponse.HardwareAddress, Is.EqualTo(new MACAddress(TEST_INTERFACE_HARDWARE_ADDRESS)));
+        }
         #endregion
 
         request.ParameterData = Tools.ValueToData((uint)2);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_HARDWARE_ADDRESS_TYPE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_HARDWARE_ADDRESS_TYPE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+            Assert.That(response.Value, Is.Null);
+        }
     }
 
     [Test, DependsOnTest(nameof(TestGetINTERFACE_HARDWARE_ADDRESS_TYPE))]
     public void TestGetIPV4_CURRENT_ADDRESS()
     {
         #region Test Basic (Empty)
-        Assert.That(generated, Is.Not.Null);
-        Assert.That(interfaceModule, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(interfaceModule, Is.Not.Null);
+        }
         Assert.That(interfaceModule.Interfaces, Is.Not.Null);
         Assert.That(interfaceModule.Interfaces, Has.Count.Not.EqualTo(0));
         RDMMessage request = new RDMMessage()
@@ -230,53 +272,68 @@ public class TestInterfaceModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_CURRENT_ADDRESS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_CURRENT_ADDRESS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+            Assert.That(response.Value, Is.Null);
+        }
 
         request.ParameterData = Tools.ValueToData((uint)1);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_CURRENT_ADDRESS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(10));
-        Assert.That(response.Value, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_CURRENT_ADDRESS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(10));
+            Assert.That(response.Value, Is.Not.Null);
+        }
         Assert.That(response.Value, Is.TypeOf(typeof(GetIPv4CurrentAddressResponse)));
         var interfaceIPv4CurrentAddressResponse = (GetIPv4CurrentAddressResponse)response.Value;
-        Assert.That(interfaceIPv4CurrentAddressResponse.InterfaceId, Is.EqualTo(1));
-        Assert.That(interfaceIPv4CurrentAddressResponse.IPAddress, Is.EqualTo(new IPv4Address(TEST_INTERFACE_IP_ADDRESS)));
-        Assert.That(interfaceIPv4CurrentAddressResponse.Netmask, Is.EqualTo(8));
-        Assert.That(interfaceIPv4CurrentAddressResponse.DHCPStatus, Is.EqualTo(ERDM_DHCPStatusMode.INACTIVE));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(interfaceIPv4CurrentAddressResponse.InterfaceId, Is.EqualTo(1));
+            Assert.That(interfaceIPv4CurrentAddressResponse.IPAddress, Is.EqualTo(new IPv4Address(TEST_INTERFACE_IP_ADDRESS)));
+            Assert.That(interfaceIPv4CurrentAddressResponse.Netmask, Is.EqualTo(8));
+            Assert.That(interfaceIPv4CurrentAddressResponse.DHCPStatus, Is.EqualTo(ERDM_DHCPStatusMode.INACTIVE));
+        }
         #endregion
 
         request.ParameterData = Tools.ValueToData((uint)2);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_CURRENT_ADDRESS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_CURRENT_ADDRESS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+            Assert.That(response.Value, Is.Null);
+        }
     }
 
     [Test, DependsOnTest(nameof(TestGetIPV4_CURRENT_ADDRESS))]
     public void TestGetIPV4_DHCP_MODE()
     {
         #region Test Basic (Empty)
-        Assert.That(generated, Is.Not.Null);
-        Assert.That(interfaceModule, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(interfaceModule, Is.Not.Null);
+        }
         Assert.That(interfaceModule.Interfaces, Is.Not.Null);
         Assert.That(interfaceModule.Interfaces, Has.Count.Not.EqualTo(0));
         RDMMessage request = new RDMMessage()
@@ -290,69 +347,90 @@ public class TestInterfaceModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+            Assert.That(response.Value, Is.Null);
+        }
 
         request.ParameterData = Tools.ValueToData((uint)1);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(5));
-        Assert.That(response.Value, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(5));
+            Assert.That(response.Value, Is.Not.Null);
+        }
         Assert.That(response.Value, Is.TypeOf(typeof(GetSetIPV4_xxx_Mode)));
         var interfaceResponse = (GetSetIPV4_xxx_Mode)response.Value;
-        Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
-        Assert.That(interfaceResponse.Enabled, Is.False);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
+            Assert.That(interfaceResponse.Enabled, Is.False);
+        }
 
         interfaceModule.Interfaces.First().DHCP = true;
         interfaceModule.Interfaces.First().DHCP = true; //For Coverage
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(5));
-        Assert.That(response.Value, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(5));
+            Assert.That(response.Value, Is.Not.Null);
+        }
         Assert.That(response.Value, Is.TypeOf(typeof(GetSetIPV4_xxx_Mode)));
         interfaceResponse = (GetSetIPV4_xxx_Mode)response.Value;
-        Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
-        Assert.That(interfaceResponse.Enabled, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
+            Assert.That(interfaceResponse.Enabled, Is.True);
+        }
         #endregion
 
         request.ParameterData = Tools.ValueToData((uint)2);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+            Assert.That(response.Value, Is.Null);
+        }
     }
 
     [Test, DependsOnTest(nameof(TestGetIPV4_DHCP_MODE))]
     public void TestSetIPV4_DHCP_MODE()
     {
         #region Test Basic (Empty)
-        Assert.That(generated, Is.Not.Null);
-        Assert.That(interfaceModule, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(interfaceModule, Is.Not.Null);
+        }
         Assert.That(interfaceModule.Interfaces, Is.Not.Null);
         Assert.That(interfaceModule.Interfaces, Has.Count.Not.EqualTo(0));
         RDMMessage request = new RDMMessage()
@@ -366,88 +444,115 @@ public class TestInterfaceModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+            Assert.That(response.Value, Is.Null);
+        }
 
         request.ParameterData = Tools.ValueToData(new GetSetIPV4_xxx_Mode(1, true));
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        }
 
         request.Command = ERDM_Command.GET_COMMAND;
         request.ParameterData = Tools.ValueToData((uint)1);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(5));
-        Assert.That(response.Value, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(5));
+            Assert.That(response.Value, Is.Not.Null);
+        }
         Assert.That(response.Value, Is.TypeOf(typeof(GetSetIPV4_xxx_Mode)));
         var interfaceResponse = (GetSetIPV4_xxx_Mode)response.Value;
-        Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
-        Assert.That(interfaceResponse.Enabled, Is.False);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
+            Assert.That(interfaceResponse.Enabled, Is.False);
+        }
 
         response = generated.ProcessRequestMessage_Internal(APPLY_CONFIG_MESSAGE);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_APPLY_CONFIGURATION));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_APPLY_CONFIGURATION));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+        }
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(5));
-        Assert.That(response.Value, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(5));
+            Assert.That(response.Value, Is.Not.Null);
+        }
         Assert.That(response.Value, Is.TypeOf(typeof(GetSetIPV4_xxx_Mode)));
         interfaceResponse = (GetSetIPV4_xxx_Mode)response.Value;
-        Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
-        Assert.That(interfaceResponse.Enabled, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
+            Assert.That(interfaceResponse.Enabled, Is.True);
+        }
         #endregion
 
         request.Command = ERDM_Command.SET_COMMAND;
         request.ParameterData = Tools.ValueToData(new GetSetIPV4_xxx_Mode(2, true));
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_DHCP_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+            Assert.That(response.Value, Is.Null);
+        }
     }
 
     [Test, DependsOnTest(nameof(TestSetIPV4_DHCP_MODE))]
     public void TestGetIPV4_ZEROCONF_MODE()
     {
         #region Test Basic (Empty)
-        Assert.That(generated, Is.Not.Null);
-        Assert.That(interfaceModule, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(interfaceModule, Is.Not.Null);
+        }
         Assert.That(interfaceModule.Interfaces, Is.Not.Null);
         Assert.That(interfaceModule.Interfaces, Has.Count.Not.EqualTo(0));
         RDMMessage request = new RDMMessage()
@@ -461,30 +566,39 @@ public class TestInterfaceModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+            Assert.That(response.Value, Is.Null);
+        }
 
         request.ParameterData = Tools.ValueToData((uint)1);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(5));
-        Assert.That(response.Value, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(5));
+            Assert.That(response.Value, Is.Not.Null);
+        }
         Assert.That(response.Value, Is.TypeOf(typeof(GetSetIPV4_xxx_Mode)));
         var interfaceResponse = (GetSetIPV4_xxx_Mode)response.Value;
-        Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
-        Assert.That(interfaceResponse.Enabled, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
+            Assert.That(interfaceResponse.Enabled, Is.True);
+        }
 
 
         interfaceModule.Interfaces.First().ZeroConf = false;
@@ -492,39 +606,51 @@ public class TestInterfaceModule
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(5));
-        Assert.That(response.Value, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(5));
+            Assert.That(response.Value, Is.Not.Null);
+        }
         Assert.That(response.Value, Is.TypeOf(typeof(GetSetIPV4_xxx_Mode)));
         interfaceResponse = (GetSetIPV4_xxx_Mode)response.Value;
-        Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
-        Assert.That(interfaceResponse.Enabled, Is.False);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
+            Assert.That(interfaceResponse.Enabled, Is.False);
+        }
         #endregion
 
         request.ParameterData = Tools.ValueToData((uint)2);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+            Assert.That(response.Value, Is.Null);
+        }
     }
 
     [Test, DependsOnTest(nameof(TestGetIPV4_ZEROCONF_MODE))]
     public void TestSetIPV4_ZEROCONF_MODE()
     {
         #region Test Basic (Empty)
-        Assert.That(generated, Is.Not.Null);
-        Assert.That(interfaceModule, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(interfaceModule, Is.Not.Null);
+        }
         Assert.That(interfaceModule.Interfaces, Is.Not.Null);
         Assert.That(interfaceModule.Interfaces, Has.Count.Not.EqualTo(0));
         RDMMessage request = new RDMMessage()
@@ -538,67 +664,88 @@ public class TestInterfaceModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+            Assert.That(response.Value, Is.Null);
+        }
 
         request.ParameterData = Tools.ValueToData(new GetSetIPV4_xxx_Mode(1, false));
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        }
 
         request.Command = ERDM_Command.GET_COMMAND;
         request.ParameterData = Tools.ValueToData((uint)1);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(5));
-        Assert.That(response.Value, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(5));
+            Assert.That(response.Value, Is.Not.Null);
+        }
         Assert.That(response.Value, Is.TypeOf(typeof(GetSetIPV4_xxx_Mode)));
         var interfaceResponse = (GetSetIPV4_xxx_Mode)response.Value;
-        Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
-        Assert.That(interfaceResponse.Enabled, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
+            Assert.That(interfaceResponse.Enabled, Is.True);
+        }
 
 
         response = generated.ProcessRequestMessage_Internal(APPLY_CONFIG_MESSAGE);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_APPLY_CONFIGURATION));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_APPLY_CONFIGURATION));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+        }
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(5));
-        Assert.That(response.Value, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(5));
+            Assert.That(response.Value, Is.Not.Null);
+        }
         Assert.That(response.Value, Is.TypeOf(typeof(GetSetIPV4_xxx_Mode)));
         interfaceResponse = (GetSetIPV4_xxx_Mode)response.Value;
-        Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
-        Assert.That(interfaceResponse.Enabled, Is.False);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
+            Assert.That(interfaceResponse.Enabled, Is.False);
+        }
 
         #endregion
 
@@ -606,22 +753,28 @@ public class TestInterfaceModule
         request.ParameterData = Tools.ValueToData(new GetSetIPV4_xxx_Mode(2, true));
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_ZEROCONF_MODE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+            Assert.That(response.Value, Is.Null);
+        }
     }
 
     [Test, DependsOnTest(nameof(TestSetIPV4_ZEROCONF_MODE))]
     public void TestGetIPV4_STATIC_ADDRESS()
     {
         #region Test Basic (Empty)
-        Assert.That(generated, Is.Not.Null);
-        Assert.That(interfaceModule, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(interfaceModule, Is.Not.Null);
+        }
         Assert.That(interfaceModule.Interfaces, Is.Not.Null);
         Assert.That(interfaceModule.Interfaces, Has.Count.Not.EqualTo(0));
         RDMMessage request = new RDMMessage()
@@ -635,66 +788,87 @@ public class TestInterfaceModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+            Assert.That(response.Value, Is.Null);
+        }
 
         request.ParameterData = Tools.ValueToData((uint)1);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(9));
-        Assert.That(response.Value, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(9));
+            Assert.That(response.Value, Is.Not.Null);
+        }
         Assert.That(response.Value, Is.TypeOf(typeof(GetSetIPv4StaticAddress)));
         var interfaceIPv4StaticAddressResponse = (GetSetIPv4StaticAddress)response.Value;
-        Assert.That(interfaceIPv4StaticAddressResponse.InterfaceId, Is.EqualTo(1));
-        Assert.That(interfaceIPv4StaticAddressResponse.IPAddress, Is.EqualTo(new IPv4Address(TEST_INTERFACE_IP_ADDRESS)));
-        Assert.That(interfaceIPv4StaticAddressResponse.Netmask, Is.EqualTo(8));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(interfaceIPv4StaticAddressResponse.InterfaceId, Is.EqualTo(1));
+            Assert.That(interfaceIPv4StaticAddressResponse.IPAddress, Is.EqualTo(new IPv4Address(TEST_INTERFACE_IP_ADDRESS)));
+            Assert.That(interfaceIPv4StaticAddressResponse.Netmask, Is.EqualTo(8));
+        }
 
         IPv4Address oneDotOneDotOneDotOne = new IPv4Address("1.1.1.1");
         var iface = interfaceModule.Interfaces.First();
         iface.SetStaticIP(oneDotOneDotOneDotOne, 24);
-        Assert.That(iface.CurrentIP, Is.EqualTo(oneDotOneDotOneDotOne));
-        Assert.That(iface.CurrentSubnetMask, Is.EqualTo(24));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(iface.CurrentIP, Is.EqualTo(oneDotOneDotOneDotOne));
+            Assert.That(iface.CurrentSubnetMask, Is.EqualTo(24));
+        }
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(9));
-        Assert.That(response.Value, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(9));
+            Assert.That(response.Value, Is.Not.Null);
+        }
         Assert.That(response.Value, Is.TypeOf(typeof(GetSetIPv4StaticAddress)));
         interfaceIPv4StaticAddressResponse = (GetSetIPv4StaticAddress)response.Value;
-        Assert.That(interfaceIPv4StaticAddressResponse.InterfaceId, Is.EqualTo(1));
-        Assert.That(interfaceIPv4StaticAddressResponse.IPAddress, Is.EqualTo(oneDotOneDotOneDotOne));
-        Assert.That(interfaceIPv4StaticAddressResponse.Netmask, Is.EqualTo(24));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(interfaceIPv4StaticAddressResponse.InterfaceId, Is.EqualTo(1));
+            Assert.That(interfaceIPv4StaticAddressResponse.IPAddress, Is.EqualTo(oneDotOneDotOneDotOne));
+            Assert.That(interfaceIPv4StaticAddressResponse.Netmask, Is.EqualTo(24));
+        }
         #endregion
 
         request.ParameterData = Tools.ValueToData((uint)2);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+            Assert.That(response.Value, Is.Null);
+        }
     }
 
     [Test, DependsOnTest(nameof(TestGetIPV4_STATIC_ADDRESS))]
@@ -702,8 +876,11 @@ public class TestInterfaceModule
     {
         IPv4Address oneDotOneDotOneDotOne = new IPv4Address("1.1.1.1");
         #region Test Basic (Empty)
-        Assert.That(generated, Is.Not.Null);
-        Assert.That(interfaceModule, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(interfaceModule, Is.Not.Null);
+        }
         Assert.That(interfaceModule.Interfaces, Is.Not.Null);
         Assert.That(interfaceModule.Interfaces, Has.Count.Not.EqualTo(0));
         RDMMessage request = new RDMMessage()
@@ -717,69 +894,90 @@ public class TestInterfaceModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+            Assert.That(response.Value, Is.Null);
+        }
 
         request.ParameterData = Tools.ValueToData(new GetSetIPv4StaticAddress(1, oneDotOneDotOneDotOne, 24));
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+        }
 
         request.Command = ERDM_Command.GET_COMMAND;
         request.ParameterData = Tools.ValueToData((uint)1);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(9));
-        Assert.That(response.Value, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(9));
+            Assert.That(response.Value, Is.Not.Null);
+        }
         Assert.That(response.Value, Is.TypeOf(typeof(GetSetIPv4StaticAddress)));
         var interfaceResponse = (GetSetIPv4StaticAddress)response.Value;
-        Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
-        Assert.That(interfaceResponse.IPAddress, Is.EqualTo(new IPv4Address(TEST_INTERFACE_IP_ADDRESS)));
-        Assert.That(interfaceResponse.Netmask, Is.EqualTo(8));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
+            Assert.That(interfaceResponse.IPAddress, Is.EqualTo(new IPv4Address(TEST_INTERFACE_IP_ADDRESS)));
+            Assert.That(interfaceResponse.Netmask, Is.EqualTo(8));
+        }
 
 
         response = generated.ProcessRequestMessage_Internal(APPLY_CONFIG_MESSAGE);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_APPLY_CONFIGURATION));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_APPLY_CONFIGURATION));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+        }
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(9));
-        Assert.That(response.Value, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(9));
+            Assert.That(response.Value, Is.Not.Null);
+        }
         Assert.That(response.Value, Is.TypeOf(typeof(GetSetIPv4StaticAddress)));
         interfaceResponse = (GetSetIPv4StaticAddress)response.Value;
-        Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
-        Assert.That(interfaceResponse.IPAddress, Is.EqualTo(oneDotOneDotOneDotOne));
-        Assert.That(interfaceResponse.Netmask, Is.EqualTo(24));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(interfaceResponse.InterfaceId, Is.EqualTo(1));
+            Assert.That(interfaceResponse.IPAddress, Is.EqualTo(oneDotOneDotOneDotOne));
+            Assert.That(interfaceResponse.Netmask, Is.EqualTo(24));
+        }
 
         #endregion
 
@@ -787,22 +985,28 @@ public class TestInterfaceModule
         request.ParameterData = Tools.ValueToData(new GetSetIPv4StaticAddress(2, oneDotOneDotOneDotOne, 31));
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.IPV4_STATIC_ADDRESS));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+            Assert.That(response.Value, Is.Null);
+        }
     }
 
     [Test, DependsOnTest(nameof(TestSetIPV4_STATIC_ADDRESS))]
     public void TestSetINTERFACE_APPLY_CONFIGURATION()
     {
         #region Test Basic (Empty)
-        Assert.That(generated, Is.Not.Null);
-        Assert.That(interfaceModule, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(interfaceModule, Is.Not.Null);
+        }
         Assert.That(interfaceModule.Interfaces, Is.Not.Null);
         Assert.That(interfaceModule.Interfaces, Has.Count.Not.EqualTo(0));
         RDMMessage request = new RDMMessage()
@@ -816,40 +1020,49 @@ public class TestInterfaceModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_APPLY_CONFIGURATION));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_APPLY_CONFIGURATION));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+            Assert.That(response.Value, Is.Null);
+        }
 
         request.ParameterData = Tools.ValueToData((uint)1);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_APPLY_CONFIGURATION));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_APPLY_CONFIGURATION));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+            Assert.That(response.Value, Is.Null);
+        }
 
         #endregion
 
         request.ParameterData = Tools.ValueToData((uint)2);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_APPLY_CONFIGURATION));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_APPLY_CONFIGURATION));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+            Assert.That(response.Value, Is.Null);
+        }
     }
 
     [Test, DependsOnTest(nameof(TestSetINTERFACE_APPLY_CONFIGURATION))]
@@ -859,8 +1072,11 @@ public class TestInterfaceModule
         var iface = interfaceModule.Interfaces.First();
         iface.DHCP = true;
         #region Test Basic (Empty)
-        Assert.That(generated, Is.Not.Null);
-        Assert.That(interfaceModule, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(interfaceModule, Is.Not.Null);
+        }
         Assert.That(interfaceModule.Interfaces, Is.Not.Null);
         Assert.That(interfaceModule.Interfaces, Has.Count.Not.EqualTo(0));
         RDMMessage request = new RDMMessage()
@@ -874,83 +1090,101 @@ public class TestInterfaceModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RENEW_DHCP));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RENEW_DHCP));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+            Assert.That(response.Value, Is.Null);
+        }
 
         request.ParameterData = Tools.ValueToData((uint)1);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RENEW_DHCP));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.ACTION_NOT_SUPPORTED));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RENEW_DHCP));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.ACTION_NOT_SUPPORTED));
+            Assert.That(response.Value, Is.Null);
+        }
 
         iface.SetStaticIP(IPv4Address.Empty, 0);
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RENEW_DHCP));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RENEW_DHCP));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+            Assert.That(response.Value, Is.Null);
 
-        Assert.That(iface.CurrentIP, Is.EqualTo(InterfaceMock.DHCP_ADDRESS_1));
-
-        request.ParameterData = Tools.ValueToData((uint)1);
-        response = generated.ProcessRequestMessage_Internal(request);
-        Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RENEW_DHCP));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
-        Assert.That(response.Value, Is.Null);
-
-        Assert.That(iface.CurrentIP, Is.EqualTo(InterfaceMock.DHCP_ADDRESS_2));
+            Assert.That(iface.CurrentIP, Is.EqualTo(InterfaceMock.DHCP_ADDRESS_1));
+        }
 
         request.ParameterData = Tools.ValueToData((uint)1);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RENEW_DHCP));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RENEW_DHCP));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+            Assert.That(response.Value, Is.Null);
 
-        Assert.That(iface.CurrentIP, Is.EqualTo(InterfaceMock.DHCP_ADDRESS_3));
+            Assert.That(iface.CurrentIP, Is.EqualTo(InterfaceMock.DHCP_ADDRESS_2));
+        }
+
+        request.ParameterData = Tools.ValueToData((uint)1);
+        response = generated.ProcessRequestMessage_Internal(request);
+        Assert.That(response, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RENEW_DHCP));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+            Assert.That(response.Value, Is.Null);
+
+            Assert.That(iface.CurrentIP, Is.EqualTo(InterfaceMock.DHCP_ADDRESS_3));
+        }
 
         #endregion
 
         request.ParameterData = Tools.ValueToData((uint)2);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RENEW_DHCP));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RENEW_DHCP));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+            Assert.That(response.Value, Is.Null);
+        }
     }
 
     [Test, DependsOnTest(nameof(TestSetINTERFACE_RENEW_DHCP))]
@@ -961,8 +1195,11 @@ public class TestInterfaceModule
         iface.DHCP = true;
         iface.SetStaticIP(IPv4Address.Empty, 0);
         #region Test Basic (Empty)
-        Assert.That(generated, Is.Not.Null);
-        Assert.That(interfaceModule, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generated, Is.Not.Null);
+            Assert.That(interfaceModule, Is.Not.Null);
+        }
         Assert.That(interfaceModule.Interfaces, Is.Not.Null);
         Assert.That(interfaceModule.Interfaces, Has.Count.Not.EqualTo(0));
         RDMMessage request = new RDMMessage()
@@ -983,52 +1220,64 @@ public class TestInterfaceModule
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RELEASE_DHCP));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RELEASE_DHCP));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
+            Assert.That(response.Value, Is.Null);
+        }
 
         request.ParameterData = Tools.ValueToData((uint)1);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RELEASE_DHCP));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(0));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RELEASE_DHCP));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+            Assert.That(response.Value, Is.Null);
 
-        Assert.That(iface.CurrentIP, Is.EqualTo(IPv4Address.Empty));
+            Assert.That(iface.CurrentIP, Is.EqualTo(IPv4Address.Empty));
+        }
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RELEASE_DHCP));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.ACTION_NOT_SUPPORTED));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RELEASE_DHCP));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.ACTION_NOT_SUPPORTED));
+            Assert.That(response.Value, Is.Null);
+        }
         #endregion
 
         request.ParameterData = Tools.ValueToData((uint)2);
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RELEASE_DHCP));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
-        Assert.That(response.Value, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND_RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.INTERFACE_RELEASE_DHCP));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+            Assert.That(response.Value, Is.Null);
+        }
     }
 
     class InterfaceMockDevice : MockGeneratedDevice1

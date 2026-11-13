@@ -30,11 +30,11 @@ public class GetHardwareAddressResponseTest
 
         var res = resultGetHardwareAddressResponse.ToString();
         var src = getHardwareAddressResponse.ToString();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
-        });
+        }
         Assert.That(res, Is.EqualTo(src));
     }
 }

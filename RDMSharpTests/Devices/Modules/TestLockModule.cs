@@ -66,17 +66,23 @@ public class TestLockModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LOCK_STATE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(2));
-        Assert.That(response.Value, Is.TypeOf(typeof(GetLockStateResponse)));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LOCK_STATE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(2));
+            Assert.That(response.Value, Is.TypeOf(typeof(GetLockStateResponse)));
+        }
         GetLockStateResponse lockStateResponse = (GetLockStateResponse)response.Value;
-        Assert.That(lockStateResponse.CurrentLockStateId, Is.EqualTo(0));
-        Assert.That(lockStateResponse.Count, Is.EqualTo(1));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(lockStateResponse.CurrentLockStateId, Is.EqualTo(0));
+            Assert.That(lockStateResponse.Count, Is.EqualTo(1));
+        }
 
         #endregion
 
@@ -105,14 +111,17 @@ public class TestLockModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LOCK_PIN));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(2));
-        Assert.That(response.Value, Is.TypeOf(typeof(ushort)));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LOCK_PIN));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(2));
+            Assert.That(response.Value, Is.TypeOf(typeof(ushort)));
+        }
         ushort lockPin = (ushort)response.Value;
         Assert.That(lockPin, Is.EqualTo(1234));
 
@@ -126,8 +135,11 @@ public class TestLockModule
         Assert.That(generated, Is.Not.Null);
         var generatedModule = generated.Modules.OfType<LockModule>().Single();
         Assert.That(generatedModule, Is.Not.Null);
-        Assert.That(generatedModule.LockState, Is.EqualTo(0));
-        Assert.That(generatedModule.LockPin, Is.EqualTo(1234));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generatedModule.LockState, Is.EqualTo(0));
+            Assert.That(generatedModule.LockPin, Is.EqualTo(1234));
+        }
 
         MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
@@ -139,8 +151,11 @@ public class TestLockModule
 
         var module = mockDevice.Modules.OfType<LockModule>().Single();
         Assert.That(module, Is.Not.Null);
-        Assert.That(module.LockState, Is.EqualTo(0));
-        Assert.That(module.LockPin, Is.EqualTo(1234));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(module.LockState, Is.EqualTo(0));
+            Assert.That(module.LockPin, Is.EqualTo(1234));
+        }
         SemaphoreSlim semaphoreSlim = new SemaphoreSlim(0, 1);
         module.PropertyChanged += (o, e) =>
         {
@@ -150,37 +165,49 @@ public class TestLockModule
         await semaphoreSlim.WaitAsync(1000);
         await Task.Delay(1000);
 
-        Assert.That(generatedModule.LockState, Is.EqualTo(1));
-        Assert.That(module.LockState, Is.EqualTo(1));
-        Assert.That(generatedModule.LockPin, Is.EqualTo(1234));
-        Assert.That(module.LockPin, Is.EqualTo(1234));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generatedModule.LockState, Is.EqualTo(1));
+            Assert.That(module.LockState, Is.EqualTo(1));
+            Assert.That(generatedModule.LockPin, Is.EqualTo(1234));
+            Assert.That(module.LockPin, Is.EqualTo(1234));
+        }
 
         await module.SetLockPin(4321);
         await semaphoreSlim.WaitAsync(1000);
         await Task.Delay(1000);
 
-        Assert.That(generatedModule.LockState, Is.EqualTo(1));
-        Assert.That(module.LockState, Is.EqualTo(1));
-        Assert.That(generatedModule.LockPin, Is.EqualTo(4321));
-        Assert.That(module.LockPin, Is.EqualTo(4321));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generatedModule.LockState, Is.EqualTo(1));
+            Assert.That(module.LockState, Is.EqualTo(1));
+            Assert.That(generatedModule.LockPin, Is.EqualTo(4321));
+            Assert.That(module.LockPin, Is.EqualTo(4321));
+        }
 
         await module.SetLockState(0);
         await semaphoreSlim.WaitAsync(1000);
         await Task.Delay(1000);
 
-        Assert.That(generatedModule.LockState, Is.EqualTo(0));
-        Assert.That(module.LockState, Is.EqualTo(0));
-        Assert.That(generatedModule.LockPin, Is.EqualTo(4321));
-        Assert.That(module.LockPin, Is.EqualTo(4321));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generatedModule.LockState, Is.EqualTo(0));
+            Assert.That(module.LockState, Is.EqualTo(0));
+            Assert.That(generatedModule.LockPin, Is.EqualTo(4321));
+            Assert.That(module.LockPin, Is.EqualTo(4321));
+        }
 
         await module.SetLockPin(1234);
         await semaphoreSlim.WaitAsync(1000);
         await Task.Delay(1000);
 
-        Assert.That(generatedModule.LockState, Is.EqualTo(0));
-        Assert.That(module.LockState, Is.EqualTo(0));
-        Assert.That(generatedModule.LockPin, Is.EqualTo(1234));
-        Assert.That(module.LockPin, Is.EqualTo(1234));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generatedModule.LockState, Is.EqualTo(0));
+            Assert.That(module.LockState, Is.EqualTo(0));
+            Assert.That(generatedModule.LockPin, Is.EqualTo(1234));
+            Assert.That(module.LockPin, Is.EqualTo(1234));
+        }
     }
 
     class LockModuleMockDevice : MockGeneratedDevice1

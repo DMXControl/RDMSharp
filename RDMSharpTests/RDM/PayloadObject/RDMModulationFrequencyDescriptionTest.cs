@@ -11,11 +11,11 @@ public class RDMModulationFrequencyDescriptionTest
         Assert.That(resultModulationFrequencyDescription.Description, Has.Length.EqualTo(32));
 
         resultModulationFrequencyDescription = new RDMModulationFrequencyDescription(5, description: "");
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(string.IsNullOrEmpty(resultModulationFrequencyDescription.Description), Is.True);
             Assert.That(resultModulationFrequencyDescription.MinIndex, Is.EqualTo(1));
             Assert.That(resultModulationFrequencyDescription.Index, Is.EqualTo(5));
-        });
+        }
     }
 }

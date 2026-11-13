@@ -58,48 +58,57 @@ public class TestSlotModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_INFO));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(5 * generated.Slots.Count));
-        Assert.That(response.Value, Is.EqualTo(generated.Slots.Select(s => new RDMSlotInfo(s.Value.SlotId, s.Value.Type, s.Value.Category))));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_INFO));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(5 * generated.Slots.Count));
+            Assert.That(response.Value, Is.EqualTo(generated.Slots.Select(s => new RDMSlotInfo(s.Value.SlotId, s.Value.Type, s.Value.Category))));
         #endregion
 
-        #region Test Change Personality
-        Assert.That(generated, Is.Not.Null);
+            #region Test Change Personality
+            Assert.That(generated, Is.Not.Null);
+        }
         generated.CurrentPersonalityId = 2; // Change to personality 2
         Assert.That(generated.Slots, Has.Count.EqualTo(8));
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_INFO));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(5 * generated.Slots.Count));
-        Assert.That(response.Value, Is.EqualTo(generated.Slots.Select(s => new RDMSlotInfo(s.Value.SlotId, s.Value.Type, s.Value.Category))));
-        #endregion
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_INFO));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(5 * generated.Slots.Count));
+            Assert.That(response.Value, Is.EqualTo(generated.Slots.Select(s => new RDMSlotInfo(s.Value.SlotId, s.Value.Type, s.Value.Category))));
+            #endregion
 
-        #region Test Change Personality
-        Assert.That(generated, Is.Not.Null);
+            #region Test Change Personality
+            Assert.That(generated, Is.Not.Null);
+        }
         generated.CurrentPersonalityId = 3; // Change to personality 3
         Assert.That(generated.Slots, Has.Count.EqualTo(9));
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_INFO));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(5 * generated.Slots.Count));
-        Assert.That(response.Value, Is.EqualTo(generated.Slots.Select(s => new RDMSlotInfo(s.Value.SlotId, s.Value.Type, s.Value.Category))));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_INFO));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(5 * generated.Slots.Count));
+            Assert.That(response.Value, Is.EqualTo(generated.Slots.Select(s => new RDMSlotInfo(s.Value.SlotId, s.Value.Type, s.Value.Category))));
+        }
         #endregion
 
         #region Test Invalid Calls
@@ -126,48 +135,57 @@ public class TestSlotModule
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEFAULT_SLOT_VALUE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(3 * generated.Slots.Count));
-        Assert.That(response.Value, Is.EqualTo(generated.Slots.Select(s => new RDMDefaultSlotValue(s.Value.SlotId, s.Value.DefaultValue))));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEFAULT_SLOT_VALUE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(3 * generated.Slots.Count));
+            Assert.That(response.Value, Is.EqualTo(generated.Slots.Select(s => new RDMDefaultSlotValue(s.Value.SlotId, s.Value.DefaultValue))));
+            Assert.That(generated, Is.Not.Null);
+        }
         #endregion
 
         #region Test Change Personality
-        Assert.That(generated, Is.Not.Null);
         generated.CurrentPersonalityId = 2; // Change to personality 2
         Assert.That(generated.Slots, Has.Count.EqualTo(8));
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEFAULT_SLOT_VALUE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(3 * generated.Slots.Count));
-        Assert.That(response.Value, Is.EqualTo(generated.Slots.Select(s => new RDMDefaultSlotValue(s.Value.SlotId, s.Value.DefaultValue))));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEFAULT_SLOT_VALUE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(3 * generated.Slots.Count));
+            Assert.That(response.Value, Is.EqualTo(generated.Slots.Select(s => new RDMDefaultSlotValue(s.Value.SlotId, s.Value.DefaultValue))));
+            Assert.That(generated, Is.Not.Null);
+        }
         #endregion
 
         #region Test Change Personality
-        Assert.That(generated, Is.Not.Null);
         generated.CurrentPersonalityId = 3; // Change to personality 3
         Assert.That(generated.Slots, Has.Count.EqualTo(9));
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEFAULT_SLOT_VALUE));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(3 * generated.Slots.Count));
-        Assert.That(response.Value, Is.EqualTo(generated.Slots.Select(s => new RDMDefaultSlotValue(s.Value.SlotId, s.Value.DefaultValue))));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEFAULT_SLOT_VALUE));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(3 * generated.Slots.Count));
+            Assert.That(response.Value, Is.EqualTo(generated.Slots.Select(s => new RDMDefaultSlotValue(s.Value.SlotId, s.Value.DefaultValue))));
+        }
         #endregion
 
         #region Test Invalid Calls
@@ -217,13 +235,16 @@ public class TestSlotModule
         request.ParameterData = new byte[] { (byte)((10 >> 8) & 0xFF), (byte)(10 & 0xFF) };
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_DESCRIPTION));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-        Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_DESCRIPTION));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+        }
         #endregion
 
         void doTests(Slot[] slots)
@@ -233,14 +254,17 @@ public class TestSlotModule
                 request.ParameterData = new byte[] { (byte)((slot.SlotId >> 8) & 0xFF), (byte)(slot.SlotId & 0xFF) };
                 response = generated.ProcessRequestMessage_Internal(request);
                 Assert.That(response, Is.Not.Null);
-                Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-                Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-                Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_DESCRIPTION));
-                Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-                Assert.That(response.ParameterData, Has.Length.EqualTo(2 + slot.Description.Length));
-                Assert.That(response.Value, Is.EqualTo(new RDMSlotDescription(slot.SlotId, slot.Description)));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+                    Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+                    Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+                    Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.SLOT_DESCRIPTION));
+                    Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+                    Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+                    Assert.That(response.ParameterData, Has.Length.EqualTo(2 + slot.Description.Length));
+                    Assert.That(response.Value, Is.EqualTo(new RDMSlotDescription(slot.SlotId, slot.Description)));
+                }
             }
         }
     }
@@ -262,9 +286,12 @@ public class TestSlotModule
         var personalityModule = mockDevice.Modules.OfType<DMX_PersonalityModule>().Single();
         Assert.That(module, Is.Not.Null);
         Assert.That(module.Slots, Is.Not.Null);
-        Assert.That(module.Slots, Has.Count.EqualTo(5));
-        Assert.That(personalityModule.CurrentPersonality.ID, Is.EqualTo(1));
-        Assert.That(personalityModule.CurrentPersonality.SlotCount, Is.EqualTo(5));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(module.Slots, Has.Count.EqualTo(5));
+            Assert.That(personalityModule.CurrentPersonality.ID, Is.EqualTo(1));
+            Assert.That(personalityModule.CurrentPersonality.SlotCount, Is.EqualTo(5));
+        }
 
         SemaphoreSlim semaphoreSlim = new SemaphoreSlim(0, 1);
         personalityModule.PropertyChanged += (o, e) =>
@@ -284,10 +311,13 @@ public class TestSlotModule
             await Task.Delay(100);
 
         await Task.Delay(100);
-        Assert.That(personalityModule.CurrentPersonality.SlotCount, Is.EqualTo(8));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(personalityModule.CurrentPersonality.SlotCount, Is.EqualTo(8));
 
-        Assert.That(module.CurrentPersonality.ID, Is.EqualTo(generatedModule.CurrentPersonality.ID));
-        Assert.That(module.Slots, Is.Not.Null);
+            Assert.That(module.CurrentPersonality.ID, Is.EqualTo(generatedModule.CurrentPersonality.ID));
+            Assert.That(module.Slots, Is.Not.Null);
+        }
         Assert.That(module.Slots, Has.Count.EqualTo(8));
     }
 }

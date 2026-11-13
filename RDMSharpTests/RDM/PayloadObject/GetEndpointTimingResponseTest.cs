@@ -9,7 +9,7 @@ public class GetEndpointTimingResponseTest
     {
         GetEndpointTimingResponse getEndpointTimingResponse = new GetEndpointTimingResponse(1, 123, 254);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(getEndpointTimingResponse.EndpointId, Is.EqualTo(1));
             Assert.That(getEndpointTimingResponse.Index, Is.EqualTo(123));
@@ -19,6 +19,6 @@ public class GetEndpointTimingResponseTest
             Assert.That(getEndpointTimingResponse.DescriptorParameter, Is.EqualTo(ERDM_Parameter.ENDPOINT_TIMING_DESCRIPTION));
             Assert.That(getEndpointTimingResponse.IndexType, Is.EqualTo(typeof(byte)));
             Assert.That(getEndpointTimingResponse.MinIndex, Is.EqualTo(1));
-        });
+        }
     }
 }

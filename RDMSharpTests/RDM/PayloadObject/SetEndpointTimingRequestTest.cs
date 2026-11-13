@@ -9,10 +9,10 @@ public class SetEndpointTimingRequestTest
     {
         SetEndpointTimingRequest setEndpointTimingRequest = new SetEndpointTimingRequest(1, 123);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(setEndpointTimingRequest.EndpointId, Is.EqualTo(1));
             Assert.That(setEndpointTimingRequest.TimingId, Is.EqualTo(123));
-        });
+        }
     }
 }

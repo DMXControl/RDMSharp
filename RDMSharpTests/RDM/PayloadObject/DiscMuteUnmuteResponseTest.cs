@@ -31,12 +31,12 @@ public class DiscMuteUnmuteResponseTest
 
         var res = resultDiscMute.ToString();
         var src = discMute.ToString();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
             Assert.That(res, Is.EqualTo(src));
-        });
+        }
 
         discMute = new DiscMuteUnmuteResponse(false, true, bindingUID: new UID(223, 434));
 
@@ -56,12 +56,12 @@ public class DiscMuteUnmuteResponseTest
 
         res = resultDiscMute.ToString();
         src = discMute.ToString();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
             Assert.That(res, Is.EqualTo(src));
-        });
+        }
 
         discMute = new DiscMuteUnmuteResponse(false, false, true, bindingUID: new UID(223, 434));
 
@@ -81,11 +81,11 @@ public class DiscMuteUnmuteResponseTest
 
         res = resultDiscMute.ToString();
         src = discMute.ToString();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
-        });
+        }
         Assert.That(res, Is.EqualTo(src));
 
         discMute = new DiscMuteUnmuteResponse(false, false, false, true);
@@ -106,11 +106,11 @@ public class DiscMuteUnmuteResponseTest
 
         res = resultDiscMute.ToString();
         src = discMute.ToString();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
-        });
+        }
         Assert.That(res, Is.EqualTo(src));
     }
 }

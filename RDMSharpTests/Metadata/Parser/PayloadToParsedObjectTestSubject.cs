@@ -48,15 +48,21 @@ public class PayloadToParsedObjectTestSubject
            new byte[] { 0x53, 0x47, 0x94, 0x71, 0xaf, 0x2f },
            new Action<DataTreeBranch>((dataTreeBranch) =>
            {
-               Assert.That(dataTreeBranch.IsUnset, Is.False);
-               Assert.That(dataTreeBranch.IsEmpty, Is.False);
-               Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(dataTreeBranch.IsUnset, Is.False);
+                   Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                   Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               }
                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMProxiedDevices)));
 
                var obj = dataTreeBranch.ParsedObject as RDMProxiedDevices;
                Assert.That(obj, Is.Not.Null);
-               Assert.That(obj!.Devices, Is.Not.Null);
-               Assert.That(obj.Devices.Length, Is.EqualTo(1));
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(obj!.Devices, Is.Not.Null);
+                   Assert.That(obj.Devices, Has.Length.EqualTo(1));
+               }
                Assert.That(obj.Devices[0], Is.EqualTo(new UID(0x5347, 0x9471af2f)));
            }));
 
@@ -69,17 +75,23 @@ public class PayloadToParsedObjectTestSubject
            },
            new Action<DataTreeBranch>((dataTreeBranch) =>
            {
-               Assert.That(dataTreeBranch.IsUnset, Is.False);
-               Assert.That(dataTreeBranch.IsEmpty, Is.False);
-               Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(dataTreeBranch.IsUnset, Is.False);
+                   Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                   Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               }
                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMProxiedDevices)));
 
                var obj = dataTreeBranch.ParsedObject as RDMProxiedDevices;
                Assert.That(obj, Is.Not.Null);
-               Assert.That(obj!.Devices, Is.Not.Null);
-               Assert.That(obj.Devices.Length, Is.EqualTo(2));
-               Assert.That(obj.Devices[0], Is.EqualTo(new UID(0x5347, 0x9471af2f)));
-               Assert.That(obj.Devices[1], Is.EqualTo(new UID(0x5347, 0x94030201)));
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(obj!.Devices, Is.Not.Null);
+                   Assert.That(obj.Devices, Has.Length.EqualTo(2));
+                   Assert.That(obj.Devices[0], Is.EqualTo(new UID(0x5347, 0x9471af2f)));
+                   Assert.That(obj.Devices[1], Is.EqualTo(new UID(0x5347, 0x94030201)));
+               }
            }));
         #endregion
 
@@ -90,14 +102,20 @@ public class PayloadToParsedObjectTestSubject
            new byte[] { 0x00, 0x05, 0x01 },
            new Action<DataTreeBranch>((dataTreeBranch) =>
            {
-               Assert.That(dataTreeBranch.IsUnset, Is.False);
-               Assert.That(dataTreeBranch.IsEmpty, Is.False);
-               Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(dataTreeBranch.IsUnset, Is.False);
+                   Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                   Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               }
                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMProxiedDeviceCount)));
                var obj = dataTreeBranch.ParsedObject as RDMProxiedDeviceCount;
                Assert.That(obj, Is.Not.Null);
-               Assert.That(obj!.DeviceCount, Is.EqualTo(5));
-               Assert.That(obj.ListChange, Is.EqualTo(true));
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(obj!.DeviceCount, Is.EqualTo(5));
+                   Assert.That(obj.ListChange, Is.EqualTo(true));
+               }
            }));
         #endregion
 
@@ -111,9 +129,12 @@ public class PayloadToParsedObjectTestSubject
               new byte[] { 0x01 },
               new Action<DataTreeBranch>((dataTreeBranch) =>
                 {
-                    Assert.That(dataTreeBranch.IsUnset, Is.False);
-                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                    using (Assert.EnterMultipleScope())
+                    {
+                        Assert.That(dataTreeBranch.IsUnset, Is.False);
+                        Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                        Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                    }
                     Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_Status)));
 
                     var obj = (ERDM_Status)dataTreeBranch.ParsedObject;
@@ -128,9 +149,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x02 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_Status)));
 
                 var obj = (ERDM_Status)dataTreeBranch.ParsedObject;
@@ -143,18 +167,24 @@ public class PayloadToParsedObjectTestSubject
            new RDMStatusMessage(0, ERDM_Status.ERROR, ERDM_StatusMessage.UNDERCURRENT, 2, 20).ToPayloadData(),
            new Action<DataTreeBranch>((dataTreeBranch) =>
            {
-               Assert.That(dataTreeBranch.IsUnset, Is.False);
-               Assert.That(dataTreeBranch.IsEmpty, Is.False);
-               Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(dataTreeBranch.IsUnset, Is.False);
+                   Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                   Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               }
                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMStatusMessage[])));
                var obj = dataTreeBranch.ParsedObject as RDMStatusMessage[];
                Assert.That(obj, Is.Not.Null);
-               Assert.That(obj!.Length, Is.EqualTo(1));
-               Assert.That(obj[0].SubDeviceId, Is.EqualTo(0));
-               Assert.That(obj[0].EStatusType, Is.EqualTo(ERDM_Status.ERROR));
-               Assert.That(obj[0].EStatusMessage, Is.EqualTo(ERDM_StatusMessage.UNDERCURRENT));
-               Assert.That(obj[0].DataValue1, Is.EqualTo(2));
-               Assert.That(obj[0].DataValue2, Is.EqualTo(20));
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(obj!, Has.Length.EqualTo(1));
+                   Assert.That(obj[0].SubDeviceId, Is.EqualTo(0));
+                   Assert.That(obj[0].EStatusType, Is.EqualTo(ERDM_Status.ERROR));
+                   Assert.That(obj[0].EStatusMessage, Is.EqualTo(ERDM_StatusMessage.UNDERCURRENT));
+                   Assert.That(obj[0].DataValue1, Is.EqualTo(2));
+                   Assert.That(obj[0].DataValue2, Is.EqualTo(20));
+               }
            }));
 
         yield return new PayloadToParseBagData(
@@ -163,9 +193,12 @@ public class PayloadToParsedObjectTestSubject
            new byte[0],
            new Action<DataTreeBranch>((dataTreeBranch) =>
            {
-               Assert.That(dataTreeBranch.IsUnset, Is.False);
-               Assert.That(dataTreeBranch.IsEmpty, Is.False);
-               Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(dataTreeBranch.IsUnset, Is.False);
+                   Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                   Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               }
                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMStatusMessage[])));
            }));
         #endregion
@@ -180,9 +213,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[0],
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.True);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                }
             }));
         yield return new PayloadToParseBagData(
             ERDM_Command.SET_COMMAND_RESPONSE,
@@ -190,9 +226,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[0],
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.True);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                }
             }));
         #endregion
 
@@ -209,15 +248,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x60, 0x00, 0xE0 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_Parameter[])));
                 var obj = dataTreeBranch.ParsedObject as ERDM_Parameter[];
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.Length, Is.EqualTo(2));
-                Assert.That(obj[0], Is.EqualTo(ERDM_Parameter.DEVICE_INFO));
-                Assert.That(obj[1], Is.EqualTo(ERDM_Parameter.DMX_PERSONALITY));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!, Has.Length.EqualTo(2));
+                    Assert.That(obj[0], Is.EqualTo(ERDM_Parameter.DEVICE_INFO));
+                    Assert.That(obj[1], Is.EqualTo(ERDM_Parameter.DMX_PERSONALITY));
+                }
             }));
         #endregion
 
@@ -234,26 +279,32 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMParameterDescription)));
 
                 var obj = dataTreeBranch.ParsedObject as RDMParameterDescription;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj.ParameterId, Is.EqualTo(0xa051));
-                Assert.That(obj.PDLSize, Is.EqualTo(0x02));
-                Assert.That(obj.DataType, Is.EqualTo(ERDM_DataType.UINT16));
-                Assert.That(obj.CommandClass, Is.EqualTo(ERDM_CommandClass.GET));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.ParameterId, Is.EqualTo(0xa051));
+                    Assert.That(obj.PDLSize, Is.EqualTo(0x02));
+                    Assert.That(obj.DataType, Is.EqualTo(ERDM_DataType.UINT16));
+                    Assert.That(obj.CommandClass, Is.EqualTo(ERDM_CommandClass.GET));
 #pragma warning disable CS0612 // Typ oder Element ist veraltet
-                Assert.That(obj.Type, Is.EqualTo(127));
+                    Assert.That(obj.Type, Is.EqualTo(127));
 #pragma warning restore CS0612 // Typ oder Element ist veraltet
-                Assert.That(obj.Unit, Is.EqualTo(ERDM_SensorUnit.NONE));
-                Assert.That(obj.Prefix, Is.EqualTo(ERDM_UnitPrefix.NONE));
-                Assert.That(obj.MinValidValue, Is.EqualTo(0));
-                Assert.That(obj.MaxValidValue, Is.EqualTo(255));
-                Assert.That(obj.DefaultValue, Is.EqualTo(0));
-                Assert.That(obj.Description, Is.EqualTo("TE LEDs hours"));
+                    Assert.That(obj.Unit, Is.EqualTo(ERDM_SensorUnit.NONE));
+                    Assert.That(obj.Prefix, Is.EqualTo(ERDM_UnitPrefix.NONE));
+                    Assert.That(obj.MinValidValue, Is.EqualTo(0));
+                    Assert.That(obj.MaxValidValue, Is.EqualTo(255));
+                    Assert.That(obj.DefaultValue, Is.EqualTo(0));
+                    Assert.That(obj.Description, Is.EqualTo("TE LEDs hours"));
+                }
             }));
         #endregion
 
@@ -286,25 +337,31 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMDeviceInfo)));
 
                 var obj = dataTreeBranch.ParsedObject as RDMDeviceInfo;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.RdmProtocolVersionMajor, Is.EqualTo(1));
-                Assert.That(obj.RdmProtocolVersionMinor, Is.EqualTo(0));
-                Assert.That(obj.DeviceModelId, Is.EqualTo(0x0005));
-                Assert.That(obj.ProductCategoryCoarse, Is.EqualTo(ERDM_ProductCategoryCoarse.POWER));
-                Assert.That(obj.ProductCategoryFine, Is.EqualTo(ERDM_ProductCategoryFine.POWER_CONTROL));
-                Assert.That(obj.SoftwareVersionId, Is.EqualTo(0x02000101));
-                Assert.That(obj.Dmx512Footprint, Is.EqualTo(1));
-                Assert.That(obj.Dmx512CurrentPersonality, Is.EqualTo(1));
-                Assert.That(obj.Dmx512NumberOfPersonalities, Is.EqualTo(3));
-                Assert.That(obj.Dmx512StartAddress, Is.EqualTo(1));
-                Assert.That(obj.SubDeviceCount, Is.EqualTo(4));
-                Assert.That(obj.SensorCount, Is.EqualTo(0));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.RdmProtocolVersionMajor, Is.EqualTo(1));
+                    Assert.That(obj.RdmProtocolVersionMinor, Is.EqualTo(0));
+                    Assert.That(obj.DeviceModelId, Is.EqualTo(0x0005));
+                    Assert.That(obj.ProductCategoryCoarse, Is.EqualTo(ERDM_ProductCategoryCoarse.POWER));
+                    Assert.That(obj.ProductCategoryFine, Is.EqualTo(ERDM_ProductCategoryFine.POWER_CONTROL));
+                    Assert.That(obj.SoftwareVersionId, Is.EqualTo(0x02000101));
+                    Assert.That(obj.Dmx512Footprint, Is.EqualTo(1));
+                    Assert.That(obj.Dmx512CurrentPersonality, Is.EqualTo(1));
+                    Assert.That(obj.Dmx512NumberOfPersonalities, Is.EqualTo(3));
+                    Assert.That(obj.Dmx512StartAddress, Is.EqualTo(1));
+                    Assert.That(obj.SubDeviceCount, Is.EqualTo(4));
+                    Assert.That(obj.SensorCount, Is.EqualTo(0));
+                }
             }));
         #endregion
 
@@ -315,15 +372,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x00, 0x02 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_ProductDetail[])));
 
                 var obj = (ERDM_ProductDetail[])dataTreeBranch.ParsedObject;
-                Assert.That(obj.Length, Is.EqualTo(2));
-                Assert.That(obj[0], Is.EqualTo(ERDM_ProductDetail.ARC));
-                Assert.That(obj[1], Is.EqualTo(ERDM_ProductDetail.METAL_HALIDE));
+                Assert.That(obj, Has.Length.EqualTo(2));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj[0], Is.EqualTo(ERDM_ProductDetail.ARC));
+                    Assert.That(obj[1], Is.EqualTo(ERDM_ProductDetail.METAL_HALIDE));
+                }
             }));
         #endregion
 
@@ -334,9 +397,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x53, 0x45, 0x51, 0x55, 0x45, 0x4e, 0x43, 0x45 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
 
                 var obj = (string)dataTreeBranch.ParsedObject;
@@ -351,9 +417,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x53, 0x45, 0x51, 0x55, 0x45, 0x4e, 0x43, 0x45 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
 
                 var obj = (string)dataTreeBranch.ParsedObject;
@@ -368,9 +437,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x53, 0x45, 0x51, 0x55, 0x45, 0x4e, 0x43, 0x45 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
 
                 var obj = (string)dataTreeBranch.ParsedObject;
@@ -383,9 +455,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x53, 0x45, 0x51, 0x55, 0x45, 0x4e, 0x43, 0x45 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
                 var obj = (string)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo("SEQUENCE"));
@@ -399,9 +474,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
 
                 var obj = (bool)dataTreeBranch.ParsedObject;
@@ -413,9 +491,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.True);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                }
             }));
         #endregion
 
@@ -432,9 +513,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x53, 0x45, 0x51, 0x55, 0x45, 0x4e, 0x43, 0x45 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
 
                 var obj = (string)dataTreeBranch.ParsedObject;
@@ -449,9 +533,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01, 0x02, 0x03, 0x04 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(uint)));
 
                 var obj = (uint)dataTreeBranch.ParsedObject;
@@ -466,9 +553,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x53, 0x45, 0x51, 0x55, 0x45, 0x4e, 0x43, 0x45 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
 
                 var obj = (string)dataTreeBranch.ParsedObject;
@@ -483,15 +573,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01, 0x03 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMDMXPersonality)));
 
                 var obj = dataTreeBranch.ParsedObject as RDMDMXPersonality;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.CurrentPersonality, Is.EqualTo(1));
-                Assert.That(obj.OfPersonalities, Is.EqualTo(3));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.CurrentPersonality, Is.EqualTo(1));
+                    Assert.That(obj.OfPersonalities, Is.EqualTo(3));
+                }
             }));
         #endregion
 
@@ -505,16 +601,22 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMDMXPersonalityDescription)));
 
                 var obj = dataTreeBranch.ParsedObject as RDMDMXPersonalityDescription;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.PersonalityId, Is.EqualTo(1));
-                Assert.That(obj.Slots, Is.EqualTo(1));
-                Assert.That(obj.Description, Is.EqualTo("SEQUENCE"));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.PersonalityId, Is.EqualTo(1));
+                    Assert.That(obj.Slots, Is.EqualTo(1));
+                    Assert.That(obj.Description, Is.EqualTo("SEQUENCE"));
+                }
             }));
         #endregion
 
@@ -525,9 +627,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                 var obj = (ushort)dataTreeBranch.ParsedObject;
@@ -539,9 +644,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x03 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                 var obj = (ushort)dataTreeBranch.ParsedObject;
@@ -562,32 +670,38 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMSlotInfo[])));
 
                 var obj = dataTreeBranch.ParsedObject as RDMSlotInfo[];
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj![0].SlotOffset, Is.EqualTo(0));
-                Assert.That(obj[0].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
-                Assert.That(obj[0].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.INTENSITY));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj![0].SlotOffset, Is.EqualTo(0));
+                    Assert.That(obj[0].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
+                    Assert.That(obj[0].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.INTENSITY));
 
-                Assert.That(obj[1].SlotOffset, Is.EqualTo(1));
-                Assert.That(obj[1].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
-                Assert.That(obj[1].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.STROBE));
+                    Assert.That(obj[1].SlotOffset, Is.EqualTo(1));
+                    Assert.That(obj[1].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
+                    Assert.That(obj[1].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.STROBE));
 
-                Assert.That(obj[2].SlotOffset, Is.EqualTo(2));
-                Assert.That(obj[2].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
-                Assert.That(obj[2].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.COLOR_ADD_RED));
+                    Assert.That(obj[2].SlotOffset, Is.EqualTo(2));
+                    Assert.That(obj[2].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
+                    Assert.That(obj[2].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.COLOR_ADD_RED));
 
-                Assert.That(obj[3].SlotOffset, Is.EqualTo(3));
-                Assert.That(obj[3].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
-                Assert.That(obj[3].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.COLOR_ADD_GREEN));
+                    Assert.That(obj[3].SlotOffset, Is.EqualTo(3));
+                    Assert.That(obj[3].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
+                    Assert.That(obj[3].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.COLOR_ADD_GREEN));
 
-                Assert.That(obj[4].SlotOffset, Is.EqualTo(4));
-                Assert.That(obj[4].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
-                Assert.That(obj[4].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.COLOR_ADD_BLUE));
+                    Assert.That(obj[4].SlotOffset, Is.EqualTo(4));
+                    Assert.That(obj[4].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
+                    Assert.That(obj[4].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.COLOR_ADD_BLUE));
+                }
             }));
         #endregion
 
@@ -598,15 +712,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x00, 0x53, 0x41, 0x46, 0x45, 0x54, 0x59 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMSlotDescription)));
 
                 var obj = dataTreeBranch.ParsedObject as RDMSlotDescription;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.SlotId, Is.EqualTo(0));
-                Assert.That(obj.Description, Is.EqualTo("SAFETY"));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.SlotId, Is.EqualTo(0));
+                    Assert.That(obj.Description, Is.EqualTo("SAFETY"));
+                }
             }));
         #endregion
 
@@ -639,23 +759,29 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMDefaultSlotValue[])));
                 var obj = dataTreeBranch.ParsedObject as RDMDefaultSlotValue[];
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.Length, Is.EqualTo(54));
-                Assert.That(obj[0].SlotOffset, Is.EqualTo(0));
-                Assert.That(obj[0].DefaultSlotValue, Is.EqualTo(128));
-                Assert.That(obj[1].SlotOffset, Is.EqualTo(1));
-                Assert.That(obj[1].DefaultSlotValue, Is.EqualTo(0));
-                Assert.That(obj[2].SlotOffset, Is.EqualTo(2));
-                Assert.That(obj[2].DefaultSlotValue, Is.EqualTo(128));
-                Assert.That(obj[3].SlotOffset, Is.EqualTo(3));
-                Assert.That(obj[3].DefaultSlotValue, Is.EqualTo(0));
-                Assert.That(obj[4].SlotOffset, Is.EqualTo(4));
-                Assert.That(obj[4].DefaultSlotValue, Is.EqualTo(0));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!, Has.Length.EqualTo(54));
+                    Assert.That(obj[0].SlotOffset, Is.EqualTo(0));
+                    Assert.That(obj[0].DefaultSlotValue, Is.EqualTo(128));
+                    Assert.That(obj[1].SlotOffset, Is.EqualTo(1));
+                    Assert.That(obj[1].DefaultSlotValue, Is.EqualTo(0));
+                    Assert.That(obj[2].SlotOffset, Is.EqualTo(2));
+                    Assert.That(obj[2].DefaultSlotValue, Is.EqualTo(128));
+                    Assert.That(obj[3].SlotOffset, Is.EqualTo(3));
+                    Assert.That(obj[3].DefaultSlotValue, Is.EqualTo(0));
+                    Assert.That(obj[4].SlotOffset, Is.EqualTo(4));
+                    Assert.That(obj[4].DefaultSlotValue, Is.EqualTo(0));
+                }
             }));
         #endregion
 
@@ -671,25 +797,31 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMSensorDefinition)));
 
                 var obj = (RDMSensorDefinition)dataTreeBranch.ParsedObject;
-                Assert.That(obj!.SensorId, Is.EqualTo(1));
-                Assert.That(obj.Index, Is.EqualTo(1));
-                Assert.That(obj.MinIndex, Is.EqualTo(0));
-                Assert.That(obj.Type, Is.EqualTo(ERDM_SensorType.TEMPERATURE));
-                Assert.That(obj.Unit, Is.EqualTo(ERDM_SensorUnit.CENTIGRADE));
-                Assert.That(obj.Prefix, Is.EqualTo(ERDM_UnitPrefix.NONE));
-                Assert.That(obj.RangeMinimum, Is.EqualTo(-32));
-                Assert.That(obj.RangeMaximum, Is.EqualTo(222));
-                Assert.That(obj.NormalMinimum, Is.EqualTo(0));
-                Assert.That(obj.NormalMaximum, Is.EqualTo(100));
-                Assert.That(obj.RecordedValueSupported, Is.EqualTo(false));
-                Assert.That(obj.LowestHighestValueSupported, Is.EqualTo(true));
-                Assert.That(obj.Description, Is.EqualTo("Driver Temperature"));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.SensorId, Is.EqualTo(1));
+                    Assert.That(obj.Index, Is.EqualTo(1));
+                    Assert.That(obj.MinIndex, Is.EqualTo(0));
+                    Assert.That(obj.Type, Is.EqualTo(ERDM_SensorType.TEMPERATURE));
+                    Assert.That(obj.Unit, Is.EqualTo(ERDM_SensorUnit.CENTIGRADE));
+                    Assert.That(obj.Prefix, Is.EqualTo(ERDM_UnitPrefix.NONE));
+                    Assert.That(obj.RangeMinimum, Is.EqualTo(-32));
+                    Assert.That(obj.RangeMaximum, Is.EqualTo(222));
+                    Assert.That(obj.NormalMinimum, Is.EqualTo(0));
+                    Assert.That(obj.NormalMaximum, Is.EqualTo(100));
+                    Assert.That(obj.RecordedValueSupported, Is.EqualTo(false));
+                    Assert.That(obj.LowestHighestValueSupported, Is.EqualTo(true));
+                    Assert.That(obj.Description, Is.EqualTo("Driver Temperature"));
+                }
             }));
         #endregion
 
@@ -703,19 +835,25 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMSensorValue)));
 
                 var obj = (RDMSensorValue)dataTreeBranch.ParsedObject;
-                Assert.That(obj!.SensorId, Is.EqualTo(0));
-                Assert.That(obj.Index, Is.EqualTo(0));
-                Assert.That(obj.MinIndex, Is.EqualTo(0));
-                Assert.That(obj.PresentValue, Is.EqualTo(31));
-                Assert.That(obj.LowestValue, Is.EqualTo(0));
-                Assert.That(obj.HighestValue, Is.EqualTo(57));
-                Assert.That(obj.RecordedValue, Is.EqualTo(0));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.SensorId, Is.EqualTo(0));
+                    Assert.That(obj.Index, Is.EqualTo(0));
+                    Assert.That(obj.MinIndex, Is.EqualTo(0));
+                    Assert.That(obj.PresentValue, Is.EqualTo(31));
+                    Assert.That(obj.LowestValue, Is.EqualTo(0));
+                    Assert.That(obj.HighestValue, Is.EqualTo(57));
+                    Assert.That(obj.RecordedValue, Is.EqualTo(0));
+                }
             }));
         #endregion
 
@@ -726,9 +864,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x05 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
                 var obj = (byte)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(5));
@@ -742,9 +883,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x00, 0x00, 0x05 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(uint)));
                 var obj = (uint)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(5));
@@ -756,9 +900,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x00, 0x00, 0x05 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(uint)));
                 var obj = (uint)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(5));
@@ -772,9 +919,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x00, 0x00, 0x05 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(uint)));
                 var obj = (uint)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(5));
@@ -786,9 +936,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x00, 0x00, 0x05 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(uint)));
                 var obj = (uint)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(5));
@@ -802,9 +955,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x00, 0x00, 0x05 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(uint)));
                 var obj = (uint)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(5));
@@ -816,9 +972,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x00, 0x00, 0x05 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(uint)));
                 var obj = (uint)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(5));
@@ -832,9 +991,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_LampState)));
                 var obj = (ERDM_LampState)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(ERDM_LampState.ON));
@@ -846,9 +1008,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x02 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_LampState)));
                 var obj = (ERDM_LampState)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(ERDM_LampState.STRIKE));
@@ -862,9 +1027,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_LampMode)));
 
                 var obj = (ERDM_LampMode)dataTreeBranch.ParsedObject;
@@ -877,9 +1045,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_LampMode)));
                 var obj = (ERDM_LampMode)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(ERDM_LampMode.ON_MODE_OFF));
@@ -893,9 +1064,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x00, 0x00, 0x05 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(uint)));
                 var obj = (uint)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(5));
@@ -906,9 +1080,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x00, 0x00, 0x05 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(uint)));
                 var obj = (uint)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(5));
@@ -922,9 +1099,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_DisplayInvert)));
 
                 var obj = (ERDM_DisplayInvert)dataTreeBranch.ParsedObject;
@@ -939,9 +1119,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x7f },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
                 var obj = (byte)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(0x7f));
@@ -952,9 +1135,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
                 var obj = (byte)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(0x00));
@@ -968,9 +1154,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
                 var obj = (bool)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(true));
@@ -981,9 +1170,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
                 var obj = (bool)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(false));
@@ -997,9 +1189,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
                 var obj = (bool)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(true));
@@ -1010,9 +1205,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
                 var obj = (bool)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(false));
@@ -1026,9 +1224,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
                 var obj = (bool)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(true));
@@ -1039,9 +1240,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
                 var obj = (bool)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(false));
@@ -1055,9 +1259,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[0],
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.True);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -1066,18 +1273,24 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x07, 0xea, 0x01, 0x0e, 0x0f, 0x2f, 0x07 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMRealTimeClock)));
 
                 var obj = (RDMRealTimeClock)dataTreeBranch.ParsedObject;
-                Assert.That(obj!.Year, Is.EqualTo(2026));
-                Assert.That(obj.Month, Is.EqualTo(1));
-                Assert.That(obj.Day, Is.EqualTo(14));
-                Assert.That(obj.Hour, Is.EqualTo(15));
-                Assert.That(obj.Minute, Is.EqualTo(47));
-                Assert.That(obj.Second, Is.EqualTo(7));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.Year, Is.EqualTo(2026));
+                    Assert.That(obj.Month, Is.EqualTo(1));
+                    Assert.That(obj.Day, Is.EqualTo(14));
+                    Assert.That(obj.Hour, Is.EqualTo(15));
+                    Assert.That(obj.Minute, Is.EqualTo(47));
+                    Assert.That(obj.Second, Is.EqualTo(7));
+                }
             }));
         yield return new PayloadToParseBagData(
             ERDM_Command.SET_COMMAND,
@@ -1085,18 +1298,24 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x07, 0xea, 0x01, 0x0e, 0x0f, 0x2f, 0x07 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMRealTimeClock)));
 
                 var obj = (RDMRealTimeClock)dataTreeBranch.ParsedObject;
-                Assert.That(obj!.Year, Is.EqualTo(2026));
-                Assert.That(obj.Month, Is.EqualTo(1));
-                Assert.That(obj.Day, Is.EqualTo(14));
-                Assert.That(obj.Hour, Is.EqualTo(15));
-                Assert.That(obj.Minute, Is.EqualTo(47));
-                Assert.That(obj.Second, Is.EqualTo(7));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.Year, Is.EqualTo(2026));
+                    Assert.That(obj.Month, Is.EqualTo(1));
+                    Assert.That(obj.Day, Is.EqualTo(14));
+                    Assert.That(obj.Hour, Is.EqualTo(15));
+                    Assert.That(obj.Minute, Is.EqualTo(47));
+                    Assert.That(obj.Second, Is.EqualTo(7));
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -1105,9 +1324,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[0],
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.True);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                }
             }));
         #endregion
 
@@ -1127,9 +1349,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
 
                 var obj = (bool)dataTreeBranch.ParsedObject;
@@ -1141,9 +1366,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x03 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
 
                 var obj = (byte)dataTreeBranch.ParsedObject;
@@ -1158,9 +1386,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x03 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
 
                 var obj = (byte)dataTreeBranch.ParsedObject;
@@ -1173,14 +1404,20 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x03, 0x53, 0x45, 0x4c, 0x46 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMSelfTestDescription)));
 
                 var obj = (RDMSelfTestDescription)dataTreeBranch.ParsedObject;
-                Assert.That(obj.SelfTestRequester, Is.EqualTo(3));
-                Assert.That(obj.Description, Is.EqualTo("SELF"));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.SelfTestRequester, Is.EqualTo(3));
+                    Assert.That(obj.Description, Is.EqualTo("SELF"));
+                }
             }));
         #endregion
 
@@ -1203,17 +1440,23 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMDMX_xxxx_Mode)));
 
                 var obj = dataTreeBranch.ParsedObject as RDMDMX_xxxx_Mode;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.Scene, Is.EqualTo(0));
-                Assert.That(obj.Delay, Is.EqualTo(0.1).Within(1e-9).Percent);
-                Assert.That(obj.HoldTime, Is.EqualTo(6553.5).Within(1e-9).Percent);
-                Assert.That(obj.Level, Is.EqualTo(byte.MaxValue));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.Scene, Is.EqualTo(0));
+                    Assert.That(obj.Delay, Is.EqualTo(0.1).Within(1e-9).Percent);
+                    Assert.That(obj.HoldTime, Is.EqualTo(6553.5).Within(1e-9).Percent);
+                    Assert.That(obj.Level, Is.EqualTo(byte.MaxValue));
+                }
             }));
         #endregion
 
@@ -1224,17 +1467,23 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMDMX_xxxx_Mode)));
 
                 var obj = dataTreeBranch.ParsedObject as RDMDMX_xxxx_Mode;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.Scene, Is.EqualTo(0));
-                Assert.That(obj.Delay, Is.EqualTo(0.1).Within(1e-9).Percent);
-                Assert.That(obj.HoldTime, Is.EqualTo(6553.5).Within(1e-9).Percent);
-                Assert.That(obj.Level, Is.EqualTo(byte.MaxValue));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.Scene, Is.EqualTo(0));
+                    Assert.That(obj.Delay, Is.EqualTo(0.1).Within(1e-9).Percent);
+                    Assert.That(obj.HoldTime, Is.EqualTo(6553.5).Within(1e-9).Percent);
+                    Assert.That(obj.Level, Is.EqualTo(byte.MaxValue));
+                }
             }));
         #endregion
 
@@ -1245,18 +1494,24 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x03, 0x01, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMDimmerInfo)));
                 var obj = (RDMDimmerInfo)dataTreeBranch.ParsedObject;
-                Assert.That(obj.MinimumLevelLowerLimit, Is.EqualTo(0xffff));
-                Assert.That(obj.MinimumLevelUpperLimit, Is.EqualTo(0xffff));
-                Assert.That(obj.MaximumLevelLowerLimit, Is.EqualTo(0xffff));
-                Assert.That(obj.MaximumLevelUpperLimit, Is.EqualTo(0xffff));
-                Assert.That(obj.NumberOfSupportedCurves, Is.EqualTo(3));
-                Assert.That(obj.LevelsResolution, Is.EqualTo(1));
-                Assert.That(obj.MinimumLevelSplitLevelsSupported, Is.EqualTo(true));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.MinimumLevelLowerLimit, Is.EqualTo(0xffff));
+                    Assert.That(obj.MinimumLevelUpperLimit, Is.EqualTo(0xffff));
+                    Assert.That(obj.MaximumLevelLowerLimit, Is.EqualTo(0xffff));
+                    Assert.That(obj.MaximumLevelUpperLimit, Is.EqualTo(0xffff));
+                    Assert.That(obj.NumberOfSupportedCurves, Is.EqualTo(3));
+                    Assert.That(obj.LevelsResolution, Is.EqualTo(1));
+                    Assert.That(obj.MinimumLevelSplitLevelsSupported, Is.EqualTo(true));
+                }
             }));
         #endregion
 
@@ -1267,9 +1522,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[0],
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.True);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -1278,15 +1536,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x00, 0x01, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMMinimumLevel)));
 
                 var obj = (RDMMinimumLevel)dataTreeBranch.ParsedObject;
-                Assert.That(obj.MinimumLevelIncrease, Is.EqualTo(1));
-                Assert.That(obj.MinimumLevelDecrease, Is.EqualTo(1));
-                Assert.That(obj.OnBelowMinimum, Is.EqualTo(true));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.MinimumLevelIncrease, Is.EqualTo(1));
+                    Assert.That(obj.MinimumLevelDecrease, Is.EqualTo(1));
+                    Assert.That(obj.OnBelowMinimum, Is.EqualTo(true));
+                }
             }));
         yield return new PayloadToParseBagData(
             ERDM_Command.SET_COMMAND,
@@ -1294,15 +1558,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x02, 0x00, 0x01, 0x00 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMMinimumLevel)));
 
                 var obj = (RDMMinimumLevel)dataTreeBranch.ParsedObject;
-                Assert.That(obj.MinimumLevelIncrease, Is.EqualTo(2));
-                Assert.That(obj.MinimumLevelDecrease, Is.EqualTo(1));
-                Assert.That(obj.OnBelowMinimum, Is.EqualTo(false));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.MinimumLevelIncrease, Is.EqualTo(2));
+                    Assert.That(obj.MinimumLevelDecrease, Is.EqualTo(1));
+                    Assert.That(obj.OnBelowMinimum, Is.EqualTo(false));
+                }
             }));
         #endregion
 
@@ -1313,9 +1583,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[0],
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.True);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                }
             }));
         yield return new PayloadToParseBagData(
             ERDM_Command.GET_COMMAND_RESPONSE,
@@ -1323,9 +1596,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0xff },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                 var obj = (ushort)dataTreeBranch.ParsedObject;
@@ -1337,9 +1613,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0xff },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
                 var obj = (ushort)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(255));
@@ -1353,9 +1632,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[0],
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.True);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -1364,19 +1646,25 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01, 0x04 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMCurve)));
 
                 var obj = (RDMCurve)dataTreeBranch.ParsedObject;
-                Assert.That(obj.CurrentCurveId, Is.EqualTo(1));
-                Assert.That(obj.Index, Is.EqualTo(1));
-                Assert.That(obj.Curves, Is.EqualTo(4));
-                Assert.That(obj.Count, Is.EqualTo(4));
-                Assert.That(obj.MinIndex, Is.EqualTo(1));
-                Assert.That(obj.IndexType, Is.EqualTo(typeof(byte)));
-                Assert.That(obj.DescriptorParameter, Is.EqualTo(ERDM_Parameter.CURVE_DESCRIPTION));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.CurrentCurveId, Is.EqualTo(1));
+                    Assert.That(obj.Index, Is.EqualTo(1));
+                    Assert.That(obj.Curves, Is.EqualTo(4));
+                    Assert.That(obj.Count, Is.EqualTo(4));
+                    Assert.That(obj.MinIndex, Is.EqualTo(1));
+                    Assert.That(obj.IndexType, Is.EqualTo(typeof(byte)));
+                    Assert.That(obj.DescriptorParameter, Is.EqualTo(ERDM_Parameter.CURVE_DESCRIPTION));
+                }
             }));
         #endregion
 
@@ -1387,9 +1675,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
 
                 var obj = (byte)dataTreeBranch.ParsedObject;
@@ -1402,14 +1693,20 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01, 0x4C, 0x69, 0x6E, 0x65, 0x61, 0x72 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMCurveDescription)));
 
                 var obj = (RDMCurveDescription)dataTreeBranch.ParsedObject;
-                Assert.That(obj.CurveId, Is.EqualTo(1));
-                Assert.That(obj.Description, Is.EqualTo("Linear"));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.CurveId, Is.EqualTo(1));
+                    Assert.That(obj.Description, Is.EqualTo("Linear"));
+                }
             }));
         #endregion
 
@@ -1420,9 +1717,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[0],
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.True);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -1431,19 +1731,25 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01, 0x05 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMOutputResponseTime)));
 
                 var obj = (RDMOutputResponseTime)dataTreeBranch.ParsedObject;
-                Assert.That(obj!.CurrentResponseTimeId, Is.EqualTo(1));
-                Assert.That(obj.Index, Is.EqualTo(1));
-                Assert.That(obj.ResponseTimes, Is.EqualTo(5));
-                Assert.That(obj.Count, Is.EqualTo(5));
-                Assert.That(obj.MinIndex, Is.EqualTo(1));
-                Assert.That(obj.IndexType, Is.EqualTo(typeof(byte)));
-                Assert.That(obj.DescriptorParameter, Is.EqualTo(ERDM_Parameter.OUTPUT_RESPONSE_TIME_DESCRIPTION));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.CurrentResponseTimeId, Is.EqualTo(1));
+                    Assert.That(obj.Index, Is.EqualTo(1));
+                    Assert.That(obj.ResponseTimes, Is.EqualTo(5));
+                    Assert.That(obj.Count, Is.EqualTo(5));
+                    Assert.That(obj.MinIndex, Is.EqualTo(1));
+                    Assert.That(obj.IndexType, Is.EqualTo(typeof(byte)));
+                    Assert.That(obj.DescriptorParameter, Is.EqualTo(ERDM_Parameter.OUTPUT_RESPONSE_TIME_DESCRIPTION));
+                }
             }));
         #endregion
 
@@ -1454,9 +1760,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
                 var obj = (byte)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(1));
@@ -1468,14 +1777,20 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01, 0x46, 0x61, 0x73, 0x74 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMOutputResponseTimeDescription)));
 
                 var obj = (RDMOutputResponseTimeDescription)dataTreeBranch.ParsedObject;
-                Assert.That(obj.OutputResponseTimeId, Is.EqualTo(1));
-                Assert.That(obj.Description, Is.EqualTo("Fast"));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.OutputResponseTimeId, Is.EqualTo(1));
+                    Assert.That(obj.Description, Is.EqualTo("Fast"));
+                }
             }));
         #endregion
 
@@ -1486,9 +1801,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[0],
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.True);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -1497,19 +1815,25 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01, 0x05 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMModulationFrequency)));
 
                 var obj = (RDMModulationFrequency)dataTreeBranch.ParsedObject;
-                Assert.That(obj.ModulationFrequencyId, Is.EqualTo(1));
-                Assert.That(obj.Index, Is.EqualTo(1));
-                Assert.That(obj.ModulationFrequencys, Is.EqualTo(5));
-                Assert.That(obj.Count, Is.EqualTo(5));
-                Assert.That(obj.MinIndex, Is.EqualTo(1));
-                Assert.That(obj.IndexType, Is.EqualTo(typeof(byte)));
-                Assert.That(obj.DescriptorParameter, Is.EqualTo(ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.ModulationFrequencyId, Is.EqualTo(1));
+                    Assert.That(obj.Index, Is.EqualTo(1));
+                    Assert.That(obj.ModulationFrequencys, Is.EqualTo(5));
+                    Assert.That(obj.Count, Is.EqualTo(5));
+                    Assert.That(obj.MinIndex, Is.EqualTo(1));
+                    Assert.That(obj.IndexType, Is.EqualTo(typeof(byte)));
+                    Assert.That(obj.DescriptorParameter, Is.EqualTo(ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION));
+                }
             }));
         #endregion
 
@@ -1520,9 +1844,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
                 var obj = (byte)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(1));
@@ -1534,15 +1861,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01, 0x00, 0x00, 0x00, 0xFF, 0x46, 0x61, 0x73, 0x74 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMModulationFrequencyDescription)));
 
                 var obj = (RDMModulationFrequencyDescription)dataTreeBranch.ParsedObject;
-                Assert.That(obj.ModulationFrequencyId, Is.EqualTo(1));
-                Assert.That(obj.Frequency, Is.EqualTo(255));
-                Assert.That(obj.Description, Is.EqualTo("Fast"));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.ModulationFrequencyId, Is.EqualTo(1));
+                    Assert.That(obj.Frequency, Is.EqualTo(255));
+                    Assert.That(obj.Description, Is.EqualTo("Fast"));
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -1551,15 +1884,21 @@ public class PayloadToParsedObjectTestSubject
            new byte[] { 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x46, 0x61, 0x73, 0x74 },
            new Action<DataTreeBranch>((dataTreeBranch) =>
            {
-               Assert.That(dataTreeBranch.IsUnset, Is.False);
-               Assert.That(dataTreeBranch.IsEmpty, Is.False);
-               Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(dataTreeBranch.IsUnset, Is.False);
+                   Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                   Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               }
                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMModulationFrequencyDescription)));
 
                var obj = (RDMModulationFrequencyDescription)dataTreeBranch.ParsedObject;
-               Assert.That(obj.ModulationFrequencyId, Is.EqualTo(1));
-               Assert.That(obj.Frequency, Is.Null);
-               Assert.That(obj.Description, Is.EqualTo("Fast"));
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(obj.ModulationFrequencyId, Is.EqualTo(1));
+                   Assert.That(obj.Frequency, Is.Null);
+                   Assert.That(obj.Description, Is.EqualTo("Fast"));
+               }
            }));
         #endregion
 
@@ -1570,9 +1909,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x09 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
                 var obj = (byte)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(9));
@@ -1584,9 +1926,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0xff },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
                 var obj = (byte)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(255));
@@ -1600,9 +1945,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01, 0x02 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                 var obj = (ushort)dataTreeBranch.ParsedObject;
@@ -1614,14 +1962,20 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01, 0x02, 0x03, 0x04 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(SetLockPinRequest)));
 
                 var obj = (SetLockPinRequest)dataTreeBranch.ParsedObject;
-                Assert.That(obj.NewPinCode, Is.EqualTo(0258));
-                Assert.That(obj.CurrentPinCode, Is.EqualTo(0772));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.NewPinCode, Is.EqualTo(0258));
+                    Assert.That(obj.CurrentPinCode, Is.EqualTo(0772));
+                }
             }));
         #endregion
 
@@ -1632,19 +1986,25 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01, 0x08 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetLockStateResponse)));
 
                 var obj = (GetLockStateResponse)dataTreeBranch.ParsedObject;
-                Assert.That(obj.CurrentLockStateId, Is.EqualTo(1));
-                Assert.That(obj.Index, Is.EqualTo(1));
-                Assert.That(obj.LockStates, Is.EqualTo(8));
-                Assert.That(obj.Count, Is.EqualTo(8));
-                Assert.That(obj.MinIndex, Is.EqualTo(0));
-                Assert.That(obj.IndexType, Is.EqualTo(typeof(byte)));
-                Assert.That(obj.DescriptorParameter, Is.EqualTo(ERDM_Parameter.LOCK_STATE_DESCRIPTION));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.CurrentLockStateId, Is.EqualTo(1));
+                    Assert.That(obj.Index, Is.EqualTo(1));
+                    Assert.That(obj.LockStates, Is.EqualTo(8));
+                    Assert.That(obj.Count, Is.EqualTo(8));
+                    Assert.That(obj.MinIndex, Is.EqualTo(0));
+                    Assert.That(obj.IndexType, Is.EqualTo(typeof(byte)));
+                    Assert.That(obj.DescriptorParameter, Is.EqualTo(ERDM_Parameter.LOCK_STATE_DESCRIPTION));
+                }
             }));
         yield return new PayloadToParseBagData(
             ERDM_Command.SET_COMMAND,
@@ -1652,14 +2012,20 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01, 0x02, 0x03 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(SetLockStateRequest)));
 
                 var obj = (SetLockStateRequest)dataTreeBranch.ParsedObject;
-                Assert.That(obj.LockStateId, Is.EqualTo(3));
-                Assert.That(obj.PinCode, Is.EqualTo(0258));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.LockStateId, Is.EqualTo(3));
+                    Assert.That(obj.PinCode, Is.EqualTo(0258));
+                }
             }));
         #endregion
 
@@ -1670,9 +2036,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
 
                 var obj = (byte)dataTreeBranch.ParsedObject;
@@ -1684,14 +2053,20 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01, 0x4C, 0x6F, 0x63, 0x6B, 0x65, 0x64 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMLockStateDescription)));
 
                 var obj = (RDMLockStateDescription)dataTreeBranch.ParsedObject;
-                Assert.That(obj.LockStateId, Is.EqualTo(1));
-                Assert.That(obj.Description, Is.EqualTo("Locked"));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.LockStateId, Is.EqualTo(1));
+                    Assert.That(obj.Description, Is.EqualTo("Locked"));
+                }
             }));
         #endregion
 
@@ -1702,9 +2077,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0xff },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_IdentifyMode)));
 
                 var obj = (ERDM_IdentifyMode)dataTreeBranch.ParsedObject;
@@ -1716,9 +2094,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_IdentifyMode)));
 
                 var obj = (ERDM_IdentifyMode)dataTreeBranch.ParsedObject;
@@ -1738,32 +2119,38 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMPresetInfo)));
 
                 var obj = dataTreeBranch.ParsedObject as RDMPresetInfo;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.LevelFieldSupported, Is.EqualTo(true));
-                Assert.That(obj!.PresetSequenceSupported, Is.EqualTo(true));
-                Assert.That(obj!.SplitTimesSupported, Is.EqualTo(true));
-                Assert.That(obj!.DMX512FailInfiniteDelayTimeSupported, Is.EqualTo(true));
-                Assert.That(obj!.DMX512FailInfiniteHoldTimeSupported, Is.EqualTo(true));
-                Assert.That(obj!.StartupInfiniteHoldTimeSupported, Is.EqualTo(true));
-                Assert.That(obj!.MaximumSceneNumber, Is.EqualTo(2));
-                Assert.That(obj!.MinimumPresetFadeTimeSupported, Is.EqualTo(6553.5).Within(1e-9).Percent);
-                Assert.That(obj!.MaximumPresetFadeTimeSupported, Is.EqualTo(6553.5).Within(1e-9).Percent);
-                Assert.That(obj!.MinimumPresetWaitTimeSupported, Is.EqualTo(6553.5).Within(1e-9).Percent);
-                Assert.That(obj!.MaximumPresetWaitTimeSupported, Is.EqualTo(6553.5).Within(1e-9).Percent);
-                Assert.That(obj!.MinimumDMX512FailDelayTimeSupported, Is.EqualTo(0).Within(1e-9).Percent);
-                Assert.That(obj!.MaximumDMX512FailDelayTimeSupported, Is.EqualTo(6553.4).Within(1e-9).Percent);
-                Assert.That(obj!.MinimumDMX512FailDelayHoldSupported, Is.EqualTo(0.1).Within(1e-9).Percent);
-                Assert.That(obj!.MaximumDMX512FailDelayHoldSupported, Is.EqualTo(6553.4).Within(1e-9).Percent);
-                Assert.That(obj!.MinimumStartupDelayTimeSupported, Is.EqualTo(0.1).Within(1e-9).Percent);
-                Assert.That(obj!.MaximumStartupDelayTimeSupported, Is.EqualTo(6553.4).Within(1e-9).Percent);
-                Assert.That(obj!.MinimumStartupDelayHoldSupported, Is.EqualTo(0.1).Within(1e-9).Percent);
-                Assert.That(obj!.MaximumStartupDelayHoldSupported, Is.EqualTo(6553.4).Within(1e-9).Percent);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.LevelFieldSupported, Is.EqualTo(true));
+                    Assert.That(obj!.PresetSequenceSupported, Is.EqualTo(true));
+                    Assert.That(obj!.SplitTimesSupported, Is.EqualTo(true));
+                    Assert.That(obj!.DMX512FailInfiniteDelayTimeSupported, Is.EqualTo(true));
+                    Assert.That(obj!.DMX512FailInfiniteHoldTimeSupported, Is.EqualTo(true));
+                    Assert.That(obj!.StartupInfiniteHoldTimeSupported, Is.EqualTo(true));
+                    Assert.That(obj!.MaximumSceneNumber, Is.EqualTo(2));
+                    Assert.That(obj!.MinimumPresetFadeTimeSupported, Is.EqualTo(6553.5).Within(1e-9).Percent);
+                    Assert.That(obj!.MaximumPresetFadeTimeSupported, Is.EqualTo(6553.5).Within(1e-9).Percent);
+                    Assert.That(obj!.MinimumPresetWaitTimeSupported, Is.EqualTo(6553.5).Within(1e-9).Percent);
+                    Assert.That(obj!.MaximumPresetWaitTimeSupported, Is.EqualTo(6553.5).Within(1e-9).Percent);
+                    Assert.That(obj!.MinimumDMX512FailDelayTimeSupported, Is.EqualTo(0).Within(1e-9).Percent);
+                    Assert.That(obj!.MaximumDMX512FailDelayTimeSupported, Is.EqualTo(6553.4).Within(1e-9).Percent);
+                    Assert.That(obj!.MinimumDMX512FailDelayHoldSupported, Is.EqualTo(0.1).Within(1e-9).Percent);
+                    Assert.That(obj!.MaximumDMX512FailDelayHoldSupported, Is.EqualTo(6553.4).Within(1e-9).Percent);
+                    Assert.That(obj!.MinimumStartupDelayTimeSupported, Is.EqualTo(0.1).Within(1e-9).Percent);
+                    Assert.That(obj!.MaximumStartupDelayTimeSupported, Is.EqualTo(6553.4).Within(1e-9).Percent);
+                    Assert.That(obj!.MinimumStartupDelayHoldSupported, Is.EqualTo(0.1).Within(1e-9).Percent);
+                    Assert.That(obj!.MaximumStartupDelayHoldSupported, Is.EqualTo(6553.4).Within(1e-9).Percent);
+                }
             }));
         #endregion
 
@@ -1777,18 +2164,24 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMPresetStatus)));
 
                 var obj = dataTreeBranch.ParsedObject as RDMPresetStatus;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.SceneId, Is.EqualTo(1));
-                Assert.That(obj!.UpFadeTime, Is.EqualTo(0));
-                Assert.That(obj!.DownFadeTime, Is.EqualTo(0));
-                Assert.That(obj!.WaitTime, Is.EqualTo(0));
-                Assert.That(obj!.EProgrammed, Is.EqualTo(ERDM_PresetProgrammed.PROGRAMMED_READ_ONLY));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.SceneId, Is.EqualTo(1));
+                    Assert.That(obj!.UpFadeTime, Is.EqualTo(0));
+                    Assert.That(obj!.DownFadeTime, Is.EqualTo(0));
+                    Assert.That(obj!.WaitTime, Is.EqualTo(0));
+                    Assert.That(obj!.EProgrammed, Is.EqualTo(ERDM_PresetProgrammed.PROGRAMMED_READ_ONLY));
+                }
             }));
         #endregion
 
@@ -1799,9 +2192,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_MergeMode)));
                 var obj = (ERDM_MergeMode)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(ERDM_MergeMode.HTP));
@@ -1813,9 +2209,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x02 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_MergeMode)));
                 var obj = (ERDM_MergeMode)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo(ERDM_MergeMode.LTP));
@@ -1829,9 +2228,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
 
                 var obj = (byte)dataTreeBranch.ParsedObject;
@@ -1843,9 +2245,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
 
                 var obj = (byte)dataTreeBranch.ParsedObject;
@@ -1919,15 +2324,21 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetEndpointListResponse)));
 
                 var obj = dataTreeBranch.ParsedObject as GetEndpointListResponse;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.Endpoints.Length, Is.EqualTo(7));
-                Assert.That(obj.Endpoints, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.Endpoints, Has.Length.EqualTo(7));
+                    Assert.That(obj.Endpoints, Is.Not.Null);
+                }
             }));
         #endregion
 
@@ -1938,9 +2349,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x00, 0x00, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(uint)));
 
                 var obj = dataTreeBranch.ParsedObject as uint?;
@@ -1956,9 +2370,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                 var obj = dataTreeBranch.ParsedObject as ushort?;
@@ -1972,15 +2389,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x00 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetSetIdentifyEndpoint)));
 
                 var obj = dataTreeBranch.ParsedObject as GetSetIdentifyEndpoint;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.IdentifyState, Is.EqualTo(false));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.IdentifyState, Is.EqualTo(false));
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -1989,15 +2412,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetSetIdentifyEndpoint)));
 
                 var obj = dataTreeBranch.ParsedObject as GetSetIdentifyEndpoint;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.IdentifyState, Is.EqualTo(true));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.IdentifyState, Is.EqualTo(true));
+                }
             }));
         #endregion
 
@@ -2008,9 +2437,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                 var obj = dataTreeBranch.ParsedObject as ushort?;
@@ -2024,15 +2456,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x00, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetSetEndpointToUniverse)));
 
                 var obj = dataTreeBranch.ParsedObject as GetSetEndpointToUniverse;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.Universe, Is.EqualTo(1));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.Universe, Is.EqualTo(1));
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -2041,15 +2479,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x00, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetSetEndpointToUniverse)));
 
                 var obj = dataTreeBranch.ParsedObject as GetSetEndpointToUniverse;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.Universe, Is.EqualTo(1));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.Universe, Is.EqualTo(1));
+                }
             }));
         #endregion
 
@@ -2060,9 +2504,12 @@ public class PayloadToParsedObjectTestSubject
            new byte[] { 0x00, 0x01 },
            new Action<DataTreeBranch>((dataTreeBranch) =>
            {
-               Assert.That(dataTreeBranch.IsUnset, Is.False);
-               Assert.That(dataTreeBranch.IsEmpty, Is.False);
-               Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(dataTreeBranch.IsUnset, Is.False);
+                   Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                   Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               }
                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                var obj = dataTreeBranch.ParsedObject as ushort?;
@@ -2076,15 +2523,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetSetEndpointMode)));
 
                 var obj = dataTreeBranch.ParsedObject as GetSetEndpointMode;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.EndpointMode, Is.EqualTo(ERDM_EndpointMode.INPUT));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.EndpointMode, Is.EqualTo(ERDM_EndpointMode.INPUT));
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -2093,15 +2546,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x02 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetSetEndpointMode)));
 
                 var obj = dataTreeBranch.ParsedObject as GetSetEndpointMode;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.EndpointMode, Is.EqualTo(ERDM_EndpointMode.OUTPUT));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.EndpointMode, Is.EqualTo(ERDM_EndpointMode.OUTPUT));
+                }
             }));
         #endregion
 
@@ -2112,9 +2571,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                 var obj = dataTreeBranch.ParsedObject as ushort?;
@@ -2128,15 +2590,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x08, 0x50, 0x6f, 0x72, 0x74, 0x20, 0x36 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetSetEndpointLabel)));
 
                 var obj = dataTreeBranch.ParsedObject as GetSetEndpointLabel;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(8));
-                Assert.That(obj!.EndpointLabel, Is.EqualTo("Port 6"));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(8));
+                    Assert.That(obj!.EndpointLabel, Is.EqualTo("Port 6"));
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -2145,15 +2613,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x08, 0x50, 0x6f, 0x72, 0x74, 0x20, 0x36 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetSetEndpointLabel)));
 
                 var obj = dataTreeBranch.ParsedObject as GetSetEndpointLabel;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(8));
-                Assert.That(obj!.EndpointLabel, Is.EqualTo("Port 6"));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(8));
+                    Assert.That(obj!.EndpointLabel, Is.EqualTo("Port 6"));
+                }
             }));
         yield return new PayloadToParseBagData(
             ERDM_Command.SET_COMMAND_RESPONSE,
@@ -2161,9 +2635,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                 var obj = dataTreeBranch.ParsedObject as ushort?;
@@ -2179,9 +2656,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                 var obj = dataTreeBranch.ParsedObject as ushort?;
@@ -2195,15 +2675,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x00 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetSetEndpointRDMTrafficEnable)));
 
                 var obj = dataTreeBranch.ParsedObject as GetSetEndpointRDMTrafficEnable;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.RDMTrafficEnabled, Is.EqualTo(false));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.RDMTrafficEnabled, Is.EqualTo(false));
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -2212,15 +2698,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetSetEndpointRDMTrafficEnable)));
 
                 var obj = dataTreeBranch.ParsedObject as GetSetEndpointRDMTrafficEnable;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.RDMTrafficEnabled, Is.EqualTo(true));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.RDMTrafficEnabled, Is.EqualTo(true));
+                }
             }));
         #endregion
 
@@ -2231,9 +2723,12 @@ public class PayloadToParsedObjectTestSubject
            new byte[] { 0x00, 0x01 },
            new Action<DataTreeBranch>((dataTreeBranch) =>
            {
-               Assert.That(dataTreeBranch.IsUnset, Is.False);
-               Assert.That(dataTreeBranch.IsEmpty, Is.False);
-               Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(dataTreeBranch.IsUnset, Is.False);
+                   Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                   Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               }
                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                var obj = dataTreeBranch.ParsedObject as ushort?;
@@ -2247,16 +2742,22 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x00, 0x02, 0x04 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetDiscoveryStateResponse)));
 
                 var obj = dataTreeBranch.ParsedObject as GetDiscoveryStateResponse;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.DeviceCount, Is.EqualTo(2));
-                Assert.That(obj!.DiscoveryState, Is.EqualTo(ERDM_DiscoveryState.NOT_ACTIVE));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.DeviceCount, Is.EqualTo(2));
+                    Assert.That(obj!.DiscoveryState, Is.EqualTo(ERDM_DiscoveryState.NOT_ACTIVE));
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -2265,15 +2766,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(SetDiscoveryStateRequest)));
 
                 var obj = dataTreeBranch.ParsedObject as SetDiscoveryStateRequest;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.DiscoveryState, Is.EqualTo(ERDM_DiscoveryState.INCREMENTAL));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.DiscoveryState, Is.EqualTo(ERDM_DiscoveryState.INCREMENTAL));
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -2282,9 +2789,12 @@ public class PayloadToParsedObjectTestSubject
            new byte[] { 0x00, 0x01 },
            new Action<DataTreeBranch>((dataTreeBranch) =>
            {
-               Assert.That(dataTreeBranch.IsUnset, Is.False);
-               Assert.That(dataTreeBranch.IsEmpty, Is.False);
-               Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(dataTreeBranch.IsUnset, Is.False);
+                   Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                   Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               }
                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                var obj = dataTreeBranch.ParsedObject as ushort?;
@@ -2300,9 +2810,12 @@ public class PayloadToParsedObjectTestSubject
            new byte[] { 0x00, 0x01 },
            new Action<DataTreeBranch>((dataTreeBranch) =>
            {
-               Assert.That(dataTreeBranch.IsUnset, Is.False);
-               Assert.That(dataTreeBranch.IsEmpty, Is.False);
-               Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(dataTreeBranch.IsUnset, Is.False);
+                   Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                   Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               }
                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                var obj = dataTreeBranch.ParsedObject as ushort?;
@@ -2316,15 +2829,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x00 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetSetEndpointBackgroundDiscovery)));
 
                 var obj = dataTreeBranch.ParsedObject as GetSetEndpointBackgroundDiscovery;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.BackgroundDiscovery, Is.EqualTo(false));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.BackgroundDiscovery, Is.EqualTo(false));
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -2333,15 +2852,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetSetEndpointBackgroundDiscovery)));
 
                 var obj = dataTreeBranch.ParsedObject as GetSetEndpointBackgroundDiscovery;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.BackgroundDiscovery, Is.EqualTo(true));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.BackgroundDiscovery, Is.EqualTo(true));
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -2350,9 +2875,12 @@ public class PayloadToParsedObjectTestSubject
            new byte[] { 0x00, 0x01 },
            new Action<DataTreeBranch>((dataTreeBranch) =>
            {
-               Assert.That(dataTreeBranch.IsUnset, Is.False);
-               Assert.That(dataTreeBranch.IsEmpty, Is.False);
-               Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(dataTreeBranch.IsUnset, Is.False);
+                   Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                   Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+               }
                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                var obj = dataTreeBranch.ParsedObject as ushort?;
@@ -2368,9 +2896,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                 var obj = dataTreeBranch.ParsedObject as ushort?;
@@ -2384,16 +2915,22 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x02, 0x03 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetEndpointTimingResponse)));
 
                 var obj = dataTreeBranch.ParsedObject as GetEndpointTimingResponse;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.TimingId, Is.EqualTo(2));
-                Assert.That(obj!.Count, Is.EqualTo(3));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.TimingId, Is.EqualTo(2));
+                    Assert.That(obj!.Count, Is.EqualTo(3));
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -2402,15 +2939,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x02 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(SetEndpointTimingRequest)));
 
                 var obj = dataTreeBranch.ParsedObject as SetEndpointTimingRequest;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.TimingId, Is.EqualTo(2));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.TimingId, Is.EqualTo(2));
+                }
             }));
         #endregion
 
@@ -2421,9 +2964,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x03 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
 
                 var obj = dataTreeBranch.ParsedObject as byte?;
@@ -2441,15 +2987,21 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetEndpointTimingDescriptionResponse)));
 
                 var obj = dataTreeBranch.ParsedObject as GetEndpointTimingDescriptionResponse;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.TimingId, Is.EqualTo(3));
-                Assert.That(obj.Description, Is.EqualTo("Slow (200uS/25FPS)"));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.TimingId, Is.EqualTo(3));
+                    Assert.That(obj.Description, Is.EqualTo("Slow (200uS/25FPS)"));
+                }
             }));
         #endregion
 
@@ -2462,17 +3014,23 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetEndpointRespondersResponse)));
 
                 var obj = dataTreeBranch.ParsedObject as GetEndpointRespondersResponse;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(3));
-                Assert.That(obj.ListChangedNumber, Is.EqualTo(9));
-                Assert.That(obj.UIDs, Is.Not.Null);
-                Assert.That(obj.UIDs.Length, Is.EqualTo(0));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(3));
+                    Assert.That(obj.ListChangedNumber, Is.EqualTo(9));
+                    Assert.That(obj.UIDs, Is.Not.Null);
+                }
+                Assert.That(obj.UIDs, Is.Empty);
             }));
 
         yield return new PayloadToParseBagData(
@@ -2484,17 +3042,23 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetEndpointRespondersResponse)));
 
                 var obj = dataTreeBranch.ParsedObject as GetEndpointRespondersResponse;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(3));
-                Assert.That(obj.ListChangedNumber, Is.EqualTo(9));
-                Assert.That(obj.UIDs, Is.Not.Null);
-                Assert.That(obj.UIDs.Length, Is.EqualTo(1));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(3));
+                    Assert.That(obj.ListChangedNumber, Is.EqualTo(9));
+                    Assert.That(obj.UIDs, Is.Not.Null);
+                }
+                Assert.That(obj.UIDs, Has.Length.EqualTo(1));
                 Assert.That(obj.UIDs[0], Is.EqualTo(new UID(0x5347, 0x9471af2f)));
             }));
 
@@ -2508,19 +3072,28 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetEndpointRespondersResponse)));
 
                 var obj = dataTreeBranch.ParsedObject as GetEndpointRespondersResponse;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(3));
-                Assert.That(obj.ListChangedNumber, Is.EqualTo(9));
-                Assert.That(obj.UIDs, Is.Not.Null);
-                Assert.That(obj.UIDs.Length, Is.EqualTo(2));
-                Assert.That(obj.UIDs[0], Is.EqualTo(new UID(0x5347, 0x9471af2f)));
-                Assert.That(obj.UIDs[1], Is.EqualTo(new UID(0x5347, 0x94030201)));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(3));
+                    Assert.That(obj.ListChangedNumber, Is.EqualTo(9));
+                    Assert.That(obj.UIDs, Is.Not.Null);
+                }
+                Assert.That(obj.UIDs, Has.Length.EqualTo(2));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.UIDs[0], Is.EqualTo(new UID(0x5347, 0x9471af2f)));
+                    Assert.That(obj.UIDs[1], Is.EqualTo(new UID(0x5347, 0x94030201)));
+                }
             }));
         #endregion
 
@@ -2531,9 +3104,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                 var obj = dataTreeBranch.ParsedObject as ushort?;
@@ -2547,15 +3123,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x02, 0x03, 0x02, 0x03 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetEndpointResponderListChangeResponse)));
 
                 var obj = dataTreeBranch.ParsedObject as GetEndpointResponderListChangeResponse;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.ListChangeNumber, Is.EqualTo(33751555));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.ListChangeNumber, Is.EqualTo(33751555));
+                }
             }));
         #endregion
 
@@ -2566,15 +3148,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01, 0x53, 0x47, 0x94, 0x71, 0xaf, 0x2f },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetBindingAndControlFieldsRequest)));
 
                 var obj = dataTreeBranch.ParsedObject as GetBindingAndControlFieldsRequest;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.UID, Is.EqualTo(new UID(0x5347, 0x9471af2f)));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.UID, Is.EqualTo(new UID(0x5347, 0x9471af2f)));
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -2586,17 +3174,23 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetBindingAndControlFieldsResponse)));
 
                 var obj = dataTreeBranch.ParsedObject as GetBindingAndControlFieldsResponse;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                Assert.That(obj!.UID, Is.EqualTo(new UID(0x5347, 0x9471af2f)));
-                Assert.That(obj!.ControlField, Is.EqualTo(0));
-                Assert.That(obj!.BindingUID, Is.EqualTo(new UID(0x5246, 0x9372ad21)));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.EndpointId, Is.EqualTo(1));
+                    Assert.That(obj!.UID, Is.EqualTo(new UID(0x5347, 0x9471af2f)));
+                    Assert.That(obj!.ControlField, Is.EqualTo(0));
+                    Assert.That(obj!.BindingUID, Is.EqualTo(new UID(0x5246, 0x9372ad21)));
+                }
             }));
         #endregion
 
@@ -2607,9 +3201,12 @@ public class PayloadToParsedObjectTestSubject
            new byte[] { },
            new Action<DataTreeBranch>((dataTreeBranch) =>
            {
-               Assert.That(dataTreeBranch.IsUnset, Is.False);
-               Assert.That(dataTreeBranch.IsEmpty, Is.True);
-               Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+               using (Assert.EnterMultipleScope())
+               {
+                   Assert.That(dataTreeBranch.IsUnset, Is.False);
+                   Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                   Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+               }
            }));
 
         yield return new PayloadToParseBagData(
@@ -2618,15 +3215,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01, 0x02 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetBackgroundQueuedStatusPolicyResponse)));
 
                 var obj = dataTreeBranch.ParsedObject as GetBackgroundQueuedStatusPolicyResponse;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.PolicyId, Is.EqualTo(1));
-                Assert.That(obj!.Count, Is.EqualTo(2));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.PolicyId, Is.EqualTo(1));
+                    Assert.That(obj!.Count, Is.EqualTo(2));
+                }
             }));
 
         yield return new PayloadToParseBagData(
@@ -2635,9 +3238,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x02 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
 
                 var obj = dataTreeBranch.ParsedObject as byte?;
@@ -2653,9 +3259,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x03 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
 
                 var obj = dataTreeBranch.ParsedObject as byte?;
@@ -2673,15 +3282,21 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetBackgroundQueuedStatusPolicyDescriptionResponse)));
 
                 var obj = dataTreeBranch.ParsedObject as GetBackgroundQueuedStatusPolicyDescriptionResponse;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.PolicyId, Is.EqualTo(3));
-                Assert.That(obj.Description, Is.EqualTo("Slow (200uS/25FPS)"));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.PolicyId, Is.EqualTo(3));
+                    Assert.That(obj.Description, Is.EqualTo("Slow (200uS/25FPS)"));
+                }
             }));
         #endregion
 
@@ -2692,9 +3307,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x68, 0x74, 0x74, 0x70, 0x73, 0x3a, 0x2f, 0x2f, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2e, 0x63, 0x6f, 0x6d },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
                 var obj = dataTreeBranch.ParsedObject as string;
                 Assert.That(obj, Is.Not.Null);
@@ -2709,9 +3327,12 @@ public class PayloadToParsedObjectTestSubject
              new byte[] { 0x68, 0x74, 0x74, 0x70, 0x73, 0x3a, 0x2f, 0x2f, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2e, 0x63, 0x6f, 0x6d },
              new Action<DataTreeBranch>((dataTreeBranch) =>
              {
-                 Assert.That(dataTreeBranch.IsUnset, Is.False);
-                 Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                 Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                 using (Assert.EnterMultipleScope())
+                 {
+                     Assert.That(dataTreeBranch.IsUnset, Is.False);
+                     Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                     Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                 }
                  Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
                  var obj = dataTreeBranch.ParsedObject as string;
                  Assert.That(obj, Is.Not.Null);
@@ -2726,9 +3347,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x68, 0x74, 0x74, 0x70, 0x73, 0x3a, 0x2f, 0x2f, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2e, 0x63, 0x6f, 0x6d },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
                 var obj = dataTreeBranch.ParsedObject as string;
                 Assert.That(obj, Is.Not.Null);
@@ -2746,9 +3370,12 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
                 var obj = dataTreeBranch.ParsedObject as string;
                 Assert.That(obj, Is.Not.Null);
@@ -2764,15 +3391,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x04, 0x00, 0x08, 0x00 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetDeviceInfoOffstageRequest)));
                 var obj = dataTreeBranch.ParsedObject as GetDeviceInfoOffstageRequest;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.RootPersonality, Is.EqualTo(4));
-                Assert.That(obj!.SubDeviceRequested, Is.EqualTo(8));
-                Assert.That(obj!.SubDevicePersonalityRequested, Is.EqualTo(0));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.RootPersonality, Is.EqualTo(4));
+                    Assert.That(obj!.SubDeviceRequested, Is.EqualTo(8));
+                    Assert.That(obj!.SubDevicePersonalityRequested, Is.EqualTo(0));
+                }
             }));
         yield return new PayloadToParseBagData(
             ERDM_Command.GET_COMMAND_RESPONSE,
@@ -2785,30 +3418,39 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetDeviceInfoOffstageResponse)));
 
                 var obj = (GetDeviceInfoOffstageResponse)dataTreeBranch.ParsedObject;
-                Assert.That(obj.RootPersonality, Is.EqualTo(4));
-                Assert.That(obj.SubDeviceRequested, Is.EqualTo(8));
-                Assert.That(obj.SubDevicePersonalityRequested, Is.EqualTo(0));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.RootPersonality, Is.EqualTo(4));
+                    Assert.That(obj.SubDeviceRequested, Is.EqualTo(8));
+                    Assert.That(obj.SubDevicePersonalityRequested, Is.EqualTo(0));
+                }
 
                 var deviceInfo = obj.DeviceInfo;
                 Assert.That(deviceInfo, Is.Not.Null);
-                Assert.That(deviceInfo.RdmProtocolVersionMajor, Is.EqualTo(1));
-                Assert.That(deviceInfo.RdmProtocolVersionMinor, Is.EqualTo(0));
-                Assert.That(deviceInfo.DeviceModelId, Is.EqualTo(0x0005));
-                Assert.That(deviceInfo.ProductCategoryCoarse, Is.EqualTo(ERDM_ProductCategoryCoarse.POWER));
-                Assert.That(deviceInfo.ProductCategoryFine, Is.EqualTo(ERDM_ProductCategoryFine.POWER_CONTROL));
-                Assert.That(deviceInfo.SoftwareVersionId, Is.EqualTo(0x02000101));
-                Assert.That(deviceInfo.Dmx512Footprint, Is.EqualTo(1));
-                Assert.That(deviceInfo.Dmx512CurrentPersonality, Is.EqualTo(1));
-                Assert.That(deviceInfo.Dmx512NumberOfPersonalities, Is.EqualTo(3));
-                Assert.That(deviceInfo.Dmx512StartAddress, Is.EqualTo(1));
-                Assert.That(deviceInfo.SubDeviceCount, Is.EqualTo(4));
-                Assert.That(deviceInfo.SensorCount, Is.EqualTo(0));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(deviceInfo.RdmProtocolVersionMajor, Is.EqualTo(1));
+                    Assert.That(deviceInfo.RdmProtocolVersionMinor, Is.EqualTo(0));
+                    Assert.That(deviceInfo.DeviceModelId, Is.EqualTo(0x0005));
+                    Assert.That(deviceInfo.ProductCategoryCoarse, Is.EqualTo(ERDM_ProductCategoryCoarse.POWER));
+                    Assert.That(deviceInfo.ProductCategoryFine, Is.EqualTo(ERDM_ProductCategoryFine.POWER_CONTROL));
+                    Assert.That(deviceInfo.SoftwareVersionId, Is.EqualTo(0x02000101));
+                    Assert.That(deviceInfo.Dmx512Footprint, Is.EqualTo(1));
+                    Assert.That(deviceInfo.Dmx512CurrentPersonality, Is.EqualTo(1));
+                    Assert.That(deviceInfo.Dmx512NumberOfPersonalities, Is.EqualTo(3));
+                    Assert.That(deviceInfo.Dmx512StartAddress, Is.EqualTo(1));
+                    Assert.That(deviceInfo.SubDeviceCount, Is.EqualTo(4));
+                    Assert.That(deviceInfo.SensorCount, Is.EqualTo(0));
+                }
             }));
         #endregion
 
@@ -2822,18 +3464,24 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0b00111111, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetCommunicationStatusNullStartCodeResponse)));
 
                 var obj = (GetCommunicationStatusNullStartCodeResponse)dataTreeBranch.ParsedObject;
-                Assert.That(obj.AdditiveChecksumOfMostRecentPacket, Is.EqualTo(1));
-                Assert.That(obj.PacketCount, Is.EqualTo(1));
-                Assert.That(obj.MostRecentSlotCount, Is.EqualTo(1));
-                Assert.That(obj.MinimumSlotCount, Is.EqualTo(1));
-                Assert.That(obj.MaximumSlotCount, Is.EqualTo(1));
-                Assert.That(obj.NumberOfPacketsWithAnError, Is.EqualTo(1));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj.AdditiveChecksumOfMostRecentPacket, Is.EqualTo(1));
+                    Assert.That(obj.PacketCount, Is.EqualTo(1));
+                    Assert.That(obj.MostRecentSlotCount, Is.EqualTo(1));
+                    Assert.That(obj.MinimumSlotCount, Is.EqualTo(1));
+                    Assert.That(obj.MaximumSlotCount, Is.EqualTo(1));
+                    Assert.That(obj.NumberOfPacketsWithAnError, Is.EqualTo(1));
+                }
             }));
         #endregion
 
@@ -2844,9 +3492,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                 var obj = (ushort)dataTreeBranch.ParsedObject;
@@ -2859,9 +3510,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ushort)));
 
                 var obj = (ushort)dataTreeBranch.ParsedObject;
@@ -2876,9 +3530,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
 
                 var obj = (bool)dataTreeBranch.ParsedObject;
@@ -2893,9 +3550,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x02 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_ShippingLockState)));
 
                 var obj = (ERDM_ShippingLockState)dataTreeBranch.ParsedObject;
@@ -2908,9 +3568,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_ShippingLockState)));
 
                 var obj = (ERDM_ShippingLockState)dataTreeBranch.ParsedObject;
@@ -2930,16 +3593,22 @@ public class PayloadToParsedObjectTestSubject
                 0x46, 0x52, 0x4F, 0x4E, 0x54, 0x54, 0x52, 0x55, 0x53, 0x53 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string[])));
 
                 var obj = (string[])dataTreeBranch.ParsedObject;
-                Assert.That(obj.Length, Is.EqualTo(3));
-                Assert.That(obj[0], Is.EqualTo("BACKTRUSS"));
-                Assert.That(obj[1], Is.EqualTo("MIDTRUSS"));
-                Assert.That(obj[2], Is.EqualTo("FRONTTRUSS"));
+                Assert.That(obj, Has.Length.EqualTo(3));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj[0], Is.EqualTo("BACKTRUSS"));
+                    Assert.That(obj[1], Is.EqualTo("MIDTRUSS"));
+                    Assert.That(obj[2], Is.EqualTo("FRONTTRUSS"));
+                }
             }));
         #endregion
 
@@ -2950,9 +3619,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x42, 0x41, 0x43, 0x4B, 0x54, 0x52, 0x55, 0x53, 0x53 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
 
                 var obj = (string)dataTreeBranch.ParsedObject;
@@ -2968,9 +3640,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x42, 0x41, 0x43, 0x4B, 0x54, 0x52, 0x55, 0x53, 0x53 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
 
                 var obj = (string)dataTreeBranch.ParsedObject;
@@ -2986,9 +3661,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x42, 0x41, 0x43, 0x4B, 0x54, 0x52, 0x55, 0x53, 0x53 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
                 var obj = (string)dataTreeBranch.ParsedObject;
                 Assert.That(obj, Is.EqualTo("BACKTRUSS"));
@@ -2999,9 +3677,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
 
                 var obj = (bool)dataTreeBranch.ParsedObject;
@@ -3016,9 +3697,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[0],
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.True);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                }
             }));
         yield return new PayloadToParseBagData(
             ERDM_Command.SET_COMMAND_RESPONSE,
@@ -3026,9 +3710,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[0],
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.True);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.True);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Null);
+                }
             }));
         #endregion
 
@@ -3039,9 +3726,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x00, 0x01, 0x00 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(uint)));
 
                 var obj = (uint)dataTreeBranch.ParsedObject;
@@ -3054,9 +3744,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x00, 0x00, 0x01, 0x00 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(uint)));
 
                 var obj = (uint)dataTreeBranch.ParsedObject;
@@ -3071,9 +3764,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x10 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
 
                 var obj = dataTreeBranch.ParsedObject as byte?;
@@ -3087,18 +3783,24 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x10, 0x53, 0x4D, 0x61, 0x72, 0x00, 0x00, 0x00, 0x0F },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMPersonalityId)));
 
                 var obj = dataTreeBranch.ParsedObject as RDMPersonalityId;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.PersonalityId, Is.EqualTo(0x10));
-                Assert.That(obj!.Index, Is.EqualTo(0x10));
-                Assert.That(obj!.MajorPersonalityId, Is.EqualTo(1397580146));
-                Assert.That(obj!.MinorPersonalityId, Is.EqualTo(15));
-                Assert.That(obj!.MinIndex, Is.EqualTo(1));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.PersonalityId, Is.EqualTo(0x10));
+                    Assert.That(obj!.Index, Is.EqualTo(0x10));
+                    Assert.That(obj!.MajorPersonalityId, Is.EqualTo(1397580146));
+                    Assert.That(obj!.MinorPersonalityId, Is.EqualTo(15));
+                    Assert.That(obj!.MinIndex, Is.EqualTo(1));
+                }
             }));
         #endregion
 
@@ -3109,9 +3811,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0xee, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
 
                 var obj = dataTreeBranch.ParsedObject as byte?;
@@ -3125,17 +3830,23 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0xee, 0x45, 0x75, 0x72, 0x6F },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMSensorTypeCustomDefine)));
 
                 var obj = dataTreeBranch.ParsedObject as RDMSensorTypeCustomDefine;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.Id, Is.EqualTo(0xee));
-                Assert.That(obj!.Index, Is.EqualTo(0xee));
-                Assert.That(obj!.MinIndex, Is.EqualTo(0x80));
-                Assert.That(obj!.Label, Is.EqualTo("Euro"));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.Id, Is.EqualTo(0xee));
+                    Assert.That(obj!.Index, Is.EqualTo(0xee));
+                    Assert.That(obj!.MinIndex, Is.EqualTo(0x80));
+                    Assert.That(obj!.Label, Is.EqualTo("Euro"));
+                }
             }));
         #endregion
 
@@ -3146,17 +3857,23 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0xee, 0x45, 0x75, 0x72, 0x6F },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMSensorUnitCustomDefine)));
 
                 var obj = dataTreeBranch.ParsedObject as RDMSensorUnitCustomDefine;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.Id, Is.EqualTo(0xee));
-                Assert.That(obj!.Index, Is.EqualTo(0xee));
-                Assert.That(obj!.MinIndex, Is.EqualTo(0x80));
-                Assert.That(obj!.Label, Is.EqualTo("Euro"));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.Id, Is.EqualTo(0xee));
+                    Assert.That(obj!.Index, Is.EqualTo(0xee));
+                    Assert.That(obj!.MinIndex, Is.EqualTo(0x80));
+                    Assert.That(obj!.Label, Is.EqualTo("Euro"));
+                }
             }));
         #endregion
 
@@ -3167,9 +3884,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x06, 0x53 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_Parameter)));
 
                 var obj = dataTreeBranch.ParsedObject as ERDM_Parameter?;
@@ -3182,15 +3902,21 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x06, 0x53, 0x02, 0x01 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMMetadataParameterVersion)));
 
                 var obj = dataTreeBranch.ParsedObject as RDMMetadataParameterVersion;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.ParameterId, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
-                Assert.That(obj.Version, Is.EqualTo(513));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.ParameterId, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
+                    Assert.That(obj.Version, Is.EqualTo(513));
+                }
             }));
         #endregion
 
@@ -3201,9 +3927,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x06, 0x53 },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(ERDM_Parameter)));
 
                 var obj = dataTreeBranch.ParsedObject as ERDM_Parameter?;
@@ -3245,16 +3974,22 @@ public class PayloadToParsedObjectTestSubject
             },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMMetadataJson)));
 
                 var obj = dataTreeBranch.ParsedObject as RDMMetadataJson;
                 Assert.That(obj, Is.Not.Null);
-                Assert.That(obj!.ParameterId, Is.EqualTo((ERDM_Parameter)0x810D));
-                Assert.That(obj!.Index, Is.EqualTo((ERDM_Parameter)0x810D));
-                Assert.That(obj!.JSON, Is.EqualTo("{\"name\":\"Standalone Control Mode\",\"manufacturer_id\":19792,\"pid\":33037,\"version\":1,\"notes\":\"Todo: Add notes for Martin Standalone Control Mode (0x810D)\",\"get_request_subdevice_range\":[\"root\",\"subdevices\"],\"get_request\":[],\"get_response\":[{\"name\":\"state\",\"type\":\"uint8\"}],\"set_request_subdevice_range\":[\"root\",\"subdevices\",\"broadcast\"],\"set_request\":\"get_response\",\"set_response\":[]}"));
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.ParameterId, Is.EqualTo((ERDM_Parameter)0x810D));
+                    Assert.That(obj!.Index, Is.EqualTo((ERDM_Parameter)0x810D));
+                    Assert.That(obj!.JSON, Is.EqualTo("{\"name\":\"Standalone Control Mode\",\"manufacturer_id\":19792,\"pid\":33037,\"version\":1,\"notes\":\"Todo: Add notes for Martin Standalone Control Mode (0x810D)\",\"get_request_subdevice_range\":[\"root\",\"subdevices\"],\"get_request\":[],\"get_response\":[{\"name\":\"state\",\"type\":\"uint8\"}],\"set_request_subdevice_range\":[\"root\",\"subdevices\",\"broadcast\"],\"set_request\":\"get_response\",\"set_response\":[]}"));
+                }
             }));
         #endregion
 
@@ -3265,9 +4000,12 @@ public class PayloadToParsedObjectTestSubject
             new byte[] { 0x68, 0x74, 0x74, 0x70, 0x73, 0x3a, 0x2f, 0x2f, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2e, 0x63, 0x6f, 0x6d },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(dataTreeBranch.IsEmpty, Is.False);
-                Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
                 var obj = dataTreeBranch.ParsedObject as string;
                 Assert.That(obj, Is.Not.Null);

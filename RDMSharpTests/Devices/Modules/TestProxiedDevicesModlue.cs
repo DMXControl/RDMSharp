@@ -62,14 +62,17 @@ public class TestProxiedDevicesModlue
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES_COUNT));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(3));
-        Assert.That(response.Value, Is.EqualTo(new RDMProxiedDeviceCount(0, false)));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES_COUNT));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(3));
+            Assert.That(response.Value, Is.EqualTo(new RDMProxiedDeviceCount(0, false)));
+        }
         #endregion
 
         proxiedDevicesModule.AddProxiedDevices(new UID(12, 3456), new UID(12, 2345));
@@ -78,14 +81,17 @@ public class TestProxiedDevicesModlue
         {
             response = generated.ProcessRequestMessage_Internal(request);
             Assert.That(response, Is.Not.Null);
-            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES_COUNT));
-            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Has.Length.EqualTo(3));
-            Assert.That(response.Value, Is.EqualTo(new RDMProxiedDeviceCount(2, true)));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+                Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+                Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES_COUNT));
+                Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+                Assert.That(response.ParameterData, Has.Length.EqualTo(3));
+                Assert.That(response.Value, Is.EqualTo(new RDMProxiedDeviceCount(2, true)));
+            }
         }
 
         request = new RDMMessage()
@@ -98,14 +104,17 @@ public class TestProxiedDevicesModlue
         };
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(12));
-        Assert.That(response.Value, Is.EqualTo(new RDMProxiedDevices(new UID(12, 3456), new UID(12, 2345))));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(12));
+            Assert.That(response.Value, Is.EqualTo(new RDMProxiedDevices(new UID(12, 3456), new UID(12, 2345))));
+        }
 
         request = new RDMMessage()
         {
@@ -117,28 +126,34 @@ public class TestProxiedDevicesModlue
         };
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES_COUNT));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(3));
-        Assert.That(response.Value, Is.EqualTo(new RDMProxiedDeviceCount(2, false)));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES_COUNT));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(3));
+            Assert.That(response.Value, Is.EqualTo(new RDMProxiedDeviceCount(2, false)));
+        }
 
 
         proxiedDevicesModule.RemoveProxiedDevices(new UID(12, 3456));
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES_COUNT));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(3));
-        Assert.That(response.Value, Is.EqualTo(new RDMProxiedDeviceCount(1, true)));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES_COUNT));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(3));
+            Assert.That(response.Value, Is.EqualTo(new RDMProxiedDeviceCount(1, true)));
+        }
 
         request = new RDMMessage()
         {
@@ -150,14 +165,17 @@ public class TestProxiedDevicesModlue
         };
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(6));
-        Assert.That(response.Value, Is.EqualTo(new RDMProxiedDevices(new UID(12, 2345))));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(6));
+            Assert.That(response.Value, Is.EqualTo(new RDMProxiedDevices(new UID(12, 2345))));
+        }
 
         request = new RDMMessage()
         {
@@ -169,14 +187,17 @@ public class TestProxiedDevicesModlue
         };
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES_COUNT));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(3));
-        Assert.That(response.Value, Is.EqualTo(new RDMProxiedDeviceCount(1, false)));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES_COUNT));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(3));
+            Assert.That(response.Value, Is.EqualTo(new RDMProxiedDeviceCount(1, false)));
+        }
 
         List<UID> uidsToAdd = new List<UID>();
         uidsToAdd.Add(new UID(12, 2345));
@@ -187,14 +208,17 @@ public class TestProxiedDevicesModlue
 
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES_COUNT));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(3));
-        Assert.That(response.Value, Is.EqualTo(new RDMProxiedDeviceCount(135, true)));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES_COUNT));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(3));
+            Assert.That(response.Value, Is.EqualTo(new RDMProxiedDeviceCount(135, true)));
+        }
 
         var chunks = uidsToAdd.Chunk(38);
         int totalResponses = 0;
@@ -211,15 +235,18 @@ public class TestProxiedDevicesModlue
             response = generated.ProcessRequestMessage_Internal(request);
             totalResponses++;
             Assert.That(response, Is.Not.Null);
-            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES));
-            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.MessageCounter, Is.EqualTo(chunks.Count() - totalResponses));
-            Assert.That(response.ParameterData, Has.Length.EqualTo(chunks.ElementAt(i).Count() * 6));
-            Assert.That(response.Value, Is.EqualTo(new RDMProxiedDevices(chunks.ElementAt(i).ToArray())));
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+                Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+                Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+                Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES));
+                Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+                Assert.That(response.MessageCounter, Is.EqualTo(chunks.Count() - totalResponses));
+                Assert.That(response.ParameterData, Has.Length.EqualTo(chunks.ElementAt(i).Count() * 6));
+                Assert.That(response.Value, Is.EqualTo(new RDMProxiedDevices(chunks.ElementAt(i).ToArray())));
+            }
         }
         Assert.That(totalResponses, Is.EqualTo(chunks.Count()));
 
@@ -233,14 +260,17 @@ public class TestProxiedDevicesModlue
         };
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
-        Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
-        Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
-        Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES_COUNT));
-        Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-        Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Has.Length.EqualTo(3));
-        Assert.That(response.Value, Is.EqualTo(new RDMProxiedDeviceCount(135, false)));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.PROXIED_DEVICES_COUNT));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(3));
+            Assert.That(response.Value, Is.EqualTo(new RDMProxiedDeviceCount(135, false)));
+        }
     }
 
     class ProxiedDevicesMockDevice : MockGeneratedDevice1

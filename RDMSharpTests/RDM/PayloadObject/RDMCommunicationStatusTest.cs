@@ -31,11 +31,11 @@ public class RDMCommunicationStatusTest
 
         var res = resultCommunicationStatus.ToString();
         var src = communicationStatus.ToString();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
-        });
+        }
         Assert.That(res, Is.EqualTo(src));
     }
 }

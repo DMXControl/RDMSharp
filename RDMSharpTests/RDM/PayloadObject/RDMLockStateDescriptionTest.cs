@@ -11,11 +11,11 @@ public class RDMLockStateDescriptionTest
         Assert.That(resultLockStateDescription.Description, Has.Length.EqualTo(32));
 
         resultLockStateDescription = new RDMLockStateDescription(7, description: "");
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(string.IsNullOrEmpty(resultLockStateDescription.Description), Is.True);
             Assert.That(resultLockStateDescription.MinIndex, Is.EqualTo(1));
             Assert.That(resultLockStateDescription.Index, Is.EqualTo(7));
-        });
+        }
     }
 }

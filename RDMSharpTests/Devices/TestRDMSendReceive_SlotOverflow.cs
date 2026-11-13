@@ -41,7 +41,7 @@ public class TestRDMSendReceive_SlotOverflow
         Console.WriteLine($"Generated: {String.Join(", ", parameterValuesGenerated.OrderBy(p => p.Key).Select(x => $"{x.Key}"))}");
         Console.WriteLine($"Remote:    {String.Join(", ", parameterValuesRemote.OrderBy(p => p.Key).Select(x => $"{x.Key}"))}");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(parameterValuesGenerated.Keys, Is.EquivalentTo(parameterValuesRemote.Keys));
             foreach (var parameter in parameterValuesGenerated.Keys)
@@ -61,6 +61,6 @@ public class TestRDMSendReceive_SlotOverflow
                     Assert.That(parameterValuesRemote[parameter], Is.EqualTo(parameterValuesGenerated[parameter]), $"Tested Parameter {parameter}");
             }
             Assert.That(parameterValuesRemote, Has.Count.EqualTo(parameterValuesGenerated.Count));
-        });
+        }
     }
 }

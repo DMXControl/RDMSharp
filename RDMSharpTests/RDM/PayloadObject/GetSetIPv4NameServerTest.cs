@@ -31,11 +31,11 @@ public class GetSetIPv4NameServerTest
 
         var res = resultGetSetIPv4NameServer.ToString();
         var src = getSetIPv4NameServer.ToString();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(res, Is.Not.Null);
             Assert.That(src, Is.Not.Null);
-        });
+        }
         Assert.That(res, Is.EqualTo(src));
     }
 }

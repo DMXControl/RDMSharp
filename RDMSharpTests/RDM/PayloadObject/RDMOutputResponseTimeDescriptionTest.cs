@@ -11,11 +11,11 @@ public class RDMOutputResponseTimeDescriptionTest
         Assert.That(resultOutputResponseTimeDescription.Description, Has.Length.EqualTo(32));
 
         resultOutputResponseTimeDescription = new RDMOutputResponseTimeDescription(3, description: "");
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(string.IsNullOrWhiteSpace(resultOutputResponseTimeDescription.Description), Is.True);
             Assert.That(resultOutputResponseTimeDescription.MinIndex, Is.EqualTo(1));
             Assert.That(resultOutputResponseTimeDescription.Index, Is.EqualTo(3));
-        });
+        }
     }
 }

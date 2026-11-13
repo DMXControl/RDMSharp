@@ -73,11 +73,11 @@ namespace RDMSharpTests.Metadata.JSON
             byte[] data = stringType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 113, 119, 101, 114, 116 }));
             DataTree reverseDataTree = stringType.ParseDataToPayload(ref data);
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(data, Has.Length.Zero);
                 Assert.That(reverseDataTree, Is.EqualTo(dataTree));
-            });
+            }
         }
         [Test]
         public void TestParseFixedLengthInBytesUTF8()
@@ -89,11 +89,11 @@ namespace RDMSharpTests.Metadata.JSON
             byte[] data = stringType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 195, 132, 195, 156, 195, 150, 195, 159 }));
             DataTree reverseDataTree = stringType.ParseDataToPayload(ref data);
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(data, Has.Length.Zero);
                 Assert.That(reverseDataTree, Is.EqualTo(dataTree));
-            });
+            }
         }
         [Test]
         public void TestParseRangedLengthUTF8()
@@ -105,11 +105,11 @@ namespace RDMSharpTests.Metadata.JSON
             byte[] data = stringType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 195, 132, 195, 156, 195, 150, 195, 159 }));
             DataTree reverseDataTree = stringType.ParseDataToPayload(ref data);
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(data, Has.Length.Zero);
                 Assert.That(reverseDataTree, Is.EqualTo(dataTree));
-            });
+            }
         }
         [Test]
         public void TestParseRangedLengthUTF8Mixed()
@@ -121,11 +121,11 @@ namespace RDMSharpTests.Metadata.JSON
             byte[] data = stringType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
             Assert.That(data, Is.EqualTo(new byte[] { 195, 132, 85, 195, 150, 83 }));
             DataTree reverseDataTree = stringType.ParseDataToPayload(ref data);
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(data, Has.Length.Zero);
                 Assert.That(reverseDataTree, Is.EqualTo(dataTree));
-            });
+            }
         }
 
         [Test]
