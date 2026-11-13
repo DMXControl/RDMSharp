@@ -32,6 +32,15 @@ public class TestSlotModule
     }
 
     [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<SlotsModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Slots"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public void TestGetSLOT_INFO()
     {
         #region Test Basic

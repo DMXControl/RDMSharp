@@ -29,7 +29,17 @@ public class TestFactoryDefaultModule
         generated?.Dispose();
         generated = null;
     }
+
     [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<FactoryDefaultsModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Factory Defaults"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public async Task TestGetFACTORY_DEFAULTS()
     {
         #region Test Basic

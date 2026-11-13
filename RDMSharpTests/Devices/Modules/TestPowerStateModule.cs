@@ -33,6 +33,15 @@ public class TestPowerStateModule
     }
 
     [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<PowerStateModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Power State"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public async Task TestGetPOWER_STATE()
     {
         await Task.Delay(500);
@@ -96,7 +105,7 @@ public class TestPowerStateModule
         await semaphoreSlim.WaitAsync();
         await Task.Delay(1000);
 
-        Assert.That(generatedModule.PowerState, Is.EqualTo(ERDM_PowerState.NORMAL));
+        Assert.That(generatedModule.PowerState, Is.EqualTo(ERDM_PowerState.SHUTDOWN));
         Assert.That(module.PowerState, Is.EqualTo(ERDM_PowerState.SHUTDOWN));
     }
 

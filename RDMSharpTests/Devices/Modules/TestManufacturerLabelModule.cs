@@ -31,6 +31,15 @@ public class TestManufacturerLabelModule
     }
 
     [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<ManufacturerLabelModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Manufacturer Label"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public void TestGetMANUFACTURER_LABEL()
     {
         #region Test Basic

@@ -57,6 +57,18 @@ public sealed class ModulesExtension : AbstractModulesExtension
         if (parameters.Contains(ERDM_Parameter.PROXIED_DEVICES))
             _modules.Add(typeof(ProxiedDevicesModule));
 
+        if (parameters.Contains(ERDM_Parameter.DISPLAY_INVERT))
+            _modules.Add(typeof(DisplayInvertModule));
+
+        if (parameters.Contains(ERDM_Parameter.PAN_INVERT))
+            _modules.Add(typeof(PanInvertModule));
+
+        if (parameters.Contains(ERDM_Parameter.TILT_INVERT))
+            _modules.Add(typeof(TiltInvertModule));
+
+        if (parameters.Contains(ERDM_Parameter.PAN_TILT_SWAP))
+            _modules.Add(typeof(PanTiltSwapModule));
+
         if (parameters.Contains(ERDM_Parameter.REAL_TIME_CLOCK))
             _modules.Add(typeof(RealTimeClockModule));
 

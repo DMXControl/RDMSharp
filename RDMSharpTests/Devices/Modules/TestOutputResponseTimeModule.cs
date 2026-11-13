@@ -32,7 +32,17 @@ public class TestOutputResponseTimeModule
         generated?.Dispose();
         generated = null;
     }
+
     [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<OutputResponseTimeModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Output Response Time"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public void TestGetOUTPUT_RESPONSE_TIME_DESCRIPTION()
     {
         #region Test Basic

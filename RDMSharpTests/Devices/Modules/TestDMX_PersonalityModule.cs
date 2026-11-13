@@ -32,6 +32,15 @@ public class TestDMX_PersonalityModule
     }
 
     [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<DMX_PersonalityModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("DMX Personality"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public void TestGetDMX_PERSONALITY_DESCRIPTION()
     {
         #region Test Basic

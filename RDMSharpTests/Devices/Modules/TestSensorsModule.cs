@@ -1,5 +1,6 @@
 using RDMSharp.Metadata;
 using RDMSharp.PayloadObject;
+using RDMSharp.RDM.Device.Module;
 using RDMSharpTests.Devices.Mock;
 
 namespace RDMSharpTests.RDM.Devices.Modules;
@@ -31,6 +32,15 @@ public class TestSensorsModule
     }
 
     [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<SensorsModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Sensors"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public void TestGetSENSOR_DEFINITION()
     {
         RDMMessage request = new RDMMessage()

@@ -32,7 +32,17 @@ public class TestModulationFrequencyModule
         generated?.Dispose();
         generated = null;
     }
+
     [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<ModulationFrequencyModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Modulation Frequency"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public void TestGetMODULATION_FREQUENCY_DESCRIPTION()
     {
         #region Test Basic

@@ -34,6 +34,15 @@ public class TestBootSoftwareVersionModule
     }
 
     [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<BootSoftwareVersionModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Boot Software Version"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public void TestGetBOOT_SOFTWARE_VERSION_ID()
     {
         #region Test Basic

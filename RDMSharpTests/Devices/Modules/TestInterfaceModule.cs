@@ -49,6 +49,15 @@ public class TestInterfaceModule
     }
 
     [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<InterfaceModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Interface"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public void TestGetLIST_INTERFACES()
     {
         #region Test Basic (Empty)

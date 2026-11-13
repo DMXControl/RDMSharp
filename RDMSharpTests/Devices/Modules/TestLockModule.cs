@@ -34,6 +34,15 @@ public class TestLockModule
     }
 
     [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<LockModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Lock"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public async Task TestGetLOCK_STATE()
     {
         await Task.Delay(500);

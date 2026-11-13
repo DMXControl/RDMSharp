@@ -31,6 +31,15 @@ public class TestDeviceModelDescriptionModule
     }
 
     [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<DeviceModelDescriptionModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Device Model Description"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public void TestGetDEVICE_MODEL_DESCRIPTION()
     {
         #region Test Basic

@@ -32,7 +32,16 @@ public class TestTagModlue
     }
 
 
-    [Test, Retry(3)]
+    [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<TagsModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Tags"));
+    }
+
+    [Test, Retry(3), DependsOnTest(nameof(TestDisplayName))]
     public void TestGetLIST_TAGS()
     {
         #region Test Basic (Empty)

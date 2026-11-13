@@ -33,7 +33,16 @@ public class TestRealTimeClockModule
         generated = null;
     }
 
-    [Test, Retry(3)]
+    [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<RealTimeClockModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Real Time Clock"));
+    }
+
+    [Test, Retry(3), DependsOnTest(nameof(TestDisplayName))]
     public async Task TestGetREAL_TIME_CLOCK()
     {
         await Task.Delay(500);

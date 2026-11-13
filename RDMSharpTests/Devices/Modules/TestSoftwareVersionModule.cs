@@ -31,6 +31,15 @@ public class TestSoftwareVersionModule
     }
 
     [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<SoftwareVersionModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Software Version"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public void TestGetSOFTWARE_VERSION_LABEL()
     {
         const string SOFTWARE_VERSION_LABEL = "Dummy Software";

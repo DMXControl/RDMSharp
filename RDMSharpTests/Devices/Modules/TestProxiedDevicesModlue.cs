@@ -32,7 +32,16 @@ public class TestProxiedDevicesModlue
     }
 
 
-    [Test, Retry(3)]
+    [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<ProxiedDevicesModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Proxied Devices"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public void TestGetPROXIED_DEVICES_COUNT()
     {
         #region Test Basic (Empty)

@@ -31,6 +31,15 @@ public class TestResetDeviceModule
     }
 
     [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<ResetDeviceModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Reset Device"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public async Task TestSetRESET_DEVICE()
     {
         #region Test Basic

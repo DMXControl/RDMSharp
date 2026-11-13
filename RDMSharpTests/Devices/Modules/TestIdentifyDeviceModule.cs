@@ -29,7 +29,17 @@ public class TestIdentifyDeviceModule
         generated?.Dispose();
         generated = null;
     }
+
     [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<IdentifyDeviceModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Identify Device"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public void TestGetIDENTIFY_DEVICE()
     {
         #region Test Basic
@@ -104,7 +114,7 @@ public class TestIdentifyDeviceModule
         Assert.That(response.ParameterData, Has.Length.EqualTo(1));
         Assert.That(response.Value, Is.EqualTo(generated.Identify));
 
-        request.ParameterData = new byte[] { 0x01 }; // Requesting Identify OFF
+        request.ParameterData = new byte[] { 0x01 }; // Requesting Identify ON
         request.Command = ERDM_Command.SET_COMMAND;
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);

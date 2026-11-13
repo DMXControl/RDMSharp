@@ -36,6 +36,15 @@ public class TestEndpointsModlue
     }
 
     [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var curveModule = generated.Modules.OfType<EndpointsModule>().Single();
+        Assert.That(curveModule, Is.Not.Null);
+        Assert.That(curveModule.DisplayName, Is.EqualTo("Endpoints"));
+    }
+
+    [Test, DependsOnTest(nameof(TestDisplayName))]
     public void TestGetENDPOINT_LIST()
     {
         #region Test Basic (Empty)
