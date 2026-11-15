@@ -60,6 +60,9 @@ public sealed class ModulesExtension : AbstractModulesExtension
         if (parameters.Contains(ERDM_Parameter.DEVICE_HOURS))
             _modules.Add(typeof(DeviceHoursModule));
 
+        if (parameters.Contains(ERDM_Parameter.DEVICE_POWER_CYCLES))
+            _modules.Add(typeof(DevicePowerCyclesModule));
+
         if (parameters.Contains(ERDM_Parameter.LAMP_HOURS))
             _modules.Add(typeof(LampHoursModule));
 
