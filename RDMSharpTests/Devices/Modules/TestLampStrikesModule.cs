@@ -49,7 +49,7 @@ public class TestLampStrikesModule
 
         var module = generated.Modules.OfType<LampStrikesModule>().Single();
         Assert.That(module, Is.Not.Null);
-        Assert.That(module.LampStrikes, Is.EqualTo(0));
+        Assert.That(module.LampStrikes, Is.Zero);
         RDMMessage request = new RDMMessage()
         {
             Command = ERDM_Command.GET_COMMAND,
@@ -71,7 +71,7 @@ public class TestLampStrikesModule
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(4));
             Assert.That(response.Value, Is.EqualTo(module.LampStrikes));
-            Assert.That(module.LampStrikes, Is.EqualTo(0));
+            Assert.That(module.LampStrikes, Is.Zero);
         }
         #endregion
 

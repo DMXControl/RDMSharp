@@ -90,7 +90,7 @@ public class TestQueuedMessageModule
             Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEVICE_INFO));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-            Assert.That(response.MessageCounter, Is.EqualTo(0));
+            Assert.That(response.MessageCounter, Is.Zero);
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(19));
             Assert.That(response.Value, Is.EqualTo(generated.DeviceInfo));
@@ -108,7 +108,7 @@ public class TestQueuedMessageModule
             Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEVICE_INFO));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-            Assert.That(response.MessageCounter, Is.EqualTo(0));
+            Assert.That(response.MessageCounter, Is.Zero);
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(19));
             Assert.That(response.Value, Is.EqualTo(generated.DeviceInfo));
@@ -151,7 +151,7 @@ public class TestQueuedMessageModule
             Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEVICE_INFO));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-            Assert.That(response.MessageCounter, Is.EqualTo(0));
+            Assert.That(response.MessageCounter, Is.Zero);
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(19));
             Assert.That(response.Value, Is.EqualTo(generated.DeviceInfo));
@@ -174,7 +174,7 @@ public class TestQueuedMessageModule
             Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEVICE_LABEL));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-            Assert.That(response.MessageCounter, Is.EqualTo(0));
+            Assert.That(response.MessageCounter, Is.Zero);
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(deviceLabelModule.DeviceLabel.Length));
             Assert.That(response.Value, Is.EqualTo(deviceLabelModule.DeviceLabel));
@@ -214,7 +214,7 @@ public class TestQueuedMessageModule
             Assert.That(response.MessageCounter, Is.EqualTo(12));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(1));
-            Assert.That(response.Value, Is.EqualTo(true));
+            Assert.That(response.Value, Is.True);
         }
 
         response = generated.ProcessRequestMessage_Internal(request);
@@ -290,7 +290,7 @@ public class TestQueuedMessageModule
             Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.DEFAULT_SLOT_VALUE));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-            Assert.That(response.MessageCounter, Is.EqualTo(0));
+            Assert.That(response.MessageCounter, Is.Zero);
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(3 * generated.Personalities.ElementAt(1).Slots.Count));
             Assert.That(response.Value, Is.EqualTo(generated.Personalities.ElementAt(1).Slots.Select(s => new RDMDefaultSlotValue(s.Value.SlotId, s.Value.DefaultValue))));
@@ -305,7 +305,7 @@ public class TestQueuedMessageModule
             Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.STATUS_MESSAGES));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-            Assert.That(response.MessageCounter, Is.EqualTo(0));
+            Assert.That(response.MessageCounter, Is.Zero);
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         }
@@ -323,7 +323,7 @@ public class TestQueuedMessageModule
             Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.STATUS_MESSAGES));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-            Assert.That(response.MessageCounter, Is.EqualTo(0));
+            Assert.That(response.MessageCounter, Is.Zero);
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(9));
             Assert.That(response.Value, Is.TypeOf(typeof(RDMStatusMessage[])));
@@ -342,7 +342,7 @@ public class TestQueuedMessageModule
             Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.QUEUED_MESSAGE));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-            Assert.That(response.MessageCounter, Is.EqualTo(0));
+            Assert.That(response.MessageCounter, Is.Zero);
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
             Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
         }
@@ -361,7 +361,7 @@ public class TestQueuedMessageModule
             Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CLEAR_STATUS_ID));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-            Assert.That(response.MessageCounter, Is.EqualTo(0));
+            Assert.That(response.MessageCounter, Is.Zero);
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         }

@@ -107,9 +107,9 @@ public class TestSensorsModule
             Assert.That(generated.Sensors[1].HighestValue, Is.EqualTo(8000));
             Assert.That(generated.Sensors[2].HighestValue, Is.EqualTo(12000));
 
-            Assert.That(generated.Sensors[0].RecordedValue, Is.EqualTo(0));
-            Assert.That(generated.Sensors[1].RecordedValue, Is.EqualTo(0));
-            Assert.That(generated.Sensors[2].RecordedValue, Is.EqualTo(0));
+            Assert.That(generated.Sensors[0].RecordedValue, Is.Zero);
+            Assert.That(generated.Sensors[1].RecordedValue, Is.Zero);
+            Assert.That(generated.Sensors[2].RecordedValue, Is.Zero);
         }
 
         doTests(generated.Sensors.Values.ToArray());

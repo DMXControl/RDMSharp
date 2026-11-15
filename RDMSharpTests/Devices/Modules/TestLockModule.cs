@@ -54,7 +54,7 @@ public class TestLockModule
         var lockStateModule = generated.Modules.OfType<LockModule>().FirstOrDefault();
         Assert.That(lockStateModule, Is.Not.Null);
         Assert.That(lockStateModule.LockState, Is.Not.Null);
-        Assert.That(lockStateModule.LockState.Value, Is.EqualTo(0));
+        Assert.That(lockStateModule.LockState.Value, Is.Zero);
         RDMMessage request = new RDMMessage()
         {
             Command = ERDM_Command.GET_COMMAND,
@@ -80,7 +80,7 @@ public class TestLockModule
         GetLockStateResponse lockStateResponse = (GetLockStateResponse)response.Value;
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(lockStateResponse.CurrentLockStateId, Is.EqualTo(0));
+            Assert.That(lockStateResponse.CurrentLockStateId, Is.Zero);
             Assert.That(lockStateResponse.Count, Is.EqualTo(1));
         }
 
@@ -137,7 +137,7 @@ public class TestLockModule
         Assert.That(generatedModule, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(generatedModule.LockState, Is.EqualTo(0));
+            Assert.That(generatedModule.LockState, Is.Zero);
             Assert.That(generatedModule.LockPin, Is.EqualTo(1234));
         }
 
@@ -153,7 +153,7 @@ public class TestLockModule
         Assert.That(module, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(module.LockState, Is.EqualTo(0));
+            Assert.That(module.LockState, Is.Zero);
             Assert.That(module.LockPin, Is.EqualTo(1234));
         }
         SemaphoreSlim semaphoreSlim = new SemaphoreSlim(0, 1);
@@ -191,8 +191,8 @@ public class TestLockModule
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(generatedModule.LockState, Is.EqualTo(0));
-            Assert.That(module.LockState, Is.EqualTo(0));
+            Assert.That(generatedModule.LockState, Is.Zero);
+            Assert.That(module.LockState, Is.Zero);
             Assert.That(generatedModule.LockPin, Is.EqualTo(4321));
             Assert.That(module.LockPin, Is.EqualTo(4321));
         }
@@ -203,8 +203,8 @@ public class TestLockModule
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(generatedModule.LockState, Is.EqualTo(0));
-            Assert.That(module.LockState, Is.EqualTo(0));
+            Assert.That(generatedModule.LockState, Is.Zero);
+            Assert.That(module.LockState, Is.Zero);
             Assert.That(generatedModule.LockPin, Is.EqualTo(1234));
             Assert.That(module.LockPin, Is.EqualTo(1234));
         }

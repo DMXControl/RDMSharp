@@ -270,7 +270,7 @@ namespace RDMSharpTests.Metadata.JSON
                 {
                     var data = new byte[pdl];
                     var dataTree = integerType.ParseDataToPayload(ref data);
-                    Assert.That(dataTree.Value, Is.EqualTo(0));
+                    Assert.That(dataTree.Value, Is.Zero);
                     var parsedData = integerType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
                     data = new byte[pdl];
                     Assert.That(parsedData, Is.EqualTo(data));
@@ -325,7 +325,7 @@ namespace RDMSharpTests.Metadata.JSON
                     string message= ((IIntegerType)integerType).Type.ToString();
                     var data = new byte[pdl];
                     var dataTree = integerType.ParseDataToPayload(ref data);
-                    Assert.That(dataTree.Value, Is.EqualTo(0), message);
+                    Assert.That(dataTree.Value, Is.Zero, message);
                     var parsedData = integerType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
                     data = new byte[pdl];
                     Assert.That(parsedData, Is.EqualTo(data), message);
@@ -379,7 +379,7 @@ namespace RDMSharpTests.Metadata.JSON
                 {
                     var data = new byte[pdl];
                     var dataTree = integerType.ParseDataToPayload(ref data);
-                    Assert.That(dataTree.Value, Is.EqualTo(0));
+                    Assert.That(dataTree.Value, Is.Zero);
                     var parsedData = integerType.ParsePayloadToData(dataTree).SelectMany(en => en).ToArray();
                     data = new byte[pdl];
                     Assert.That(parsedData, Is.EqualTo(data));

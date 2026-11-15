@@ -67,7 +67,7 @@ public class TestBytesType
     public void TestParseUIDArrayEmpty()
     {
         var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "uid[]", null, null);
-        Assert.That(bytesType.GetDataLength().MinLength, Is.EqualTo(0));
+        Assert.That(bytesType.GetDataLength().MinLength, Is.Zero);
         var uidArray = new UID[0];
         var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, uidArray)).SelectMany(en => en).ToArray();
         Assert.That(data, Is.EqualTo(new byte[0]));
@@ -79,7 +79,7 @@ public class TestBytesType
     public void TestParseUIDArray()
     {
         var bytesType = new BytesType("NAME", "DISPLAY_NAME", "NOTES", null, "bytes", "uid[]", null, null);
-        Assert.That(bytesType.GetDataLength().MinLength, Is.EqualTo(0));
+        Assert.That(bytesType.GetDataLength().MinLength, Is.Zero);
         var uidArray = new UID[] { new UID(0x4646, 0x12345678), new UID(0x4646, 0x12345678) };
         var data = bytesType.ParsePayloadToData(new DataTree(bytesType.Name, 0, uidArray)).SelectMany(en => en).ToArray();
         Assert.That(data, Is.EqualTo(new byte[] { 0x46, 0x46, 0x12, 0x34, 0x56, 0x78, 0x46, 0x46, 0x12, 0x34, 0x56, 0x78 }));

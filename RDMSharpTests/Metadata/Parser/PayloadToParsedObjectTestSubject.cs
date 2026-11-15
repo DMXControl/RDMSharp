@@ -114,7 +114,7 @@ public class PayloadToParsedObjectTestSubject
                using (Assert.EnterMultipleScope())
                {
                    Assert.That(obj!.DeviceCount, Is.EqualTo(5));
-                   Assert.That(obj.ListChange, Is.EqualTo(true));
+                   Assert.That(obj.ListChange, Is.True);
                }
            }));
         #endregion
@@ -179,7 +179,7 @@ public class PayloadToParsedObjectTestSubject
                using (Assert.EnterMultipleScope())
                {
                    Assert.That(obj!, Has.Length.EqualTo(1));
-                   Assert.That(obj[0].SubDeviceId, Is.EqualTo(0));
+                   Assert.That(obj[0].SubDeviceId, Is.Zero);
                    Assert.That(obj[0].EStatusType, Is.EqualTo(ERDM_Status.ERROR));
                    Assert.That(obj[0].EStatusMessage, Is.EqualTo(ERDM_StatusMessage.UNDERCURRENT));
                    Assert.That(obj[0].DataValue1, Is.EqualTo(2));
@@ -300,9 +300,9 @@ public class PayloadToParsedObjectTestSubject
 #pragma warning restore CS0612 // Typ oder Element ist veraltet
                     Assert.That(obj.Unit, Is.EqualTo(ERDM_SensorUnit.NONE));
                     Assert.That(obj.Prefix, Is.EqualTo(ERDM_UnitPrefix.NONE));
-                    Assert.That(obj.MinValidValue, Is.EqualTo(0));
+                    Assert.That(obj.MinValidValue, Is.Zero);
                     Assert.That(obj.MaxValidValue, Is.EqualTo(255));
-                    Assert.That(obj.DefaultValue, Is.EqualTo(0));
+                    Assert.That(obj.DefaultValue, Is.Zero);
                     Assert.That(obj.Description, Is.EqualTo("TE LEDs hours"));
                 }
             }));
@@ -350,7 +350,7 @@ public class PayloadToParsedObjectTestSubject
                 using (Assert.EnterMultipleScope())
                 {
                     Assert.That(obj!.RdmProtocolVersionMajor, Is.EqualTo(1));
-                    Assert.That(obj.RdmProtocolVersionMinor, Is.EqualTo(0));
+                    Assert.That(obj.RdmProtocolVersionMinor, Is.Zero);
                     Assert.That(obj.DeviceModelId, Is.EqualTo(0x0005));
                     Assert.That(obj.ProductCategoryCoarse, Is.EqualTo(ERDM_ProductCategoryCoarse.POWER));
                     Assert.That(obj.ProductCategoryFine, Is.EqualTo(ERDM_ProductCategoryFine.POWER_CONTROL));
@@ -360,7 +360,7 @@ public class PayloadToParsedObjectTestSubject
                     Assert.That(obj.Dmx512NumberOfPersonalities, Is.EqualTo(3));
                     Assert.That(obj.Dmx512StartAddress, Is.EqualTo(1));
                     Assert.That(obj.SubDeviceCount, Is.EqualTo(4));
-                    Assert.That(obj.SensorCount, Is.EqualTo(0));
+                    Assert.That(obj.SensorCount, Is.Zero);
                 }
             }));
         #endregion
@@ -483,7 +483,7 @@ public class PayloadToParsedObjectTestSubject
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
 
                 var obj = (bool)dataTreeBranch.ParsedObject;
-                Assert.That(obj, Is.EqualTo(false));
+                Assert.That(obj, Is.False);
             }));
         yield return new PayloadToParseBagData(
             ERDM_Command.SET_COMMAND,
@@ -682,7 +682,7 @@ public class PayloadToParsedObjectTestSubject
                 Assert.That(obj, Is.Not.Null);
                 using (Assert.EnterMultipleScope())
                 {
-                    Assert.That(obj![0].SlotOffset, Is.EqualTo(0));
+                    Assert.That(obj![0].SlotOffset, Is.Zero);
                     Assert.That(obj[0].SlotType, Is.EqualTo(ERDM_SlotType.PRIMARY));
                     Assert.That(obj[0].SlotLabelId, Is.EqualTo(ERDM_SlotCategory.INTENSITY));
 
@@ -724,7 +724,7 @@ public class PayloadToParsedObjectTestSubject
                 Assert.That(obj, Is.Not.Null);
                 using (Assert.EnterMultipleScope())
                 {
-                    Assert.That(obj!.SlotId, Is.EqualTo(0));
+                    Assert.That(obj!.SlotId, Is.Zero);
                     Assert.That(obj.Description, Is.EqualTo("SAFETY"));
                 }
             }));
@@ -771,16 +771,16 @@ public class PayloadToParsedObjectTestSubject
                 using (Assert.EnterMultipleScope())
                 {
                     Assert.That(obj!, Has.Length.EqualTo(54));
-                    Assert.That(obj[0].SlotOffset, Is.EqualTo(0));
+                    Assert.That(obj[0].SlotOffset, Is.Zero);
                     Assert.That(obj[0].DefaultSlotValue, Is.EqualTo(128));
                     Assert.That(obj[1].SlotOffset, Is.EqualTo(1));
-                    Assert.That(obj[1].DefaultSlotValue, Is.EqualTo(0));
+                    Assert.That(obj[1].DefaultSlotValue, Is.Zero);
                     Assert.That(obj[2].SlotOffset, Is.EqualTo(2));
                     Assert.That(obj[2].DefaultSlotValue, Is.EqualTo(128));
                     Assert.That(obj[3].SlotOffset, Is.EqualTo(3));
-                    Assert.That(obj[3].DefaultSlotValue, Is.EqualTo(0));
+                    Assert.That(obj[3].DefaultSlotValue, Is.Zero);
                     Assert.That(obj[4].SlotOffset, Is.EqualTo(4));
-                    Assert.That(obj[4].DefaultSlotValue, Is.EqualTo(0));
+                    Assert.That(obj[4].DefaultSlotValue, Is.Zero);
                 }
             }));
         #endregion
@@ -810,16 +810,16 @@ public class PayloadToParsedObjectTestSubject
                 {
                     Assert.That(obj!.SensorId, Is.EqualTo(1));
                     Assert.That(obj.Index, Is.EqualTo(1));
-                    Assert.That(obj.MinIndex, Is.EqualTo(0));
+                    Assert.That(obj.MinIndex, Is.Zero);
                     Assert.That(obj.Type, Is.EqualTo(ERDM_SensorType.TEMPERATURE));
                     Assert.That(obj.Unit, Is.EqualTo(ERDM_SensorUnit.CENTIGRADE));
                     Assert.That(obj.Prefix, Is.EqualTo(ERDM_UnitPrefix.NONE));
                     Assert.That(obj.RangeMinimum, Is.EqualTo(-32));
                     Assert.That(obj.RangeMaximum, Is.EqualTo(222));
-                    Assert.That(obj.NormalMinimum, Is.EqualTo(0));
+                    Assert.That(obj.NormalMinimum, Is.Zero);
                     Assert.That(obj.NormalMaximum, Is.EqualTo(100));
-                    Assert.That(obj.RecordedValueSupported, Is.EqualTo(false));
-                    Assert.That(obj.LowestHighestValueSupported, Is.EqualTo(true));
+                    Assert.That(obj.RecordedValueSupported, Is.False);
+                    Assert.That(obj.LowestHighestValueSupported, Is.True);
                     Assert.That(obj.Description, Is.EqualTo("Driver Temperature"));
                 }
             }));
@@ -846,13 +846,13 @@ public class PayloadToParsedObjectTestSubject
                 var obj = (RDMSensorValue)dataTreeBranch.ParsedObject;
                 using (Assert.EnterMultipleScope())
                 {
-                    Assert.That(obj!.SensorId, Is.EqualTo(0));
-                    Assert.That(obj.Index, Is.EqualTo(0));
-                    Assert.That(obj.MinIndex, Is.EqualTo(0));
+                    Assert.That(obj!.SensorId, Is.Zero);
+                    Assert.That(obj.Index, Is.Zero);
+                    Assert.That(obj.MinIndex, Is.Zero);
                     Assert.That(obj.PresentValue, Is.EqualTo(31));
-                    Assert.That(obj.LowestValue, Is.EqualTo(0));
+                    Assert.That(obj.LowestValue, Is.Zero);
                     Assert.That(obj.HighestValue, Is.EqualTo(57));
-                    Assert.That(obj.RecordedValue, Is.EqualTo(0));
+                    Assert.That(obj.RecordedValue, Is.Zero);
                 }
             }));
         #endregion
@@ -1143,7 +1143,7 @@ public class PayloadToParsedObjectTestSubject
                 }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(byte)));
                 var obj = (byte)dataTreeBranch.ParsedObject;
-                Assert.That(obj, Is.EqualTo(0x00));
+                Assert.That(obj, Is.Zero);
             }));
         #endregion
 
@@ -1162,7 +1162,7 @@ public class PayloadToParsedObjectTestSubject
                 }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
                 var obj = (bool)dataTreeBranch.ParsedObject;
-                Assert.That(obj, Is.EqualTo(true));
+                Assert.That(obj, Is.True);
             }));
         yield return new PayloadToParseBagData(
             ERDM_Command.SET_COMMAND,
@@ -1178,7 +1178,7 @@ public class PayloadToParsedObjectTestSubject
                 }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
                 var obj = (bool)dataTreeBranch.ParsedObject;
-                Assert.That(obj, Is.EqualTo(false));
+                Assert.That(obj, Is.False);
             }));
         #endregion
 
@@ -1197,7 +1197,7 @@ public class PayloadToParsedObjectTestSubject
                 }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
                 var obj = (bool)dataTreeBranch.ParsedObject;
-                Assert.That(obj, Is.EqualTo(true));
+                Assert.That(obj, Is.True);
             }));
         yield return new PayloadToParseBagData(
             ERDM_Command.SET_COMMAND,
@@ -1213,7 +1213,7 @@ public class PayloadToParsedObjectTestSubject
                 }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
                 var obj = (bool)dataTreeBranch.ParsedObject;
-                Assert.That(obj, Is.EqualTo(false));
+                Assert.That(obj, Is.False);
             }));
         #endregion
 
@@ -1232,7 +1232,7 @@ public class PayloadToParsedObjectTestSubject
                 }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
                 var obj = (bool)dataTreeBranch.ParsedObject;
-                Assert.That(obj, Is.EqualTo(true));
+                Assert.That(obj, Is.True);
             }));
         yield return new PayloadToParseBagData(
             ERDM_Command.SET_COMMAND,
@@ -1248,7 +1248,7 @@ public class PayloadToParsedObjectTestSubject
                 }
                 Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(bool)));
                 var obj = (bool)dataTreeBranch.ParsedObject;
-                Assert.That(obj, Is.EqualTo(false));
+                Assert.That(obj, Is.False);
             }));
         #endregion
 
@@ -1452,7 +1452,7 @@ public class PayloadToParsedObjectTestSubject
                 Assert.That(obj, Is.Not.Null);
                 using (Assert.EnterMultipleScope())
                 {
-                    Assert.That(obj!.Scene, Is.EqualTo(0));
+                    Assert.That(obj!.Scene, Is.Zero);
                     Assert.That(obj.Delay, Is.EqualTo(0.1).Within(1e-9).Percent);
                     Assert.That(obj.HoldTime, Is.EqualTo(6553.5).Within(1e-9).Percent);
                     Assert.That(obj.Level, Is.EqualTo(byte.MaxValue));
@@ -1479,7 +1479,7 @@ public class PayloadToParsedObjectTestSubject
                 Assert.That(obj, Is.Not.Null);
                 using (Assert.EnterMultipleScope())
                 {
-                    Assert.That(obj!.Scene, Is.EqualTo(0));
+                    Assert.That(obj!.Scene, Is.Zero);
                     Assert.That(obj.Delay, Is.EqualTo(0.1).Within(1e-9).Percent);
                     Assert.That(obj.HoldTime, Is.EqualTo(6553.5).Within(1e-9).Percent);
                     Assert.That(obj.Level, Is.EqualTo(byte.MaxValue));
@@ -1510,7 +1510,7 @@ public class PayloadToParsedObjectTestSubject
                     Assert.That(obj.MaximumLevelUpperLimit, Is.EqualTo(0xffff));
                     Assert.That(obj.NumberOfSupportedCurves, Is.EqualTo(3));
                     Assert.That(obj.LevelsResolution, Is.EqualTo(1));
-                    Assert.That(obj.MinimumLevelSplitLevelsSupported, Is.EqualTo(true));
+                    Assert.That(obj.MinimumLevelSplitLevelsSupported, Is.True);
                 }
             }));
         #endregion
@@ -1549,7 +1549,7 @@ public class PayloadToParsedObjectTestSubject
                 {
                     Assert.That(obj.MinimumLevelIncrease, Is.EqualTo(1));
                     Assert.That(obj.MinimumLevelDecrease, Is.EqualTo(1));
-                    Assert.That(obj.OnBelowMinimum, Is.EqualTo(true));
+                    Assert.That(obj.OnBelowMinimum, Is.True);
                 }
             }));
         yield return new PayloadToParseBagData(
@@ -1571,7 +1571,7 @@ public class PayloadToParsedObjectTestSubject
                 {
                     Assert.That(obj.MinimumLevelIncrease, Is.EqualTo(2));
                     Assert.That(obj.MinimumLevelDecrease, Is.EqualTo(1));
-                    Assert.That(obj.OnBelowMinimum, Is.EqualTo(false));
+                    Assert.That(obj.OnBelowMinimum, Is.False);
                 }
             }));
         #endregion
@@ -2001,7 +2001,7 @@ public class PayloadToParsedObjectTestSubject
                     Assert.That(obj.Index, Is.EqualTo(1));
                     Assert.That(obj.LockStates, Is.EqualTo(8));
                     Assert.That(obj.Count, Is.EqualTo(8));
-                    Assert.That(obj.MinIndex, Is.EqualTo(0));
+                    Assert.That(obj.MinIndex, Is.Zero);
                     Assert.That(obj.IndexType, Is.EqualTo(typeof(byte)));
                     Assert.That(obj.DescriptorParameter, Is.EqualTo(ERDM_Parameter.LOCK_STATE_DESCRIPTION));
                 }
@@ -2131,12 +2131,12 @@ public class PayloadToParsedObjectTestSubject
                 Assert.That(obj, Is.Not.Null);
                 using (Assert.EnterMultipleScope())
                 {
-                    Assert.That(obj!.LevelFieldSupported, Is.EqualTo(true));
-                    Assert.That(obj!.PresetSequenceSupported, Is.EqualTo(true));
-                    Assert.That(obj!.SplitTimesSupported, Is.EqualTo(true));
-                    Assert.That(obj!.DMX512FailInfiniteDelayTimeSupported, Is.EqualTo(true));
-                    Assert.That(obj!.DMX512FailInfiniteHoldTimeSupported, Is.EqualTo(true));
-                    Assert.That(obj!.StartupInfiniteHoldTimeSupported, Is.EqualTo(true));
+                    Assert.That(obj!.LevelFieldSupported, Is.True);
+                    Assert.That(obj!.PresetSequenceSupported, Is.True);
+                    Assert.That(obj!.SplitTimesSupported, Is.True);
+                    Assert.That(obj!.DMX512FailInfiniteDelayTimeSupported, Is.True);
+                    Assert.That(obj!.DMX512FailInfiniteHoldTimeSupported, Is.True);
+                    Assert.That(obj!.StartupInfiniteHoldTimeSupported, Is.True);
                     Assert.That(obj!.MaximumSceneNumber, Is.EqualTo(2));
                     Assert.That(obj!.MinimumPresetFadeTimeSupported, Is.EqualTo(6553.5).Within(1e-9).Percent);
                     Assert.That(obj!.MaximumPresetFadeTimeSupported, Is.EqualTo(6553.5).Within(1e-9).Percent);
@@ -2177,9 +2177,9 @@ public class PayloadToParsedObjectTestSubject
                 using (Assert.EnterMultipleScope())
                 {
                     Assert.That(obj!.SceneId, Is.EqualTo(1));
-                    Assert.That(obj!.UpFadeTime, Is.EqualTo(0));
-                    Assert.That(obj!.DownFadeTime, Is.EqualTo(0));
-                    Assert.That(obj!.WaitTime, Is.EqualTo(0));
+                    Assert.That(obj!.UpFadeTime, Is.Zero);
+                    Assert.That(obj!.DownFadeTime, Is.Zero);
+                    Assert.That(obj!.WaitTime, Is.Zero);
                     Assert.That(obj!.EProgrammed, Is.EqualTo(ERDM_PresetProgrammed.PROGRAMMED_READ_ONLY));
                 }
             }));
@@ -2402,7 +2402,7 @@ public class PayloadToParsedObjectTestSubject
                 using (Assert.EnterMultipleScope())
                 {
                     Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                    Assert.That(obj!.IdentifyState, Is.EqualTo(false));
+                    Assert.That(obj!.IdentifyState, Is.False);
                 }
             }));
 
@@ -2425,7 +2425,7 @@ public class PayloadToParsedObjectTestSubject
                 using (Assert.EnterMultipleScope())
                 {
                     Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                    Assert.That(obj!.IdentifyState, Is.EqualTo(true));
+                    Assert.That(obj!.IdentifyState, Is.True);
                 }
             }));
         #endregion
@@ -2688,7 +2688,7 @@ public class PayloadToParsedObjectTestSubject
                 using (Assert.EnterMultipleScope())
                 {
                     Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                    Assert.That(obj!.RDMTrafficEnabled, Is.EqualTo(false));
+                    Assert.That(obj!.RDMTrafficEnabled, Is.False);
                 }
             }));
 
@@ -2711,7 +2711,7 @@ public class PayloadToParsedObjectTestSubject
                 using (Assert.EnterMultipleScope())
                 {
                     Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                    Assert.That(obj!.RDMTrafficEnabled, Is.EqualTo(true));
+                    Assert.That(obj!.RDMTrafficEnabled, Is.True);
                 }
             }));
         #endregion
@@ -2842,7 +2842,7 @@ public class PayloadToParsedObjectTestSubject
                 using (Assert.EnterMultipleScope())
                 {
                     Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                    Assert.That(obj!.BackgroundDiscovery, Is.EqualTo(false));
+                    Assert.That(obj!.BackgroundDiscovery, Is.False);
                 }
             }));
 
@@ -2865,7 +2865,7 @@ public class PayloadToParsedObjectTestSubject
                 using (Assert.EnterMultipleScope())
                 {
                     Assert.That(obj!.EndpointId, Is.EqualTo(1));
-                    Assert.That(obj!.BackgroundDiscovery, Is.EqualTo(true));
+                    Assert.That(obj!.BackgroundDiscovery, Is.True);
                 }
             }));
 
@@ -3188,7 +3188,7 @@ public class PayloadToParsedObjectTestSubject
                 {
                     Assert.That(obj!.EndpointId, Is.EqualTo(1));
                     Assert.That(obj!.UID, Is.EqualTo(new UID(0x5347, 0x9471af2f)));
-                    Assert.That(obj!.ControlField, Is.EqualTo(0));
+                    Assert.That(obj!.ControlField, Is.Zero);
                     Assert.That(obj!.BindingUID, Is.EqualTo(new UID(0x5246, 0x9372ad21)));
                 }
             }));
@@ -3404,7 +3404,7 @@ public class PayloadToParsedObjectTestSubject
                 {
                     Assert.That(obj!.RootPersonality, Is.EqualTo(4));
                     Assert.That(obj!.SubDeviceRequested, Is.EqualTo(8));
-                    Assert.That(obj!.SubDevicePersonalityRequested, Is.EqualTo(0));
+                    Assert.That(obj!.SubDevicePersonalityRequested, Is.Zero);
                 }
             }));
         yield return new PayloadToParseBagData(
@@ -3431,7 +3431,7 @@ public class PayloadToParsedObjectTestSubject
                 {
                     Assert.That(obj.RootPersonality, Is.EqualTo(4));
                     Assert.That(obj.SubDeviceRequested, Is.EqualTo(8));
-                    Assert.That(obj.SubDevicePersonalityRequested, Is.EqualTo(0));
+                    Assert.That(obj.SubDevicePersonalityRequested, Is.Zero);
                 }
 
                 var deviceInfo = obj.DeviceInfo;
@@ -3439,7 +3439,7 @@ public class PayloadToParsedObjectTestSubject
                 using (Assert.EnterMultipleScope())
                 {
                     Assert.That(deviceInfo.RdmProtocolVersionMajor, Is.EqualTo(1));
-                    Assert.That(deviceInfo.RdmProtocolVersionMinor, Is.EqualTo(0));
+                    Assert.That(deviceInfo.RdmProtocolVersionMinor, Is.Zero);
                     Assert.That(deviceInfo.DeviceModelId, Is.EqualTo(0x0005));
                     Assert.That(deviceInfo.ProductCategoryCoarse, Is.EqualTo(ERDM_ProductCategoryCoarse.POWER));
                     Assert.That(deviceInfo.ProductCategoryFine, Is.EqualTo(ERDM_ProductCategoryFine.POWER_CONTROL));
@@ -3449,7 +3449,7 @@ public class PayloadToParsedObjectTestSubject
                     Assert.That(deviceInfo.Dmx512NumberOfPersonalities, Is.EqualTo(3));
                     Assert.That(deviceInfo.Dmx512StartAddress, Is.EqualTo(1));
                     Assert.That(deviceInfo.SubDeviceCount, Is.EqualTo(4));
-                    Assert.That(deviceInfo.SensorCount, Is.EqualTo(0));
+                    Assert.That(deviceInfo.SensorCount, Is.Zero);
                 }
             }));
         #endregion

@@ -77,14 +77,14 @@ public class TestRDMDiscovery
             messageCount = e.MessageCount;
             //Console.WriteLine(e.ToString());
         };
-        Assert.That(progress.status.RangeDoneInPercent, Is.EqualTo(0));
+        Assert.That(progress.status.RangeDoneInPercent, Is.Zero);
         var res = await mockDiscoveryTool!.PerformDiscovery(progress, full);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(res, Is.EquivalentTo(expected!));
             Assert.That(progress.status.MessageCount, Is.AtLeast(expected!.Count * 3));
             Assert.That(progress.status.FoundDevices, Is.EqualTo(expected!.Count));
-            Assert.That(progress.status.RangeLeftToSearch, Is.EqualTo(0));
+            Assert.That(progress.status.RangeLeftToSearch, Is.Zero);
             Assert.That(progress.status.RangeDoneInPercent, Is.EqualTo(1));
         }
     }
@@ -105,11 +105,14 @@ public class TestRDMDiscovery
         };
 
         var response = await RDMSharp.RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(muteBroadcast);
-        Assert.That(response.Success, Is.True);
-        Assert.That(response.Response, Is.Null);
-        Assert.That(mockDevices[0].DiscoveryMuted, Is.True);
-        Assert.That(mockDevices[1].DiscoveryMuted, Is.True);
-        Assert.That(mockDevices[2].DiscoveryMuted, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Response, Is.Null);
+            Assert.That(mockDevices[0].DiscoveryMuted, Is.True);
+            Assert.That(mockDevices[1].DiscoveryMuted, Is.True);
+            Assert.That(mockDevices[2].DiscoveryMuted, Is.True);
+        }
 
         RDMMessage unmuteBroadcast = new RDMMessage()
         {
@@ -120,11 +123,14 @@ public class TestRDMDiscovery
             Parameter = ERDM_Parameter.DISC_UN_MUTE,
         };
         response = await RDMSharp.RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(unmuteBroadcast);
-        Assert.That(response.Success, Is.True);
-        Assert.That(response.Response, Is.Null);
-        Assert.That(mockDevices[0].DiscoveryMuted, Is.False);
-        Assert.That(mockDevices[1].DiscoveryMuted, Is.False);
-        Assert.That(mockDevices[2].DiscoveryMuted, Is.False);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Response, Is.Null);
+            Assert.That(mockDevices[0].DiscoveryMuted, Is.False);
+            Assert.That(mockDevices[1].DiscoveryMuted, Is.False);
+            Assert.That(mockDevices[2].DiscoveryMuted, Is.False);
+        }
         muteBroadcast = new RDMMessage()
         {
             Command = ERDM_Command.DISCOVERY_COMMAND,
@@ -134,43 +140,58 @@ public class TestRDMDiscovery
             Parameter = ERDM_Parameter.DISC_MUTE,
         };
         response = await RDMSharp.RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(muteBroadcast);
-        Assert.That(response.Success, Is.True);
-        Assert.That(response.Response, Is.Null);
-        Assert.That(mockDevices[0].DiscoveryMuted, Is.True);
-        Assert.That(mockDevices[1].DiscoveryMuted, Is.True);
-        Assert.That(mockDevices[2].DiscoveryMuted, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Response, Is.Null);
+            Assert.That(mockDevices[0].DiscoveryMuted, Is.True);
+            Assert.That(mockDevices[1].DiscoveryMuted, Is.True);
+            Assert.That(mockDevices[2].DiscoveryMuted, Is.True);
+        }
 
         unmuteBroadcast.DestUID = new UID(0x9fff, 4444);
         response = await RDMSharp.RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(unmuteBroadcast);
-        Assert.That(response.Success, Is.True);
-        Assert.That(response.Response, Is.Not.Null);
-        Assert.That(mockDevices[0].DiscoveryMuted, Is.False);
-        Assert.That(mockDevices[1].DiscoveryMuted, Is.True);
-        Assert.That(mockDevices[2].DiscoveryMuted, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Response, Is.Not.Null);
+            Assert.That(mockDevices[0].DiscoveryMuted, Is.False);
+            Assert.That(mockDevices[1].DiscoveryMuted, Is.True);
+            Assert.That(mockDevices[2].DiscoveryMuted, Is.True);
+        }
 
         unmuteBroadcast.DestUID = new UID(0x9fff, 4445);
         response = await RDMSharp.RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(unmuteBroadcast);
-        Assert.That(response.Success, Is.True);
-        Assert.That(response.Response, Is.Not.Null);
-        Assert.That(mockDevices[0].DiscoveryMuted, Is.False);
-        Assert.That(mockDevices[1].DiscoveryMuted, Is.False);
-        Assert.That(mockDevices[2].DiscoveryMuted, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Response, Is.Not.Null);
+            Assert.That(mockDevices[0].DiscoveryMuted, Is.False);
+            Assert.That(mockDevices[1].DiscoveryMuted, Is.False);
+            Assert.That(mockDevices[2].DiscoveryMuted, Is.True);
+        }
 
         muteBroadcast.DestUID = new UID(0x9fff, 4444);
         response = await RDMSharp.RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(muteBroadcast);
-        Assert.That(response.Success, Is.True);
-        Assert.That(response.Response, Is.Not.Null);
-        Assert.That(mockDevices[0].DiscoveryMuted, Is.True);
-        Assert.That(mockDevices[1].DiscoveryMuted, Is.False);
-        Assert.That(mockDevices[2].DiscoveryMuted, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Response, Is.Not.Null);
+            Assert.That(mockDevices[0].DiscoveryMuted, Is.True);
+            Assert.That(mockDevices[1].DiscoveryMuted, Is.False);
+            Assert.That(mockDevices[2].DiscoveryMuted, Is.True);
+        }
 
         muteBroadcast.DestUID = new UID(0x9fff, 4445);
         response = await RDMSharp.RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(muteBroadcast);
-        Assert.That(response.Success, Is.True);
-        Assert.That(response.Response, Is.Not.Null);
-        Assert.That(mockDevices[0].DiscoveryMuted, Is.True);
-        Assert.That(mockDevices[1].DiscoveryMuted, Is.True);
-        Assert.That(mockDevices[2].DiscoveryMuted, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Response, Is.Not.Null);
+            Assert.That(mockDevices[0].DiscoveryMuted, Is.True);
+            Assert.That(mockDevices[1].DiscoveryMuted, Is.True);
+            Assert.That(mockDevices[2].DiscoveryMuted, Is.True);
+        }
     }
     [Test, Retry(3), CancelAfter(30000)]
     public async Task TestDiscovery_UNIQUE_BRANCH()
@@ -188,8 +209,11 @@ public class TestRDMDiscovery
             Parameter = ERDM_Parameter.DISC_UN_MUTE,
         };
         var response = await RDMSharp.RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(unmuteBroadcast);
-        Assert.That(response.Success, Is.True);
-        Assert.That(response.Response, Is.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Response, Is.Null);
+        }
 
         RDMMessage branchBroadcast = new RDMMessage()
         {
@@ -202,24 +226,37 @@ public class TestRDMDiscovery
         };
 
         response = await RDMSharp.RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(branchBroadcast);
-        Assert.That(response.Success, Is.True);
-        Assert.That(response.Response, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Response, Is.Not.Null);
+        }
         Assert.That(response.Response.ChecksumValid, Is.False);
 
         branchBroadcast.ParameterData = new DiscUniqueBranchRequest(UID.Empty, UID.Broadcast / 2).ToPayloadData();
 
         response = await RDMSharp.RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(branchBroadcast);
-        Assert.That(response.Success, Is.True);
-        Assert.That(response.Response, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Response, Is.Not.Null);
+        }
         Assert.That(response.Response.ChecksumValid, Is.False);
 
         branchBroadcast.ParameterData = new DiscUniqueBranchRequest(UID.Empty, new UID(0x0111, 0)).ToPayloadData();
 
         response = await RDMSharp.RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(branchBroadcast);
-        Assert.That(response.Success, Is.True);
-        Assert.That(response.Response, Is.Not.Null);
-        Assert.That(response.Response.ChecksumValid, Is.True);
-        Assert.That(response.Response.SourceUID, Is.EqualTo(mockDevices[0].UID));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Response, Is.Not.Null);
+        }
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Response.ChecksumValid, Is.True);
+            Assert.That(response.Response.SourceUID, Is.EqualTo(mockDevices[0].UID));
+        }
 
         RDMMessage muteBroadcast = new RDMMessage()
         {
@@ -231,19 +268,31 @@ public class TestRDMDiscovery
         };
         Assert.That(mockDevices[0].DiscoveryMuted, Is.False);
         response = await RDMSharp.RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(muteBroadcast);
-        Assert.That(response.Success, Is.True);
-        Assert.That(response.Response, Is.Not.Null);
-        Assert.That(response.Response.SourceUID, Is.EqualTo(mockDevices[0].UID));
-        Assert.That(mockDevices[0].DiscoveryMuted, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Response, Is.Not.Null);
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Response.SourceUID, Is.EqualTo(mockDevices[0].UID));
+            Assert.That(mockDevices[0].DiscoveryMuted, Is.True);
+        }
 
         branchBroadcast.ParameterData = new DiscUniqueBranchRequest(UID.Empty, UID.Broadcast / 2).ToPayloadData();
 
         response = await RDMSharp.RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(branchBroadcast);
-        Assert.That(mockDevices[0].DiscoveryMuted, Is.True);
-        Assert.That(response.Success, Is.True);
-        Assert.That(response.Response, Is.Not.Null);
-        Assert.That(response.Response.ChecksumValid, Is.True);
-        Assert.That(response.Response.SourceUID, Is.EqualTo(mockDevices[2].UID));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(mockDevices[0].DiscoveryMuted, Is.True);
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Response, Is.Not.Null);
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Response.ChecksumValid, Is.True);
+            Assert.That(response.Response.SourceUID, Is.EqualTo(mockDevices[2].UID));
+        }
 
         muteBroadcast = new RDMMessage()
         {
@@ -255,19 +304,32 @@ public class TestRDMDiscovery
         };
         Assert.That(mockDevices[2].DiscoveryMuted, Is.False);
         response = await RDMSharp.RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(muteBroadcast);
-        Assert.That(response.Success, Is.True);
-        Assert.That(response.Response, Is.Not.Null);
-        Assert.That(response.Response.SourceUID, Is.EqualTo(mockDevices[2].UID));
-        Assert.That(mockDevices[2].DiscoveryMuted, Is.True);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Response, Is.Not.Null);
+        }
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Response.SourceUID, Is.EqualTo(mockDevices[2].UID));
+            Assert.That(mockDevices[2].DiscoveryMuted, Is.True);
+        }
 
         branchBroadcast.ParameterData = new DiscUniqueBranchRequest(UID.Broadcast / 2, UID.Broadcast).ToPayloadData();
 
         response = await RDMSharp.RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(branchBroadcast);
-        Assert.That(mockDevices[2].DiscoveryMuted, Is.True);
-        Assert.That(response.Success, Is.True);
-        Assert.That(response.Response, Is.Not.Null);
-        Assert.That(response.Response.ChecksumValid, Is.True);
-        Assert.That(response.Response.SourceUID, Is.EqualTo(mockDevices[1].UID));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(mockDevices[2].DiscoveryMuted, Is.True);
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Response, Is.Not.Null);
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Response.ChecksumValid, Is.True);
+            Assert.That(response.Response.SourceUID, Is.EqualTo(mockDevices[1].UID));
+        }
 
         muteBroadcast = new RDMMessage()
         {
@@ -279,11 +341,16 @@ public class TestRDMDiscovery
         };
         Assert.That(mockDevices[1].DiscoveryMuted, Is.False);
         response = await RDMSharp.RDMSharp.Instance.AsyncRDMRequestHelper.RequestMessage(muteBroadcast);
-        Assert.That(response.Success, Is.True);
-        Assert.That(response.Response, Is.Not.Null);
-        Assert.That(response.Response.SourceUID, Is.EqualTo(mockDevices[1].UID));
-        Assert.That(mockDevices[1].DiscoveryMuted, Is.True);
-
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Success, Is.True);
+            Assert.That(response.Response, Is.Not.Null);
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Response.SourceUID, Is.EqualTo(mockDevices[1].UID));
+            Assert.That(mockDevices[1].DiscoveryMuted, Is.True);
+        }
     }
 
     [Test, Retry(3), CancelAfter(30000)]

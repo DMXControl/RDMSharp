@@ -186,7 +186,7 @@ public class TestTagModlue
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(1));
-            Assert.That(response.Value, Is.EqualTo(true));
+            Assert.That(response.Value, Is.True);
         }
 
         request = new RDMMessage()
@@ -255,7 +255,7 @@ public class TestTagModlue
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(1));
-            Assert.That(response.Value, Is.EqualTo(false));
+            Assert.That(response.Value, Is.False);
         }
 
 

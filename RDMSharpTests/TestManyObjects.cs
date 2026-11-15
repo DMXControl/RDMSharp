@@ -63,7 +63,7 @@ public class TestManyObjects
                 }
 
                 Assert.That(prev, Is.Not.EqualTo(sd));
-                Assert.That(prev, Is.Not.EqualTo(null));
+                Assert.That(prev, Is.Not.Null);
                 Assert.That(prev.Equals(sd), Is.False);
                 Assert.That(prev.Equals((object)sd), Is.False);
                 Assert.That(prev.Equals(null), Is.False);
@@ -297,7 +297,7 @@ public class TestManyObjects
             Assert.That(pdl.MinLength.HasValue, Is.False);
             Assert.That(pdl.MaxLength.HasValue, Is.False);
             Assert.That(pdl.Value, Is.Not.Null);
-            Assert.That(pdl.Value!.Value, Is.EqualTo(0));
+            Assert.That(pdl.Value!.Value, Is.Zero);
 
             pdl = new PDL(13);
             Assert.That(pdl.Value.HasValue, Is.True);
@@ -478,7 +478,7 @@ public class TestManyObjects
         Assert.That(sensor.LowestHighestValueSupported, Is.False);
         Assert.That(sensor.RecordedValueSupported, Is.False);
         Assert.That(dict, Has.Count.EqualTo(14));
-        Assert.That(sensor.GetHashCode(), Is.Not.EqualTo(0));
+        Assert.That(sensor.GetHashCode(), Is.Not.Zero);
 
         void Sensor_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {

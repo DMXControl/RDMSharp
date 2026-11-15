@@ -262,7 +262,7 @@ public class TestStatusMessagesModule
             Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CLEAR_STATUS_ID));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
-            Assert.That(response.MessageCounter, Is.EqualTo(0));
+            Assert.That(response.MessageCounter, Is.Zero);
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
         }

@@ -152,10 +152,10 @@ public class TestRDMSendReceive
             Assert.That(slotIntensity, Is.Not.EqualTo(slotRed));
             Assert.That(slotIntensity, Is.Not.EqualTo(slotGreen));
             Assert.That(slotIntensity, Is.Not.EqualTo(slotBlue));
-            Assert.That(slotIntensity.DefaultValue, Is.EqualTo(0));
+            Assert.That(slotIntensity.DefaultValue, Is.Zero);
             Assert.That(slotIntensity.Category, Is.EqualTo(ERDM_SlotCategory.INTENSITY));
             Assert.That(slotIntensity.Type, Is.EqualTo(ERDM_SlotType.PRIMARY));
-            Assert.That(slotIntensity.DefaultValue, Is.EqualTo(0));
+            Assert.That(slotIntensity.DefaultValue, Is.Zero);
 
             Assert.That(slotStrobe, Is.Not.EqualTo(slotRed));
             Assert.That(slotStrobe, Is.Not.EqualTo(slotGreen));
@@ -168,17 +168,18 @@ public class TestRDMSendReceive
             Assert.That(slotRed, Is.Not.EqualTo(slotBlue));
             Assert.That(slotRed.Category, Is.EqualTo(ERDM_SlotCategory.COLOR_ADD_RED));
             Assert.That(slotRed.Type, Is.EqualTo(ERDM_SlotType.PRIMARY));
-            Assert.That(slotRed.DefaultValue, Is.EqualTo(0));
+            Assert.That(slotRed.DefaultValue, Is.Zero);
 
             Assert.That(slotGreen, Is.Not.EqualTo(slotBlue));
             Assert.That(slotGreen.Category, Is.EqualTo(ERDM_SlotCategory.COLOR_ADD_GREEN));
             Assert.That(slotGreen.Type, Is.EqualTo(ERDM_SlotType.PRIMARY));
-            Assert.That(slotGreen.DefaultValue, Is.EqualTo(0));
+            Assert.That(slotGreen.DefaultValue, Is.Zero);
 
             Assert.That(slotBlue.Category, Is.EqualTo(ERDM_SlotCategory.COLOR_ADD_BLUE));
             Assert.That(slotBlue.Type, Is.EqualTo(ERDM_SlotType.PRIMARY));
-            Assert.That(slotBlue.DefaultValue, Is.EqualTo(0));
+            Assert.That(slotBlue.DefaultValue, Is.Zero);
 
+#pragma warning disable NUnit2010 // Use EqualConstraint for better assertion messages in case of failure
             Assert.That(slotIntensity != slotStrobe, Is.True);
             Assert.That(slotRed != slotBlue, Is.True);
 
@@ -189,6 +190,7 @@ public class TestRDMSendReceive
             Assert.That(((object)slotRed!).Equals(slotBlue), Is.False);
             Assert.That(slotRed.Equals(slotBlue), Is.False);
             Assert.That(slotRed.Equals(slotStrobe), Is.False);
+#pragma warning restore NUnit2010 // Use EqualConstraint for better assertion messages in case of failure
 
             Assert.That(string.IsNullOrWhiteSpace(slotRed.ToString()), Is.False);
             HashSet<Slot> slots = new HashSet<Slot>();
@@ -226,9 +228,9 @@ public class TestRDMSendReceive
             Assert.That(generated.Sensors[0].HighestValue, Is.EqualTo(3000));
             Assert.That(generated.Sensors[1].HighestValue, Is.EqualTo(8000));
             Assert.That(generated.Sensors[2].HighestValue, Is.EqualTo(12000));
-            Assert.That(generated.Sensors[0].RecordedValue, Is.EqualTo(0));
-            Assert.That(generated.Sensors[1].RecordedValue, Is.EqualTo(0));
-            Assert.That(generated.Sensors[2].RecordedValue, Is.EqualTo(0));
+            Assert.That(generated.Sensors[0].RecordedValue, Is.Zero);
+            Assert.That(generated.Sensors[1].RecordedValue, Is.Zero);
+            Assert.That(generated.Sensors[2].RecordedValue, Is.Zero);
         }
         using (Assert.EnterMultipleScope())
         {
@@ -259,9 +261,9 @@ public class TestRDMSendReceive
             Assert.That(generated.Sensors[0].HighestValue, Is.EqualTo(3000));
             Assert.That(generated.Sensors[1].HighestValue, Is.EqualTo(8000));
             Assert.That(generated.Sensors[2].HighestValue, Is.EqualTo(12000));
-            Assert.That(generated.Sensors[0].RecordedValue, Is.EqualTo(0));
-            Assert.That(generated.Sensors[1].RecordedValue, Is.EqualTo(0));
-            Assert.That(generated.Sensors[2].RecordedValue, Is.EqualTo(0));
+            Assert.That(generated.Sensors[0].RecordedValue, Is.Zero);
+            Assert.That(generated.Sensors[1].RecordedValue, Is.Zero);
+            Assert.That(generated.Sensors[2].RecordedValue, Is.Zero);
         }
 
         await Task.Delay(400);

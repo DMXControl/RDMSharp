@@ -12,7 +12,7 @@ public class RDMRealTimeClockTest
         RDMRealTimeClock rtc3 = new RDMRealTimeClock(year: 2024, month: 6, day: 21, hour: 16, minute: 31, second: 46);
         Assert.That(rtc1.CompareTo(rtc2), Is.EqualTo(1));
         Assert.That(rtc1.CompareTo(rtc3), Is.EqualTo(-1));
-        Assert.That(rtc1.CompareTo(rtc1), Is.EqualTo(0));
+        Assert.That(rtc1.CompareTo(rtc1), Is.Zero);
     }
 
     [Test]

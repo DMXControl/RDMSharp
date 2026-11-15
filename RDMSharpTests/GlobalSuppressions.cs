@@ -14,3 +14,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Style", "IDE0057:Bereichsoperator verwenden", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "~N:RDMSharpTests")]
 [assembly: SuppressMessage("Style", "IDE0290:Primären Konstruktor verwenden", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "~N:RDMSharpTests")]
 [assembly: SuppressMessage("Style", "IDE1006:Benennungsstile", Justification = "<Ausstehend>", Scope = "namespaceanddescendants", Target = "~N:RDMSharpTests")]
+[assembly: SuppressMessage("Style", "IDE0230:Verwenden des UTF-8-Zeichenfolgenliterals", Justification = "<Ausstehend>", Scope = "member", Target = "~M:RDMSharpTests.Metadata.Parser.PayloadToParsedObjectTestSubject.getPayloadList~System.Collections.Generic.IEnumerable{RDMSharpTests.Metadata.Parser.PayloadToParsedObjectTestSubject.PayloadToParseBagData}")]

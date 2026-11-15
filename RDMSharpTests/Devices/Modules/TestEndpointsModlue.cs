@@ -89,7 +89,7 @@ public class TestEndpointsModlue
             Assert.That(response.ParameterData, Has.Length.EqualTo(4));
             Assert.That(response.Value, Is.Not.Null);
             Assert.That(response.Value, Is.TypeOf(typeof(uint)));
-            Assert.That(response.Value, Is.EqualTo(0));
+            Assert.That(response.Value, Is.Zero);
         }
 
         response = generated.ProcessRequestMessage_Internal(request);
@@ -108,7 +108,7 @@ public class TestEndpointsModlue
         }
 
         var getEndpointListResponse = (GetEndpointListResponse)response.Value;
-        Assert.That(getEndpointListResponse.ListChangedNumber, Is.EqualTo(0));
+        Assert.That(getEndpointListResponse.ListChangedNumber, Is.Zero);
         var endpoints = getEndpointListResponse.Endpoints;
         Assert.That(endpoints, Has.Length.EqualTo(12));
 
@@ -254,7 +254,7 @@ public class TestEndpointsModlue
         using (Assert.EnterMultipleScope())
         {
             Assert.That(getSetEndpointLable.EndpointId, Is.EqualTo(1));
-            Assert.That(getSetEndpointLable.IdentifyState, Is.EqualTo(false));
+            Assert.That(getSetEndpointLable.IdentifyState, Is.False);
         }
         #endregion
 
@@ -279,7 +279,7 @@ public class TestEndpointsModlue
         using (Assert.EnterMultipleScope())
         {
             Assert.That(getSetEndpointLable.EndpointId, Is.EqualTo(1));
-            Assert.That(getSetEndpointLable.IdentifyState, Is.EqualTo(true));
+            Assert.That(getSetEndpointLable.IdentifyState, Is.True);
         }
     }
 
@@ -652,7 +652,7 @@ public class TestEndpointsModlue
         using (Assert.EnterMultipleScope())
         {
             Assert.That(getSetEndpointRDMTrafficEnable.EndpointId, Is.EqualTo(1));
-            Assert.That(getSetEndpointRDMTrafficEnable.RDMTrafficEnabled, Is.EqualTo(true));
+            Assert.That(getSetEndpointRDMTrafficEnable.RDMTrafficEnabled, Is.True);
         }
         #endregion
 
@@ -677,7 +677,7 @@ public class TestEndpointsModlue
         using (Assert.EnterMultipleScope())
         {
             Assert.That(getSetEndpointRDMTrafficEnable.EndpointId, Is.EqualTo(1));
-            Assert.That(getSetEndpointRDMTrafficEnable.RDMTrafficEnabled, Is.EqualTo(false));
+            Assert.That(getSetEndpointRDMTrafficEnable.RDMTrafficEnabled, Is.False);
         }
 
         endpointsModule.Endpoints.First(x => x.EndpointId == 1).RDMTraffic = true;
@@ -737,7 +737,7 @@ public class TestEndpointsModlue
         {
             Assert.That(getDiscoveryStateResponse.EndpointId, Is.EqualTo(1));
             Assert.That(getDiscoveryStateResponse.DiscoveryState, Is.EqualTo(ERDM_DiscoveryState.INCOMPLETE));
-            Assert.That(getDiscoveryStateResponse.DeviceCount, Is.EqualTo(0));
+            Assert.That(getDiscoveryStateResponse.DeviceCount, Is.Zero);
         }
         #endregion
 
@@ -824,7 +824,7 @@ public class TestEndpointsModlue
         using (Assert.EnterMultipleScope())
         {
             Assert.That(getSetEndpointBackgroundDiscovery.EndpointId, Is.EqualTo(1));
-            Assert.That(getSetEndpointBackgroundDiscovery.BackgroundDiscovery, Is.EqualTo(false));
+            Assert.That(getSetEndpointBackgroundDiscovery.BackgroundDiscovery, Is.False);
         }
         #endregion
 
@@ -849,7 +849,7 @@ public class TestEndpointsModlue
         using (Assert.EnterMultipleScope())
         {
             Assert.That(getSetEndpointBackgroundDiscovery.EndpointId, Is.EqualTo(1));
-            Assert.That(getSetEndpointBackgroundDiscovery.BackgroundDiscovery, Is.EqualTo(true));
+            Assert.That(getSetEndpointBackgroundDiscovery.BackgroundDiscovery, Is.True);
         }
 
         endpointsModule.Endpoints.First(x => x.EndpointId == 1).BackgroundDiscovery = false;
@@ -1063,7 +1063,7 @@ public class TestEndpointsModlue
         using (Assert.EnterMultipleScope())
         {
             Assert.That(getEndpointResponderListChangeResponse.EndpointId, Is.EqualTo(1));
-            Assert.That(getEndpointResponderListChangeResponse.ListChangeNumber, Is.EqualTo(0));
+            Assert.That(getEndpointResponderListChangeResponse.ListChangeNumber, Is.Zero);
         }
 
         request.ParameterData = Tools.ValueToData((ushort)1);
@@ -1085,7 +1085,7 @@ public class TestEndpointsModlue
         using (Assert.EnterMultipleScope())
         {
             Assert.That(getEndpointRespondersResponse.EndpointId, Is.EqualTo(1));
-            Assert.That(getEndpointRespondersResponse.ListChangedNumber, Is.EqualTo(0));
+            Assert.That(getEndpointRespondersResponse.ListChangedNumber, Is.Zero);
             Assert.That(getEndpointRespondersResponse.UIDs, Is.EqualTo(new UID[0]));
         }
         #endregion
@@ -1272,7 +1272,7 @@ public class TestEndpointsModlue
         {
             Assert.That(getBindingAndControlFieldsResponse.EndpointId, Is.EqualTo(6));
             Assert.That(getBindingAndControlFieldsResponse.UID, Is.EqualTo(uid));
-            Assert.That(getBindingAndControlFieldsResponse.ControlField, Is.EqualTo(0));
+            Assert.That(getBindingAndControlFieldsResponse.ControlField, Is.Zero);
             Assert.That(getBindingAndControlFieldsResponse.BindingUID, Is.EqualTo(UID.Empty));
         }
 
@@ -1457,7 +1457,7 @@ public class TestEndpointsModlue
             Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
             Assert.That(response.Value, Is.Null);
 
-            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Identify, Is.EqualTo(false));
+            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Identify, Is.False);
         }
 
         bool changed = false;
@@ -1482,8 +1482,8 @@ public class TestEndpointsModlue
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
-            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Identify, Is.EqualTo(true));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Identify, Is.True);
+            Assert.That(changed, Is.True);
         }
         #endregion
 
@@ -1503,8 +1503,8 @@ public class TestEndpointsModlue
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
-            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Identify, Is.EqualTo(false));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Identify, Is.False);
+            Assert.That(changed, Is.True);
         }
 
         payload = new GetSetIdentifyEndpoint(20, false);
@@ -1597,7 +1597,7 @@ public class TestEndpointsModlue
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
             Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Universe, Is.EqualTo(99));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(changed, Is.True);
         }
         #endregion
 
@@ -1618,7 +1618,7 @@ public class TestEndpointsModlue
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
             Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Universe, Is.EqualTo(1));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(changed, Is.True);
         }
 
         payload = new GetSetEndpointToUniverse(20, 1);
@@ -1711,7 +1711,7 @@ public class TestEndpointsModlue
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
             Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Mode, Is.EqualTo(ERDM_EndpointMode.DISABLED));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(changed, Is.True);
         }
         #endregion
 
@@ -1732,7 +1732,7 @@ public class TestEndpointsModlue
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
             Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Mode, Is.EqualTo(ERDM_EndpointMode.INPUT));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(changed, Is.True);
         }
 
         payload = new GetSetEndpointMode(20, ERDM_EndpointMode.INPUT);
@@ -1825,7 +1825,7 @@ public class TestEndpointsModlue
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
             Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Lable, Is.EqualTo("Test Endpoint Input 1 renamed"));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(changed, Is.True);
         }
         #endregion
 
@@ -1846,7 +1846,7 @@ public class TestEndpointsModlue
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
             Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Lable, Is.EqualTo("Test Endpoint Input 1"));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(changed, Is.True);
         }
 
         payload = new GetSetEndpointLabel(20, "Test Endpoint Input 20");
@@ -1913,7 +1913,7 @@ public class TestEndpointsModlue
             Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
             Assert.That(response.Value, Is.Null);
 
-            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).RDMTraffic, Is.EqualTo(true));
+            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).RDMTraffic, Is.True);
         }
 
         bool changed = false;
@@ -1938,8 +1938,8 @@ public class TestEndpointsModlue
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
-            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).RDMTraffic, Is.EqualTo(false));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).RDMTraffic, Is.False);
+            Assert.That(changed, Is.True);
         }
         #endregion
 
@@ -1959,8 +1959,8 @@ public class TestEndpointsModlue
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
-            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).RDMTraffic, Is.EqualTo(true));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).RDMTraffic, Is.True);
+            Assert.That(changed, Is.True);
         }
 
         payload = new GetSetEndpointRDMTrafficEnable(20, true);
@@ -2052,7 +2052,7 @@ public class TestEndpointsModlue
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
             Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).DiscoveryState, Is.EqualTo(ERDM_DiscoveryState.FULL));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(changed, Is.True);
         }
         #endregion
 
@@ -2073,7 +2073,7 @@ public class TestEndpointsModlue
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
             Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).DiscoveryState, Is.EqualTo(ERDM_DiscoveryState.INCOMPLETE));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(changed, Is.True);
         }
 
         payload = new SetDiscoveryStateRequest(20, ERDM_DiscoveryState.INCOMPLETE);
@@ -2140,7 +2140,7 @@ public class TestEndpointsModlue
             Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
             Assert.That(response.Value, Is.Null);
 
-            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).BackgroundDiscovery, Is.EqualTo(false));
+            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).BackgroundDiscovery, Is.False);
         }
 
         bool changed = false;
@@ -2165,8 +2165,8 @@ public class TestEndpointsModlue
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
-            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).BackgroundDiscovery, Is.EqualTo(true));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).BackgroundDiscovery, Is.True);
+            Assert.That(changed, Is.True);
         }
         #endregion
 
@@ -2186,8 +2186,8 @@ public class TestEndpointsModlue
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
-            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).BackgroundDiscovery, Is.EqualTo(false));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).BackgroundDiscovery, Is.False);
+            Assert.That(changed, Is.True);
         }
 
         payload = new GetSetEndpointBackgroundDiscovery(20, false);
@@ -2279,7 +2279,7 @@ public class TestEndpointsModlue
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
             Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Timing, Is.EqualTo(4));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(changed, Is.True);
         }
         #endregion
 
@@ -2300,7 +2300,7 @@ public class TestEndpointsModlue
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
             Assert.That(endpointsModule.Endpoints.First(x => x.EndpointId == 1).Timing, Is.EqualTo(2));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(changed, Is.True);
         }
 
         payload = new SetEndpointTimingRequest(20, 3);
@@ -2392,7 +2392,7 @@ public class TestEndpointsModlue
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
             Assert.That(endpointsModule.BackgroundQueuedStatusPolicy, Is.EqualTo(3));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(changed, Is.True);
         }
         #endregion
 
@@ -2413,7 +2413,7 @@ public class TestEndpointsModlue
             Assert.That(response.ParameterData, Has.Length.EqualTo(0));
             Assert.That(response.Value, Is.Null);
             Assert.That(endpointsModule.BackgroundQueuedStatusPolicy, Is.EqualTo(1));
-            Assert.That(changed, Is.EqualTo(true));
+            Assert.That(changed, Is.True);
         }
 
         payload = (byte)100;

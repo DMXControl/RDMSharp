@@ -14,7 +14,7 @@ public class RDMSensorDefinitionTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(string.IsNullOrEmpty(sensorDefinition.Description), Is.True);
-            Assert.That(sensorDefinition.MinIndex, Is.EqualTo(0));
+            Assert.That(sensorDefinition.MinIndex, Is.Zero);
             Assert.That(sensorDefinition.Index, Is.EqualTo(3));
         }
     }

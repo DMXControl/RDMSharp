@@ -20,9 +20,9 @@ namespace RDMSharpTests.Metadata
             {
                 Assert.That(bag, Is.Not.Default);
                 Assert.That(bag.PID, Is.EqualTo(pid));
-                Assert.That(bag.ManufacturerID, Is.EqualTo(0));
-                Assert.That(bag.DeviceModelID, Is.EqualTo(null));
-                Assert.That(bag.SoftwareVersionID, Is.EqualTo(null));
+                Assert.That(bag.ManufacturerID, Is.Zero);
+                Assert.That(bag.DeviceModelID, Is.Null);
+                Assert.That(bag.SoftwareVersionID, Is.Null);
                 Assert.That(bag.ToString(), Is.EqualTo(pid.ToString()));
             }
 
@@ -47,7 +47,7 @@ namespace RDMSharpTests.Metadata
                 Assert.That(bag.PID, Is.EqualTo(pid));
                 Assert.That(bag.ManufacturerID, Is.EqualTo(432));
                 Assert.That(bag.DeviceModelID, Is.EqualTo(678));
-                Assert.That(bag.SoftwareVersionID, Is.EqualTo(null));
+                Assert.That(bag.SoftwareVersionID, Is.Null);
                 Assert.That(bag.ToString(), Is.EqualTo($"{pid} ManufacturerID: {432}, DeviceModelID: {678}"));
             }
 
@@ -58,8 +58,8 @@ namespace RDMSharpTests.Metadata
                 Assert.That(bag, Is.Not.Default);
                 Assert.That(bag.PID, Is.EqualTo(pid));
                 Assert.That(bag.ManufacturerID, Is.EqualTo(432));
-                Assert.That(bag.DeviceModelID, Is.EqualTo(null));
-                Assert.That(bag.SoftwareVersionID, Is.EqualTo(null));
+                Assert.That(bag.DeviceModelID, Is.Null);
+                Assert.That(bag.SoftwareVersionID, Is.Null);
                 Assert.That(bag.ToString(), Is.EqualTo($"{pid} ManufacturerID: {432}"));
             }
 

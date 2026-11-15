@@ -13,7 +13,7 @@ public class RDMMessageTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(m.ParameterData, Is.Empty);
-            Assert.That(m.PDL, Is.EqualTo(0));
+            Assert.That(m.PDL, Is.Zero);
             Assert.That(m.MessageLength, Is.EqualTo(24));
 
             m.ParameterData = new byte[5];

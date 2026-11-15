@@ -39,7 +39,7 @@ namespace RDMSharpTests.Metadata.JSON
             {
                 PDL pdl = stringType.GetDataLength();
                 Assert.That(pdl.Value, Is.Null);
-                Assert.That(pdl.MinLength, Is.EqualTo(0));
+                Assert.That(pdl.MinLength, Is.Zero);
                 Assert.That(pdl.MaxLength, Is.EqualTo(PDL.MAX_LENGTH));
             });
 
@@ -57,7 +57,7 @@ namespace RDMSharpTests.Metadata.JSON
             {
                 PDL pdl = stringType.GetDataLength();
                 Assert.That(pdl.Value, Is.Null);
-                Assert.That(pdl.MinLength, Is.EqualTo(0));
+                Assert.That(pdl.MinLength, Is.Zero);
                 Assert.That(pdl.MaxLength, Is.EqualTo(34));
             });
 
