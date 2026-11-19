@@ -37,9 +37,9 @@ public class TestProxiedDevicesModlue
     public void TestDisplayName()
     {
         Assert.That(generated, Is.Not.Null);
-        var curveModule = generated.Modules.OfType<ProxiedDevicesModule>().Single();
-        Assert.That(curveModule, Is.Not.Null);
-        Assert.That(curveModule.DisplayName, Is.EqualTo("Proxied Devices"));
+        var proxiedDevicesModule = generated.Modules.OfType<ProxiedDevicesModule>().Single();
+        Assert.That(proxiedDevicesModule, Is.Not.Null);
+        Assert.That(proxiedDevicesModule.DisplayName, Is.EqualTo("Proxied Devices"));
     }
 
     [Test, DependsOnTest(nameof(TestDisplayName))]

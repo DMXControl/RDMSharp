@@ -36,9 +36,9 @@ public class TestLampOnModeModule
     public void TestDisplayName()
     {
         Assert.That(generated, Is.Not.Null);
-        var curveModule = generated.Modules.OfType<LampOnModeModule>().Single();
-        Assert.That(curveModule, Is.Not.Null);
-        Assert.That(curveModule.DisplayName, Is.EqualTo("Lamp On Mode"));
+        var lampOnModeModule = generated.Modules.OfType<LampOnModeModule>().Single();
+        Assert.That(lampOnModeModule, Is.Not.Null);
+        Assert.That(lampOnModeModule.DisplayName, Is.EqualTo("Lamp On Mode"));
     }
 
     [Test, DependsOnTest(nameof(TestDisplayName))]

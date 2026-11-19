@@ -38,9 +38,9 @@ public class TestRealTimeClockModule
     public void TestDisplayName()
     {
         Assert.That(generated, Is.Not.Null);
-        var curveModule = generated.Modules.OfType<RealTimeClockModule>().Single();
-        Assert.That(curveModule, Is.Not.Null);
-        Assert.That(curveModule.DisplayName, Is.EqualTo("Real Time Clock"));
+        var realTimeClockModule = generated.Modules.OfType<RealTimeClockModule>().Single();
+        Assert.That(realTimeClockModule, Is.Not.Null);
+        Assert.That(realTimeClockModule.DisplayName, Is.EqualTo("Real Time Clock"));
     }
 
     [Test, Retry(3), DependsOnTest(nameof(TestDisplayName))]

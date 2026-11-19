@@ -38,9 +38,9 @@ public class TestModulationFrequencyModule
     public void TestDisplayName()
     {
         Assert.That(generated, Is.Not.Null);
-        var curveModule = generated.Modules.OfType<ModulationFrequencyModule>().Single();
-        Assert.That(curveModule, Is.Not.Null);
-        Assert.That(curveModule.DisplayName, Is.EqualTo("Modulation Frequency"));
+        var modulationFrequencyModule = generated.Modules.OfType<ModulationFrequencyModule>().Single();
+        Assert.That(modulationFrequencyModule, Is.Not.Null);
+        Assert.That(modulationFrequencyModule.DisplayName, Is.EqualTo("Modulation Frequency"));
     }
 
     [Test, DependsOnTest(nameof(TestDisplayName))]

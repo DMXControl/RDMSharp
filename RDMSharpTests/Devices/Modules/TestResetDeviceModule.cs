@@ -35,9 +35,9 @@ public class TestResetDeviceModule
     public void TestDisplayName()
     {
         Assert.That(generated, Is.Not.Null);
-        var curveModule = generated.Modules.OfType<ResetDeviceModule>().Single();
-        Assert.That(curveModule, Is.Not.Null);
-        Assert.That(curveModule.DisplayName, Is.EqualTo("Reset Device"));
+        var resetDeviceModule = generated.Modules.OfType<ResetDeviceModule>().Single();
+        Assert.That(resetDeviceModule, Is.Not.Null);
+        Assert.That(resetDeviceModule.DisplayName, Is.EqualTo("Reset Device"));
     }
 
     [Test, DependsOnTest(nameof(TestDisplayName))]

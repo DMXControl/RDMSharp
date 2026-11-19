@@ -53,9 +53,9 @@ public class TestInterfaceModule
     public void TestDisplayName()
     {
         Assert.That(generated, Is.Not.Null);
-        var curveModule = generated.Modules.OfType<InterfaceModule>().Single();
-        Assert.That(curveModule, Is.Not.Null);
-        Assert.That(curveModule.DisplayName, Is.EqualTo("Interface"));
+        var interfaceModule = generated.Modules.OfType<InterfaceModule>().Single();
+        Assert.That(interfaceModule, Is.Not.Null);
+        Assert.That(interfaceModule.DisplayName, Is.EqualTo("Interface"));
     }
 
     [Test, DependsOnTest(nameof(TestDisplayName))]

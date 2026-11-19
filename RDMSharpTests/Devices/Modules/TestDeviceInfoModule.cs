@@ -36,9 +36,9 @@ public class TestDeviceInfoModule
     public void TestDisplayName()
     {
         Assert.That(generated, Is.Not.Null);
-        var curveModule = generated.Modules.OfType<DeviceInfoModule>().Single();
-        Assert.That(curveModule, Is.Not.Null);
-        Assert.That(curveModule.DisplayName, Is.EqualTo("Device Info"));
+        var deviceInfoModule = generated.Modules.OfType<DeviceInfoModule>().Single();
+        Assert.That(deviceInfoModule, Is.Not.Null);
+        Assert.That(deviceInfoModule.DisplayName, Is.EqualTo("Device Info"));
     }
 
     [Test, DependsOnTest(nameof(TestDisplayName))]

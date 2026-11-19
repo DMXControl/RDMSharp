@@ -36,9 +36,9 @@ public class TestDevicePowerCyclesModule
     public void TestDisplayName()
     {
         Assert.That(generated, Is.Not.Null);
-        var curveModule = generated.Modules.OfType<DevicePowerCyclesModule>().Single();
-        Assert.That(curveModule, Is.Not.Null);
-        Assert.That(curveModule.DisplayName, Is.EqualTo("Device Power Cycles"));
+        var devicePowerCyclesModule = generated.Modules.OfType<DevicePowerCyclesModule>().Single();
+        Assert.That(devicePowerCyclesModule, Is.Not.Null);
+        Assert.That(devicePowerCyclesModule.DisplayName, Is.EqualTo("Device Power Cycles"));
     }
 
     [Test, DependsOnTest(nameof(TestDisplayName))]

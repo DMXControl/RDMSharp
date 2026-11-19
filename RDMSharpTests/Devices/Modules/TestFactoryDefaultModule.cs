@@ -35,9 +35,9 @@ public class TestFactoryDefaultModule
     public void TestDisplayName()
     {
         Assert.That(generated, Is.Not.Null);
-        var curveModule = generated.Modules.OfType<FactoryDefaultsModule>().Single();
-        Assert.That(curveModule, Is.Not.Null);
-        Assert.That(curveModule.DisplayName, Is.EqualTo("Factory Defaults"));
+        var factoryDefaultsModule = generated.Modules.OfType<FactoryDefaultsModule>().Single();
+        Assert.That(factoryDefaultsModule, Is.Not.Null);
+        Assert.That(factoryDefaultsModule.DisplayName, Is.EqualTo("Factory Defaults"));
     }
 
     [Test, DependsOnTest(nameof(TestDisplayName))]

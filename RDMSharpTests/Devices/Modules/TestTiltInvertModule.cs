@@ -36,9 +36,9 @@ public class TestTiltInvertModule
     public void TestDisplayName()
     {
         Assert.That(generated, Is.Not.Null);
-        var curveModule = generated.Modules.OfType<TiltInvertModule>().Single();
-        Assert.That(curveModule, Is.Not.Null);
-        Assert.That(curveModule.DisplayName, Is.EqualTo("Tilt Invert"));
+        var tiltInvertModule = generated.Modules.OfType<TiltInvertModule>().Single();
+        Assert.That(tiltInvertModule, Is.Not.Null);
+        Assert.That(tiltInvertModule.DisplayName, Is.EqualTo("Tilt Invert"));
     }
 
     [Test, DependsOnTest(nameof(TestDisplayName))]

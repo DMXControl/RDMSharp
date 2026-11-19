@@ -36,9 +36,9 @@ public class TestPanInvertModule
     public void TestDisplayName()
     {
         Assert.That(generated, Is.Not.Null);
-        var curveModule = generated.Modules.OfType<PanInvertModule>().Single();
-        Assert.That(curveModule, Is.Not.Null);
-        Assert.That(curveModule.DisplayName, Is.EqualTo("Pan Invert"));
+        var panInvertModule = generated.Modules.OfType<PanInvertModule>().Single();
+        Assert.That(panInvertModule, Is.Not.Null);
+        Assert.That(panInvertModule.DisplayName, Is.EqualTo("Pan Invert"));
     }
 
     [Test, DependsOnTest(nameof(TestDisplayName))]

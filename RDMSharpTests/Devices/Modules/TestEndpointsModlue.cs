@@ -40,9 +40,9 @@ public class TestEndpointsModlue
     public void TestDisplayName()
     {
         Assert.That(generated, Is.Not.Null);
-        var curveModule = generated.Modules.OfType<EndpointsModule>().Single();
-        Assert.That(curveModule, Is.Not.Null);
-        Assert.That(curveModule.DisplayName, Is.EqualTo("Endpoints"));
+        var endpointsModule = generated.Modules.OfType<EndpointsModule>().Single();
+        Assert.That(endpointsModule, Is.Not.Null);
+        Assert.That(endpointsModule.DisplayName, Is.EqualTo("Endpoints"));
     }
 
     [Test, DependsOnTest(nameof(TestDisplayName))]

@@ -35,9 +35,9 @@ public class TestDMX_StartAddressModule
     public void TestDisplayName()
     {
         Assert.That(generated, Is.Not.Null);
-        var curveModule = generated.Modules.OfType<DMX_StartAddressModule>().Single();
-        Assert.That(curveModule, Is.Not.Null);
-        Assert.That(curveModule.DisplayName, Is.EqualTo("DMX Start-Address"));
+        var dmxStartAddressModule = generated.Modules.OfType<DMX_StartAddressModule>().Single();
+        Assert.That(dmxStartAddressModule, Is.Not.Null);
+        Assert.That(dmxStartAddressModule.DisplayName, Is.EqualTo("DMX Start-Address"));
     }
 
     [Test, DependsOnTest(nameof(TestDisplayName))]

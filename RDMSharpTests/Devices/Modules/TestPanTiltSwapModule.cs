@@ -36,9 +36,9 @@ public class TestPanTiltSwapModule
     public void TestDisplayName()
     {
         Assert.That(generated, Is.Not.Null);
-        var curveModule = generated.Modules.OfType<PanTiltSwapModule>().Single();
-        Assert.That(curveModule, Is.Not.Null);
-        Assert.That(curveModule.DisplayName, Is.EqualTo("Pan Tilt Swap"));
+        var panTiltSwapModule = generated.Modules.OfType<PanTiltSwapModule>().Single();
+        Assert.That(panTiltSwapModule, Is.Not.Null);
+        Assert.That(panTiltSwapModule.DisplayName, Is.EqualTo("Pan Tilt Swap"));
     }
 
     [Test, DependsOnTest(nameof(TestDisplayName))]

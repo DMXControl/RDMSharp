@@ -36,9 +36,9 @@ public class TestDMX_PersonalityModule
     public void TestDisplayName()
     {
         Assert.That(generated, Is.Not.Null);
-        var curveModule = generated.Modules.OfType<DMX_PersonalityModule>().Single();
-        Assert.That(curveModule, Is.Not.Null);
-        Assert.That(curveModule.DisplayName, Is.EqualTo("DMX Personality"));
+        var dmxPersonalityModule = generated.Modules.OfType<DMX_PersonalityModule>().Single();
+        Assert.That(dmxPersonalityModule, Is.Not.Null);
+        Assert.That(dmxPersonalityModule.DisplayName, Is.EqualTo("DMX Personality"));
     }
 
     [Test, DependsOnTest(nameof(TestDisplayName))]

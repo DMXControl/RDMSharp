@@ -38,9 +38,9 @@ public class TestLockModule
     public void TestDisplayName()
     {
         Assert.That(generated, Is.Not.Null);
-        var curveModule = generated.Modules.OfType<LockModule>().Single();
-        Assert.That(curveModule, Is.Not.Null);
-        Assert.That(curveModule.DisplayName, Is.EqualTo("Lock"));
+        var lockModule = generated.Modules.OfType<LockModule>().Single();
+        Assert.That(lockModule, Is.Not.Null);
+        Assert.That(lockModule.DisplayName, Is.EqualTo("Lock"));
     }
 
     [Test, DependsOnTest(nameof(TestDisplayName))]
