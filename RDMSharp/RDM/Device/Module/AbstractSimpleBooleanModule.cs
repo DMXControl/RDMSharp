@@ -21,8 +21,9 @@ public abstract class AbstractSimpleBooleanModule : AbstractSimpleModule
             if (value is null)
                 return;
 
+            // compare with the stored value of the device, the field is outdated after a SET by RDM
             if (initialized)
-                if (bool.Equals(_value, value.Value))
+                if (bool.Equals(Value, value.Value))
                     return;
 
             _value = value.Value;

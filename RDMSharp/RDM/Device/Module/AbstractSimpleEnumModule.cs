@@ -22,8 +22,9 @@ public abstract class AbstractSimpleEnumModule<T> : AbstractSimpleModule where T
             if (value is null)
                 return;
 
+            // compare with the stored value of the device, the field is outdated after a SET by RDM
             if (initialized)
-                if (Object.Equals(_value, value.Value))
+                if (Object.Equals(Value, value.Value))
                     return;
 
             _value = value.Value;

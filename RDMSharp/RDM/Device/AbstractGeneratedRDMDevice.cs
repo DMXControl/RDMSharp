@@ -642,27 +642,23 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
                 //Handle set Request
                 if (parameterValues.TryGetValue(rdmMessage.Parameter, out object comparisonValue))
                 {
+                    bool valueAdded = false;
+                    object oldValue = null;
                     parameterValues.AddOrUpdate(rdmMessage.Parameter, (_) =>
                     {
-                        try
-                        {
-                            return rdmMessage.Value;
-                        }
-                        finally
-                        {
-                            InvokeParameterValueAdded(new ParameterValueAddedEventArgs(rdmMessage.Parameter, rdmMessage.Value));
-                        }
+                        valueAdded = true;
+                        return rdmMessage.Value;
                     }, (_, old) =>
                     {
-                        try
-                        {
-                            return rdmMessage.Value;
-                        }
-                        finally
-                        {
-                            InvokeParameterValueChanged(new ParameterValueChangedEventArgs(rdmMessage.Parameter, rdmMessage.Value, old));
-                        }
+                        valueAdded = false;
+                        oldValue = old;
+                        return rdmMessage.Value;
                     });
+                    // raise the events after the value is stored, so handlers already read the new value
+                    if (valueAdded)
+                        InvokeParameterValueAdded(new ParameterValueAddedEventArgs(rdmMessage.Parameter, rdmMessage.Value));
+                    else
+                        InvokeParameterValueChanged(new ParameterValueChangedEventArgs(rdmMessage.Parameter, rdmMessage.Value, oldValue));
                     success = true;
                     object responseValue = rdmMessage.Value;
                     if (comparisonValue is ConcurrentDictionary<object, object> dict)

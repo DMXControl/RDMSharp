@@ -111,7 +111,7 @@ public sealed class LockModule : AbstractModule
                     await semaphoreSlimLockState.WaitAsync(3000);
                     try
                     {
-                        if (await SetLockPin(value.Value))
+                        if (await ParentRemoteDevice.SetParameter(ERDM_Parameter.LOCK_STATE, new SetLockStateRequest(lockPin ?? 0, value.Value)))
                             OnPropertyChanged(nameof(LockState));
                         else
                         {

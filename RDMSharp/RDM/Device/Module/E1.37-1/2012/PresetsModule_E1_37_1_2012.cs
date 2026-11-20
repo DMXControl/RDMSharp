@@ -53,8 +53,9 @@ public class PresetsModule_E1_37_1_2012 : PresetsModule
             if (value is null)
                 return;
 
+            // compare with the stored value of the device, the field is outdated after a SET by RDM
             if (initialized)
-                if (bool.Equals(currentMergeMode, value))
+                if (Object.Equals(CurrentMergeMode, value))
                     return;
 
             currentMergeMode = value.Value;

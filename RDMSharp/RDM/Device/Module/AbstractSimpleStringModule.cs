@@ -21,8 +21,9 @@ public abstract class AbstractSimpleStringModule : AbstractSimpleModule
             if (value is null)
                 return;
 
+            // compare with the stored value of the device, the field is outdated after a SET by RDM
             if (initialized)
-                if (string.Equals(_value, value))
+                if (string.Equals(Value, value))
                     return;
 
             _value = value;

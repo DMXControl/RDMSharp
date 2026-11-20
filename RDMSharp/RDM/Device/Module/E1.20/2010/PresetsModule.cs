@@ -35,8 +35,9 @@ public class PresetsModule : AbstractModule
             if (value is null)
                 return;
 
+            // compare with the stored value of the device, the field is outdated after a SET by RDM
             if (initialized)
-                if (bool.Equals(currentPlayBack, value))
+                if (Object.Equals(CurrentPlayback, value))
                     return;
 
             currentPlayBack = value;

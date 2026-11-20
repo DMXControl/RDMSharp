@@ -85,6 +85,12 @@ public sealed class ModulesExtension : AbstractModulesExtension
         if (parameters.Contains(ERDM_Parameter.DISPLAY_INVERT))
             _modules.Add(typeof(DisplayInvertModule));
 
+        if (parameters.Contains(ERDM_Parameter.DISPLAY_LEVEL))
+            _modules.Add(typeof(DisplayLevelModule));
+
+        if (parameters.Contains(ERDM_Parameter.PRODUCT_DETAIL_ID_LIST))
+            _modules.Add(typeof(ProductDetailIdListModule));
+
         if (parameters.Contains(ERDM_Parameter.PAN_INVERT))
             _modules.Add(typeof(PanInvertModule));
 
@@ -112,6 +118,9 @@ public sealed class ModulesExtension : AbstractModulesExtension
 
         if (parameters.Contains(ERDM_Parameter.BURN_IN))
             _modules.Add(typeof(BurnInModule));
+
+        if (parameters.Contains(ERDM_Parameter.IDENTIFY_MODE))
+            _modules.Add(typeof(IdentifyModeModule));
 
         if (parameters.Contains(ERDM_Parameter.PERFORM_SELFTEST))
             _modules.Add(typeof(SelfTestsModule));
@@ -155,6 +164,9 @@ public sealed class ModulesExtension : AbstractModulesExtension
 
         if (parameters.Contains(ERDM_Parameter.POWER_OFF_READY))
             _modules.Add(typeof(PowerOffReadyModule));
+
+        if (parameters.Contains(ERDM_Parameter.IDENTIFY_TIMEOUT))
+            _modules.Add(typeof(IdentifyTimeoutModule));
         #endregion
 
         #region E1.31-7 2019

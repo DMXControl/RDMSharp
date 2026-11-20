@@ -179,6 +179,17 @@ public class TestPresetsModule
             Assert.That(response.Value, Is.EqualTo(module.CurrentPlayback));
         }
 
+        // set locally back to the value set before the RDM SET, this has to be applied
+        module.CurrentPlayback = new RDMPresetPlayback(ERDM_PresetPlayback.ALL, 0);
+        response = generated.ProcessRequestMessage_Internal(request);
+        Assert.That(response, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.Value, Is.EqualTo(new RDMPresetPlayback(ERDM_PresetPlayback.ALL, 0)));
+            Assert.That(module.CurrentPlayback, Is.EqualTo(new RDMPresetPlayback(ERDM_PresetPlayback.ALL, 0)));
+        }
+
         #endregion
     }
 
@@ -982,6 +993,17 @@ public class TestPresetsModule
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
             Assert.That(response.ParameterData, Has.Length.EqualTo(1));
             Assert.That(response.Value, Is.EqualTo(module.CurrentMergeMode));
+        }
+
+        // set locally back to the value set before the RDM SET, this has to be applied
+        module.CurrentMergeMode = ERDM_MergeMode.DMX_ONLY;
+        response = generated.ProcessRequestMessage_Internal(request);
+        Assert.That(response, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.Value, Is.EqualTo(ERDM_MergeMode.DMX_ONLY));
+            Assert.That(module.CurrentMergeMode, Is.EqualTo(ERDM_MergeMode.DMX_ONLY));
         }
 
         #endregion
