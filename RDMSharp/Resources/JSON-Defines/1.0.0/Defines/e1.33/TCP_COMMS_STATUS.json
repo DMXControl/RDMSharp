@@ -1,0 +1,67 @@
+{
+  "name": "TCP_COMMS_STATUS",
+  "displayName": "TCP Communication Status",
+  "notes": "E1.33 Section 7.6.3. The GET response contains one TCP Comms Entry (87 octets) per Scope, one per ACK or ACK_OVERFLOW response. A SET resets the event counter of the given Scope.",
+  "manufacturer_id": 0,
+  "pid": 2050,
+  "version": 1,
+  "get_request_subdevice_range": [
+    "root"
+  ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "entries",
+      "type": "list",
+      "itemType": {
+        "name": "tcp_comms_entry",
+        "type": "compound",
+        "subtypes": [
+          {
+            "name": "scope",
+            "type": "string",
+            "notes": "Fixed 63 octet field: UTF-8 string of 1 to 62 octets, terminated and padded with null characters. The empty string is not a valid Scope; E133_DEFAULT_SCOPE is \"default\".",
+            "maxLength": 62,
+            "minBytes": 63,
+            "maxBytes": 63
+          },
+          {
+            "name": "broker_ipv4_address",
+            "type": "bytes",
+            "notes": "0.0.0.0 if there is no active IPv4 TCP connection.",
+            "format": "ipv4"
+          },
+          {
+            "name": "broker_ipv6_address",
+            "type": "bytes",
+            "notes": ":: (all zero) if there is no active IPv6 TCP connection.",
+            "format": "ipv6"
+          },
+          {
+            "name": "broker_port",
+            "type": "uint16",
+            "notes": "0 if there is no active TCP connection."
+          },
+          {
+            "name": "unhealthy_tcp_events",
+            "type": "uint16"
+          }
+        ]
+      }
+    }
+  ],
+  "set_request_subdevice_range": [
+    "root"
+  ],
+  "set_request": [
+    {
+      "name": "scope",
+      "type": "string",
+      "notes": "Fixed 63 octet field: UTF-8 string of 1 to 62 octets, terminated and padded with null characters. The empty string is not a valid Scope; E133_DEFAULT_SCOPE is \"default\".",
+      "maxLength": 62,
+      "minBytes": 63,
+      "maxBytes": 63
+    }
+  ],
+  "set_response": []
+}

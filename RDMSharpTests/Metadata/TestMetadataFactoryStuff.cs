@@ -33,15 +33,6 @@ public class TestMetadataFactoryStuff
         {
             foreach (var parameter in parameters)
             {
-                switch (parameter)
-                {
-                    case ERDM_Parameter.COMPONENT_SCOPE:
-                    case ERDM_Parameter.SEARCH_DOMAIN:
-                    case ERDM_Parameter.TCP_COMMS_STATUS:
-                    case ERDM_Parameter.BROKER_STATUS:
-                        Assert.Warn($"Implement Parameter: {parameter}");
-                        continue;
-                }
                 var define = MetadataFactory.GetDefine(new ParameterBag(parameter));
                 Assert.That(define, Is.Not.Null, $"Parameter: {parameter} has no matchig Define");
             }

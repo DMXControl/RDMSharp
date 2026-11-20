@@ -1,0 +1,187 @@
+{
+  "name": "FTC_TRANSFER_DOWNLOAD",
+  "displayName": "FTC Transfer Data Download",
+  "notes": "E1.37-4-2026 File Transfer Control, Section 13.6.",
+  "manufacturer_id": 0,
+  "pid": 4613,
+  "version": 1,
+  "get_request_subdevice_range": [
+    "root"
+  ],
+  "get_request": [
+    {
+      "name": "session_id",
+      "type": "uint8",
+      "ranges": [
+        {
+          "minimum": 1,
+          "maximum": 254
+        }
+      ]
+    },
+    {
+      "name": "command",
+      "type": "uint8",
+      "notes": "Table A-6. 0x80-0xFF are manufacturer specific.",
+      "labels": [
+        {
+          "name": "GET_NEXT_PACKET",
+          "value": 1
+        },
+        {
+          "name": "RESEND_LAST_PACKET",
+          "value": 2
+        },
+        {
+          "name": "GET_FILE_CRC",
+          "value": 3
+        }
+      ]
+    },
+    {
+      "name": "data_offset",
+      "type": "uint32",
+      "notes": "0 unless a manufacturer specific command is used."
+    }
+  ],
+  "get_response": [
+    {
+      "name": "response_status",
+      "type": "uint8",
+      "notes": "Table A-3. 0x1B-0x7E are reserved, 0x80-0xFF are manufacturer specific.",
+      "labels": [
+        {
+          "name": "STATUS_OK",
+          "value": 0
+        },
+        {
+          "name": "INITOK_UL",
+          "value": 1
+        },
+        {
+          "name": "INITOK_DL",
+          "value": 2
+        },
+        {
+          "name": "STATUS_IN_PROGRESS",
+          "value": 3
+        },
+        {
+          "name": "TRANSFER_COMPLETE",
+          "value": 4
+        },
+        {
+          "name": "MODAL_ERROR",
+          "value": 5
+        },
+        {
+          "name": "SWITCH_TO_BOOTLOADER",
+          "value": 6
+        },
+        {
+          "name": "SESSIONID_MISMATCH",
+          "value": 7
+        },
+        {
+          "name": "UNSUPPORTED_FILEID",
+          "value": 8
+        },
+        {
+          "name": "FILE_NOT_COMPATIBLE",
+          "value": 9
+        },
+        {
+          "name": "FILE_NOT_AVAILABLE",
+          "value": 10
+        },
+        {
+          "name": "PACKET_CRC_ERROR",
+          "value": 11
+        },
+        {
+          "name": "FILE_CRC_ERROR",
+          "value": 12
+        },
+        {
+          "name": "VALIDATION_ERROR",
+          "value": 13
+        },
+        {
+          "name": "E137_LOCKACTIVE",
+          "value": 16
+        },
+        {
+          "name": "OTHER_LOCKACTIVE",
+          "value": 17
+        },
+        {
+          "name": "WRITE_PROTECT",
+          "value": 18
+        },
+        {
+          "name": "INVALID_DIRECTION",
+          "value": 19
+        },
+        {
+          "name": "OFFSET_ERROR",
+          "value": 20
+        },
+        {
+          "name": "FILESIZE_ERROR",
+          "value": 21
+        },
+        {
+          "name": "FTCVERSION_ERROR",
+          "value": 22
+        },
+        {
+          "name": "FILE_CRC_NOT_SUPPORTED",
+          "value": 23
+        },
+        {
+          "name": "DOWNLOAD_KEY_REQUIRED",
+          "value": 24
+        },
+        {
+          "name": "DOWNLOAD_FILE_CRC",
+          "value": 25
+        },
+        {
+          "name": "DOWNLOAD_COMMAND_ERROR",
+          "value": 26
+        },
+        {
+          "name": "UNRESOLVED_ERROR",
+          "value": 127
+        }
+      ]
+    },
+    {
+      "name": "response_data",
+      "type": "uint32",
+      "notes": "Meaning depends on the ResponseStatus, see Section 12.1 and Table A-4."
+    },
+    {
+      "name": "session_id",
+      "type": "uint8",
+      "ranges": [
+        {
+          "minimum": 1,
+          "maximum": 254
+        }
+      ]
+    },
+    {
+      "name": "data",
+      "type": "bytes",
+      "notes": "The length is PDL - 8.",
+      "minLength": 0,
+      "maxLength": 223
+    },
+    {
+      "name": "packet_crc",
+      "type": "uint16",
+      "notes": "0 if the Responder does not generate a PacketCRC."
+    }
+  ]
+}

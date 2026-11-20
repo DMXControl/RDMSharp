@@ -1,0 +1,445 @@
+{
+  "name": "FTC_INITIATE",
+  "displayName": "FTC Initiate Transfer",
+  "notes": "E1.37-4-2026 File Transfer Control, Section 13.1. The response lists 15 fields (38 octets) while the standard states a PDL of 0x22; the field list is used here.",
+  "manufacturer_id": 0,
+  "pid": 4608,
+  "version": 1,
+  "get_request_subdevice_range": [
+    "root"
+  ],
+  "get_request": [
+    {
+      "name": "session_id",
+      "type": "uint8",
+      "notes": "Controllers shall set this to NO_SESSIONID_OFFERED.",
+      "ranges": [
+        {
+          "minimum": 0,
+          "maximum": 0
+        }
+      ],
+      "labels": [
+        {
+          "name": "NO_SESSIONID_OFFERED",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "name": "file_id",
+      "type": "uint8",
+      "ranges": [
+        {
+          "minimum": 0,
+          "maximum": 254
+        }
+      ],
+      "labels": [
+        {
+          "name": "NO_FILEID_OFFERED",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "name": "ftc_version_major",
+      "type": "uint8",
+      "notes": "FTCVersion major, 1 for this standard."
+    },
+    {
+      "name": "ftc_version_minor",
+      "type": "uint8",
+      "notes": "FTCVersion minor, 0 for this standard."
+    },
+    {
+      "name": "transfer_flags",
+      "type": "bitField",
+      "notes": "Table A-5. The upper bits are reserved or manufacturer specific.",
+      "size": 16,
+      "bits": [
+        {
+          "name": "test_mode",
+          "index": 0
+        },
+        {
+          "name": "download",
+          "index": 1
+        }
+      ]
+    }
+  ],
+  "get_response": [
+    {
+      "name": "response_status",
+      "type": "uint8",
+      "notes": "Table A-3. 0x1B-0x7E are reserved, 0x80-0xFF are manufacturer specific.",
+      "labels": [
+        {
+          "name": "STATUS_OK",
+          "value": 0
+        },
+        {
+          "name": "INITOK_UL",
+          "value": 1
+        },
+        {
+          "name": "INITOK_DL",
+          "value": 2
+        },
+        {
+          "name": "STATUS_IN_PROGRESS",
+          "value": 3
+        },
+        {
+          "name": "TRANSFER_COMPLETE",
+          "value": 4
+        },
+        {
+          "name": "MODAL_ERROR",
+          "value": 5
+        },
+        {
+          "name": "SWITCH_TO_BOOTLOADER",
+          "value": 6
+        },
+        {
+          "name": "SESSIONID_MISMATCH",
+          "value": 7
+        },
+        {
+          "name": "UNSUPPORTED_FILEID",
+          "value": 8
+        },
+        {
+          "name": "FILE_NOT_COMPATIBLE",
+          "value": 9
+        },
+        {
+          "name": "FILE_NOT_AVAILABLE",
+          "value": 10
+        },
+        {
+          "name": "PACKET_CRC_ERROR",
+          "value": 11
+        },
+        {
+          "name": "FILE_CRC_ERROR",
+          "value": 12
+        },
+        {
+          "name": "VALIDATION_ERROR",
+          "value": 13
+        },
+        {
+          "name": "E137_LOCKACTIVE",
+          "value": 16
+        },
+        {
+          "name": "OTHER_LOCKACTIVE",
+          "value": 17
+        },
+        {
+          "name": "WRITE_PROTECT",
+          "value": 18
+        },
+        {
+          "name": "INVALID_DIRECTION",
+          "value": 19
+        },
+        {
+          "name": "OFFSET_ERROR",
+          "value": 20
+        },
+        {
+          "name": "FILESIZE_ERROR",
+          "value": 21
+        },
+        {
+          "name": "FTCVERSION_ERROR",
+          "value": 22
+        },
+        {
+          "name": "FILE_CRC_NOT_SUPPORTED",
+          "value": 23
+        },
+        {
+          "name": "DOWNLOAD_KEY_REQUIRED",
+          "value": 24
+        },
+        {
+          "name": "DOWNLOAD_FILE_CRC",
+          "value": 25
+        },
+        {
+          "name": "DOWNLOAD_COMMAND_ERROR",
+          "value": 26
+        },
+        {
+          "name": "UNRESOLVED_ERROR",
+          "value": 127
+        }
+      ]
+    },
+    {
+      "name": "response_data",
+      "type": "uint32",
+      "notes": "Meaning depends on the ResponseStatus, see Section 12.1 and Table A-4."
+    },
+    {
+      "name": "session_id",
+      "type": "uint8",
+      "ranges": [
+        {
+          "minimum": 0,
+          "maximum": 254
+        }
+      ],
+      "labels": [
+        {
+          "name": "NO_SESSIONID_OFFERED",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "name": "file_id",
+      "type": "uint8",
+      "labels": [
+        {
+          "name": "NO_FILEID_OFFERED",
+          "value": 0
+        },
+        {
+          "name": "MULTIPLE_FILEID",
+          "value": 255
+        }
+      ]
+    },
+    {
+      "name": "ftc_version_major",
+      "type": "uint8",
+      "notes": "FTCVersion major, 1 for this standard."
+    },
+    {
+      "name": "ftc_version_minor",
+      "type": "uint8",
+      "notes": "FTCVersion minor, 0 for this standard."
+    },
+    {
+      "name": "file_size",
+      "type": "uint32",
+      "notes": "In bytes, 0 if unknown."
+    },
+    {
+      "name": "capabilities",
+      "type": "bitField",
+      "notes": "Table A-7. Bits 27-31 are reserved for manufacturer specific use.",
+      "size": 32,
+      "bits": [
+        {
+          "name": "accept_upload",
+          "index": 0
+        },
+        {
+          "name": "accept_download",
+          "index": 1
+        },
+        {
+          "name": "process_filecrc",
+          "index": 2
+        },
+        {
+          "name": "process_packetcrc",
+          "index": 3
+        },
+        {
+          "name": "generate_filecrc",
+          "index": 4
+        },
+        {
+          "name": "generate_packetcrc",
+          "index": 5
+        },
+        {
+          "name": "download_key",
+          "index": 6
+        },
+        {
+          "name": "bootloader_switch",
+          "index": 7
+        },
+        {
+          "name": "nsc_no_interleave",
+          "index": 8
+        },
+        {
+          "name": "nsc_ignore",
+          "index": 9
+        },
+        {
+          "name": "functional_limit",
+          "index": 10
+        },
+        {
+          "name": "e137_lock",
+          "index": 12
+        },
+        {
+          "name": "other_lock",
+          "index": 13
+        },
+        {
+          "name": "accept_broadcasts",
+          "index": 15
+        },
+        {
+          "name": "fail_may_brick",
+          "index": 16
+        },
+        {
+          "name": "alternate_error_recovery",
+          "index": 17
+        },
+        {
+          "name": "testmode_supported",
+          "index": 23
+        }
+      ]
+    },
+    {
+      "name": "data_offset",
+      "type": "uint32"
+    },
+    {
+      "name": "transfer_block_size",
+      "type": "uint8",
+      "notes": "Upload 1-224, Download 1-223 bytes of file data per packet.",
+      "ranges": [
+        {
+          "minimum": 1,
+          "maximum": 224
+        }
+      ]
+    },
+    {
+      "name": "initial_delay_time",
+      "type": "uint32",
+      "ranges": [
+        {
+          "minimum": 0,
+          "maximum": 4194304
+        }
+      ],
+      "units": 21,
+      "prefixPower": -3
+    },
+    {
+      "name": "inter_packet_delay_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -3
+    },
+    {
+      "name": "accumulated_byte_count",
+      "type": "uint32"
+    },
+    {
+      "name": "accumulated_byte_delay_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -3
+    },
+    {
+      "name": "validation_delay_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -3
+    },
+    {
+      "name": "max_inter_packet_delay_time",
+      "type": "uint16",
+      "units": 21,
+      "prefixPower": -3
+    }
+  ],
+  "set_request_subdevice_range": [
+    "root"
+  ],
+  "set_request": [
+    {
+      "name": "session_id",
+      "type": "uint8",
+      "ranges": [
+        {
+          "minimum": 1,
+          "maximum": 254
+        }
+      ]
+    },
+    {
+      "name": "file_id",
+      "type": "uint8",
+      "ranges": [
+        {
+          "minimum": 0,
+          "maximum": 254
+        }
+      ],
+      "labels": [
+        {
+          "name": "NO_FILEID_OFFERED",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "name": "ftc_version_major",
+      "type": "uint8",
+      "notes": "FTCVersion major, 1 for this standard."
+    },
+    {
+      "name": "ftc_version_minor",
+      "type": "uint8",
+      "notes": "FTCVersion minor, 0 for this standard."
+    },
+    {
+      "name": "transfer_flags",
+      "type": "bitField",
+      "notes": "Table A-5. The upper bits are reserved or manufacturer specific.",
+      "size": 16,
+      "bits": [
+        {
+          "name": "test_mode",
+          "index": 0
+        },
+        {
+          "name": "download",
+          "index": 1
+        }
+      ]
+    },
+    {
+      "name": "file_size",
+      "type": "uint32",
+      "notes": "Total file size in bytes for an Upload, 0 for a Download."
+    },
+    {
+      "name": "file_data",
+      "type": "bytes",
+      "notes": "Upload: the first 16 bytes of the file, padded with 0x00. Download: optional Download Key, padded with 0x00.",
+      "minLength": 16,
+      "maxLength": 16
+    },
+    {
+      "name": "file_crc",
+      "type": "uint16",
+      "notes": "0 for a Download."
+    },
+    {
+      "name": "packet_crc",
+      "type": "uint16"
+    }
+  ],
+  "set_response": "get_response"
+}
