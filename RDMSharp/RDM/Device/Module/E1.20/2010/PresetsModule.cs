@@ -107,6 +107,10 @@ public class PresetsModule : AbstractModule
 
     private static GetPresetStatus createPresetStatus(GeneratedPreset preset)
     {
+        // E1.37-1 5.3: if a Preset is NOT_PROGRAMMED all timing information in the response shall be zero
+        if (preset.Programmed == ERDM_PresetProgrammed.NOT_PROGRAMMED)
+            return new GetPresetStatus(preset.ID, 0, 0, 0, preset.Programmed);
+
         return new GetPresetStatus(preset.ID, preset.UpFadeTime, preset.DownFadeTime, preset.WaitTime, preset.Programmed);
     }
     private void GeneratedPreset_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -135,15 +139,48 @@ public class PresetsModule : AbstractModule
         return _generatedPresets?.FirstOrDefault(p => p.ID == sceneId);
     }
 
-    protected static RDMMessage CreateSetResponse(RDMMessage request, ERDM_NackReason? nackReason = null)
+    protected static RDMMessage CreateResponse(RDMMessage request, ERDM_NackReason? nackReason = null)
     {
         var response = nackReason.HasValue ? new RDMMessage(nackReason.Value) : new RDMMessage();
         response.SourceUID = request.DestUID;
         response.DestUID = request.SourceUID;
         response.SubDevice = request.SubDevice;
-        response.Command = ERDM_Command.SET_COMMAND_RESPONSE;
+        response.Command = request.Command | ERDM_Command.RESPONSE;
         response.Parameter = request.Parameter;
         return response;
+    }
+
+    /// <summary>
+    /// Checks (and normalizes) the times of a Preset. The base implementation knows no limits and accepts everything.
+    /// </summary>
+    /// <param name="upFadeTime">Up Fade Time in seconds</param>
+    /// <param name="downFadeTime">Down Fade Time in seconds, may be replaced by the Up Fade Time if split times are not supported</param>
+    /// <param name="waitTime">Wait Time in seconds</param>
+    /// <returns><c>false</c> if the times are out of range</returns>
+    protected virtual bool ValidatePresetTimes(ref double upFadeTime, ref double downFadeTime, double waitTime)
+    {
+        return true;
+    }
+
+    /// <summary>
+    /// SET PRESET_PLAYBACK: PDL has to be 3 and the mode has to be OFF, ALL or the number of an existing Scene.
+    /// Returns <c>null</c> if the request is valid, so the generic handling stores the new value.
+    /// </summary>
+    private RDMMessage validatePresetPlayback(RDMMessage message)
+    {
+        byte[] data = message.ParameterData;
+        if (data is null || data.Length != RDMPresetPlayback.PDL)
+            return CreateResponse(message, ERDM_NackReason.FORMAT_ERROR);
+
+        ushort mode = (ushort)((data[0] << 8) | data[1]);
+        if (mode == (ushort)ERDM_PresetPlayback.OFF || mode == (ushort)ERDM_PresetPlayback.ALL)
+            return null;
+        if (_generatedPresets is null || _generatedPresets.Count == 0)
+            return null; // no Presets known, so there is nothing to compare with
+        if (GetGeneratedPreset(mode) is null)
+            return CreateResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
+
+        return null;
     }
     protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
     {
@@ -168,6 +205,8 @@ public class PresetsModule : AbstractModule
             {
                 case ERDM_Parameter.CAPTURE_PRESET:
                     return true;
+                case ERDM_Parameter.PRESET_PLAYBACK:
+                    return command == ERDM_Command.SET_COMMAND;
             }
         }
         return base.IsHandlingParameter(parameter, command);
@@ -176,6 +215,9 @@ public class PresetsModule : AbstractModule
     {
         if (this.ParentGeneratedDevice is not null)
         {
+            if (message.Parameter == ERDM_Parameter.PRESET_PLAYBACK && message.Command == ERDM_Command.SET_COMMAND)
+                return validatePresetPlayback(message);
+
             if (message.Parameter == ERDM_Parameter.CAPTURE_PRESET)
             {
                 if (message.Command == ERDM_Command.GET_COMMAND)
@@ -198,10 +240,15 @@ public class PresetsModule : AbstractModule
                         {
                             generatedPreset = GetGeneratedPreset(preset.SceneId);
                             if (generatedPreset is null)
-                                return CreateSetResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
+                                return CreateResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
                             if (generatedPreset.IsReadOnly)
-                                return CreateSetResponse(message, ERDM_NackReason.WRITE_PROTECT);
+                                return CreateResponse(message, ERDM_NackReason.WRITE_PROTECT);
                         }
+                        double upFadeTime = preset.UpFadeTime;
+                        double downFadeTime = preset.DownFadeTime;
+                        if (message.PDL == RDMCapturePreset.PDL_big && !ValidatePresetTimes(ref upFadeTime, ref downFadeTime, preset.WaitTime))
+                            return CreateResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
+
                         try
                         {
                             this.OnCapturePreset(preset);
@@ -209,8 +256,8 @@ public class PresetsModule : AbstractModule
                             {
                                 if (message.PDL == RDMCapturePreset.PDL_big)
                                 {
-                                    generatedPreset.UpFadeTime = preset.UpFadeTime;
-                                    generatedPreset.DownFadeTime = preset.DownFadeTime;
+                                    generatedPreset.UpFadeTime = upFadeTime;
+                                    generatedPreset.DownFadeTime = downFadeTime;
                                     generatedPreset.WaitTime = preset.WaitTime;
                                 }
                                 generatedPreset.Programmed = ERDM_PresetProgrammed.PROGRAMMED;

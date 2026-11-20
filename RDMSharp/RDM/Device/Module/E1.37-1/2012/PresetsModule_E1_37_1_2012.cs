@@ -105,25 +105,65 @@ public class PresetsModule_E1_37_1_2012 : PresetsModule
 
     public override bool IsHandlingParameter(ERDM_Parameter parameter, ERDM_Command command)
     {
-        if (this.ParentGeneratedDevice is not null
-            && parameter == ERDM_Parameter.PRESET_STATUS
-            && command == ERDM_Command.SET_COMMAND)
-            return true;
+        if (this.ParentGeneratedDevice is not null)
+        {
+            switch (parameter)
+            {
+                case ERDM_Parameter.PRESET_STATUS:
+                    return command == ERDM_Command.GET_COMMAND || command == ERDM_Command.SET_COMMAND;
+                case ERDM_Parameter.PRESET_INFO:
+                case ERDM_Parameter.PRESET_MERGEMODE:
+                    return command == ERDM_Command.SET_COMMAND;
+            }
+        }
         return base.IsHandlingParameter(parameter, command);
     }
     protected override RDMMessage handleRequest(RDMMessage message)
     {
-        if (this.ParentGeneratedDevice is not null
-            && message.Parameter == ERDM_Parameter.PRESET_STATUS
-            && message.Command == ERDM_Command.SET_COMMAND)
-            return handleSetPresetStatus(message);
+        if (this.ParentGeneratedDevice is not null)
+        {
+            switch (message.Parameter)
+            {
+                case ERDM_Parameter.PRESET_STATUS when message.Command == ERDM_Command.SET_COMMAND:
+                    return handleSetPresetStatus(message);
+
+                case ERDM_Parameter.PRESET_STATUS when message.Command == ERDM_Command.GET_COMMAND:
+                    // valid requests (null) are answered by the generic handling
+                    return message.ParameterData is { Length: GET_PRESET_STATUS_PDL } ? null : CreateResponse(message, ERDM_NackReason.FORMAT_ERROR);
+
+                case ERDM_Parameter.PRESET_INFO when message.Command == ERDM_Command.SET_COMMAND:
+                    // PRESET_INFO is GET only (E1.37-1 5.2)
+                    return CreateResponse(message, ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS);
+
+                case ERDM_Parameter.PRESET_MERGEMODE when message.Command == ERDM_Command.SET_COMMAND:
+                    return validateMergeMode(message);
+            }
+        }
         return base.handleRequest(message);
+    }
+
+    /// <summary>
+    /// SET PRESET_MERGEMODE: PDL has to be 1 and the value has to be one of Table A-3 (0x00 - 0x03, 0xFF).
+    /// Returns <c>null</c> if the request is valid, so the generic handling stores the new value.
+    /// </summary>
+    private static RDMMessage validateMergeMode(RDMMessage message)
+    {
+        byte[] data = message.ParameterData;
+        if (data is null || data.Length != 1)
+            return CreateResponse(message, ERDM_NackReason.FORMAT_ERROR);
+
+        byte mode = data[0];
+        if (mode > (byte)ERDM_MergeMode.DMX_ONLY && mode != (byte)ERDM_MergeMode.OTHER)
+            return CreateResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
+
+        return null;
     }
 
     //protected virtual void OnCapturePreset(RDMCapturePreset preset)
     //{
     //}
 
+    private const int GET_PRESET_STATUS_PDL = 2;
     private const int SET_PRESET_STATUS_PDL = 9;
 
     /// <summary>
@@ -136,7 +176,7 @@ public class PresetsModule_E1_37_1_2012 : PresetsModule
     {
         byte[] data = message.ParameterData;
         if (data is null || data.Length != SET_PRESET_STATUS_PDL || message.Value is not SetPresetStatus status)
-            return CreateSetResponse(message, ERDM_NackReason.FORMAT_ERROR);
+            return CreateResponse(message, ERDM_NackReason.FORMAT_ERROR);
 
         ushort sceneId = status.SceneId;
         double upFade = status.UpFadeTime;
@@ -147,49 +187,59 @@ public class PresetsModule_E1_37_1_2012 : PresetsModule
         var presetInfo = PresetInfo ?? _initialPresetInfo;
 
         if (sceneId == 0 || sceneId == 0xFFFF)
-            return CreateSetResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
+            return CreateResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
         if (presetInfo is not null && sceneId > presetInfo.MaximumSceneNumber)
-            return CreateSetResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
+            return CreateResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
 
         var preset = GetGeneratedPreset(sceneId);
         if (preset is null)
-            return CreateSetResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
+            return CreateResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
         if (preset.IsReadOnly)
-            return CreateSetResponse(message, ERDM_NackReason.WRITE_PROTECT);
+            return CreateResponse(message, ERDM_NackReason.WRITE_PROTECT);
 
-        // Clearing ignores the time fields
+        // Clearing resets all timing information to zero, the time fields of the request are ignored (E1.37-1 5.3)
         if (clearPreset)
         {
+            preset.UpFadeTime = 0;
+            preset.DownFadeTime = 0;
+            preset.WaitTime = 0;
             preset.Programmed = ERDM_PresetProgrammed.NOT_PROGRAMMED;
-            return CreateSetResponse(message);
+            return CreateResponse(message);
         }
 
-        // Without split times the device only knows one fade time, the down fade time is ignored
-        if (presetInfo is not null && !presetInfo.SplitTimesSupported)
-            downFade = upFade;
-
-        if (presetInfo is not null)
-        {
-            if (!isInRange(upFade, presetInfo.MinimumPresetFadeTimeSupported, presetInfo.MaximumPresetFadeTimeSupported)
-                || !isInRange(downFade, presetInfo.MinimumPresetFadeTimeSupported, presetInfo.MaximumPresetFadeTimeSupported)
-                || !isInRange(waitTime, presetInfo.MinimumPresetWaitTimeSupported, presetInfo.MaximumPresetWaitTimeSupported))
-                return CreateSetResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
-        }
+        if (!ValidatePresetTimes(ref upFade, ref downFade, waitTime))
+            return CreateResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
 
         preset.UpFadeTime = upFade;
         preset.DownFadeTime = downFade;
         preset.WaitTime = waitTime;
 
-        return CreateSetResponse(message);
+        return CreateResponse(message);
+    }
+
+    protected override bool ValidatePresetTimes(ref double upFadeTime, ref double downFadeTime, double waitTime)
+    {
+        var presetInfo = PresetInfo ?? _initialPresetInfo;
+        if (presetInfo is null)
+            return true;
+
+        // Without split times the device only knows one fade time, the Up Fade Time is used for both (E1.37-1 5.2)
+        if (!presetInfo.SplitTimesSupported)
+            downFadeTime = upFadeTime;
+
+        return isInRange(upFadeTime, presetInfo.MinimumPresetFadeTimeSupported, presetInfo.MaximumPresetFadeTimeSupported)
+            && isInRange(downFadeTime, presetInfo.MinimumPresetFadeTimeSupported, presetInfo.MaximumPresetFadeTimeSupported)
+            && isInRange(waitTime, presetInfo.MinimumPresetWaitTimeSupported, presetInfo.MaximumPresetWaitTimeSupported);
     }
 
     /// <summary>
     /// Compares in tenths of a second, the resolution used on the wire, to avoid floating point issues.
     /// </summary>
-    private static bool isInRange(double value, double minimumSeconds, double maximumSeconds)
+    private static bool isInRange(double valueSeconds, double minimumSeconds, double maximumSeconds)
     {
-        int min = (int)Math.Round(minimumSeconds);
-        int max = (int)Math.Round(maximumSeconds);
+        long value = (long)Math.Round(valueSeconds * 10);
+        long min = (long)Math.Round(minimumSeconds * 10);
+        long max = (long)Math.Round(maximumSeconds * 10);
         return value >= min && value <= max;
     }
 }
