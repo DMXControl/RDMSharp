@@ -40,7 +40,15 @@ public class AsyncRDMRequestHelper : IDisposable
 
         if (rdmMessage.Command == ERDM_Command.DISCOVERY_COMMAND_RESPONSE)
         {
-            var o = buffer.FirstOrDefault(b => b.Value.Request.Parameter == rdmMessage.Parameter);
+            // Discovery responses carry no Transaction Number to match them with.
+            // Only an open discovery request (no response yet) with the same parameter can take it,
+            // a directed request (e.g. DISC_MUTE to one UID) only the response of that UID.
+            // This prevents a late response from being taken for a newer request or replacing an earlier response.
+            var o = buffer.FirstOrDefault(b =>
+                b.Value.Response == null
+                && b.Value.Request.Command == ERDM_Command.DISCOVERY_COMMAND
+                && b.Value.Request.Parameter == rdmMessage.Parameter
+                && (b.Value.Request.DestUID.IsBroadcast || b.Value.Request.DestUID == rdmMessage.SourceUID));
             if (o.Value == null)
                 return false;
 
