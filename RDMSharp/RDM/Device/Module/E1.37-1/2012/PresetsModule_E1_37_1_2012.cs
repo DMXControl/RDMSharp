@@ -1,4 +1,5 @@
 ﻿using RDMSharp.PayloadObject;
+using System;
 using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
@@ -104,78 +105,91 @@ public class PresetsModule_E1_37_1_2012 : PresetsModule
 
     public override bool IsHandlingParameter(ERDM_Parameter parameter, ERDM_Command command)
     {
-        //if (this.ParentGeneratedDevice is not null)
-        //{
-        //    switch (parameter)
-        //    {
-        //        case ERDM_Parameter.CAPTURE_PRESET:
-        //            return true;
-        //    }
-        //}
+        if (this.ParentGeneratedDevice is not null
+            && parameter == ERDM_Parameter.PRESET_STATUS
+            && command == ERDM_Command.SET_COMMAND)
+            return true;
         return base.IsHandlingParameter(parameter, command);
     }
     protected override RDMMessage handleRequest(RDMMessage message)
     {
-        //if (this.ParentGeneratedDevice is not null)
-        //{
-        //    if (message.Parameter == ERDM_Parameter.CAPTURE_PRESET)
-        //    {
-        //        if (message.Command == ERDM_Command.GET_COMMAND)
-        //        {
-        //            return new RDMMessage(ERDM_NackReason.UNSUPPORTED_COMMAND_CLASS)
-        //            {
-        //                SourceUID = message.DestUID,
-        //                DestUID = message.SourceUID,
-        //                SubDevice = message.SubDevice,
-        //                Command = ERDM_Command.GET_COMMAND_RESPONSE,
-        //                Parameter = message.Parameter
-        //            };
-        //        }
-        //        else if (message.Command == ERDM_Command.SET_COMMAND)
-        //        {
-        //            if ((message.PDL >= 2 || message.PDL <= 8) && message.Value is RDMCapturePreset preset)
-        //            {
-        //                try
-        //                {
-        //                    this.OnCapturePreset(preset);
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                    Logger?.LogError(ex);
-        //                    return new RDMMessage(ERDM_NackReason.HARDWARE_FAULT)
-        //                    {
-        //                        SourceUID = message.DestUID,
-        //                        DestUID = message.SourceUID,
-        //                        SubDevice = message.SubDevice,
-        //                        Command = ERDM_Command.SET_COMMAND_RESPONSE,
-        //                        Parameter = message.Parameter
-        //                    };
-        //                }
-        //                return new RDMMessage()
-        //                {
-        //                    SourceUID = message.DestUID,
-        //                    DestUID = message.SourceUID,
-        //                    SubDevice = message.SubDevice,
-        //                    Command = ERDM_Command.SET_COMMAND_RESPONSE,
-        //                    Parameter = message.Parameter
-        //                };
-        //            }
-        //            else
-        //                return new RDMMessage(ERDM_NackReason.FORMAT_ERROR)
-        //                {
-        //                    SourceUID = message.DestUID,
-        //                    DestUID = message.SourceUID,
-        //                    SubDevice = message.SubDevice,
-        //                    Command = ERDM_Command.SET_COMMAND_RESPONSE,
-        //                    Parameter = message.Parameter
-        //                };
-        //        }
-        //    }
-        //}
+        if (this.ParentGeneratedDevice is not null
+            && message.Parameter == ERDM_Parameter.PRESET_STATUS
+            && message.Command == ERDM_Command.SET_COMMAND)
+            return handleSetPresetStatus(message);
         return base.handleRequest(message);
     }
 
     //protected virtual void OnCapturePreset(RDMCapturePreset preset)
     //{
     //}
+
+    private const int SET_PRESET_STATUS_PDL = 9;
+
+    /// <summary>
+    /// SET PRESET_STATUS (E1.37-1):
+    /// scene_num (uint16), up_fade_time, down_fade_time, wait_time (uint16, tenths of a second), clear_preset (uint8).
+    /// The payload is parsed here directly, so an invalid scene number is answered with DATA_OUT_OF_RANGE
+    /// instead of failing in the generic metadata parser.
+    /// </summary>
+    private RDMMessage handleSetPresetStatus(RDMMessage message)
+    {
+        byte[] data = message.ParameterData;
+        if (data is null || data.Length != SET_PRESET_STATUS_PDL || message.Value is not SetPresetStatus status)
+            return CreateSetResponse(message, ERDM_NackReason.FORMAT_ERROR);
+
+        ushort sceneId = status.SceneId;
+        double upFade = status.UpFadeTime;
+        double downFade = status.DownFadeTime;
+        double waitTime = status.WaitTime;
+        bool clearPreset = status.Clear;
+
+        var presetInfo = PresetInfo ?? _initialPresetInfo;
+
+        if (sceneId == 0 || sceneId == 0xFFFF)
+            return CreateSetResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
+        if (presetInfo is not null && sceneId > presetInfo.MaximumSceneNumber)
+            return CreateSetResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
+
+        var preset = GetGeneratedPreset(sceneId);
+        if (preset is null)
+            return CreateSetResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
+        if (preset.IsReadOnly)
+            return CreateSetResponse(message, ERDM_NackReason.WRITE_PROTECT);
+
+        // Clearing ignores the time fields
+        if (clearPreset)
+        {
+            preset.Programmed = ERDM_PresetProgrammed.NOT_PROGRAMMED;
+            return CreateSetResponse(message);
+        }
+
+        // Without split times the device only knows one fade time, the down fade time is ignored
+        if (presetInfo is not null && !presetInfo.SplitTimesSupported)
+            downFade = upFade;
+
+        if (presetInfo is not null)
+        {
+            if (!isInRange(upFade, presetInfo.MinimumPresetFadeTimeSupported, presetInfo.MaximumPresetFadeTimeSupported)
+                || !isInRange(downFade, presetInfo.MinimumPresetFadeTimeSupported, presetInfo.MaximumPresetFadeTimeSupported)
+                || !isInRange(waitTime, presetInfo.MinimumPresetWaitTimeSupported, presetInfo.MaximumPresetWaitTimeSupported))
+                return CreateSetResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
+        }
+
+        preset.UpFadeTime = upFade;
+        preset.DownFadeTime = downFade;
+        preset.WaitTime = waitTime;
+
+        return CreateSetResponse(message);
+    }
+
+    /// <summary>
+    /// Compares in tenths of a second, the resolution used on the wire, to avoid floating point issues.
+    /// </summary>
+    private static bool isInRange(double value, double minimumSeconds, double maximumSeconds)
+    {
+        int min = (int)Math.Round(minimumSeconds);
+        int max = (int)Math.Round(maximumSeconds);
+        return value >= min && value <= max;
+    }
 }

@@ -2170,9 +2170,9 @@ public class PayloadToParsedObjectTestSubject
                     Assert.That(dataTreeBranch.IsEmpty, Is.False);
                     Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
                 }
-                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(RDMPresetStatus)));
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(GetPresetStatus)));
 
-                var obj = dataTreeBranch.ParsedObject as RDMPresetStatus;
+                var obj = dataTreeBranch.ParsedObject as GetPresetStatus;
                 Assert.That(obj, Is.Not.Null);
                 using (Assert.EnterMultipleScope())
                 {
@@ -2181,6 +2181,62 @@ public class PayloadToParsedObjectTestSubject
                     Assert.That(obj!.DownFadeTime, Is.Zero);
                     Assert.That(obj!.WaitTime, Is.Zero);
                     Assert.That(obj!.EProgrammed, Is.EqualTo(ERDM_PresetProgrammed.PROGRAMMED_READ_ONLY));
+                }
+            }));
+        yield return new PayloadToParseBagData(
+            ERDM_Command.SET_COMMAND,
+            ERDM_Parameter.PRESET_STATUS,
+            new byte[] {
+                0x00, 0x03, 0x00, 0xFA, 0x01, 0xF4, 0x00, 0x64,
+                0x00
+            },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(SetPresetStatus)));
+
+                var obj = dataTreeBranch.ParsedObject as SetPresetStatus;
+                Assert.That(obj, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.SceneId, Is.EqualTo(3));
+                    Assert.That(obj!.UpFadeTime, Is.EqualTo(25.0).Within(1e-9).Percent);
+                    Assert.That(obj!.DownFadeTime, Is.EqualTo(50.0).Within(1e-9).Percent);
+                    Assert.That(obj!.WaitTime, Is.EqualTo(10.0).Within(1e-9).Percent);
+                    Assert.That(obj!.Clear, Is.False);
+                }
+            }));
+        yield return new PayloadToParseBagData(
+            ERDM_Command.SET_COMMAND,
+            ERDM_Parameter.PRESET_STATUS,
+            new byte[] {
+                0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x01
+            },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(SetPresetStatus)));
+
+                var obj = dataTreeBranch.ParsedObject as SetPresetStatus;
+                Assert.That(obj, Is.Not.Null);
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj!.SceneId, Is.EqualTo(4));
+                    Assert.That(obj!.UpFadeTime, Is.Zero);
+                    Assert.That(obj!.DownFadeTime, Is.Zero);
+                    Assert.That(obj!.WaitTime, Is.Zero);
+                    Assert.That(obj!.Clear, Is.True);
                 }
             }));
         #endregion

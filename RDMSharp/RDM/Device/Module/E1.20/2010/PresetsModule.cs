@@ -56,10 +56,9 @@ public class PresetsModule : AbstractModule
             if (_generatedPresets is not null)
                 return _generatedPresets;
 
-            return _generatedPresets.ToList<IPreset>().AsReadOnly();
+            return Array.Empty<IPreset>();
         }
     }
-    public readonly byte PersonalitiesCount;
 
     private readonly RDMPresetPlayback _initialValue = new RDMPresetPlayback(ERDM_PresetPlayback.OFF, 0);
 
@@ -68,7 +67,7 @@ public class PresetsModule : AbstractModule
         _moduleName,
         _moduleParameters)
     {
-        _generatedPresets = presets.ToList().AsReadOnly();
+        _generatedPresets = (presets ?? Array.Empty<GeneratedPreset>()).ToList().AsReadOnly();
     }
     public PresetsModule(AbstractRemoteRDMDevice remoteDevice) : base(
         remoteDevice,
@@ -80,6 +79,7 @@ public class PresetsModule : AbstractModule
         name,
         supportedParameters)
     {
+        _generatedPresets = (presets ?? Array.Empty<GeneratedPreset>()).ToList().AsReadOnly();
     }
     protected PresetsModule(AbstractRemoteRDMDevice remoteDevice, string name, params ERDM_Parameter[] supportedParameters) : base(
         remoteDevice,
@@ -90,16 +90,60 @@ public class PresetsModule : AbstractModule
 
     protected override async void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
-        if (_generatedPresets.Count != 0)
+        if (_generatedPresets is not null && _generatedPresets.Count != 0)
         {
             var persDesc = new ConcurrentDictionary<object, object>();
             foreach (var gPreset in _generatedPresets)
-                if (!persDesc.TryAdd(gPreset.ID, new RDMPresetStatus(gPreset.ID, gPreset.UpFadeTime, gPreset.DownFadeTime, gPreset.WaitTime, ERDM_PresetProgrammed.NOT_PROGRAMMED)))
+                if (!persDesc.TryAdd(gPreset.ID, createPresetStatus(gPreset)))
                     throw new Exception($"{gPreset.ID} already used as {nameof(gPreset.ID)}");
 
             device.setParameterValue(ERDM_Parameter.PRESET_STATUS, persDesc);
+
+            foreach (var gPreset in _generatedPresets)
+                gPreset.PropertyChanged += GeneratedPreset_PropertyChanged;
         }
         ParentGeneratedDevice?.setParameterValue(ERDM_Parameter.PRESET_PLAYBACK, _initialValue);
+    }
+
+    private static GetPresetStatus createPresetStatus(GeneratedPreset preset)
+    {
+        return new GetPresetStatus(preset.ID, preset.UpFadeTime, preset.DownFadeTime, preset.WaitTime, preset.Programmed);
+    }
+    private void GeneratedPreset_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (sender is GeneratedPreset preset)
+            updatePresetStatus(preset);
+    }
+    /// <summary>
+    /// Mirrors the current state of <paramref name="preset"/> into the PRESET_STATUS parameter of the generated device.
+    /// </summary>
+    private void updatePresetStatus(GeneratedPreset preset)
+    {
+        if (ParentGeneratedDevice is null)
+            return;
+        if (!ParentGeneratedDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.PRESET_STATUS, out object res))
+            return;
+        if (res is not ConcurrentDictionary<object, object> dict)
+            return;
+
+        dict[preset.ID] = createPresetStatus(preset);
+        ParentGeneratedDevice.setParameterValue(ERDM_Parameter.PRESET_STATUS, dict, preset.ID);
+    }
+
+    protected GeneratedPreset GetGeneratedPreset(ushort sceneId)
+    {
+        return _generatedPresets?.FirstOrDefault(p => p.ID == sceneId);
+    }
+
+    protected static RDMMessage CreateSetResponse(RDMMessage request, ERDM_NackReason? nackReason = null)
+    {
+        var response = nackReason.HasValue ? new RDMMessage(nackReason.Value) : new RDMMessage();
+        response.SourceUID = request.DestUID;
+        response.DestUID = request.SourceUID;
+        response.SubDevice = request.SubDevice;
+        response.Command = ERDM_Command.SET_COMMAND_RESPONSE;
+        response.Parameter = request.Parameter;
+        return response;
     }
     protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
     {
@@ -147,11 +191,30 @@ public class PresetsModule : AbstractModule
                 }
                 else if (message.Command == ERDM_Command.SET_COMMAND)
                 {
-                    if ((message.PDL >= 2 || message.PDL <= 8) && message.Value is RDMCapturePreset preset)
+                    if ((message.PDL == RDMCapturePreset.PDL_small || message.PDL == RDMCapturePreset.PDL_big) && message.Value is RDMCapturePreset preset)
                     {
+                        GeneratedPreset generatedPreset = null;
+                        if (_generatedPresets is not null && _generatedPresets.Count != 0)
+                        {
+                            generatedPreset = GetGeneratedPreset(preset.SceneId);
+                            if (generatedPreset is null)
+                                return CreateSetResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
+                            if (generatedPreset.IsReadOnly)
+                                return CreateSetResponse(message, ERDM_NackReason.WRITE_PROTECT);
+                        }
                         try
                         {
                             this.OnCapturePreset(preset);
+                            if (generatedPreset is not null)
+                            {
+                                if (message.PDL == RDMCapturePreset.PDL_big)
+                                {
+                                    generatedPreset.UpFadeTime = preset.UpFadeTime;
+                                    generatedPreset.DownFadeTime = preset.DownFadeTime;
+                                    generatedPreset.WaitTime = preset.WaitTime;
+                                }
+                                generatedPreset.Programmed = ERDM_PresetProgrammed.PROGRAMMED;
+                            }
                         }
                         catch (Exception ex)
                         {

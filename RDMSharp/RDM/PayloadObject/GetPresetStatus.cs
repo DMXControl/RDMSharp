@@ -6,10 +6,9 @@ using System.Text;
 namespace RDMSharp.PayloadObject;
 
 [DataTreeObject(ERDM_Parameter.PRESET_STATUS, Command.ECommandDublicate.GetResponse)]
-[DataTreeObject(ERDM_Parameter.PRESET_STATUS, Command.ECommandDublicate.SetRequest)]
-public class RDMPresetStatus : AbstractRDMPayloadObject
+public class GetPresetStatus : AbstractRDMPayloadObject
 {
-    public RDMPresetStatus(
+    public GetPresetStatus(
         ushort sceneId = 0,
         double upFadeTime = 0,
         double downFadeTime = 0,
@@ -24,7 +23,7 @@ public class RDMPresetStatus : AbstractRDMPayloadObject
     }
 
     [DataTreeObjectConstructor]
-    public RDMPresetStatus(
+    public GetPresetStatus(
         [DataTreeObjectParameter("scene_num")] ushort sceneId,
         [DataTreeObjectParameter("up_fade_time")] double upFadeTime,
         [DataTreeObjectParameter("down_fade_time")] double downFadeTime,
@@ -51,7 +50,7 @@ public class RDMPresetStatus : AbstractRDMPayloadObject
     public override string ToString()
     {
         StringBuilder b = new StringBuilder();
-        b.AppendLine("RDMPresetStatus");
+        b.AppendLine("GetPresetStatus");
         b.AppendLine($"SceneId:      {SceneId}");
         b.AppendLine($"UpFadeTime:   {UpFadeTime}s");
         b.AppendLine($"DownFadeTime: {DownFadeTime}s");
@@ -68,7 +67,7 @@ public class RDMPresetStatus : AbstractRDMPayloadObject
         data.AddRange(Tools.ValueToData((ushort)(this.UpFadeTime * 10)));
         data.AddRange(Tools.ValueToData((ushort)(this.DownFadeTime * 10)));
         data.AddRange(Tools.ValueToData((ushort)(this.WaitTime * 10)));
-        data.AddRange(Tools.ValueToData(this.EProgrammed));
+        data.AddRange(Tools.ValueToData(this.Programmed));
         return data.ToArray();
     }
 }
