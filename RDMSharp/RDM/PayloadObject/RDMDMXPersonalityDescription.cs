@@ -37,7 +37,7 @@ public class RDMDMXPersonalityDescription : AbstractRDMPayloadObject, IRDMPayloa
     [DataTreeObjectProperty("dmx_slots_required", 1)]
     public ushort Slots { get; private set; }
 
-    [DataTreeObjectProperty("description", 2)]
+    [DataTreeObjectProperty("description", 2, "")]
     public string Description { get; private set; }
 
     public object MinIndex => (byte)1;

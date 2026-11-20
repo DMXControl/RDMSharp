@@ -33,7 +33,7 @@ public class RDMModulationFrequencyDescription : AbstractRDMPayloadObject, IRDMP
     [DataTreeObjectProperty("frequency", 1, uint.MaxValue)]
     public uint? Frequency { get; private set; }
 
-    [DataTreeObjectProperty("description", 2)]
+    [DataTreeObjectProperty("description", 2, "")]
     public string Description { get; private set; }
 
     public object MinIndex => (byte)1;

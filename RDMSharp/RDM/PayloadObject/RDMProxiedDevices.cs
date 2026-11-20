@@ -1,5 +1,6 @@
 ﻿using RDMSharp.Metadata;
 using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -11,7 +12,7 @@ public class RDMProxiedDevices : AbstractRDMPayloadObject
     [DataTreeObjectConstructor]
     public RDMProxiedDevices([DataTreeObjectParameter(ERDM_Parameter.PROXIED_DEVICES, "device_uids", true)] params UID[] devices)
     {
-        this.Devices = devices;
+        this.Devices = devices ?? Array.Empty<UID>();
     }
 
     [DataTreeObjectProperty("device_uids/device_uid", 0)]

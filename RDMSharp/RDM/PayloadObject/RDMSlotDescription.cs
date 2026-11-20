@@ -26,7 +26,7 @@ public class RDMSlotDescription : AbstractRDMPayloadObject
     [DataTreeObjectProperty("slot", 0)]
     public ushort SlotId { get; private set; }
 
-    [DataTreeObjectProperty("description", 1)]
+    [DataTreeObjectProperty("description", 1, "")]
     public string Description { get; private set; }
 
     public const int PDL_MIN = 2;

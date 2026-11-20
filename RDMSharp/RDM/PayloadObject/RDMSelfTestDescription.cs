@@ -26,7 +26,7 @@ public class RDMSelfTestDescription : AbstractRDMPayloadObject
 
     [DataTreeObjectProperty("self_test_num", 0)]
     public byte SelfTestRequester { get; private set; }
-    [DataTreeObjectProperty("label", 1)]
+    [DataTreeObjectProperty("label", 1, "")]
     public string Description { get; private set; }
 
     public const int PDL_MIN = 1;

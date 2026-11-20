@@ -3,7 +3,7 @@ using RDMSharp.PayloadObject;
 
 namespace RDMSharpTests.Metadata.Parser;
 
-public class PayloadToParsedObjectTestSubject
+public partial class PayloadToParsedObjectTestSubject
 {
     public static readonly object[] TestSubjects = getTestSubjects();
 
@@ -12,7 +12,7 @@ public class PayloadToParsedObjectTestSubject
         List<PayloadToParsedObjectTestSubject> instances = new List<PayloadToParsedObjectTestSubject>();
 
         MetadataFactory.AwaitInitialize().GetAwaiter().GetResult();
-        var payloadList = getPayloadList();
+        var payloadList = getPayloadList().Concat(getDumpPayloadList()).ToList();
         foreach (ERDM_Parameter parameter in Enum.GetValues(typeof(ERDM_Parameter)))
         {
             try
@@ -4122,9 +4122,19 @@ public class PayloadToParsedObjectTestSubject
         public readonly ERDM_Parameter Parameter;
         public readonly byte[] Payload;
         public readonly Action<DataTreeBranch> TestPayload;
+        /// <summary>
+        /// The Payload as RDMSharp would send it, e.g. without the NUL terminator or NUL padding of a String a real device sent.
+        /// <c>null</c> if <see cref="Payload"/> is already normalized.
+        /// </summary>
+        public readonly byte[]? NormalizedPayload;
+        /// <summary>
+        /// The Payload the parsed object has to be serialized to again.
+        /// </summary>
+        public byte[] RoundTripPayload => NormalizedPayload ?? Payload;
 
-        internal PayloadToParseBagData(in ERDM_Command command, in ERDM_Parameter parameter, in byte[] payload, Action<DataTreeBranch> testPayload)
+        internal PayloadToParseBagData(in ERDM_Command command, in ERDM_Parameter parameter, in byte[] payload, Action<DataTreeBranch> testPayload, byte[]? normalizedPayload = null)
         {
+            this.NormalizedPayload = normalizedPayload;
             this.Command = command;
             switch (command)
             {

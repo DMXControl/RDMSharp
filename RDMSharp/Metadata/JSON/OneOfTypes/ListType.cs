@@ -131,8 +131,15 @@ public class ListType : CommonPropertiesForNamed
         int dataLength = data.Length;
         while (_continue(ref data))
         {
+            int before = data.Length;
             dataTrees.Add(new DataTree(ItemType.ParseDataToPayload(ref data), index));
             index++;
+            // an item that consumes no data would be parsed again and again
+            if (data.Length == before)
+            {
+                issueList.Add(new DataTreeIssue($"Item {index - 1} consumed no data, the list is not parsed any further"));
+                break;
+            }
         }
         dataLength -= data.Length;
 

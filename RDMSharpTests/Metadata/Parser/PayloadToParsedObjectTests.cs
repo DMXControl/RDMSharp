@@ -35,7 +35,7 @@ public class PayloadToParsedObjectTests
     public void ToPayloadDataTest()
     {
         if (dataTreeBranch.ParsedObject is IRDMPayloadObject obj)
-            Assert.That(obj.ToPayloadData(), Is.EqualTo(testSubject.PayloadToParseBag.Payload));
+            Assert.That(obj.ToPayloadData(), Is.EqualTo(testSubject.PayloadToParseBag.RoundTripPayload));
     }
     [Test, DependsOnTest(nameof(ToPayloadDataTest))]
     public void ToStringTest()
@@ -47,6 +47,10 @@ public class PayloadToParsedObjectTests
     public void Reverse()
     {
         var reversed = DataTreeBranch.FromObject(dataTreeBranch.ParsedObject, null, new ParameterBag(testSubject.PayloadToParseBag.Parameter), testSubject.PayloadToParseBag.Command);
-        Assert.That(reversed, Is.EqualTo(dataTreeBranch));
+        // a not normalized Payload (e.g. a NUL padded String) can not be reproduced, it is compared with the normalized Payload instead
+        var expected = testSubject.PayloadToParseBag.NormalizedPayload is byte[] normalized
+            ? MetadataFactory.ParseDataToPayload(testSubject.Define, testSubject.PayloadToParseBag.CommandDublicate, normalized)
+            : dataTreeBranch;
+        Assert.That(reversed, Is.EqualTo(expected));
     }
 }

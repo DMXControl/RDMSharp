@@ -25,7 +25,7 @@ public class RDMOutputResponseTimeDescription : AbstractRDMPayloadObject, IRDMPa
 
     [DataTreeObjectProperty("setting", 0)]
     public byte OutputResponseTimeId { get; private set; }
-    [DataTreeObjectProperty("description", 1)]
+    [DataTreeObjectProperty("description", 1, "")]
     public string Description { get; private set; }
 
     public object MinIndex => (byte)1;

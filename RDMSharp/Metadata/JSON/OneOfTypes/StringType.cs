@@ -185,6 +185,17 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
 
             void parse(Encoding encoder)
             {
+                // a String with a fixed count of characters (minLength == maxLength) has no delimiter, only the bytes of these characters
+                // belong to it, also if it is terminated or padded with NUL, e.g. packed lists of 2 character codes (LANGUAGE_CAPABILITIES)
+                bool fixedCharCount = MinLength.HasValue && MaxLength.HasValue && MinLength.Value == MaxLength.Value;
+                if (fixedCharCount)
+                {
+                    string raw = encoder.GetString(dataBytes);
+                    int chars = (int)Math.Min(MaxLength.Value, (uint)raw.Length);
+                    int fieldBytes = Math.Min(encoder.GetByteCount(raw.Substring(0, chars)), dataBytes.Length);
+                    dataBytes = dataBytes.Take(fieldBytes).ToArray();
+                }
+
                 str = encoder.GetString(dataBytes);
                 takenBytesCount = dataBytes.Length;
 
@@ -202,10 +213,6 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 if (MaxLength.HasValue && MaxLength.Value < charLength)
                 {
                     charLength = (int)MaxLength.Value;
-                    // a String with a fixed count of characters (minLength == maxLength) has no delimiter,
-                    // only the bytes of these characters belong to it, e.g. packed lists of 2 character codes (LANGUAGE_CAPABILITIES)
-                    if (MinLength.HasValue && MinLength.Value == MaxLength.Value)
-                        byteLength = encoder.GetBytes(str.Substring(0, charLength)).Length;
                     repeatParse = true;
                 }
                 if (MaxBytes.HasValue && MaxBytes.Value < byteLength)
@@ -219,7 +226,8 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                     str = encoder.GetString(dataBytes);
                     takenBytesCount = dataBytes.Length;
                 }
-
+                if (fixedCharCount)
+                    takenBytesCount = dataBytes.Length;
             }
 
             if (MaxLength.HasValue && str.Length > MaxLength.Value)

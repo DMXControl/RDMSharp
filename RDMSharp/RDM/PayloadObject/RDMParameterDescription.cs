@@ -81,7 +81,7 @@ public class RDMParameterDescription : AbstractRDMPayloadObject
     public uint MaxValidValue { get; private set; }
     [DataTreeObjectProperty("default_value", 9)]
     public uint DefaultValue { get; private set; }
-    [DataTreeObjectProperty("description", 10)]
+    [DataTreeObjectProperty("description", 10, "")]
     public string Description { get; private set; }
     public const int PDL_MIN = 20;
     public const int PDL_MAX = PDL_MIN + 32;

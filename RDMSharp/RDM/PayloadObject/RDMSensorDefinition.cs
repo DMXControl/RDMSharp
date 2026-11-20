@@ -88,7 +88,7 @@ public class RDMSensorDefinition : AbstractRDMPayloadObject, IRDMPayloadObjectIn
     public bool RecordedValueSupported { get; private set; }
     [DataTreeObjectProperty("recorded_value_support/low_high_detected_values_supported", 1)]
     public bool LowestHighestValueSupported { get; private set; }
-    [DataTreeObjectProperty("description", 9)]
+    [DataTreeObjectProperty("description", 9, "")]
     public string Description { get; private set; }
 
     public object MinIndex => (byte)0;
