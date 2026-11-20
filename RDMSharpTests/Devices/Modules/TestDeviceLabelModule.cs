@@ -100,7 +100,7 @@ public class TestDeviceLabelModule
         Assert.That(generatedModule, Is.Not.Null);
         Assert.That(generatedModule.DeviceLabel, Is.EqualTo("Dummy Device 1"));
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 

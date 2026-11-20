@@ -841,7 +841,7 @@ public class TestTagModlue
         Assert.That(generatedModule, Is.Not.Null);
         Assert.That(generatedModule.Tags, Is.Not.Null);
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 

@@ -278,7 +278,7 @@ public class TestSlotModule
         Assert.That(generatedModule.Slots, Is.Not.Null);
         Assert.That(generatedModule.Slots, Has.Count.EqualTo(5));
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 

@@ -168,7 +168,7 @@ public class TestPanTiltSwapModule
         Assert.That(generatedModule, Is.Not.Null);
         Assert.That(generatedModule.PanTiltSwap, Is.False);
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 

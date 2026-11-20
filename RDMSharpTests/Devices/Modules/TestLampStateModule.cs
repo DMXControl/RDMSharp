@@ -169,7 +169,7 @@ public class TestLampStateModule
         Assert.That(generatedModule, Is.Not.Null);
         Assert.That(generatedModule.LampState, Is.EqualTo(ERDM_LampState.OFF));
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 

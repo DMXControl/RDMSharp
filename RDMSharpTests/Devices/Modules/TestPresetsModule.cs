@@ -1040,7 +1040,7 @@ public class TestPresetsModule
         Assert.That(generatedModule, Is.Not.Null);
         Assert.That(generatedModule.CurrentPlayback, Is.EqualTo(new RDMPresetPlayback(ERDM_PresetPlayback.OFF, 0)));
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 
@@ -1065,7 +1065,7 @@ public class TestPresetsModule
         var generatedModule = generated.Modules.OfType<MockPresetsModule>().Single();
         Assert.That(generatedModule, Is.Not.Null);
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 
@@ -1102,7 +1102,7 @@ public class TestPresetsModule
         Assert.That(generatedModule, Is.Not.Null);
         Assert.That(generatedModule.PresetInfo, Is.EqualTo(PRESET_INFO));
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 
@@ -1120,7 +1120,7 @@ public class TestPresetsModule
         Assert.That(generatedModule, Is.Not.Null);
         Assert.That(generatedModule.CurrentMergeMode, Is.EqualTo(ERDM_MergeMode.DEFAULT));
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 

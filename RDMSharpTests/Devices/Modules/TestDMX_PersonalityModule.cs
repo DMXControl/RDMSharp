@@ -192,7 +192,7 @@ public class TestDMX_PersonalityModule
             Assert.That(generatedModule.CurrentPersonality.SlotCount, Is.EqualTo(5));
         }
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 

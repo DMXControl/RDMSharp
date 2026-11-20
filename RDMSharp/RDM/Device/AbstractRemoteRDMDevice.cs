@@ -416,6 +416,8 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
                 //    updateTime = TimeSpan.FromMilliseconds(attribute.Milliseconds);
                 if ((supportedParameters.FirstOrDefault(spm => spm.Parameter == bag.Parameter)?.ParameterUpdateTimeMilliseconds is int milliseconds) && milliseconds >= 0)
                     updateTime = TimeSpan.FromMilliseconds(milliseconds);
+                if (GlobalTimers.Instance.ParameterUpdateTimeLimit >= 0 && updateTime.TotalMilliseconds > GlobalTimers.Instance.ParameterUpdateTimeLimit)
+                    updateTime = TimeSpan.FromMilliseconds(GlobalTimers.Instance.ParameterUpdateTimeLimit);
 
                 if (loopDetectionCache.Any(b => b.Parameter == bag.Parameter && b.Index == bag.Index))
                     return;

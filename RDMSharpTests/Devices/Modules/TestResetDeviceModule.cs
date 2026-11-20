@@ -197,7 +197,7 @@ public class TestResetDeviceModule
         Assert.That(generated, Is.Not.Null);
         var generatedModule = generated.Modules.OfType<ResetDeviceModule>().Single();
         Assert.That(generatedModule, Is.Not.Null);
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 

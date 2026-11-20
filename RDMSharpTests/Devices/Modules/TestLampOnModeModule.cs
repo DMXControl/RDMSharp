@@ -171,7 +171,7 @@ public class TestLampOnModeModule
         Assert.That(generatedModule, Is.Not.Null);
         Assert.That(generatedModule.LampOnMode, Is.EqualTo(ERDM_LampMode.ON_MODE_OFF));
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 

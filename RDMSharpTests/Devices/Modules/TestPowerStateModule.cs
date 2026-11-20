@@ -169,7 +169,7 @@ public class TestPowerStateModule
         Assert.That(generatedModule, Is.Not.Null);
         Assert.That(generatedModule.PowerState, Is.EqualTo(ERDM_PowerState.NORMAL));
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
         while (!mockDevice.AllDataPulled)

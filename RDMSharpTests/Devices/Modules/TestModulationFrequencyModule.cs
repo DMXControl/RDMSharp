@@ -162,7 +162,7 @@ public class TestModulationFrequencyModule
         Assert.That(generatedModule, Is.Not.Null);
         Assert.That(generatedModule.CurrentId, Is.EqualTo(1));
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
         while (!mockDevice.AllDataPulled)

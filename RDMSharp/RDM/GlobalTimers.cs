@@ -49,6 +49,11 @@ public class GlobalTimers
     /// Time in milliseconds after which a (non discovery) request without a response is sent again.
     /// </summary>
     public int RequestRetryInterval { get; set; } = DefaultRequestRetryInterval;
+    /// <summary>
+    /// Upper limit in milliseconds for the update time of a single parameter (see <c>ParameterUpdateTimeAttribute</c>).
+    /// A negative value means no limit. Only used to speed up tests, where e.g. DMX_PERSONALITY would otherwise be polled only every 62 seconds.
+    /// </summary>
+    internal int ParameterUpdateTimeLimit { get; set; } = -1;
 
     private int parameterUpdateTimerInterval = DefaultParameterUpdateTimerInterval;
     public int ParameterUpdateTimerInterval
@@ -228,6 +233,7 @@ public class GlobalTimers
         DiscoveryTimeout = DefaultDiscoveryTimeout;
         RequestTimeout = DefaultRequestTimeout;
         RequestRetryInterval = DefaultRequestRetryInterval;
+        ParameterUpdateTimeLimit = -1;
 
         ParameterUpdateTimerInterval = DefaultParameterUpdateTimerInterval;
         PresentUpdateTimerInterval = DefaultPresentUpdateTimerInterval;
@@ -243,6 +249,7 @@ public class GlobalTimers
         PresentLostTime = 10000;
 
         DiscoveryTimeout = 15;
+        ParameterUpdateTimeLimit = 250;
 
         ParameterUpdateTimerInterval = 15;
         PresentUpdateTimerInterval = 1000;

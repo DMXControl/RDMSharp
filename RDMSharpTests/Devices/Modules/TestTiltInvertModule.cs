@@ -168,7 +168,7 @@ public class TestTiltInvertModule
         Assert.That(generatedModule, Is.Not.Null);
         Assert.That(generatedModule.TiltInvert, Is.False);
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 

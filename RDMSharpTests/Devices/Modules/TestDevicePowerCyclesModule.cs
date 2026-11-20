@@ -169,7 +169,7 @@ public class TestDevicePowerCyclesModule
         Assert.That(generatedModule, Is.Not.Null);
         Assert.That(generatedModule.DevicePowerCycles, Is.EqualTo(10000));
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 

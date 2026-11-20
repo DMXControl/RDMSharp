@@ -129,7 +129,7 @@ public class TestBootSoftwareVersionModule
     [Test, DependsOnTest(nameof(TestGetBOOT_SOFTWARE_VERSION_LABEL))]
     public async Task TestRemoteDevice()
     {
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 

@@ -169,7 +169,7 @@ public class TestDeviceHoursModule
         Assert.That(generatedModule, Is.Not.Null);
         Assert.That(generatedModule.DeviceHours, Is.EqualTo(10000));
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 

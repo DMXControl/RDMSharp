@@ -101,7 +101,7 @@ public class TestRealTimeClockModule
         Assert.That(generatedModule.RealTimeClock, Is.Not.Null);
         Assert.That(generatedModule.RealTimeClock.Value.Minute, Is.EqualTo(DateTime.Now.Minute));
 
-        MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
         while (!mockDevice.IsInitialized)
             await Task.Delay(100);
 
