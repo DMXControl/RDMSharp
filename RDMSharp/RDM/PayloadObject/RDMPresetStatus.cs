@@ -7,7 +7,6 @@ namespace RDMSharp.PayloadObject;
 
 [DataTreeObject(ERDM_Parameter.PRESET_STATUS, Command.ECommandDublicate.GetResponse)]
 [DataTreeObject(ERDM_Parameter.PRESET_STATUS, Command.ECommandDublicate.SetRequest)]
-[DataTreeObject(ERDM_Parameter.CAPTURE_PRESET, Command.ECommandDublicate.SetRequest)]
 public class RDMPresetStatus : AbstractRDMPayloadObject
 {
     public RDMPresetStatus(
@@ -66,9 +65,9 @@ public class RDMPresetStatus : AbstractRDMPayloadObject
     {
         List<byte> data = new List<byte>();
         data.AddRange(Tools.ValueToData(this.SceneId));
-        data.AddRange(Tools.ValueToData((ushort)(this.UpFadeTime * 1)));
-        data.AddRange(Tools.ValueToData((ushort)(this.DownFadeTime * 1)));
-        data.AddRange(Tools.ValueToData((ushort)(this.WaitTime * 1)));
+        data.AddRange(Tools.ValueToData((ushort)(this.UpFadeTime * 10)));
+        data.AddRange(Tools.ValueToData((ushort)(this.DownFadeTime * 10)));
+        data.AddRange(Tools.ValueToData((ushort)(this.WaitTime * 10)));
         data.AddRange(Tools.ValueToData(this.EProgrammed));
         return data.ToArray();
     }

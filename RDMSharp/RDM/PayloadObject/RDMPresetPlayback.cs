@@ -17,6 +17,13 @@ public class RDMPresetPlayback : AbstractRDMPayloadObject
         this.Mode = mode;
         this.Level = level;
     }
+    public RDMPresetPlayback(
+        ERDM_PresetPlayback mode = ERDM_PresetPlayback.OFF,
+        byte level = 0)
+    {
+        this.Mode = (ushort)mode;
+        this.Level = level;
+    }
 
     public ERDM_PresetPlayback EMode { get { return (ERDM_PresetPlayback)this.Mode; } }
     [DataTreeObjectProperty("mode", 0)]

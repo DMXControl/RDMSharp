@@ -52,7 +52,14 @@ public sealed class ModulesExtension : AbstractModulesExtension
             _modules.Add(typeof(ManufacturerLabelModule));
 
         if (parameters.Contains(ERDM_Parameter.PRESET_PLAYBACK))
-            _modules.Add(typeof(PresetsModule));
+        {
+            if (parameters.Contains(ERDM_Parameter.PRESET_INFO) ||
+                parameters.Contains(ERDM_Parameter.PRESET_STATUS) ||
+                parameters.Contains(ERDM_Parameter.PRESET_MERGEMODE))
+                _modules.Add(typeof(PresetsModule_E1_37_1_2012));
+            else
+                _modules.Add(typeof(PresetsModule));
+        }
 
         if (parameters.Contains(ERDM_Parameter.PROXIED_DEVICES))
             _modules.Add(typeof(ProxiedDevicesModule));
