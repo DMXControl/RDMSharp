@@ -501,9 +501,44 @@ public class PayloadToParsedObjectTestSubject
         #endregion
 
         #region LANGUAGE_CAPABILITIES
+        // packed list of 2 byte ISO 639-1 codes (E1.20 10.5.7), every code is one entry of the list
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.LANGUAGE_CAPABILITIES,
+            new byte[] { 0x65, 0x6e, 0x64, 0x65, 0x66, 0x72 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string[])));
+
+                var obj = (string[])dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo(new string[] { "en", "de", "fr" }));
+            }));
         #endregion
 
         #region LANGUAGE
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.LANGUAGE,
+            new byte[] { 0x64, 0x65 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(dataTreeBranch.IsUnset, Is.False);
+                    Assert.That(dataTreeBranch.IsEmpty, Is.False);
+                    Assert.That(dataTreeBranch.ParsedObject, Is.Not.Null);
+                }
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
+
+                var obj = (string)dataTreeBranch.ParsedObject;
+                Assert.That(obj, Is.EqualTo("de"));
+            }));
         #endregion
 
         #region SOFTWARE_VERSION_LABEL

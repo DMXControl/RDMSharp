@@ -386,10 +386,28 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
                 if (oneofOt == null && oneOf.ReferenceType.HasValue)
                     oneofOt = oneOf.ReferenceType.Value.ReferencedObject;
 
+                // a list of simple values (e.g. string[] for LANGUAGE_CAPABILITIES) needs one child per item
+                if (oneofOt is ListType listType && o is Array array && getListItem(listType.ItemType) is CommonPropertiesForNamed itemOt)
+                {
+                    DataTree[] items = new DataTree[array.Length];
+                    for (int i = 0; i < array.Length; i++)
+                        items[i] = new DataTree(itemOt.Name, (uint)i, array.GetValue(i));
+                    return new DataTree(listType.Name, 0, items, isList: true);
+                }
+
                 if (oneofOt != null)
                     return new DataTree(oneofOt.Name, 0, o);
 
                 throw new NotImplementedException();
+            }
+            static CommonPropertiesForNamed getListItem(OneOfTypes itemType)
+            {
+                var itemOt = itemType.ObjectType;
+                if (itemOt == null && itemType.ReferenceType.HasValue)
+                    itemOt = itemType.ReferenceType.Value.ReferencedObject;
+                if (itemOt is ListType || itemOt is CompoundType)
+                    return null;
+                return itemOt;
             }
             if (children.Count != 0)
                 return new DataTreeBranch(obj, children: children.ToArray());

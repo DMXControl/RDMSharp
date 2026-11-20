@@ -137,6 +137,16 @@ public sealed class ModulesExtension : AbstractModulesExtension
         if (parameters.Contains(ERDM_Parameter.SOFTWARE_VERSION_LABEL))
             _modules.Add(typeof(SoftwareVersionModule));
 
+        if (parameters.Contains(ERDM_Parameter.LANGUAGE) ||
+            parameters.Contains(ERDM_Parameter.LANGUAGE_CAPABILITIES))
+            _modules.Add(typeof(LanguageModule));
+
+        if (parameters.Contains(ERDM_Parameter.DMX_FAIL_MODE))
+            _modules.Add(typeof(DMXFailModeModule));
+
+        if (parameters.Contains(ERDM_Parameter.DMX_STARTUP_MODE))
+            _modules.Add(typeof(DMXStartupModeModule));
+
         if (parameters.Contains(ERDM_Parameter.STATUS_MESSAGES))
             _modules.Add(typeof(StatusMessagesModule));
 

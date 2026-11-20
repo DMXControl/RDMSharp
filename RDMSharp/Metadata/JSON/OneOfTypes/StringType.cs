@@ -202,6 +202,10 @@ namespace RDMSharp.Metadata.JSON.OneOfTypes
                 if (MaxLength.HasValue && MaxLength.Value < charLength)
                 {
                     charLength = (int)MaxLength.Value;
+                    // a String with a fixed count of characters (minLength == maxLength) has no delimiter,
+                    // only the bytes of these characters belong to it, e.g. packed lists of 2 character codes (LANGUAGE_CAPABILITIES)
+                    if (MinLength.HasValue && MinLength.Value == MaxLength.Value)
+                        byteLength = encoder.GetBytes(str.Substring(0, charLength)).Length;
                     repeatParse = true;
                 }
                 if (MaxBytes.HasValue && MaxBytes.Value < byteLength)
