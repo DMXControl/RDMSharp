@@ -59,10 +59,9 @@ public sealed class IdentifyModeModule : AbstractSimpleEnumModule<ERDM_IdentifyM
     {
         if (ParentGeneratedDevice is not null && message.Parameter == ModuleParameter && message.Command == ERDM_Command.SET_COMMAND)
         {
-            byte[] data = message.ParameterData;
-            if (data is null || data.Length != 1)
+            if (message.PDL != 1 || message.Value is not ERDM_IdentifyMode identifyMode)
                 return createNack(message, ERDM_NackReason.FORMAT_ERROR);
-            if (data[0] != (byte)ERDM_IdentifyMode.QUIET && data[0] != (byte)ERDM_IdentifyMode.LOUD)
+            if (!System.Enum.IsDefined(typeof(ERDM_IdentifyMode), identifyMode))
                 return createNack(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
             return null; // valid, the generic handling stores the new mode
         }

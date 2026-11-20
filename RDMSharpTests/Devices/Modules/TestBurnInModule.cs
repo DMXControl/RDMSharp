@@ -130,7 +130,7 @@ public class TestBurnInModule
     private static RDMMessage createSetRequest(byte hours)
     {
         var request = createRequest(ERDM_Command.SET_COMMAND);
-        request.ParameterData = new byte[] { hours };
+        request.ParameterData = PayloadTestTools.SetRequestData(MODULE_PARAMETER, hours);
         return request;
     }
     private static void assertGetResponse(RDMMessage? response, byte expected)
@@ -144,7 +144,7 @@ public class TestBurnInModule
             Assert.That(response.Parameter, Is.EqualTo(MODULE_PARAMETER));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Is.EqualTo(new byte[] { expected }));
+            Assert.That(response.Value, Is.EqualTo(expected));
         }
     }
     private static void assertSetAck(RDMMessage? response)

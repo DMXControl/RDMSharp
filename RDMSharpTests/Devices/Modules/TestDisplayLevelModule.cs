@@ -61,7 +61,7 @@ public class TestDisplayLevelModule
         foreach (byte level in new byte[] { 0x00, 0x80, 0xFF })
         {
             var request = createRequest(ERDM_Command.SET_COMMAND);
-            request.ParameterData = new byte[] { level };
+            request.ParameterData = PayloadTestTools.SetRequestData(MODULE_PARAMETER, level);
             RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
             Assert.That(response, Is.Not.Null);
             using (Assert.EnterMultipleScope())
@@ -77,7 +77,7 @@ public class TestDisplayLevelModule
         // after a SET by RDM the device sets a value locally again, which was its value before the SET
         module.DisplayLevel = 0x40;
         var setRequest = createRequest(ERDM_Command.SET_COMMAND);
-        setRequest.ParameterData = new byte[] { 0x10 };
+        setRequest.ParameterData = PayloadTestTools.SetRequestData(MODULE_PARAMETER, (byte)0x10);
         generated.ProcessRequestMessage_Internal(setRequest);
         Assert.That(module.DisplayLevel, Is.EqualTo(0x10));
         module.DisplayLevel = 0x40;
@@ -132,7 +132,7 @@ public class TestDisplayLevelModule
             Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
             Assert.That(response.Parameter, Is.EqualTo(MODULE_PARAMETER));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Is.EqualTo(new byte[] { expected }));
+            Assert.That(response.Value, Is.EqualTo(expected));
         }
     }
 

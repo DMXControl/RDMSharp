@@ -1,7 +1,6 @@
 using RDMSharp.Metadata;
 using RDMSharp.RDM.Device.Module;
 using RDMSharpTests.Devices.Mock;
-using System.Text;
 
 namespace RDMSharpTests.RDM.Devices.Modules;
 
@@ -83,12 +82,11 @@ public class TestLanguageModule
             Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LANGUAGE_CAPABILITIES));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Is.EqualTo(Encoding.ASCII.GetBytes("endefr")));
             Assert.That(response.Value, Is.EqualTo(LANGUAGES));
         }
 
-        // LANGUAGE_CAPABILITIES is GET only
-        response = generated.ProcessRequestMessage_Internal(createRequest(ERDM_Parameter.LANGUAGE_CAPABILITIES, ERDM_Command.SET_COMMAND, Encoding.ASCII.GetBytes("es")));
+        // LANGUAGE_CAPABILITIES is GET only, there is no SET payload the parser could build
+        response = generated.ProcessRequestMessage_Internal(createRequest(ERDM_Parameter.LANGUAGE_CAPABILITIES, ERDM_Command.SET_COMMAND, new byte[] { 0x65, 0x73 }));
         Assert.That(response, Is.Not.Null);
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
         Assert.That(module.Languages, Is.EqualTo(LANGUAGES));
@@ -106,34 +104,36 @@ public class TestLanguageModule
         #endregion
 
         #region Test SET supported languages
-        assertSetResponse(send(Encoding.ASCII.GetBytes("de")), null);
+        assertSetResponse(send("de"), null);
         Assert.That(module.CurrentLanguage, Is.EqualTo("de"));
         assertGetResponse("de");
 
         // ISO 639-1 codes are lower case, the device answers with its own code
-        assertSetResponse(send(Encoding.ASCII.GetBytes("FR")), null);
+        assertSetResponse(send("FR"), null);
         Assert.That(module.CurrentLanguage, Is.EqualTo("fr"));
         assertGetResponse("fr");
         #endregion
 
         #region Test 0x0000 resets to the default language
+        // 0x0000 is no language code, so the bytes are needed here
         assertSetResponse(send(new byte[] { 0x00, 0x00 }), null);
         Assert.That(module.CurrentLanguage, Is.EqualTo(DEFAULT_LANGUAGE));
         assertGetResponse("en");
         #endregion
 
         #region Test language the device does not support
-        assertSetResponse(send(Encoding.ASCII.GetBytes("de")), null);
+        assertSetResponse(send("de"), null);
         foreach (string language in new[] { "es", "xx" })
         {
-            assertSetResponse(send(Encoding.ASCII.GetBytes(language)), ERDM_NackReason.DATA_OUT_OF_RANGE);
+            assertSetResponse(send(language), ERDM_NackReason.DATA_OUT_OF_RANGE);
             Assert.That(module.CurrentLanguage, Is.EqualTo("de"), "rejected request must not change the language");
             assertGetResponse("de");
         }
         #endregion
 
         #region Test invalid PDL
-        foreach (byte[] data in new[] { Array.Empty<byte>(), Encoding.ASCII.GetBytes("d"), Encoding.ASCII.GetBytes("deu") })
+        // invalid lengths can not be built by the parser, so the bytes are needed here
+        foreach (byte[] data in new[] { Array.Empty<byte>(), new byte[] { 0x64 }, new byte[] { 0x64, 0x65, 0x75 } })
         {
             assertSetResponse(send(data), ERDM_NackReason.FORMAT_ERROR);
             Assert.That(module.CurrentLanguage, Is.EqualTo("de"), "rejected request must not change the language");
@@ -147,7 +147,7 @@ public class TestLanguageModule
         Assert.That(module.CurrentLanguage, Is.EqualTo("fr"));
 
         // after a SET by RDM the device sets the language locally again, which was its value before the SET
-        assertSetResponse(send(Encoding.ASCII.GetBytes("de")), null);
+        assertSetResponse(send("de"), null);
         module.CurrentLanguage = "fr";
         Assert.That(module.CurrentLanguage, Is.EqualTo("fr"), "setting the language locally after a SET must not be ignored");
         assertGetResponse("fr");
@@ -187,6 +187,10 @@ public class TestLanguageModule
         }
     }
 
+    private RDMMessage? send(string language)
+    {
+        return send(PayloadTestTools.SetRequestData(ERDM_Parameter.LANGUAGE, language));
+    }
     private RDMMessage? send(byte[] data)
     {
         return generated!.ProcessRequestMessage_Internal(createRequest(ERDM_Parameter.LANGUAGE, ERDM_Command.SET_COMMAND, data));
@@ -214,7 +218,6 @@ public class TestLanguageModule
             Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.LANGUAGE));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Is.EqualTo(Encoding.ASCII.GetBytes(expected)));
             Assert.That(response.Value, Is.EqualTo(expected));
         }
     }

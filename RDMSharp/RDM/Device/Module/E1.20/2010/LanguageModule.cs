@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
@@ -157,18 +156,17 @@ public sealed class LanguageModule : AbstractModule
     {
         if (message.Parameter == ERDM_Parameter.LANGUAGE && message.Command == ERDM_Command.SET_COMMAND)
         {
-            byte[] data = message.ParameterData;
-            if (data is null || data.Length != LANGUAGE_CODE_LENGTH)
+            if (message.PDL != LANGUAGE_CODE_LENGTH || message.Value is not string requestedLanguage)
                 return createResponse(message, ERDM_NackReason.FORMAT_ERROR);
 
-            // Language Code 0x0000 resets the device to the default language
-            if (data.All(b => b == 0x00))
+            // Language Code 0x0000 resets the device to the default language, it is parsed as an empty String
+            if (requestedLanguage.Length == 0)
             {
                 CurrentLanguage = _defaultLanguage;
                 return createResponse(message);
             }
 
-            string language = findGeneratedLanguage(Encoding.ASCII.GetString(data));
+            string language = findGeneratedLanguage(requestedLanguage);
             if (language is null)
                 return createResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
 

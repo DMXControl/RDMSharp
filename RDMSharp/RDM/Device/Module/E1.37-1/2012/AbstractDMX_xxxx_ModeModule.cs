@@ -101,26 +101,20 @@ public abstract class AbstractDMX_xxxx_ModeModule : AbstractModule
     {
         if (message.Parameter == _moduleParameter && message.Command == ERDM_Command.SET_COMMAND)
         {
-            byte[] data = message.ParameterData;
-            if (data is null || data.Length != RDMDMX_xxxx_Mode.PDL)
+            if (message.PDL != RDMDMX_xxxx_Mode.PDL || message.Value is not RDMDMX_xxxx_Mode requested)
                 return createResponse(message, ERDM_NackReason.FORMAT_ERROR);
-
-            ushort scene = (ushort)((data[0] << 8) | data[1]);
-            ushort delayTime = (ushort)((data[2] << 8) | data[3]);
-            ushort holdTime = (ushort)((data[4] << 8) | data[5]);
-            byte level = data[6];
 
             RDMPresetInfo presetInfo = null;
             if (ParentGeneratedDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.PRESET_INFO, out object pi))
                 presetInfo = pi as RDMPresetInfo;
 
-            if (!isSceneSupported(scene, presetInfo))
+            if (!isSceneSupported(requested.Scene, presetInfo))
                 return createResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
 
-            delayTime = limit(delayTime, GetDelayTimeLimits(presetInfo), presetInfo is null || IsInfiniteDelayTimeSupported(presetInfo));
-            holdTime = limit(holdTime, GetHoldTimeLimits(presetInfo), presetInfo is null || IsInfiniteHoldTimeSupported(presetInfo));
+            double delayTime = limit(requested.Delay, GetDelayTimeLimits(presetInfo), presetInfo is null || IsInfiniteDelayTimeSupported(presetInfo));
+            double holdTime = limit(requested.HoldTime, GetHoldTimeLimits(presetInfo), presetInfo is null || IsInfiniteHoldTimeSupported(presetInfo));
 
-            Mode = new RDMDMX_xxxx_Mode(scene, delayTime / 10.0, holdTime / 10.0, level);
+            Mode = new RDMDMX_xxxx_Mode(requested.Scene, delayTime, holdTime, requested.Level);
             return createResponse(message);
         }
         return base.handleRequest(message);
@@ -145,14 +139,14 @@ public abstract class AbstractDMX_xxxx_ModeModule : AbstractModule
     }
 
     /// <summary>
-    /// Sets the time (tenths of a second) to the minimum or maximum, if it is outside of the limits.
+    /// Sets the time (seconds) to the minimum or maximum, if it is outside of the limits.
     /// </summary>
-    private static ushort limit(ushort time, (double? Minimum, double? Maximum) limits, bool infiniteSupported)
+    private static double limit(double time, (double? Minimum, double? Maximum) limits, bool infiniteSupported)
     {
-        ushort? minimum = toTenths(limits.Minimum);
-        ushort? maximum = toTenths(limits.Maximum);
+        double? minimum = knownLimit(limits.Minimum);
+        double? maximum = knownLimit(limits.Maximum);
 
-        if (time == INFINITE)
+        if (isInfinite(time))
         {
             if (infiniteSupported)
                 return time;
@@ -165,15 +159,19 @@ public abstract class AbstractDMX_xxxx_ModeModule : AbstractModule
         return time;
 
         // 0xFFFF in PRESET_INFO means the limit is not reported
-        static ushort? toTenths(double? seconds)
+        static double? knownLimit(double? seconds)
         {
-            if (!seconds.HasValue)
+            if (!seconds.HasValue || seconds.Value < 0 || isInfinite(seconds.Value))
                 return null;
-            double tenths = Math.Round(seconds.Value * 10);
-            if (tenths < 0 || tenths >= INFINITE)
-                return null;
-            return (ushort)tenths;
+            return seconds.Value;
         }
+    }
+    /// <summary>
+    /// 0xFFFF (6553.5 seconds) is infinite, the times are compared in tenths of a second, the resolution of the payload.
+    /// </summary>
+    private static bool isInfinite(double seconds)
+    {
+        return Math.Round(seconds * 10) >= INFINITE;
     }
 
     private static RDMMessage createResponse(RDMMessage request, ERDM_NackReason? nackReason = null)

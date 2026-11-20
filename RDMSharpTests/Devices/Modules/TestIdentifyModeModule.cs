@@ -57,28 +57,29 @@ public class TestIdentifyModeModule
         #endregion
 
         #region Test SET loud and quiet
-        assertSetResponse(send(0xFF), null);
+        assertSetResponse(send(ERDM_IdentifyMode.LOUD), null);
         Assert.That(module.IdentifyMode, Is.EqualTo(ERDM_IdentifyMode.LOUD));
         assertGetResponse(generated.ProcessRequestMessage_Internal(createRequest(ERDM_Command.GET_COMMAND)), ERDM_IdentifyMode.LOUD);
 
-        assertSetResponse(send(0x00), null);
+        assertSetResponse(send(ERDM_IdentifyMode.QUIET), null);
         Assert.That(module.IdentifyMode, Is.EqualTo(ERDM_IdentifyMode.QUIET));
 
         // after a SET by RDM the device sets the mode locally again, which was its value before the SET
-        assertSetResponse(send(0xFF), null);
+        assertSetResponse(send(ERDM_IdentifyMode.LOUD), null);
         module.IdentifyMode = ERDM_IdentifyMode.QUIET;
         Assert.That(module.IdentifyMode, Is.EqualTo(ERDM_IdentifyMode.QUIET), "setting the mode locally after a SET must not be ignored");
         #endregion
 
         #region Test undefined values 0x01-0xFE
+        // undefined values are no ERDM_IdentifyMode, so the bytes are needed here
         foreach (byte undefined in new byte[] { 0x01, 0x7F, 0xFE })
         {
-            assertSetResponse(send(undefined), ERDM_NackReason.DATA_OUT_OF_RANGE);
+            assertSetResponse(send(new byte[] { undefined }), ERDM_NackReason.DATA_OUT_OF_RANGE);
             Assert.That(module.IdentifyMode, Is.EqualTo(ERDM_IdentifyMode.QUIET), "rejected request must not change the mode");
         }
         #endregion
 
-        #region Test invalid PDL
+        #region Test invalid PDL, the parser can not build it, so the bytes are needed here
         foreach (byte[] data in new[] { Array.Empty<byte>(), new byte[] { 0xFF, 0xFF } })
         {
             var request = createRequest(ERDM_Command.SET_COMMAND);
@@ -114,10 +115,14 @@ public class TestIdentifyModeModule
         }
     }
 
-    private RDMMessage? send(byte value)
+    private RDMMessage? send(ERDM_IdentifyMode identifyMode)
+    {
+        return send(PayloadTestTools.SetRequestData(MODULE_PARAMETER, identifyMode));
+    }
+    private RDMMessage? send(byte[] data)
     {
         var request = createRequest(ERDM_Command.SET_COMMAND);
-        request.ParameterData = new byte[] { value };
+        request.ParameterData = data;
         return generated!.ProcessRequestMessage_Internal(request);
     }
     private static RDMMessage createRequest(ERDM_Command command)
@@ -139,7 +144,6 @@ public class TestIdentifyModeModule
             Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
             Assert.That(response.Parameter, Is.EqualTo(MODULE_PARAMETER));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Is.EqualTo(new byte[] { (byte)expected }));
             Assert.That(response.Value, Is.EqualTo(expected));
         }
     }

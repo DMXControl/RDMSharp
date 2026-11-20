@@ -62,8 +62,6 @@ public class TestProductDetailIdListModule
             Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
             Assert.That(response.Parameter, Is.EqualTo(MODULE_PARAMETER));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            // packed list, big-endian: LED = 0x0004, FLASHTUBE = 0x0009
-            Assert.That(response.ParameterData, Is.EqualTo(new byte[] { 0x00, 0x04, 0x00, 0x09 }));
             Assert.That(response.Value, Is.EqualTo(PRODUCT_DETAILS));
         }
     }
@@ -80,7 +78,7 @@ public class TestProductDetailIdListModule
         RDMMessage? response = device.ProcessRequestMessage_Internal(createRequest(ERDM_Command.GET_COMMAND, uid));
         Assert.That(response, Is.Not.Null);
         Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(response.ParameterData, Is.EqualTo(new byte[] { 0x00, 0x00 }));
+        Assert.That(response.Value, Is.EqualTo(new[] { ERDM_ProductDetail.NONE }));
     }
 
     [Test, DependsOnTest(nameof(TestGetPRODUCT_DETAIL_ID_LIST))]
@@ -88,6 +86,7 @@ public class TestProductDetailIdListModule
     {
         Assert.That(generated, Is.Not.Null);
         var request = createRequest(ERDM_Command.SET_COMMAND, DEVCIE_UID);
+        // PRODUCT_DETAIL_ID_LIST is GET only, there is no SET payload the parser could build
         request.ParameterData = new byte[] { 0x00, 0x04 };
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);

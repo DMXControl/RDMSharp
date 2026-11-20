@@ -169,11 +169,10 @@ public class PresetsModule : AbstractModule
     /// </summary>
     private RDMMessage validatePresetPlayback(RDMMessage message)
     {
-        byte[] data = message.ParameterData;
-        if (data is null || data.Length != RDMPresetPlayback.PDL)
+        if (message.PDL != RDMPresetPlayback.PDL || message.Value is not RDMPresetPlayback playback)
             return CreateResponse(message, ERDM_NackReason.FORMAT_ERROR);
 
-        ushort mode = (ushort)((data[0] << 8) | data[1]);
+        ushort mode = playback.Mode;
         if (mode == (ushort)ERDM_PresetPlayback.OFF || mode == (ushort)ERDM_PresetPlayback.ALL)
             return null;
         if (_generatedPresets is null || _generatedPresets.Count == 0)

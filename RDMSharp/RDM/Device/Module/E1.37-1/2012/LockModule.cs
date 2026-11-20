@@ -271,8 +271,16 @@ public sealed class LockModule : AbstractModule
         if (message.Parameter == ERDM_Parameter.LOCK_STATE || message.Parameter == ERDM_Parameter.LOCK_PIN)
             if (message.Command == ERDM_Command.SET_COMMAND)
             {
+                // E1.37-1 3.7 / 3.9: LOCK_STATE has a PDL of 3, LOCK_PIN a PDL of 4
+                int pdl = message.Parameter == ERDM_Parameter.LOCK_STATE ? 3 : 4;
+                if (message.PDL != pdl)
+                    return createFormatError(message);
+
                 if (message.Value is SetLockStateRequest setLockStateRequest)
                 {
+                    // E1.37-1 3.9: a PIN code outside of 0000-9999 is a FORMAT_ERROR
+                    if (setLockStateRequest.PinCode > MAX_LOCK_PIN)
+                        return createFormatError(message);
 
                     if (this.lockPin.HasValue && setLockStateRequest.PinCode != this.lockPin.Value)
                     {
@@ -321,9 +329,13 @@ public sealed class LockModule : AbstractModule
                 }
                 else if (message.Value is SetLockPinRequest setLockPinRequest)
                 {
+                    // E1.37-1 3.9: a PIN code outside of 0000-9999 is a FORMAT_ERROR
+                    if (setLockPinRequest.CurrentPinCode > MAX_LOCK_PIN || setLockPinRequest.NewPinCode > MAX_LOCK_PIN)
+                        return createFormatError(message);
+
                     try
                     {
-                        if ((setLockPinRequest.CurrentPinCode <= 9999 && setLockPinRequest.NewPinCode <= 9999) && LockPin == setLockPinRequest.CurrentPinCode)
+                        if (LockPin == setLockPinRequest.CurrentPinCode)
                             LockPin = setLockPinRequest.NewPinCode;
                         else
                         {
@@ -356,15 +368,20 @@ public sealed class LockModule : AbstractModule
                     };
 
                 }
-                return new RDMMessage(ERDM_NackReason.FORMAT_ERROR)
-                {
-                    DestUID = message.SourceUID,
-                    SourceUID = message.DestUID,
-                    Parameter = message.Parameter,
-                    Command = ERDM_Command.SET_COMMAND_RESPONSE
-                };
+                return createFormatError(message);
             }
         return base.handleRequest(message);
+    }
+    private const ushort MAX_LOCK_PIN = 9999;
+    private static RDMMessage createFormatError(RDMMessage message)
+    {
+        return new RDMMessage(ERDM_NackReason.FORMAT_ERROR)
+        {
+            DestUID = message.SourceUID,
+            SourceUID = message.DestUID,
+            Parameter = message.Parameter,
+            Command = ERDM_Command.SET_COMMAND_RESPONSE
+        };
     }
 
     public async Task<bool> SetLockState(byte lockState)

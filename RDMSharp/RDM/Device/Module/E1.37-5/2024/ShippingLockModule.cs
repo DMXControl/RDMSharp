@@ -67,11 +67,10 @@ public sealed class ShippingLockModule : AbstractSimpleEnumModule<ERDM_ShippingL
     {
         if (ParentGeneratedDevice is not null && RemotelyOperable && message.Parameter == ModuleParameter && message.Command == ERDM_Command.SET_COMMAND)
         {
-            byte[] data = message.ParameterData;
-            if (data is null || data.Length != 1)
+            if (message.PDL != 1 || message.Value is not ERDM_ShippingLockState state)
                 return createNack(message, ERDM_NackReason.FORMAT_ERROR);
             // SET only knows Unlock (0x00) / Lock (0x01), PARTIALLY_LOCKED can only be reported
-            if (data[0] > (byte)ERDM_ShippingLockState.LOCKED)
+            if (state != ERDM_ShippingLockState.UNLOCKED && state != ERDM_ShippingLockState.LOCKED)
                 return createNack(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
             return null; // valid, the generic handling stores the new state
         }

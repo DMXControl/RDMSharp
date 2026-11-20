@@ -130,7 +130,7 @@ public class PresetsModule_E1_37_1_2012 : PresetsModule
 
                 case ERDM_Parameter.PRESET_STATUS when message.Command == ERDM_Command.GET_COMMAND:
                     // valid requests (null) are answered by the generic handling
-                    return message.ParameterData is { Length: GET_PRESET_STATUS_PDL } ? null : CreateResponse(message, ERDM_NackReason.FORMAT_ERROR);
+                    return message.PDL == GET_PRESET_STATUS_PDL ? null : CreateResponse(message, ERDM_NackReason.FORMAT_ERROR);
 
                 case ERDM_Parameter.PRESET_INFO when message.Command == ERDM_Command.SET_COMMAND:
                     // PRESET_INFO is GET only (E1.37-1 5.2)
@@ -149,12 +149,10 @@ public class PresetsModule_E1_37_1_2012 : PresetsModule
     /// </summary>
     private static RDMMessage validateMergeMode(RDMMessage message)
     {
-        byte[] data = message.ParameterData;
-        if (data is null || data.Length != 1)
+        if (message.PDL != 1 || message.Value is not ERDM_MergeMode mode)
             return CreateResponse(message, ERDM_NackReason.FORMAT_ERROR);
 
-        byte mode = data[0];
-        if (mode > (byte)ERDM_MergeMode.DMX_ONLY && mode != (byte)ERDM_MergeMode.OTHER)
+        if (!Enum.IsDefined(typeof(ERDM_MergeMode), mode))
             return CreateResponse(message, ERDM_NackReason.DATA_OUT_OF_RANGE);
 
         return null;
@@ -175,8 +173,7 @@ public class PresetsModule_E1_37_1_2012 : PresetsModule
     /// </summary>
     private RDMMessage handleSetPresetStatus(RDMMessage message)
     {
-        byte[] data = message.ParameterData;
-        if (data is null || data.Length != SET_PRESET_STATUS_PDL || message.Value is not SetPresetStatus status)
+        if (message.PDL != SET_PRESET_STATUS_PDL || message.Value is not SetPresetStatus status)
             return CreateResponse(message, ERDM_NackReason.FORMAT_ERROR);
 
         ushort sceneId = status.SceneId;

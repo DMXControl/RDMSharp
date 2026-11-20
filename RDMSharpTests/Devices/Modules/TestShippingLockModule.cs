@@ -72,23 +72,27 @@ public class TestShippingLockModule
         var module = generated.Modules.OfType<ShippingLockModule>().Single();
 
         #region Test lock and unlock
-        assertSetResponse(send(generated, DEVCIE_UID, 0x01), null);
+        assertSetResponse(send(generated, DEVCIE_UID, ERDM_ShippingLockState.LOCKED), null);
         Assert.That(module.ShippingLockState, Is.EqualTo(ERDM_ShippingLockState.LOCKED));
         assertGetResponse(generated.ProcessRequestMessage_Internal(createRequest(ERDM_Command.GET_COMMAND, DEVCIE_UID)), ERDM_ShippingLockState.LOCKED);
 
-        assertSetResponse(send(generated, DEVCIE_UID, 0x00), null);
+        assertSetResponse(send(generated, DEVCIE_UID, ERDM_ShippingLockState.UNLOCKED), null);
         Assert.That(module.ShippingLockState, Is.EqualTo(ERDM_ShippingLockState.UNLOCKED));
         #endregion
 
         #region Test invalid values: SET only knows Unlock (0x00) / Lock (0x01)
-        foreach (byte invalid in new byte[] { 0x02, 0x03, 0xFF })
+        // PARTIALLY_LOCKED can only be reported
+        assertSetResponse(send(generated, DEVCIE_UID, ERDM_ShippingLockState.PARTIALLY_LOCKED), ERDM_NackReason.DATA_OUT_OF_RANGE);
+        Assert.That(module.ShippingLockState, Is.EqualTo(ERDM_ShippingLockState.UNLOCKED), "rejected request must not change the state");
+        // undefined values are no ERDM_ShippingLockState, so the bytes are needed here
+        foreach (byte invalid in new byte[] { 0x03, 0xFF })
         {
-            assertSetResponse(send(generated, DEVCIE_UID, invalid), ERDM_NackReason.DATA_OUT_OF_RANGE);
+            assertSetResponse(send(generated, DEVCIE_UID, new byte[] { invalid }), ERDM_NackReason.DATA_OUT_OF_RANGE);
             Assert.That(module.ShippingLockState, Is.EqualTo(ERDM_ShippingLockState.UNLOCKED), "rejected request must not change the state");
         }
         #endregion
 
-        #region Test invalid PDL
+        #region Test invalid PDL, the parser can not build it, so the bytes are needed here
         foreach (byte[] data in new[] { Array.Empty<byte>(), new byte[] { 0x01, 0x00 } })
         {
             var request = createRequest(ERDM_Command.SET_COMMAND, DEVCIE_UID);
@@ -110,9 +114,9 @@ public class TestShippingLockModule
         var getResponse = device.ProcessRequestMessage_Internal(createRequest(ERDM_Command.GET_COMMAND, SENSOR_ONLY_UID));
         Assert.That(getResponse, Is.Not.Null);
         Assert.That(getResponse.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-        Assert.That(getResponse.ParameterData, Is.EqualTo(new byte[] { (byte)ERDM_ShippingLockState.LOCKED }));
+        Assert.That(getResponse.Value, Is.EqualTo(ERDM_ShippingLockState.LOCKED));
 
-        var setResponse = send(device, SENSOR_ONLY_UID, 0x00);
+        var setResponse = send(device, SENSOR_ONLY_UID, ERDM_ShippingLockState.UNLOCKED);
         Assert.That(setResponse, Is.Not.Null);
         using (Assert.EnterMultipleScope())
         {
@@ -170,10 +174,14 @@ public class TestShippingLockModule
             SubDevice = SubDevice.Root,
         };
     }
-    private static RDMMessage? send(ShippingLockMockDevice device, UID destination, byte value)
+    private static RDMMessage? send(ShippingLockMockDevice device, UID destination, ERDM_ShippingLockState state)
+    {
+        return send(device, destination, PayloadTestTools.SetRequestData(MODULE_PARAMETER, state));
+    }
+    private static RDMMessage? send(ShippingLockMockDevice device, UID destination, byte[] data)
     {
         var request = createRequest(ERDM_Command.SET_COMMAND, destination);
-        request.ParameterData = new byte[] { value };
+        request.ParameterData = data;
         return device.ProcessRequestMessage_Internal(request);
     }
     private static void assertGetResponse(RDMMessage? response, ERDM_ShippingLockState expected)
@@ -187,7 +195,6 @@ public class TestShippingLockModule
             Assert.That(response.Parameter, Is.EqualTo(MODULE_PARAMETER));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Is.EqualTo(new byte[] { (byte)expected }));
             Assert.That(response.Value, Is.EqualTo(expected));
         }
     }

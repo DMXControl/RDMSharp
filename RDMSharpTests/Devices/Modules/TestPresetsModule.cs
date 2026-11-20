@@ -416,7 +416,7 @@ public class TestPresetsModule
         #region Test valid modes
         foreach (var (mode, level) in new (ushort, byte)[] { (1, 0x80), (2, 0x00), (1, 0xFF), (0xFFFF, 0xFF), (0, 0x00) })
         {
-            assertSetAck(send(ERDM_Command.SET_COMMAND, PB, new byte[] { (byte)(mode >> 8), (byte)mode, level }), PB);
+            assertSetAck(send(ERDM_Command.SET_COMMAND, PB, PayloadTestTools.SetRequestData(PB, new RDMPresetPlayback(mode, level))), PB);
             var playback = getPlayback();
             using (Assert.EnterMultipleScope())
             {
@@ -427,10 +427,10 @@ public class TestPresetsModule
         #endregion
 
         #region Test invalid Scenes
-        assertSetAck(send(ERDM_Command.SET_COMMAND, PB, new byte[] { 0x00, 0x02, 0x40 }), PB);
+        assertSetAck(send(ERDM_Command.SET_COMMAND, PB, PayloadTestTools.SetRequestData(PB, new RDMPresetPlayback(2, 0x40))), PB);
         foreach (ushort invalidScene in new ushort[] { (ushort)(PRESET_INFO.MaximumSceneNumber + 1), 99, 0xFFFE })
         {
-            assertSetNack(send(ERDM_Command.SET_COMMAND, PB, new byte[] { (byte)(invalidScene >> 8), (byte)invalidScene, 0x80 }), ERDM_NackReason.DATA_OUT_OF_RANGE, PB);
+            assertSetNack(send(ERDM_Command.SET_COMMAND, PB, PayloadTestTools.SetRequestData(PB, new RDMPresetPlayback(invalidScene, 0x80))), ERDM_NackReason.DATA_OUT_OF_RANGE, PB);
             var playback = getPlayback();
             using (Assert.EnterMultipleScope())
             {
@@ -1022,12 +1022,12 @@ public class TestPresetsModule
         #region Test defined values
         foreach (var mode in new[] { ERDM_MergeMode.HTP, ERDM_MergeMode.LTP, ERDM_MergeMode.DMX_ONLY, ERDM_MergeMode.DEFAULT, ERDM_MergeMode.DMX_ONLY })
         {
-            assertSetAck(send(ERDM_Command.SET_COMMAND, MM, new byte[] { (byte)mode }), MM);
+            assertSetAck(send(ERDM_Command.SET_COMMAND, MM, PayloadTestTools.SetRequestData(MM, mode)), MM);
             Assert.That(getMergeMode(), Is.EqualTo(mode));
         }
         #endregion
 
-        #region Test undefined values
+        #region Test undefined values, they are no ERDM_MergeMode, so the bytes are needed here
         foreach (byte invalid in new byte[] { 0x04, 0x7F, 0xFE })
         {
             assertSetNack(send(ERDM_Command.SET_COMMAND, MM, new byte[] { invalid }), ERDM_NackReason.DATA_OUT_OF_RANGE, MM);
@@ -1035,7 +1035,7 @@ public class TestPresetsModule
         }
         #endregion
 
-        #region Test invalid PDL
+        #region Test invalid PDL, the parser can not build it, so the bytes are needed here
         foreach (int length in new[] { 0, 2, 3 })
         {
             assertSetNack(send(ERDM_Command.SET_COMMAND, MM, new byte[length]), ERDM_NackReason.FORMAT_ERROR, MM);

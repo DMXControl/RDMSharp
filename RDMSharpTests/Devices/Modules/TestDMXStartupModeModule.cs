@@ -85,57 +85,57 @@ public class TestDMXStartupModeModule
 
         #region Test Basic: initial mode
         Assert.That(module.Mode, Is.EqualTo(INITIAL_MODE));
-        assertGetResponse(generated, modeData(1, 50, 100, 255));
+        assertGetResponse(generated, mode(1, 5.0, 10.0, 255));
         #endregion
 
         #region Test SET valid values
-        assertSetResponse(send(generated, modeData(2, 100, 200, 128)), null);
+        assertSetResponse(send(generated, mode(2, 10.0, 20.0, 128)), null);
         Assert.That(module.Mode, Is.EqualTo(new RDMDMX_xxxx_Mode(2, 10.0, 20.0, 128)));
-        assertGetResponse(generated, modeData(2, 100, 200, 128));
+        assertGetResponse(generated, mode(2, 10.0, 20.0, 128));
 
         // PRESET_PLAYBACK_OFF, the Level field is used
-        assertSetResponse(send(generated, modeData(0x0000, 50, 40, 77)), null);
-        assertGetResponse(generated, modeData(0x0000, 50, 40, 77));
+        assertSetResponse(send(generated, mode(0x0000, 5.0, 4.0, 77)), null);
+        assertGetResponse(generated, mode(0x0000, 5.0, 4.0, 77));
 
         // PRESET_PLAYBACK_ALL
-        assertSetResponse(send(generated, modeData(0xFFFF, 50, 40, 255)), null);
-        assertGetResponse(generated, modeData(0xFFFF, 50, 40, 255));
+        assertSetResponse(send(generated, mode(0xFFFF, 5.0, 4.0, 255)), null);
+        assertGetResponse(generated, mode(0xFFFF, 5.0, 4.0, 255));
         #endregion
 
         #region Test scene the device does not support
         foreach (ushort scene in new ushort[] { 4, 11, 0xFFFE })
         {
-            assertSetResponse(send(generated, modeData(scene, 50, 40, 255)), ERDM_NackReason.DATA_OUT_OF_RANGE);
-            assertGetResponse(generated, modeData(0xFFFF, 50, 40, 255), "rejected request must not change the mode");
+            assertSetResponse(send(generated, mode(scene, 5.0, 4.0, 255)), ERDM_NackReason.DATA_OUT_OF_RANGE);
+            assertGetResponse(generated, mode(0xFFFF, 5.0, 4.0, 255), "rejected request must not change the mode");
         }
         #endregion
 
         #region Test times outside of the limits are set to the minimum or maximum
-        assertSetResponse(send(generated, modeData(3, 5, 10, 255)), null);
-        assertGetResponse(generated, modeData(3, 50, 40, 255), "times below the minimum");
+        assertSetResponse(send(generated, mode(3, 0.5, 1.0, 255)), null);
+        assertGetResponse(generated, mode(3, 5.0, 4.0, 255), "times below the minimum");
 
-        assertSetResponse(send(generated, modeData(3, 2000, 5000, 255)), null);
-        assertGetResponse(generated, modeData(3, 1000, 1000, 255), "times above the maximum");
+        assertSetResponse(send(generated, mode(3, 200.0, 500.0, 255)), null);
+        assertGetResponse(generated, mode(3, 100.0, 100.0, 255), "times above the maximum");
 
         // there is no infinite startup delay => maximum, infinite hold is not supported => maximum
-        assertSetResponse(send(generated, modeData(3, 0xFFFF, 0xFFFF, 255)), null);
-        assertGetResponse(generated, modeData(3, 1000, 1000, 255), "infinite");
+        assertSetResponse(send(generated, mode(3, INFINITE, INFINITE, 255)), null);
+        assertGetResponse(generated, mode(3, 100.0, 100.0, 255), "infinite");
         Assert.That(module.Mode, Is.EqualTo(new RDMDMX_xxxx_Mode(3, 100.0, 100.0, 255)));
         #endregion
 
         #region Test set locally after a SET by RDM
         module.Mode = new RDMDMX_xxxx_Mode(1, 5.0, 10.0, 255);
-        assertSetResponse(send(generated, modeData(2, 100, 200, 128)), null);
+        assertSetResponse(send(generated, mode(2, 10.0, 20.0, 128)), null);
         module.Mode = new RDMDMX_xxxx_Mode(1, 5.0, 10.0, 255);
         Assert.That(module.Mode, Is.EqualTo(new RDMDMX_xxxx_Mode(1, 5.0, 10.0, 255)), "setting the mode locally after a SET must not be ignored");
-        assertGetResponse(generated, modeData(1, 50, 100, 255));
+        assertGetResponse(generated, mode(1, 5.0, 10.0, 255));
         #endregion
 
         #region Test invalid PDL
         foreach (byte[] data in new[] { Array.Empty<byte>(), new byte[] { 0x00, 0x02, 0x00, 0x20 }, new byte[] { 0x00, 0x02, 0x00, 0x20, 0x00, 0x30, 0xFF, 0x00 } })
         {
             assertSetResponse(send(generated, data), ERDM_NackReason.FORMAT_ERROR);
-            assertGetResponse(generated, modeData(1, 50, 100, 255), "rejected request must not change the mode");
+            assertGetResponse(generated, mode(1, 5.0, 10.0, 255), "rejected request must not change the mode");
         }
         #endregion
     }
@@ -147,15 +147,15 @@ public class TestDMXStartupModeModule
         using var device = new DMXStartupModeWithoutPresetsMockDevice(DEVCIE_WITHOUT_PRESETS_UID);
         var module = device.Modules.OfType<DMXStartupModeModule>().Single();
         Assert.That(module.Mode, Is.EqualTo(new RDMDMX_xxxx_Mode()));
-        assertGetResponse(device, modeData(0, 0, 0, 0), deviceUid: DEVCIE_WITHOUT_PRESETS_UID);
+        assertGetResponse(device, mode(0, 0.0, 0.0, 0), deviceUid: DEVCIE_WITHOUT_PRESETS_UID);
 
-        assertSetResponse(send(device, modeData(0x0000, 0xFFFF, 0xFFFF, 128), DEVCIE_WITHOUT_PRESETS_UID), null, DEVCIE_WITHOUT_PRESETS_UID);
-        assertGetResponse(device, modeData(0x0000, 0xFFFF, 0xFFFF, 128), deviceUid: DEVCIE_WITHOUT_PRESETS_UID);
+        assertSetResponse(send(device, mode(0x0000, INFINITE, INFINITE, 128), DEVCIE_WITHOUT_PRESETS_UID), null, DEVCIE_WITHOUT_PRESETS_UID);
+        assertGetResponse(device, mode(0x0000, INFINITE, INFINITE, 128), deviceUid: DEVCIE_WITHOUT_PRESETS_UID);
 
         foreach (ushort scene in new ushort[] { 1, 0xFFFF })
         {
-            assertSetResponse(send(device, modeData(scene, 1, 1, 128), DEVCIE_WITHOUT_PRESETS_UID), ERDM_NackReason.DATA_OUT_OF_RANGE, DEVCIE_WITHOUT_PRESETS_UID);
-            assertGetResponse(device, modeData(0x0000, 0xFFFF, 0xFFFF, 128), "rejected request must not change the mode", DEVCIE_WITHOUT_PRESETS_UID);
+            assertSetResponse(send(device, mode(scene, 0.1, 0.1, 128), DEVCIE_WITHOUT_PRESETS_UID), ERDM_NackReason.DATA_OUT_OF_RANGE, DEVCIE_WITHOUT_PRESETS_UID);
+            assertGetResponse(device, mode(0x0000, INFINITE, INFINITE, 128), "rejected request must not change the mode", DEVCIE_WITHOUT_PRESETS_UID);
         }
     }
 
@@ -185,9 +185,14 @@ public class TestDMXStartupModeModule
         }
     }
 
-    private static byte[] modeData(ushort scene, ushort delay, ushort hold, byte level)
+    private const double INFINITE = 6553.5; // 0xFFFF tenths of a second
+    private static RDMDMX_xxxx_Mode mode(ushort scene, double delay, double hold, byte level)
     {
-        return new byte[] { (byte)(scene >> 8), (byte)scene, (byte)(delay >> 8), (byte)delay, (byte)(hold >> 8), (byte)hold, level };
+        return new RDMDMX_xxxx_Mode(scene, delay, hold, level);
+    }
+    private static RDMMessage? send(AbstractMockGeneratedDevice device, RDMDMX_xxxx_Mode mode, UID? deviceUid = null)
+    {
+        return send(device, PayloadTestTools.SetRequestData(MODULE_PARAMETER, mode), deviceUid);
     }
     private static RDMMessage? send(AbstractMockGeneratedDevice device, byte[] data, UID? deviceUid = null)
     {
@@ -206,7 +211,7 @@ public class TestDMXStartupModeModule
             SubDevice = SubDevice.Root,
         };
     }
-    private static void assertGetResponse(AbstractMockGeneratedDevice device, byte[] expected, string? message = null, UID? deviceUid = null)
+    private static void assertGetResponse(AbstractMockGeneratedDevice device, RDMDMX_xxxx_Mode expected, string? message = null, UID? deviceUid = null)
     {
         RDMMessage? response = device.ProcessRequestMessage_Internal(createRequest(ERDM_Command.GET_COMMAND, deviceUid ?? DEVCIE_UID));
         Assert.That(response, Is.Not.Null);
@@ -215,8 +220,7 @@ public class TestDMXStartupModeModule
             Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
             Assert.That(response.Parameter, Is.EqualTo(MODULE_PARAMETER));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Is.EqualTo(expected), message);
-            Assert.That(response.Value, Is.TypeOf(typeof(RDMDMX_xxxx_Mode)));
+            Assert.That(response.Value, Is.EqualTo(expected), message);
         }
     }
     private static void assertSetResponse(RDMMessage? response, ERDM_NackReason? nackReason, UID? deviceUid = null)

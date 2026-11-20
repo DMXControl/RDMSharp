@@ -53,13 +53,13 @@ public class TestPowerOffReadyModule
         var module = generated.Modules.OfType<PowerOffReadyModule>().Single();
 
         Assert.That(module.PowerOffReady, Is.False);
-        assertGetResponse(generated.ProcessRequestMessage_Internal(createRequest(ERDM_Command.GET_COMMAND)), 0x00);
+        assertGetResponse(generated.ProcessRequestMessage_Internal(createRequest(ERDM_Command.GET_COMMAND)), false);
 
         module.PowerOffReady = true;
-        assertGetResponse(generated.ProcessRequestMessage_Internal(createRequest(ERDM_Command.GET_COMMAND)), 0x01);
+        assertGetResponse(generated.ProcessRequestMessage_Internal(createRequest(ERDM_Command.GET_COMMAND)), true);
 
         module.PowerOffReady = false;
-        assertGetResponse(generated.ProcessRequestMessage_Internal(createRequest(ERDM_Command.GET_COMMAND)), 0x00);
+        assertGetResponse(generated.ProcessRequestMessage_Internal(createRequest(ERDM_Command.GET_COMMAND)), false);
     }
 
     [Test, DependsOnTest(nameof(TestGetPOWER_OFF_READY))]
@@ -67,6 +67,7 @@ public class TestPowerOffReadyModule
     {
         Assert.That(generated, Is.Not.Null);
         var request = createRequest(ERDM_Command.SET_COMMAND);
+        // POWER_OFF_READY is GET only, there is no SET payload the parser could build
         request.ParameterData = new byte[] { 0x01 };
 
         RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
@@ -113,7 +114,7 @@ public class TestPowerOffReadyModule
             SubDevice = SubDevice.Root,
         };
     }
-    private static void assertGetResponse(RDMMessage? response, byte expected)
+    private static void assertGetResponse(RDMMessage? response, bool expected)
     {
         Assert.That(response, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -124,7 +125,7 @@ public class TestPowerOffReadyModule
             Assert.That(response.Parameter, Is.EqualTo(MODULE_PARAMETER));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Is.EqualTo(new byte[] { expected }));
+            Assert.That(response.Value, Is.EqualTo(expected));
         }
     }
 

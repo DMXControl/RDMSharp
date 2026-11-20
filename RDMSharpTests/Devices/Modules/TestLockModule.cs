@@ -127,6 +127,143 @@ public class TestLockModule
 
     }
 
+    /// <summary>
+    /// SET LOCK_STATE (E1.37-1 3.7): PIN Code (16-bit) + Lock State, 0x00 unlocks.
+    /// A wrong PIN is NACKed with DATA_OUT_OF_RANGE, a PIN outside of 0000-9999 with FORMAT_ERROR (3.9).
+    /// </summary>
+    [Test, DependsOnTest(nameof(TestGetLOCK_PIN))]
+    public void TestSetLOCK_STATE()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var module = generated.Modules.OfType<LockModule>().Single();
+        Assert.That(module.LockState, Is.EqualTo(0));
+
+        #region Test lock and unlock with the right PIN
+        assertSetResponse(sendSet(ERDM_Parameter.LOCK_STATE, new SetLockStateRequest(1234, 1)), ERDM_Parameter.LOCK_STATE, null);
+        Assert.That(module.LockState, Is.EqualTo(1));
+        assertGet(ERDM_Parameter.LOCK_STATE, new GetLockStateResponse(1, 1));
+
+        assertSetResponse(sendSet(ERDM_Parameter.LOCK_STATE, new SetLockStateRequest(1234, 0)), ERDM_Parameter.LOCK_STATE, null);
+        Assert.That(module.LockState, Is.EqualTo(0));
+        assertGet(ERDM_Parameter.LOCK_STATE, new GetLockStateResponse(0, 1));
+        #endregion
+
+        #region Test wrong PIN
+        assertSetResponse(sendSet(ERDM_Parameter.LOCK_STATE, new SetLockStateRequest(1111, 1)), ERDM_Parameter.LOCK_STATE, ERDM_NackReason.DATA_OUT_OF_RANGE);
+        Assert.That(module.LockState, Is.EqualTo(0), "rejected request must not change the lock state");
+        #endregion
+
+        #region Test PIN outside of 0000-9999, the parser refuses to build it, the payload object does not check the range
+        assertSetResponse(sendSet(ERDM_Parameter.LOCK_STATE, new SetLockStateRequest(10000, 1).ToPayloadData()), ERDM_Parameter.LOCK_STATE, ERDM_NackReason.FORMAT_ERROR);
+        Assert.That(module.LockState, Is.EqualTo(0), "rejected request must not change the lock state");
+        #endregion
+
+        #region Test Lock State the device does not have
+        assertSetResponse(sendSet(ERDM_Parameter.LOCK_STATE, new SetLockStateRequest(1234, 2)), ERDM_Parameter.LOCK_STATE, ERDM_NackReason.DATA_OUT_OF_RANGE);
+        Assert.That(module.LockState, Is.EqualTo(0), "rejected request must not change the lock state");
+        #endregion
+
+        #region Test invalid PDL, the parser can not build it, so the bytes are needed here
+        assertSetResponse(sendSet(ERDM_Parameter.LOCK_STATE, 0x04, 0xD2), ERDM_Parameter.LOCK_STATE, ERDM_NackReason.FORMAT_ERROR);
+        Assert.That(module.LockState, Is.EqualTo(0), "rejected request must not change the lock state");
+        #endregion
+    }
+
+    /// <summary>
+    /// SET LOCK_PIN (E1.37-1 3.9): New PIN code (16-bit) + Current PIN code (16-bit).
+    /// A wrong Current PIN is NACKed with DATA_OUT_OF_RANGE, a PIN outside of 0000-9999 with FORMAT_ERROR.
+    /// </summary>
+    [Test, DependsOnTest(nameof(TestGetLOCK_PIN))]
+    public void TestSetLOCK_PIN()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var module = generated.Modules.OfType<LockModule>().Single();
+        Assert.That(module.LockPin, Is.EqualTo(1234));
+
+        #region Test wrong Current PIN
+        assertSetResponse(sendSet(ERDM_Parameter.LOCK_PIN, new SetLockPinRequest(4321, 1111)), ERDM_Parameter.LOCK_PIN, ERDM_NackReason.DATA_OUT_OF_RANGE);
+        assertGet(ERDM_Parameter.LOCK_PIN, (ushort)1234);
+        #endregion
+
+        #region Test PIN outside of 0000-9999, the parser refuses to build it, the payload object does not check the range
+        assertSetResponse(sendSet(ERDM_Parameter.LOCK_PIN, new SetLockPinRequest(10000, 1234).ToPayloadData()), ERDM_Parameter.LOCK_PIN, ERDM_NackReason.FORMAT_ERROR);
+        assertSetResponse(sendSet(ERDM_Parameter.LOCK_PIN, new SetLockPinRequest(4321, 10000).ToPayloadData()), ERDM_Parameter.LOCK_PIN, ERDM_NackReason.FORMAT_ERROR);
+        assertGet(ERDM_Parameter.LOCK_PIN, (ushort)1234);
+        #endregion
+
+        #region Test invalid PDL, the parser can not build it, so the bytes are needed here
+        assertSetResponse(sendSet(ERDM_Parameter.LOCK_PIN, 0x10, 0xE1), ERDM_Parameter.LOCK_PIN, ERDM_NackReason.FORMAT_ERROR);
+        assertGet(ERDM_Parameter.LOCK_PIN, (ushort)1234);
+        #endregion
+
+        #region Test change the PIN, LOCK_STATE needs the new PIN
+        assertSetResponse(sendSet(ERDM_Parameter.LOCK_PIN, new SetLockPinRequest(4321, 1234)), ERDM_Parameter.LOCK_PIN, null);
+        Assert.That(module.LockPin, Is.EqualTo(4321));
+        assertGet(ERDM_Parameter.LOCK_PIN, (ushort)4321);
+
+        assertSetResponse(sendSet(ERDM_Parameter.LOCK_STATE, new SetLockStateRequest(1234, 1)), ERDM_Parameter.LOCK_STATE, ERDM_NackReason.DATA_OUT_OF_RANGE); // old PIN
+        assertSetResponse(sendSet(ERDM_Parameter.LOCK_STATE, new SetLockStateRequest(4321, 1)), ERDM_Parameter.LOCK_STATE, null); // new PIN
+        Assert.That(module.LockState, Is.EqualTo(1));
+        #endregion
+    }
+
+    private RDMMessage? sendSet(ERDM_Parameter parameter, object value)
+    {
+        return sendSet(parameter, PayloadTestTools.SetRequestData(parameter, value));
+    }
+    private RDMMessage? sendSet(ERDM_Parameter parameter, params byte[] data)
+    {
+        var request = new RDMMessage()
+        {
+            Command = ERDM_Command.SET_COMMAND,
+            DestUID = DEVCIE_UID,
+            SourceUID = CONTROLLER_UID,
+            Parameter = parameter,
+            SubDevice = SubDevice.Root,
+            ParameterData = data
+        };
+        return generated!.ProcessRequestMessage_Internal(request);
+    }
+    private void assertGet(ERDM_Parameter parameter, object expected)
+    {
+        var request = new RDMMessage()
+        {
+            Command = ERDM_Command.GET_COMMAND,
+            DestUID = DEVCIE_UID,
+            SourceUID = CONTROLLER_UID,
+            Parameter = parameter,
+            SubDevice = SubDevice.Root,
+        };
+        var response = generated!.ProcessRequestMessage_Internal(request);
+        Assert.That(response, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.Value, Is.EqualTo(expected));
+        }
+    }
+    private static void assertSetResponse(RDMMessage? response, ERDM_Parameter parameter, ERDM_NackReason? nackReason)
+    {
+        Assert.That(response, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.SET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(parameter));
+            if (nackReason is null)
+            {
+                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+                Assert.That(response.ParameterData, Has.Length.EqualTo(0));
+            }
+            else
+            {
+                Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
+                Assert.That(response.NackReason, Is.EqualTo(nackReason));
+            }
+        }
+    }
+
     [Test, DependsOnTest(nameof(TestGetLOCK_PIN)), MaxTime(15000)]
     public async Task TestRemoteDevice()
     {

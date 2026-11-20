@@ -91,7 +91,7 @@ public class TestIdentifyTimeoutModule
         // a GET of IDENTIFY_DEVICE reports Off
         var response = generated.ProcessRequestMessage_Internal(createRequest(ERDM_Command.GET_COMMAND, ERDM_Parameter.IDENTIFY_DEVICE));
         Assert.That(response, Is.Not.Null);
-        Assert.That(response.ParameterData, Is.EqualTo(new byte[] { 0x00 }));
+        Assert.That(response.Value, Is.False);
     }
 
     [Test, DependsOnTest(nameof(TestGetSetIDENTIFY_TIMEOUT))]
@@ -192,13 +192,13 @@ public class TestIdentifyTimeoutModule
     private RDMMessage? setTimeout(ushort seconds)
     {
         var request = createRequest(ERDM_Command.SET_COMMAND, MODULE_PARAMETER);
-        request.ParameterData = Tools.ValueToData(seconds);
+        request.ParameterData = PayloadTestTools.SetRequestData(MODULE_PARAMETER, seconds);
         return generated!.ProcessRequestMessage_Internal(request);
     }
     private RDMMessage? setIdentify(bool identify)
     {
         var request = createRequest(ERDM_Command.SET_COMMAND, ERDM_Parameter.IDENTIFY_DEVICE);
-        request.ParameterData = new byte[] { identify ? (byte)0x01 : (byte)0x00 };
+        request.ParameterData = PayloadTestTools.SetRequestData(ERDM_Parameter.IDENTIFY_DEVICE, identify);
         return generated!.ProcessRequestMessage_Internal(request);
     }
     private static RDMMessage createRequest(ERDM_Command command, ERDM_Parameter parameter)
@@ -220,7 +220,7 @@ public class TestIdentifyTimeoutModule
             Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
             Assert.That(response.Parameter, Is.EqualTo(MODULE_PARAMETER));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
-            Assert.That(response.ParameterData, Is.EqualTo(Tools.ValueToData(expected)));
+            Assert.That(response.Value, Is.EqualTo(expected));
         }
     }
     private static void assertSetAck(RDMMessage? response, ERDM_Parameter parameter = MODULE_PARAMETER)
