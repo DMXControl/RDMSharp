@@ -390,7 +390,11 @@ public static class MetadataFactory
 
         if (command.SingleField.HasValue && payload.Children.SingleOrDefault() is DataTree dataTree)
         {
-            result.AddRange(command.SingleField.Value.ParsePayloadToData(dataTree));
+            List<byte> singleData = new List<byte>();
+            foreach (var nData in command.SingleField.Value.ParsePayloadToData(dataTree))
+                addToPackets(result, singleData, nData);
+            if (singleData.Count != 0)
+                result.Add(singleData.ToArray());
             return result.AsReadOnly();
         }
         if (command.ListOfFields.Length != 0 && payload.Children is DataTree[] dataTreeArray)
@@ -403,14 +407,7 @@ public static class MetadataFactory
             {
                 var newData = command.ListOfFields[i].ParsePayloadToData(dataTreeArray[i]);
                 foreach (var nData in newData)
-                {
-                    if (data.Count + nData.Length > 231)
-                    {
-                        result.Add(data.ToArray());
-                        data.Clear();
-                    }
-                    data.AddRange(nData);
-                }
+                    addToPackets(result, data, nData);
                 //data.AddRange(newData.SelectMany(en=>en).ToArray());
             }
 
@@ -448,6 +445,30 @@ public static class MetadataFactory
         }
 
         throw new ArithmeticException();
+    }
+    private const int MAX_PDL = 231;
+    /// <summary>
+    /// Adds the data of one field to the packets (one packet = max. 231 bytes of Parameter Data).
+    /// A field that fits into one packet is not split, it starts a new packet if the current one is too full.
+    /// A field larger than one packet (e.g. a long URL, E1.37-5) is split over several packets, which are sent with ACK_OVERFLOW.
+    /// </summary>
+    private static void addToPackets(List<byte[]> packets, List<byte> current, byte[] fieldData)
+    {
+        if (current.Count + fieldData.Length > MAX_PDL && fieldData.Length <= MAX_PDL && current.Count != 0)
+        {
+            packets.Add(current.ToArray());
+            current.Clear();
+        }
+        int offset = 0;
+        while (current.Count + (fieldData.Length - offset) > MAX_PDL)
+        {
+            int take = MAX_PDL - current.Count;
+            current.AddRange(fieldData.Skip(offset).Take(take));
+            offset += take;
+            packets.Add(current.ToArray());
+            current.Clear();
+        }
+        current.AddRange(fieldData.Skip(offset));
     }
     internal static IEnumerable<byte[]> GetRequestMessageData(ParameterBag parameter, DataTreeBranch payloadData)
     {

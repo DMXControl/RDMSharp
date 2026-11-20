@@ -110,6 +110,9 @@ public sealed class ModulesExtension : AbstractModulesExtension
         if (parameters.Contains(ERDM_Parameter.MODULATION_FREQUENCY))
             _modules.Add(typeof(ModulationFrequencyModule));
 
+        if (parameters.Contains(ERDM_Parameter.BURN_IN))
+            _modules.Add(typeof(BurnInModule));
+
         if (parameters.Contains(ERDM_Parameter.PERFORM_SELFTEST))
             _modules.Add(typeof(SelfTestsModule));
 
@@ -126,10 +129,33 @@ public sealed class ModulesExtension : AbstractModulesExtension
             _modules.Add(typeof(SoftwareVersionModule));
 
         if (parameters.Contains(ERDM_Parameter.STATUS_MESSAGES))
-            _modules.Add(typeof(ProxiedDevicesModule));
+            _modules.Add(typeof(StatusMessagesModule));
 
         if (parameters.Contains(ERDM_Parameter.LIST_TAGS))
             _modules.Add(typeof(TagsModule));
+
+        #region E1.37-5 2024
+        if (parameters.Contains(ERDM_Parameter.MANUFACTURER_URL))
+            _modules.Add(typeof(ManufacturerUrlModule));
+
+        if (parameters.Contains(ERDM_Parameter.PRODUCT_URL))
+            _modules.Add(typeof(ProductUrlModule));
+
+        if (parameters.Contains(ERDM_Parameter.FIRMWARE_URL))
+            _modules.Add(typeof(FirmwareUrlModule));
+
+        if (parameters.Contains(ERDM_Parameter.SERIAL_NUMBER))
+            _modules.Add(typeof(SerialNumberModule));
+
+        if (parameters.Contains(ERDM_Parameter.DEVICE_UNIT_NUMBER))
+            _modules.Add(typeof(DeviceUnitNumberModule));
+
+        if (parameters.Contains(ERDM_Parameter.SHIPPING_LOCK))
+            _modules.Add(typeof(ShippingLockModule));
+
+        if (parameters.Contains(ERDM_Parameter.POWER_OFF_READY))
+            _modules.Add(typeof(PowerOffReadyModule));
+        #endregion
 
         #region E1.31-7 2019
         if (parameters.Contains(ERDM_Parameter.ENDPOINT_LIST))
