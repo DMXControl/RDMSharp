@@ -178,7 +178,9 @@ public class TestLampStateModule
         Assert.That(module.LampState, Is.EqualTo(ERDM_LampState.OFF));
 
         await module.SetLampState(ERDM_LampState.STRIKE);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.LampState, Is.EqualTo(ERDM_LampState.STRIKE))
+            && Wait.Holds(module.LampState, Is.EqualTo(ERDM_LampState.STRIKE)));
 
         using (Assert.EnterMultipleScope())
         {

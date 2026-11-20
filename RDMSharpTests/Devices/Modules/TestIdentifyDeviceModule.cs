@@ -176,7 +176,9 @@ public class TestIdentifyDeviceModule
         Assert.That(module.Identify, Is.False);
 
         await module.SetIdentify(true);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.Identify, Is.True)
+            && Wait.Holds(module.Identify, Is.True));
 
         using (Assert.EnterMultipleScope())
         {

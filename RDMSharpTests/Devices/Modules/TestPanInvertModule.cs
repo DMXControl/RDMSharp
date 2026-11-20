@@ -177,7 +177,9 @@ public class TestPanInvertModule
         Assert.That(module.PanInvert, Is.False);
 
         await module.SetPanInvert(true);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.PanInvert, Is.True)
+            && Wait.Holds(module.PanInvert, Is.True));
 
         using (Assert.EnterMultipleScope())
         {

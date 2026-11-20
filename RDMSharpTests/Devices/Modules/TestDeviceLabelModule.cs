@@ -115,7 +115,9 @@ public class TestDeviceLabelModule
         };
         await module.SetDeviceLabel("Test Label");
         await semaphoreSlim.WaitAsync();
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.DeviceLabel, Is.EqualTo("Test Label"))
+            && Wait.Holds(module.DeviceLabel, Is.EqualTo("Test Label")));
 
         using (Assert.EnterMultipleScope())
         {

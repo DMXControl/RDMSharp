@@ -112,11 +112,10 @@ public class TestModulationFrequencyModule
     [Test, DependsOnTest(nameof(TestGetMODULATION_FREQUENCY_DESCRIPTION))]
     public async Task TestGetMODULATION_FREQUENCY()
     {
-        await Task.Delay(500);
         #region Test Basic
         Assert.That(generated, Is.Not.Null);
         Assert.That(generated.Parameters.Contains(ERDM_Parameter.MODULATION_FREQUENCY), Is.True);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() => generated.Modules.OfType<ModulationFrequencyModule>().FirstOrDefault()?.CurrentId is not null);
         var modulationFrequencyModule = generated.Modules.OfType<ModulationFrequencyModule>().FirstOrDefault();
         Assert.That(modulationFrequencyModule, Is.Not.Null);
         Assert.That(modulationFrequencyModule.CurrentId, Is.Not.Null);
@@ -178,7 +177,9 @@ public class TestModulationFrequencyModule
         };
         await module.SetModulationFrequency(2);
         await semaphoreSlim.WaitAsync();
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.CurrentId, Is.EqualTo(2))
+            && Wait.Holds(module.CurrentId, Is.EqualTo(2)));
 
         using (Assert.EnterMultipleScope())
         {

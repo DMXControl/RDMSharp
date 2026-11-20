@@ -212,7 +212,10 @@ public class TestDMX_PersonalityModule
         };
         await module.SetPersonality(2);
         await semaphoreSlim.WaitAsync();
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.CurrentPersonality.ID, Is.EqualTo(2))
+            && Wait.Holds(module.CurrentPersonality.ID, Is.EqualTo(2))
+            && Wait.Holds(generatedModule.CurrentPersonality.SlotCount, Is.EqualTo(8)));
 
         using (Assert.EnterMultipleScope())
         {

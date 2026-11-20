@@ -112,11 +112,10 @@ public class TestCurveModule
     [Test, DependsOnTest(nameof(TestGetCURVE_DESCRIPTION))]
     public async Task TestGetCURVE()
     {
-        await Task.Delay(500);
         #region Test Basic
         Assert.That(generated, Is.Not.Null);
         Assert.That(generated.Parameters.Contains(ERDM_Parameter.CURVE), Is.True);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() => generated.Modules.OfType<CurveModule>().FirstOrDefault()?.CurrentId is not null);
         var curveModule = generated.Modules.OfType<CurveModule>().FirstOrDefault();
         Assert.That(curveModule, Is.Not.Null);
         Assert.That(curveModule.CurrentId, Is.Not.Null);
@@ -178,7 +177,9 @@ public class TestCurveModule
         };
         await module.SetCurve(2);
         await semaphoreSlim.WaitAsync();
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.CurrentId, Is.EqualTo(2))
+            && Wait.Holds(module.CurrentId, Is.EqualTo(2)));
 
         using (Assert.EnterMultipleScope())
         {

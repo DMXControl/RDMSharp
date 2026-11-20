@@ -111,11 +111,10 @@ public class TestOutputResponseTimeModule
     [Test, DependsOnTest(nameof(TestGetOUTPUT_RESPONSE_TIME_DESCRIPTION))]
     public async Task TestGetOUTPUT_RESPONSE_TIME()
     {
-        await Task.Delay(500);
         #region Test Basic
         Assert.That(generated, Is.Not.Null);
         Assert.That(generated.Parameters.Contains(ERDM_Parameter.OUTPUT_RESPONSE_TIME), Is.True);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() => generated.Modules.OfType<OutputResponseTimeModule>().FirstOrDefault()?.CurrentId is not null);
         var outputResponseTimeModule = generated.Modules.OfType<OutputResponseTimeModule>().FirstOrDefault();
         Assert.That(outputResponseTimeModule, Is.Not.Null);
         Assert.That(outputResponseTimeModule.CurrentId, Is.Not.Null);
@@ -177,7 +176,9 @@ public class TestOutputResponseTimeModule
         };
         await module.SetOutputResponseTime(2);
         await semaphoreSlim.WaitAsync();
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.CurrentId, Is.EqualTo(2))
+            && Wait.Holds(module.CurrentId, Is.EqualTo(2)));
 
         using (Assert.EnterMultipleScope())
         {

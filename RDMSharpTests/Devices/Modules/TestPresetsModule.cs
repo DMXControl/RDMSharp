@@ -1049,7 +1049,9 @@ public class TestPresetsModule
         Assert.That(module.CurrentPlayback, Is.EqualTo(new RDMPresetPlayback(ERDM_PresetPlayback.OFF, 0)));
 
         await module.SetCurrentPreset(new RDMPresetPlayback(ERDM_PresetPlayback.ALL, 0));
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.CurrentPlayback, Is.EqualTo(new RDMPresetPlayback(ERDM_PresetPlayback.ALL, 0)))
+            && Wait.Holds(module.CurrentPlayback, Is.EqualTo(new RDMPresetPlayback(ERDM_PresetPlayback.ALL, 0))));
 
         using (Assert.EnterMultipleScope())
         {
@@ -1080,7 +1082,7 @@ public class TestPresetsModule
         };
 
         await module.CapturePreset(new RDMCapturePreset(4, 30, 40, 5));
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() => Wait.Holds(result, Is.Not.Null));
 
         Assert.That(result, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -1129,7 +1131,9 @@ public class TestPresetsModule
         Assert.That(module.CurrentMergeMode, Is.EqualTo(ERDM_MergeMode.DEFAULT));
 
         await module.SetCurrentMergeMode(ERDM_MergeMode.OTHER);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.CurrentMergeMode, Is.EqualTo(ERDM_MergeMode.OTHER))
+            && Wait.Holds(module.CurrentMergeMode, Is.EqualTo(ERDM_MergeMode.OTHER)));
 
         using (Assert.EnterMultipleScope())
         {

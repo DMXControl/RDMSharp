@@ -177,7 +177,9 @@ public class TestTiltInvertModule
         Assert.That(module.TiltInvert, Is.False);
 
         await module.SetTiltInvert(true);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.TiltInvert, Is.True)
+            && Wait.Holds(module.TiltInvert, Is.True));
 
         using (Assert.EnterMultipleScope())
         {

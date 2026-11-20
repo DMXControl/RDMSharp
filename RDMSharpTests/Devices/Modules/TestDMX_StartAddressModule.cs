@@ -111,7 +111,9 @@ public class TestDMX_StartAddressModule
         Assert.That(module.DMXAddress, Is.EqualTo(1));
 
         module.DMXAddress = 222;
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.DMXAddress, Is.EqualTo(222))
+            && Wait.Holds(module.DMXAddress, Is.EqualTo(222)));
 
         using (Assert.EnterMultipleScope())
         {

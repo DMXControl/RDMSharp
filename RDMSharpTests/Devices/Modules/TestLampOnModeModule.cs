@@ -180,7 +180,9 @@ public class TestLampOnModeModule
         Assert.That(module.LampOnMode, Is.EqualTo(ERDM_LampMode.ON_MODE_OFF));
 
         await module.SetLampOnMode(ERDM_LampMode.ON_MODE_AFTER_CAL);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.LampOnMode, Is.EqualTo(ERDM_LampMode.ON_MODE_AFTER_CAL))
+            && Wait.Holds(module.LampOnMode, Is.EqualTo(ERDM_LampMode.ON_MODE_AFTER_CAL)));
 
         using (Assert.EnterMultipleScope())
         {

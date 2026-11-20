@@ -178,7 +178,9 @@ public class TestDisplayInvertModule
         Assert.That(module.DisplayInvert, Is.EqualTo(ERDM_DisplayInvert.AUTO));
 
         await module.SetDisplayInvert(ERDM_DisplayInvert.ON);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.DisplayInvert, Is.EqualTo(ERDM_DisplayInvert.ON))
+            && Wait.Holds(module.DisplayInvert, Is.EqualTo(ERDM_DisplayInvert.ON)));
 
         using (Assert.EnterMultipleScope())
         {

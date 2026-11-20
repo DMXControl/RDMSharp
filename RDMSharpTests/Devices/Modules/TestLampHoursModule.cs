@@ -180,7 +180,9 @@ public class TestLampHoursModule
         Assert.That(module.LampHours, Is.EqualTo(10000));
 
         await module.SetLampHours(0x1234);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.LampHours, Is.EqualTo(0x1234))
+            && Wait.Holds(module.LampHours, Is.EqualTo(0x1234)));
 
         using (Assert.EnterMultipleScope())
         {

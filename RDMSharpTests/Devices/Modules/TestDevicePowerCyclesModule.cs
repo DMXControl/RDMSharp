@@ -178,7 +178,9 @@ public class TestDevicePowerCyclesModule
         Assert.That(module.DevicePowerCycles, Is.EqualTo(10000));
 
         await module.SetDevicePowerCycles(0x1234);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.DevicePowerCycles, Is.EqualTo(0x1234))
+            && Wait.Holds(module.DevicePowerCycles, Is.EqualTo(0x1234)));
 
         using (Assert.EnterMultipleScope())
         {

@@ -177,7 +177,9 @@ public class TestPanTiltSwapModule
         Assert.That(module.PanTiltSwap, Is.False);
 
         await module.SetPanTiltSwap(true);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.PanTiltSwap, Is.True)
+            && Wait.Holds(module.PanTiltSwap, Is.True));
 
         using (Assert.EnterMultipleScope())
         {

@@ -146,7 +146,9 @@ public class TestFactoryDefaultModule
         Assert.That(module.FactoryDefaults, Is.False);
 
         await module.SetFactoryDefaults();
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.FactoryDefaults, Is.True)
+            && Wait.Holds(module.FactoryDefaults, Is.True));
 
         using (Assert.EnterMultipleScope())
         {

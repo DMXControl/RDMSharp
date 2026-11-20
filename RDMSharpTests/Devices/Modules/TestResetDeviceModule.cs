@@ -218,12 +218,12 @@ public class TestResetDeviceModule
             Assert.That(received, Is.Null);
         }
         await module.SetReset(ERDM_ResetType.Warm);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() => Wait.Holds(received, Is.EqualTo(ERDM_ResetType.Warm)));
 
         Assert.That(received, Is.EqualTo(ERDM_ResetType.Warm));
 
         await module.SetReset(ERDM_ResetType.Cold);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() => Wait.Holds(received, Is.EqualTo(ERDM_ResetType.Cold)));
 
         Assert.That(received, Is.EqualTo(ERDM_ResetType.Cold));
 
@@ -231,12 +231,12 @@ public class TestResetDeviceModule
 
         Assert.That(received, Is.Null);
         await module.SetReset(ERDM_ResetType.Warm);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() => Wait.Holds(received, Is.EqualTo(ERDM_ResetType.Warm)));
 
         Assert.That(received, Is.EqualTo(ERDM_ResetType.Warm));
 
         await generatedModule.SetReset(ERDM_ResetType.Cold);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() => Wait.Holds(received, Is.EqualTo(ERDM_ResetType.Cold)));
 
         Assert.That(received, Is.EqualTo(ERDM_ResetType.Cold));
     }

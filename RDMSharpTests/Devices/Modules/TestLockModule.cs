@@ -46,11 +46,10 @@ public class TestLockModule
     [Test, DependsOnTest(nameof(TestDisplayName))]
     public async Task TestGetLOCK_STATE()
     {
-        await Task.Delay(500);
         #region Test Basic
         Assert.That(generated, Is.Not.Null);
         Assert.That(generated.Parameters.Contains(ERDM_Parameter.LOCK_STATE), Is.True);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() => generated.Modules.OfType<LockModule>().FirstOrDefault()?.LockState is not null);
         var lockStateModule = generated.Modules.OfType<LockModule>().FirstOrDefault();
         Assert.That(lockStateModule, Is.Not.Null);
         Assert.That(lockStateModule.LockState, Is.Not.Null);
@@ -91,11 +90,10 @@ public class TestLockModule
     [Test, DependsOnTest(nameof(TestGetLOCK_STATE))]
     public async Task TestGetLOCK_PIN()
     {
-        await Task.Delay(500);
         #region Test Basic
         Assert.That(generated, Is.Not.Null);
         Assert.That(generated.Parameters.Contains(ERDM_Parameter.LOCK_PIN), Is.True);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() => generated.Modules.OfType<LockModule>().FirstOrDefault()?.LockPin is not null);
         var lockStateModule = generated.Modules.OfType<LockModule>().FirstOrDefault();
         Assert.That(lockStateModule, Is.Not.Null);
         Assert.That(lockStateModule.LockPin, Is.Not.Null);
@@ -147,7 +145,9 @@ public class TestLockModule
         while (!mockDevice.AllDataPulled)
             await Task.Delay(100);
 
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(mockDevice.Modules.OfType<LockModule>().Single().LockState, Is.Zero)
+            && Wait.Holds(mockDevice.Modules.OfType<LockModule>().Single().LockPin, Is.EqualTo(1234)));
 
         var module = mockDevice.Modules.OfType<LockModule>().Single();
         Assert.That(module, Is.Not.Null);
@@ -156,14 +156,12 @@ public class TestLockModule
             Assert.That(module.LockState, Is.Zero);
             Assert.That(module.LockPin, Is.EqualTo(1234));
         }
-        SemaphoreSlim semaphoreSlim = new SemaphoreSlim(0, 1);
-        module.PropertyChanged += (o, e) =>
-        {
-            semaphoreSlim.Release();
-        };
         await module.SetLockState(1);
-        await semaphoreSlim.WaitAsync(1000);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.LockState, Is.EqualTo(1))
+            && Wait.Holds(module.LockState, Is.EqualTo(1))
+            && Wait.Holds(generatedModule.LockPin, Is.EqualTo(1234))
+            && Wait.Holds(module.LockPin, Is.EqualTo(1234)));
 
         using (Assert.EnterMultipleScope())
         {
@@ -174,8 +172,11 @@ public class TestLockModule
         }
 
         await module.SetLockPin(4321);
-        await semaphoreSlim.WaitAsync(1000);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.LockState, Is.EqualTo(1))
+            && Wait.Holds(module.LockState, Is.EqualTo(1))
+            && Wait.Holds(generatedModule.LockPin, Is.EqualTo(4321))
+            && Wait.Holds(module.LockPin, Is.EqualTo(4321)));
 
         using (Assert.EnterMultipleScope())
         {
@@ -186,8 +187,11 @@ public class TestLockModule
         }
 
         await module.SetLockState(0);
-        await semaphoreSlim.WaitAsync(1000);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.LockState, Is.Zero)
+            && Wait.Holds(module.LockState, Is.Zero)
+            && Wait.Holds(generatedModule.LockPin, Is.EqualTo(4321))
+            && Wait.Holds(module.LockPin, Is.EqualTo(4321)));
 
         using (Assert.EnterMultipleScope())
         {
@@ -198,8 +202,11 @@ public class TestLockModule
         }
 
         await module.SetLockPin(1234);
-        await semaphoreSlim.WaitAsync(1000);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.LockState, Is.Zero)
+            && Wait.Holds(module.LockState, Is.Zero)
+            && Wait.Holds(generatedModule.LockPin, Is.EqualTo(1234))
+            && Wait.Holds(module.LockPin, Is.EqualTo(1234)));
 
         using (Assert.EnterMultipleScope())
         {

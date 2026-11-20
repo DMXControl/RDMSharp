@@ -300,7 +300,9 @@ public class TestSlotModule
         };
         await personalityModule.SetPersonality(2);
         await semaphoreSlim.WaitAsync();
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.Slots, Has.Count.EqualTo(8))
+            && Wait.Holds(generatedModule.Slots, Is.Not.Null));
 
         Assert.That(generatedModule.Slots, Has.Count.EqualTo(8));
         Assert.That(generatedModule.Slots, Is.Not.Null);

@@ -178,7 +178,9 @@ public class TestDeviceHoursModule
         Assert.That(module.DeviceHours, Is.EqualTo(10000));
 
         await module.SetDeviceHours(0x1234);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.DeviceHours, Is.EqualTo(0x1234))
+            && Wait.Holds(module.DeviceHours, Is.EqualTo(0x1234)));
 
         using (Assert.EnterMultipleScope())
         {

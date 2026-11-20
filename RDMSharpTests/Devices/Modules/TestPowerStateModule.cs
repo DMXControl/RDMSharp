@@ -185,7 +185,9 @@ public class TestPowerStateModule
         };
         await module.SetPowerState(ERDM_PowerState.SHUTDOWN);
         await semaphoreSlim.WaitAsync();
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.PowerState, Is.EqualTo(ERDM_PowerState.SHUTDOWN))
+            && Wait.Holds(module.PowerState, Is.EqualTo(ERDM_PowerState.SHUTDOWN)));
 
         using (Assert.EnterMultipleScope())
         {
@@ -195,7 +197,9 @@ public class TestPowerStateModule
 
         module.PowerState = ERDM_PowerState.FULL_OFF;
         await semaphoreSlim.WaitAsync();
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() =>
+            Wait.Holds(generatedModule.PowerState, Is.EqualTo(ERDM_PowerState.FULL_OFF))
+            && Wait.Holds(module.PowerState, Is.EqualTo(ERDM_PowerState.FULL_OFF)));
 
         using (Assert.EnterMultipleScope())
         {

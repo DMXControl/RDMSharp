@@ -46,11 +46,10 @@ public class TestRealTimeClockModule
     [Test, Retry(3), DependsOnTest(nameof(TestDisplayName))]
     public async Task TestGetREAL_TIME_CLOCK()
     {
-        await Task.Delay(500);
         #region Test Basic
         Assert.That(generated, Is.Not.Null);
         Assert.That(generated.Parameters.Contains(ERDM_Parameter.REAL_TIME_CLOCK), Is.True);
-        await Task.Delay(1000);
+        await Wait.UntilAsync(() => generated.Modules.OfType<RealTimeClockModule>().FirstOrDefault()?.RealTimeClock is not null);
         var realTimeClockModule = generated.Modules.OfType<RealTimeClockModule>().FirstOrDefault();
         Assert.That(realTimeClockModule, Is.Not.Null);
         Assert.That(realTimeClockModule.RealTimeClock, Is.Not.Null);
