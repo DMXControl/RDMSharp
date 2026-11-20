@@ -35,6 +35,13 @@ public class TestRDMSendReceive_SlotOverflow
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
     public async Task TestDevice1()
     {
+        // Wait until the remote device is initialized and has polled QUEUED_MESSAGE at least a few times.
+        // Without this the result depended on whether the first poll had already happened (flaky test):
+        // the device supports QUEUED_MESSAGE but not STATUS_MESSAGES, so "nothing queued" is answered with an empty STATUS_MESSAGES.
+        while (!remote!.IsInitialized)
+            await Task.Delay(10);
+        await Task.Delay(Math.Max(200, GlobalTimers.Instance.QueuedUpdateTime * 5));
+
         var parameterValuesRemote = remote!.GetAllParameterValues();
         var parameterValuesGenerated = generated!.GetAllParameterValues();
 

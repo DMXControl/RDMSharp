@@ -104,6 +104,26 @@ public abstract class AbstractRDMCache : IDisposable
         }
     }
 
+    /// <summary>
+    /// Whether the device declares support for <paramref name="parameter"/>. The base implementation knows no supported parameters.
+    /// </summary>
+    protected virtual bool IsParameterSupported(ERDM_Parameter parameter)
+    {
+        return true;
+    }
+
+    /// <summary>
+    /// A QUEUED_MESSAGE request with nothing queued is answered with an empty STATUS_MESSAGES response,
+    /// even if the device does not support STATUS_MESSAGES (E1.20 10.3.1). Such a response is only a
+    /// "nothing queued" signal and must not create a STATUS_MESSAGES value for a device without STATUS_MESSAGES.
+    /// </summary>
+    private bool isQueuedStatusMessagesOfUnsupportedParameter(ParameterBag requestBag, PeerToPeerProcess ptpProcess)
+    {
+        return requestBag.PID == ERDM_Parameter.QUEUED_MESSAGE
+            && ptpProcess.ParameterBag.PID == ERDM_Parameter.STATUS_MESSAGES
+            && !IsParameterSupported(ERDM_Parameter.STATUS_MESSAGES);
+    }
+
     protected void updateParameterValuesDataTreeBranch(ParameterDataCacheBag bag, DataTreeBranch dataTreeBranch)
     {
         parameterValuesDataTreeBranch.AddOrUpdate(bag, dataTreeBranch, (o1, o2) => dataTreeBranch);
@@ -395,7 +415,7 @@ public abstract class AbstractRDMCache : IDisposable
                     DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
                     PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
                     await runPeerToPeerProcess(ptpProcess);
-                    if (!ptpProcess.ResponsePayloadObject.IsUnset)
+                    if (!ptpProcess.ResponsePayloadObject.IsUnset && !isQueuedStatusMessagesOfUnsupportedParameter(parameterBag, ptpProcess))
                         updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, parameterBag.PID == ERDM_Parameter.QUEUED_MESSAGE || parameterBag.PID == ERDM_Parameter.STATUS_MESSAGES ? null : i), ptpProcess.ResponsePayloadObject);
                     return new RequestResult(ptpProcess);
                 }

@@ -55,6 +55,13 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
             OnPropertyChanged(nameof(DeviceModel));
         }
     }
+    protected override bool IsParameterSupported(ERDM_Parameter parameter)
+    {
+        var supportedParameters = DeviceModel?.GetSupportedParameters();
+        if (supportedParameters is null)
+            return true; // unknown, keep the previous behavior
+        return supportedParameters.Any(spm => spm.Parameter == parameter);
+    }
     private RDMPersonalityModel personalityModel;
     public RDMPersonalityModel PersonalityModel
     {

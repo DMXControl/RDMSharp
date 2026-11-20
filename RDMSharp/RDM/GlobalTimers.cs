@@ -27,6 +27,8 @@ public class GlobalTimers
     public const int DefaultPresentLostTime = 15000; // 15 seconds
 
     public const int DefaultDiscoveryTimeout = 5; // 5 milliseconds
+    public const int DefaultRequestTimeout = 10000; // 10 seconds
+    public const int DefaultRequestRetryInterval = 1500; // 1.5 seconds
 
     public const int DefaultParameterUpdateTimerInterval = 7500; // 7.5 seconds
     public const int DefaultPresentUpdateTimerInterval = 500; // 0.5 seconds
@@ -39,6 +41,14 @@ public class GlobalTimers
     public int PresentLostTime { get; set; } = DefaultPresentLostTime;
 
     public int DiscoveryTimeout { get; set; } = DefaultDiscoveryTimeout;
+    /// <summary>
+    /// Time in milliseconds after which a (non discovery) request without a response is reported as timeout.
+    /// </summary>
+    public int RequestTimeout { get; set; } = DefaultRequestTimeout;
+    /// <summary>
+    /// Time in milliseconds after which a (non discovery) request without a response is sent again.
+    /// </summary>
+    public int RequestRetryInterval { get; set; } = DefaultRequestRetryInterval;
 
     private int parameterUpdateTimerInterval = DefaultParameterUpdateTimerInterval;
     public int ParameterUpdateTimerInterval
@@ -216,6 +226,8 @@ public class GlobalTimers
         PresentLostTime = DefaultPresentLostTime;
 
         DiscoveryTimeout = DefaultDiscoveryTimeout;
+        RequestTimeout = DefaultRequestTimeout;
+        RequestRetryInterval = DefaultRequestRetryInterval;
 
         ParameterUpdateTimerInterval = DefaultParameterUpdateTimerInterval;
         PresentUpdateTimerInterval = DefaultPresentUpdateTimerInterval;

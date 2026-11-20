@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -140,6 +141,10 @@ public class AsyncRDMRequestHelper : IDisposable
             RDMMessage response = null;
             Logger?.LogTrace($"Send Request: {request?.ToString()}");
             await _sendMethode.Invoke(request);
+            // The timeout is measured in time, not in loop iterations: Task.Delay(5) takes ~15.6 ms on Windows,
+            // but ~5 ms on Linux, so a fixed number of iterations was a different timeout on every platform.
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            long nextRetry = GlobalTimers.Instance.RequestRetryInterval;
             int count = 0;
             do
             {
@@ -159,8 +164,9 @@ public class AsyncRDMRequestHelper : IDisposable
                     throw new Exception("Command is not set");
                 }
                 count++;
-                if (count % 300 == 299)
+                if (request.Command != ERDM_Command.DISCOVERY_COMMAND && stopwatch.ElapsedMilliseconds >= nextRetry)
                 {
+                    nextRetry += GlobalTimers.Instance.RequestRetryInterval;
                     await Task.Delay(TimeSpan.FromTicks(random.Next(33, 777)), _cts.Token);
                     Logger?.LogTrace($"Retry Request: {request?.ToString()} ElapsedTime: {bag?.ElapsedTime}");
                     await _sendMethode.Invoke(request);
@@ -172,7 +178,7 @@ public class AsyncRDMRequestHelper : IDisposable
                     break;
                 }
 
-                if (count >= 900)
+                if (stopwatch.ElapsedMilliseconds >= GlobalTimers.Instance.RequestTimeout)
                 {
                     Logger?.LogTrace($"Timeout Request: {request?.ToString()} ElapsedTime: {bag?.ElapsedTime}");
                     return new RequestResult(request, timeout: true);
