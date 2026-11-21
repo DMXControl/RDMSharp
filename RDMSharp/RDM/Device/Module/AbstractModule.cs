@@ -62,8 +62,9 @@ public abstract class AbstractModule : IModule
         return new RDMMessage(nackReason ?? ERDM_NackReason.UNKNOWN_PID)
         {
             DestUID = message.SourceUID,
-            SourceUID = message.SourceUID,
-            Command = ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE,
+            SourceUID = message.DestUID,
+            // the response to the command of the request (a SET is not answered as a GET)
+            Command = message.Command | ERDM_Command.RESPONSE,
             Parameter = message.Parameter
         };
     }

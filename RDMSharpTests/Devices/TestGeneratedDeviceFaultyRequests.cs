@@ -96,4 +96,15 @@ public class TestGeneratedDeviceFaultyRequests
         // LAMP_HOURS is not supported by the mock, the wrong length does not matter
         assertNack(send(ERDM_Command.GET_COMMAND, ERDM_Parameter.LAMP_HOURS, 0x00), ERDM_Command.GET_COMMAND, ERDM_Parameter.LAMP_HOURS, ERDM_NackReason.UNKNOWN_PID);
     }
+
+    /// <summary>
+    /// "The last message" (E1.20 10.3.2) can only be asked for after a message was sent, otherwise there is nothing to repeat.
+    /// </summary>
+    [TestCase(ERDM_Parameter.QUEUED_MESSAGE)]
+    [TestCase(ERDM_Parameter.STATUS_MESSAGES)]
+    public void TestLastMessageWithoutAMessage(ERDM_Parameter parameter)
+    {
+        var data = PayloadTestTools.GetRequestData(parameter, ERDM_Status.GET_LAST_MESSAGE);
+        assertNack(send(ERDM_Command.GET_COMMAND, parameter, data), ERDM_Command.GET_COMMAND, parameter, ERDM_NackReason.DATA_OUT_OF_RANGE);
+    }
 }

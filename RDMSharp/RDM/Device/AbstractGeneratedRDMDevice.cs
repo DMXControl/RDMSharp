@@ -260,7 +260,9 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
                 else
                 {
                     byte[] data = MetadataFactory.ParsePayloadToData(define, Metadata.JSON.Command.ECommandDublicate.SetRequest, DataTreeBranch.FromObject(value, null, parameterBag, ERDM_Command.SET_COMMAND)).First();
-                    var obj = MetadataFactory.ParseDataToPayload(define, Metadata.JSON.Command.ECommandDublicate.SetRequest, data);
+                    var branch = MetadataFactory.ParseDataToPayload(define, Metadata.JSON.Command.ECommandDublicate.SetRequest, data);
+                    // the value has to come back unchanged through the define (the branch is the tree of the payload, the value is its parsed object)
+                    var obj = branch.ParsedObject ?? (branch.Children?.Length == 1 ? branch.Children[0].Value : null);
                     if (!object.Equals(value, obj))
                         return false;
                 }
@@ -658,6 +660,11 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
                 catch (Exception e)
                 {
                     Logger?.LogError(e, $"ParameterBag:{parameterBag}{Environment.NewLine}Command: {rdmMessage.Command}{Environment.NewLine}RequestValue: {requestValue ?? "<NULL>"}{Environment.NewLine}ResponseValue: {responseValue ?? "<NULL>"}");
+                    // A parameter the device does not support has no value and ends here as well: that is UNKNOWN_PID.
+                    // For a parameter the device has, the value it holds can not be turned into the response of its own define:
+                    // a fault of the device, not of the request. UNKNOWN_PID would tell the controller that the parameter is not
+                    // supported (and it stops asking for it).
+                    response = new RDMMessage(this.Parameters.Contains(parameter) ? ERDM_NackReason.HARDWARE_FAULT : ERDM_NackReason.UNKNOWN_PID) { Parameter = rdmMessage.Parameter, Command = rdmMessage.Command | ERDM_Command.RESPONSE };
                     goto FAIL;
                 }
             }
