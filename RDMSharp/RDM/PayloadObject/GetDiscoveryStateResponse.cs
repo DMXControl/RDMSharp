@@ -2,68 +2,49 @@
 using RDMSharp.Metadata.JSON;
 using System.Collections.Generic;
 
-namespace RDMSharp
+namespace RDMSharp.PayloadObject;
+
+[DataTreeObject(ERDM_Parameter.DISCOVERY_STATE, Command.ECommandDublicate.GetResponse)]
+public class GetDiscoveryStateResponse : AbstractRDMPayloadObject
 {
-    [DataTreeObject(ERDM_Parameter.DISCOVERY_STATE, Command.ECommandDublicate.GetResponse)]
-    public class GetDiscoveryStateResponse : AbstractRDMPayloadObject
+    public GetDiscoveryStateResponse(
+        ushort endpointId = default,
+        ushort deviceCount = default,
+        ERDM_DiscoveryState discoveryState = default)
     {
-        public GetDiscoveryStateResponse(
-            ushort endpointId = default,
-            ushort deviceCount = default,
-            ERDM_DiscoveryState discoveryState = default)
-        {
-            this.EndpointId = endpointId;
-            this.DeviceCount = deviceCount;
-            this.DiscoveryState = discoveryState;
-        }
+        this.EndpointId = endpointId;
+        this.DeviceCount = deviceCount;
+        this.DiscoveryState = discoveryState;
+    }
 
-        [DataTreeObjectConstructor]
-        public GetDiscoveryStateResponse(
-            [DataTreeObjectParameter("endpoint_id")] ushort endpointId,
-            [DataTreeObjectParameter("device_count")] ushort deviceCount,
-            [DataTreeObjectParameter("state")] byte discoveryState) :
-            this(endpointId, deviceCount, (ERDM_DiscoveryState)discoveryState)
-        {
-        }
+    [DataTreeObjectConstructor]
+    public GetDiscoveryStateResponse(
+        [DataTreeObjectParameter("endpoint_id")] ushort endpointId,
+        [DataTreeObjectParameter("device_count")] ushort deviceCount,
+        [DataTreeObjectParameter("state")] byte discoveryState) :
+        this(endpointId, deviceCount, (ERDM_DiscoveryState)discoveryState)
+    {
+    }
 
-        [DataTreeObjectProperty("endpoint_id", 0)]
-        public ushort EndpointId { get; private set; }
-        [DataTreeObjectProperty("device_count", 1)]
-        public ushort DeviceCount { get; private set; }
-        [DataTreeObjectProperty("state", 2)]
-        public ERDM_DiscoveryState DiscoveryState { get; private set; }
-        public const int PDL = 0x05;
+    [DataTreeObjectProperty("endpoint_id", 0)]
+    public ushort EndpointId { get; private set; }
+    [DataTreeObjectProperty("device_count", 1)]
+    public ushort DeviceCount { get; private set; }
+    [DataTreeObjectProperty("state", 2)]
+    public ERDM_DiscoveryState DiscoveryState { get; private set; }
+    public const int PDL = 0x05;
 
-        public override string ToString()
-        {
-            return $"Endpoint: {EndpointId} - DiscoveryState: {DiscoveryState} DeviceCount: {DeviceCount}";
-        }
+    public override string ToString()
+    {
+        return $"Endpoint: {EndpointId} - DiscoveryState: {DiscoveryState} DeviceCount: {DeviceCount}";
+    }
 
-        public static GetDiscoveryStateResponse FromMessage(RDMMessage msg)
-        {
-            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DISCOVERY_STATE, PDL);
-
-            return FromPayloadData(msg.ParameterData);
-        }
-        public static GetDiscoveryStateResponse FromPayloadData(byte[] data)
-        {
-            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-
-            var i = new GetDiscoveryStateResponse(
-                endpointId: Tools.DataToUShort(ref data),
-                deviceCount: Tools.DataToUShort(ref data),
-                discoveryState: Tools.DataToEnum<ERDM_DiscoveryState>(ref data));
-
-            return i;
-        }
-
-        public override byte[] ToPayloadData()
-        {
-            List<byte> data = new List<byte>();
-            data.AddRange(Tools.ValueToData(this.EndpointId));
-            data.AddRange(Tools.ValueToData(this.DeviceCount));
-            data.AddRange(Tools.ValueToData(this.DiscoveryState));
-            return data.ToArray();
-        }
+    public override byte[] ToPayloadData()
+    {
+        List<byte> data = new List<byte>();
+        data.AddRange(Tools.ValueToData(this.EndpointId));
+        data.AddRange(Tools.ValueToData(this.DeviceCount));
+        data.AddRange(Tools.ValueToData(this.DiscoveryState));
+        return data.ToArray();
     }
 }

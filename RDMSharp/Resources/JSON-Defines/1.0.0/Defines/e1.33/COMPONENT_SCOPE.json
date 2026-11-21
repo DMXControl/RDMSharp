@@ -1,0 +1,84 @@
+{
+  "name": "COMPONENT_SCOPE",
+  "displayName": "Component Scope",
+  "notes": "E1.33 Section 7.6.2. Devices and Brokers only support Scope Slot 1. In a SET an empty Scope String removes the Scope.",
+  "manufacturer_id": 0,
+  "pid": 2048,
+  "version": 1,
+  "get_request_subdevice_range": [
+    "root"
+  ],
+  "get_request": [
+    {
+      "name": "scope_slot",
+      "type": "uint16",
+      "ranges": [
+        {
+          "minimum": 1,
+          "maximum": 65535
+        }
+      ]
+    }
+  ],
+  "get_response": [
+    {
+      "name": "scope_slot",
+      "type": "uint16",
+      "ranges": [
+        {
+          "minimum": 1,
+          "maximum": 65535
+        }
+      ]
+    },
+    {
+      "name": "scope",
+      "type": "string",
+      "notes": "Fixed 63 octet field: UTF-8 string of 1 to 62 octets, terminated and padded with null characters. The empty string is not a valid Scope; E133_DEFAULT_SCOPE is \"default\".",
+      "maxLength": 62,
+      "minBytes": 63,
+      "maxBytes": 63
+    },
+    {
+      "name": "static_config_type",
+      "type": "uint8",
+      "labels": [
+        {
+          "name": "NO_STATIC_CONFIG",
+          "value": 0
+        },
+        {
+          "name": "STATIC_CONFIG_IPV4",
+          "value": 1
+        },
+        {
+          "name": "STATIC_CONFIG_IPV6",
+          "value": 2
+        }
+      ],
+      "restrictToLabeled": true
+    },
+    {
+      "name": "static_broker_ipv4_address",
+      "type": "bytes",
+      "notes": "0.0.0.0 unless the Static Config Type is STATIC_CONFIG_IPV4.",
+      "format": "ipv4"
+    },
+    {
+      "name": "static_broker_ipv6_address",
+      "type": "bytes",
+      "notes": ":: (all zero) unless the Static Config Type is STATIC_CONFIG_IPV6.",
+      "format": "ipv6"
+    },
+    {
+      "name": "static_broker_port",
+      "type": "uint16",
+      "notes": "0 if no static configuration is present."
+    }
+  ],
+  "set_request_subdevice_range": [
+    "root"
+  ],
+  "set_request": "get_response",
+  "set_response": []
+}

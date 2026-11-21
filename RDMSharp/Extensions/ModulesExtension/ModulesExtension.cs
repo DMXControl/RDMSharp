@@ -1,0 +1,190 @@
+﻿using RDMSharp.RDM.Device.Module;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace RDMSharp.Extensions.ModulesExtension;
+
+public sealed class ModulesExtension : AbstractModulesExtension
+{
+    private static readonly string _key = "BasicModulesExtension";
+    private const EManufacturer _manufacturer = EManufacturer.ESTA;
+    public sealed override string Key => _key;
+    public sealed override EManufacturer Manufacturer => _manufacturer;
+
+    public sealed override bool TryGetModules(ERDM_Parameter[] parameters, out IReadOnlyCollection<Type> modules)
+    {
+        var _modules = new List<Type>();
+
+        if (parameters.Contains(ERDM_Parameter.BOOT_SOFTWARE_VERSION_ID) ||
+            parameters.Contains(ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL))
+            _modules.Add(typeof(BootSoftwareVersionModule));
+
+        if (parameters.Contains(ERDM_Parameter.DEVICE_INFO))
+            _modules.Add(typeof(DeviceInfoModule));
+
+        if (parameters.Contains(ERDM_Parameter.DEVICE_LABEL))
+            _modules.Add(typeof(DeviceLabelModule));
+
+        if (parameters.Contains(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION))
+            _modules.Add(typeof(DeviceModelDescriptionModule));
+
+        if (parameters.Contains(ERDM_Parameter.DMX_PERSONALITY) ||
+            parameters.Contains(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION))
+            _modules.Add(typeof(DMX_PersonalityModule));
+
+        if (parameters.Contains(ERDM_Parameter.DMX_START_ADDRESS))
+            _modules.Add(typeof(DMX_StartAddressModule));
+
+        if (parameters.Contains(ERDM_Parameter.FACTORY_DEFAULTS))
+            _modules.Add(typeof(FactoryDefaultsModule));
+
+        if (parameters.Contains(ERDM_Parameter.IDENTIFY_DEVICE))
+            _modules.Add(typeof(IdentifyDeviceModule));
+
+        if (parameters.Contains(ERDM_Parameter.RESET_DEVICE))
+            _modules.Add(typeof(ResetDeviceModule));
+
+        if (parameters.Contains(ERDM_Parameter.LIST_INTERFACES))
+            _modules.Add(typeof(InterfaceModule));
+
+        if (parameters.Contains(ERDM_Parameter.MANUFACTURER_LABEL))
+            _modules.Add(typeof(ManufacturerLabelModule));
+
+        if (parameters.Contains(ERDM_Parameter.PRESET_PLAYBACK))
+        {
+            if (parameters.Contains(ERDM_Parameter.PRESET_INFO) ||
+                parameters.Contains(ERDM_Parameter.PRESET_STATUS) ||
+                parameters.Contains(ERDM_Parameter.PRESET_MERGEMODE))
+                _modules.Add(typeof(PresetsModule_E1_37_1_2012));
+            else
+                _modules.Add(typeof(PresetsModule));
+        }
+
+        if (parameters.Contains(ERDM_Parameter.PROXIED_DEVICES))
+            _modules.Add(typeof(ProxiedDevicesModule));
+
+        if (parameters.Contains(ERDM_Parameter.DEVICE_HOURS))
+            _modules.Add(typeof(DeviceHoursModule));
+
+        if (parameters.Contains(ERDM_Parameter.DEVICE_POWER_CYCLES))
+            _modules.Add(typeof(DevicePowerCyclesModule));
+
+        if (parameters.Contains(ERDM_Parameter.LAMP_HOURS))
+            _modules.Add(typeof(LampHoursModule));
+
+        if (parameters.Contains(ERDM_Parameter.LAMP_STRIKES))
+            _modules.Add(typeof(LampStrikesModule));
+
+        if (parameters.Contains(ERDM_Parameter.LAMP_STATE))
+            _modules.Add(typeof(LampStateModule));
+
+        if (parameters.Contains(ERDM_Parameter.LAMP_ON_MODE))
+            _modules.Add(typeof(LampOnModeModule));
+
+        if (parameters.Contains(ERDM_Parameter.DISPLAY_INVERT))
+            _modules.Add(typeof(DisplayInvertModule));
+
+        if (parameters.Contains(ERDM_Parameter.DISPLAY_LEVEL))
+            _modules.Add(typeof(DisplayLevelModule));
+
+        if (parameters.Contains(ERDM_Parameter.PRODUCT_DETAIL_ID_LIST))
+            _modules.Add(typeof(ProductDetailIdListModule));
+
+        if (parameters.Contains(ERDM_Parameter.PAN_INVERT))
+            _modules.Add(typeof(PanInvertModule));
+
+        if (parameters.Contains(ERDM_Parameter.TILT_INVERT))
+            _modules.Add(typeof(TiltInvertModule));
+
+        if (parameters.Contains(ERDM_Parameter.PAN_TILT_SWAP))
+            _modules.Add(typeof(PanTiltSwapModule));
+
+        if (parameters.Contains(ERDM_Parameter.REAL_TIME_CLOCK))
+            _modules.Add(typeof(RealTimeClockModule));
+
+        if (parameters.Contains(ERDM_Parameter.LOCK_PIN) ||
+            parameters.Contains(ERDM_Parameter.LOCK_STATE))
+            _modules.Add(typeof(LockModule));
+
+        if (parameters.Contains(ERDM_Parameter.CURVE))
+            _modules.Add(typeof(CurveModule));
+
+        if (parameters.Contains(ERDM_Parameter.OUTPUT_RESPONSE_TIME))
+            _modules.Add(typeof(OutputResponseTimeModule));
+
+        if (parameters.Contains(ERDM_Parameter.MODULATION_FREQUENCY))
+            _modules.Add(typeof(ModulationFrequencyModule));
+
+        if (parameters.Contains(ERDM_Parameter.BURN_IN))
+            _modules.Add(typeof(BurnInModule));
+
+        if (parameters.Contains(ERDM_Parameter.IDENTIFY_MODE))
+            _modules.Add(typeof(IdentifyModeModule));
+
+        if (parameters.Contains(ERDM_Parameter.PERFORM_SELFTEST))
+            _modules.Add(typeof(SelfTestsModule));
+
+        if (parameters.Contains(ERDM_Parameter.POWER_STATE))
+            _modules.Add(typeof(PowerStateModule));
+
+        if (parameters.Contains(ERDM_Parameter.SENSOR_DEFINITION))
+            _modules.Add(typeof(SensorsModule));
+
+        if (parameters.Contains(ERDM_Parameter.SLOT_DESCRIPTION))
+            _modules.Add(typeof(SlotsModule));
+
+        if (parameters.Contains(ERDM_Parameter.SOFTWARE_VERSION_LABEL))
+            _modules.Add(typeof(SoftwareVersionModule));
+
+        if (parameters.Contains(ERDM_Parameter.LANGUAGE) ||
+            parameters.Contains(ERDM_Parameter.LANGUAGE_CAPABILITIES))
+            _modules.Add(typeof(LanguageModule));
+
+        if (parameters.Contains(ERDM_Parameter.DMX_FAIL_MODE))
+            _modules.Add(typeof(DMXFailModeModule));
+
+        if (parameters.Contains(ERDM_Parameter.DMX_STARTUP_MODE))
+            _modules.Add(typeof(DMXStartupModeModule));
+
+        if (parameters.Contains(ERDM_Parameter.STATUS_MESSAGES))
+            _modules.Add(typeof(StatusMessagesModule));
+
+        if (parameters.Contains(ERDM_Parameter.LIST_TAGS))
+            _modules.Add(typeof(TagsModule));
+
+        #region E1.37-5 2024
+        if (parameters.Contains(ERDM_Parameter.MANUFACTURER_URL))
+            _modules.Add(typeof(ManufacturerUrlModule));
+
+        if (parameters.Contains(ERDM_Parameter.PRODUCT_URL))
+            _modules.Add(typeof(ProductUrlModule));
+
+        if (parameters.Contains(ERDM_Parameter.FIRMWARE_URL))
+            _modules.Add(typeof(FirmwareUrlModule));
+
+        if (parameters.Contains(ERDM_Parameter.SERIAL_NUMBER))
+            _modules.Add(typeof(SerialNumberModule));
+
+        if (parameters.Contains(ERDM_Parameter.DEVICE_UNIT_NUMBER))
+            _modules.Add(typeof(DeviceUnitNumberModule));
+
+        if (parameters.Contains(ERDM_Parameter.SHIPPING_LOCK))
+            _modules.Add(typeof(ShippingLockModule));
+
+        if (parameters.Contains(ERDM_Parameter.POWER_OFF_READY))
+            _modules.Add(typeof(PowerOffReadyModule));
+
+        if (parameters.Contains(ERDM_Parameter.IDENTIFY_TIMEOUT))
+            _modules.Add(typeof(IdentifyTimeoutModule));
+        #endregion
+
+        #region E1.31-7 2019
+        if (parameters.Contains(ERDM_Parameter.ENDPOINT_LIST))
+            _modules.Add(typeof(EndpointsModule));
+        #endregion
+
+        modules = _modules;
+        return true;
+    }
+}

@@ -119,8 +119,11 @@ public class TestAsyncRDMRequestHelper
     #region
     private async Task testPackage(UID sourceUID, UID destUID, byte transactionCounter, SubDevice subDevice, ERDM_Parameter parameter, ERDM_Command command, byte[] parameterData, int responseDelay = 100)
     {
-        Assert.That(sourceUID, Is.Not.EqualTo(destUID));
-        Assert.That(command.HasFlag(ERDM_Command.RESPONSE), Is.False);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sourceUID, Is.Not.EqualTo(destUID));
+            Assert.That(command.HasFlag(ERDM_Command.RESPONSE), Is.False);
+        }
         await testPackage(
             new RDMMessage()
             {
@@ -156,22 +159,32 @@ public class TestAsyncRDMRequestHelper
     }
     private void validate(RDMMessage request, RequestResult result)
     {
-        string failMessage = $"Request: {request.ToString()} Response: {result.Response?.ToString()}";
+        string failMessage = $"Request: {request} Response: {result.Response?.ToString()}";
 
         if (request.Command == ERDM_Command.SET_COMMAND && request.SubDevice.IsBroadcast)
         {
-            Assert.That(result.Success, Is.True, failMessage);
-            Assert.That(result.Response, Is.Null, failMessage);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(result.Success, Is.True, failMessage);
+                Assert.That(result.Response, Is.Null, failMessage);
+            }
             return;
         }
 
-        Assert.That(result.Success, Is.True, failMessage);
-        Assert.That(result.Response, Is.Not.Null, failMessage);
-        Assert.That(result.Response.DestUID, Is.EqualTo(request.SourceUID), failMessage);
-        Assert.That(result.Response.SourceUID, Is.EqualTo(request.DestUID), failMessage);
-        Assert.That(result.Response.SubDevice, Is.EqualTo(request.SubDevice), failMessage);
-        Assert.That(result.Response.TransactionCounter, Is.EqualTo(request.TransactionCounter), failMessage);
-        Assert.That(result.Response.Command, Is.EqualTo(request.Command | ERDM_Command.RESPONSE), failMessage);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Success, Is.True, failMessage);
+            Assert.That(result.Response, Is.Not.Null, failMessage);
+        }
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.Response.DestUID, Is.EqualTo(request.SourceUID), failMessage);
+            Assert.That(result.Response.SourceUID, Is.EqualTo(request.DestUID), failMessage);
+            Assert.That(result.Response.SubDevice, Is.EqualTo(request.SubDevice), failMessage);
+            Assert.That(result.Response.TransactionCounter, Is.EqualTo(request.TransactionCounter), failMessage);
+            Assert.That(result.Response.Command, Is.EqualTo(request.Command | ERDM_Command.RESPONSE), failMessage);
+        }
 
         if (request.Command == ERDM_Command.GET_COMMAND && request.Parameter != ERDM_Parameter.QUEUED_MESSAGE)
             Assert.That(result.Response.Parameter, Is.EqualTo(request.Parameter), failMessage);

@@ -1,8 +1,7 @@
-﻿namespace RDMSharp
+﻿namespace RDMSharp.PayloadObject;
+
+public interface IRDMPayloadObjectIndex : IRDMPayloadObject
 {
-    public interface IRDMPayloadObjectIndex : IRDMPayloadObject
-    {
-        object MinIndex { get; }
-        object Index { get; }
-    }
+    object MinIndex { get; }
+    object Index { get; }
 }

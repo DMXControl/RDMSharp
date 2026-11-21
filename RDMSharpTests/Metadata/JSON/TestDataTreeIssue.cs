@@ -7,7 +7,7 @@ namespace RDMSharpTests.Metadata.JSON
         [Test]
         public void TestMany()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 var issue = new DataTreeIssue();
                 Assert.That(issue.ToString(), Is.Null);
@@ -15,7 +15,7 @@ namespace RDMSharpTests.Metadata.JSON
                 Assert.That(issue.ToString(), Is.EqualTo("Test"));
                 Assert.Throws(typeof(ArgumentNullException), () => new DataTreeIssue(""));
                 Assert.Throws(typeof(ArgumentNullException), () => new DataTreeIssue(null));
-            });
+            }
         }
     }
 }

@@ -399,3 +399,5 @@ FodyWeavers.xsd
 
 # Notepad++
 *.bak
+# RDM dump tests: extracted RDM messages of the captures
+tools/RdmDumpTests/.cache/

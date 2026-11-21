@@ -1,0 +1,26 @@
+{
+  "name": "SEARCH_DOMAIN",
+  "displayName": "Search Domain",
+  "notes": "E1.33 Section 7.6.1. DNS search domain used by Clients to locate a Broker. E133_DEFAULT_DOMAIN is \"local.\".",
+  "manufacturer_id": 0,
+  "pid": 2049,
+  "version": 1,
+  "get_request_subdevice_range": [
+    "root"
+  ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "search_domain",
+      "type": "string",
+      "format": "hostname",
+      "maxLength": 231,
+      "restrictToASCII": true
+    }
+  ],
+  "set_request_subdevice_range": [
+    "root"
+  ],
+  "set_request": "get_response",
+  "set_response": []
+}

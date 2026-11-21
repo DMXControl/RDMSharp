@@ -17,7 +17,7 @@ namespace RDMSharpTests.RDM
         [Test]
         public void _0TestBool()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 for (bool b = false; b != true; b = true)
                 {
@@ -28,7 +28,7 @@ namespace RDMSharpTests.RDM
                     Assert.That(serialized, Is.Empty);
                     Assert.That(desByte, Is.EqualTo(b));
                 }
-            });
+            }
         }
         [Test]
         public void _0TestString()
@@ -46,7 +46,7 @@ namespace RDMSharpTests.RDM
                 "sdfsdfgggggwwwww"
             };
 
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 foreach (string str in testStrings)
                 {
@@ -57,12 +57,12 @@ namespace RDMSharpTests.RDM
                     Assert.That(serialized, Is.Empty);
                     Assert.That(desByte, Is.EqualTo(str));
                 }
-            });
+            }
         }
         [Test]
         public void _0TestEnum()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 foreach (ERDM_Parameter eParameter in Enum.GetValues(typeof(ERDM_Parameter)))
                 {
@@ -122,26 +122,26 @@ namespace RDMSharpTests.RDM
                     Assert.That(serialized, Is.Empty);
                     Assert.That(desByte, Is.EqualTo(eParameter));
                 }
-            });
+            }
         }
         [Test]
         public void _0TestBoolArray()
         {
             bool[] b = new bool[] { true, false, true, false, false, true };
             serialized = Tools.ValueToData(b);
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(serialized, Has.Length.EqualTo(1));
 
                 bool[] desByte = Tools.DataToBoolArray(ref serialized, b.Length);
                 Assert.That(serialized, Is.Empty);
                 Assert.That(desByte, Is.EqualTo(b));
-            });
+            }
         }
         [Test]
         public void _1TestByte()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 for (byte b = byte.MinValue; b < byte.MaxValue; b++)
                 {
@@ -152,12 +152,12 @@ namespace RDMSharpTests.RDM
                     Assert.That(serialized, Is.Empty);
                     Assert.That(desByte, Is.EqualTo(b));
                 }
-            });
+            }
         }
         [Test]
         public void _2TestSByte()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 for (sbyte b = sbyte.MinValue; b < sbyte.MaxValue; b++)
                 {
@@ -168,12 +168,12 @@ namespace RDMSharpTests.RDM
                     Assert.That(serialized, Is.Empty);
                     Assert.That(desByte, Is.EqualTo(b));
                 }
-            });
+            }
         }
         [Test]
         public void _3TestShort()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 for (short b = short.MinValue; b < short.MaxValue; b++)
                 {
@@ -184,12 +184,12 @@ namespace RDMSharpTests.RDM
                     Assert.That(serialized, Is.Empty);
                     Assert.That(desShort, Is.EqualTo(b));
                 }
-            });
+            }
         }
         [Test]
         public void _4TestUShort()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 for (ushort b = ushort.MinValue; b < ushort.MaxValue; b++)
                 {
@@ -200,12 +200,12 @@ namespace RDMSharpTests.RDM
                     Assert.That(serialized, Is.Empty);
                     Assert.That(desShort, Is.EqualTo(b));
                 }
-            });
+            }
         }
         [Test]
         public void _5TestInt()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 for (short s = short.MinValue; s < short.MaxValue; s++)
                 {
@@ -217,12 +217,12 @@ namespace RDMSharpTests.RDM
                     Assert.That(serialized, Is.Empty);
                     Assert.That(desInt, Is.EqualTo(b));
                 }
-            });
+            }
         }
         [Test]
         public void _6TestUInt()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 for (short s = short.MinValue; s < short.MaxValue; s++)
                 {
@@ -234,12 +234,12 @@ namespace RDMSharpTests.RDM
                     Assert.That(serialized, Is.Empty);
                     Assert.That(desInt, Is.EqualTo(b));
                 }
-            });
+            }
         }
         [Test]
         public void _7TestLong()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 for (short s = short.MinValue; s < short.MaxValue; s++)
                 {
@@ -252,12 +252,12 @@ namespace RDMSharpTests.RDM
                     Assert.That(serialized, Is.Empty);
                     Assert.That(desLong, Is.EqualTo(b));
                 }
-            });
+            }
         }
         [Test]
         public void _8TestULong()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 for (short s = short.MinValue; s < short.MaxValue; s++)
                 {
@@ -270,7 +270,7 @@ namespace RDMSharpTests.RDM
                     Assert.That(serialized, Is.Empty);
                     Assert.That(desLong, Is.EqualTo(b));
                 }
-            });
+            }
         }
 
         static long LongRandom(Random rand)

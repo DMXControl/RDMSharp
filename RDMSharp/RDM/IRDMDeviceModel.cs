@@ -1,19 +1,29 @@
-﻿using System;
+﻿using RDMSharp.PayloadObject;
+using RDMSharp.RDM.Device;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using static RDMSharp.AbstractRDMCache;
 
-namespace RDMSharp
+namespace RDMSharp;
+
+public interface IRDMDeviceModel : IDisposable
 {
-    public interface IRDMDeviceModel : IDisposable
-    {
-        IReadOnlyCollection<ERDM_Parameter> SupportedParameters { get; }
-        IReadOnlyCollection<ERDM_Parameter> SupportedBlueprintParameters { get; }
-        IReadOnlyCollection<ERDM_Parameter> SupportedNonBlueprintParameters { get; }
-        IReadOnlyCollection<ERDM_Parameter> KnownNotSupportedParameters { get; }
-        IReadOnlyCollection<RDMSensorDefinition> GetSensorDefinitions();
-        IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues { get; }
+    IReadOnlyCollection<SupportedParameterMetadata> GetSupportedParameters();
+    IReadOnlyCollection<SupportedParameterMetadata> GetSupportedBlueprintModelParameters();
+    IReadOnlyCollection<SupportedParameterMetadata> GetSupportedBlueprintModelPersonalityParameters();
+    IReadOnlyCollection<SupportedParameterMetadata> GetSupportedNonBlueprintParameters();
+    IReadOnlyCollection<SupportedParameterMetadata> GetKnownNotSupportedParameters();
+    IReadOnlyCollection<RDMSensorDefinition> GetSensorDefinitions();
+    IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues { get; }
 
-        bool IsDisposing { get; }
-        bool IsDisposed { get; }
-        bool IsModelOf(UID uid, SubDevice subDevice, RDMDeviceInfo other);
-    }
+    event EventHandler Initialized;
+    event PropertyChangedEventHandler PropertyChanged;
+    event EventHandler<ParameterValueAddedEventArgs> ParameterValueAdded;
+
+    RDMDeviceInfo DeviceInfo { get; }
+
+    bool IsDisposing { get; }
+    bool IsDisposed { get; }
+    bool IsModelOf(UID uid, SubDevice subDevice, RDMDeviceInfo other);
 }

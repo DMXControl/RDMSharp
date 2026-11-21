@@ -7,13 +7,13 @@ namespace RDMSharpTests.Metadata.JSON
         [Test]
         public void TestMany()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 var exception = new DefineNotFoundException();
                 Assert.That(exception.Message, Is.Not.Null);
                 exception = new DefineNotFoundException("Test");
                 Assert.That(exception.Message, Is.EqualTo("Test"));
-            });
+            }
         }
     }
 }
