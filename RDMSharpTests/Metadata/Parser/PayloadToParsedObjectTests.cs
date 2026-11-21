@@ -43,6 +43,16 @@ public class PayloadToParsedObjectTests
         if (dataTreeBranch.ParsedObject is IRDMPayloadObject obj)
             Assert.That(obj.ToString(), Is.Not.Null);
     }
+    /// <summary>
+    /// Every Payload of these test subjects is valid, the validation before parsing must not reject it.
+    /// </summary>
+    [Test]
+    public void PayloadIsValid()
+    {
+        var result = MetadataFactory.ValidatePayload(testSubject.Define, testSubject.PayloadToParseBag.CommandDublicate, testSubject.PayloadToParseBag.Payload, out string reason);
+        Assert.That(result, Is.EqualTo(EPayloadValidation.Valid), reason);
+    }
+
     [Test, DependsOnTest(nameof(ToStringTest))]
     public void Reverse()
     {

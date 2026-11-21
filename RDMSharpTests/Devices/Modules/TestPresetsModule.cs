@@ -134,6 +134,7 @@ public class TestPresetsModule
             Assert.That(module.CurrentPlayback, Is.EqualTo(new RDMPresetPlayback(ERDM_PresetPlayback.OFF, 0)));
         }
         request.Command = ERDM_Command.GET_COMMAND;
+        request.ParameterData = Array.Empty<byte>(); // GET has no Parameter Data
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -165,6 +166,7 @@ public class TestPresetsModule
         }
 
         request.Command = ERDM_Command.GET_COMMAND;
+        request.ParameterData = Array.Empty<byte>(); // GET has no Parameter Data
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -950,6 +952,7 @@ public class TestPresetsModule
             Assert.That(module.CurrentMergeMode, Is.EqualTo(ERDM_MergeMode.LTP));
         }
         request.Command = ERDM_Command.GET_COMMAND;
+        request.ParameterData = Array.Empty<byte>(); // GET has no Parameter Data
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -981,6 +984,7 @@ public class TestPresetsModule
         }
 
         request.Command = ERDM_Command.GET_COMMAND;
+        request.ParameterData = Array.Empty<byte>(); // GET has no Parameter Data
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
         using (Assert.EnterMultipleScope())

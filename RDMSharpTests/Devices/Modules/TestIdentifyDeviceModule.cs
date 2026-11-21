@@ -111,6 +111,7 @@ public class TestIdentifyDeviceModule
             Assert.That(generated.Identify, Is.False);
         }
         request.Command = ERDM_Command.GET_COMMAND;
+        request.ParameterData = Array.Empty<byte>(); // GET has no Parameter Data
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -142,6 +143,7 @@ public class TestIdentifyDeviceModule
         }
 
         request.Command = ERDM_Command.GET_COMMAND;
+        request.ParameterData = Array.Empty<byte>(); // GET has no Parameter Data
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
         using (Assert.EnterMultipleScope())

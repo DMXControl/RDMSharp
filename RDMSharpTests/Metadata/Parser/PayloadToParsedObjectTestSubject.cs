@@ -488,7 +488,7 @@ public partial class PayloadToParsedObjectTestSubject
         yield return new PayloadToParseBagData(
             ERDM_Command.SET_COMMAND,
             ERDM_Parameter.FACTORY_DEFAULTS,
-            new byte[] { 0x01 },
+            new byte[] { }, // E1.20 10.3.4: SET has no Parameter Data
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
                 using (Assert.EnterMultipleScope())
@@ -3899,7 +3899,7 @@ public partial class PayloadToParsedObjectTestSubject
         yield return new PayloadToParseBagData(
             ERDM_Command.GET_COMMAND,
             ERDM_Parameter.SENSOR_TYPE_CUSTOM,
-            new byte[] { 0xee, 0x01 },
+            new byte[] { 0xee },
             new Action<DataTreeBranch>((dataTreeBranch) =>
             {
                 using (Assert.EnterMultipleScope())

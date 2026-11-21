@@ -113,6 +113,7 @@ public class TestLampHoursModule
             Assert.That(module.LampHours, Is.EqualTo(0x0990));
         }
         request.Command = ERDM_Command.GET_COMMAND;
+        request.ParameterData = Array.Empty<byte>(); // GET has no Parameter Data
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -145,6 +146,7 @@ public class TestLampHoursModule
         }
 
         request.Command = ERDM_Command.GET_COMMAND;
+        request.ParameterData = Array.Empty<byte>(); // GET has no Parameter Data
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
         using (Assert.EnterMultipleScope())

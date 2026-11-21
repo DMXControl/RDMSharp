@@ -1337,7 +1337,7 @@ public class TestEndpointsModlue
 
         endpointsModule.BackgroundQueuedStatusPolicy = 2;
 
-        request.ParameterData = Tools.ValueToData((ushort)1);
+        request.ParameterData = Array.Empty<byte>(); // GET has no Parameter Data (E1.37-7)
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
         using (Assert.EnterMultipleScope())

@@ -113,6 +113,7 @@ public class TestPowerStateModule
             Assert.That(module.PowerState, Is.EqualTo(ERDM_PowerState.FULL_OFF));
         }
         request.Command = ERDM_Command.GET_COMMAND;
+        request.ParameterData = Array.Empty<byte>(); // GET has no Parameter Data
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
         using (Assert.EnterMultipleScope())
@@ -144,6 +145,7 @@ public class TestPowerStateModule
         }
 
         request.Command = ERDM_Command.GET_COMMAND;
+        request.ParameterData = Array.Empty<byte>(); // GET has no Parameter Data
         response = generated.ProcessRequestMessage_Internal(request);
         Assert.That(response, Is.Not.Null);
         using (Assert.EnterMultipleScope())

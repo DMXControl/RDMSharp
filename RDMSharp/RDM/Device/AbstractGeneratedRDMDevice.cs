@@ -461,6 +461,31 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
                 }
             }
 
+            // Parameter Data that does not fit the define is not interpreted (E1.20 Table A-17: NR_FORMAT_ERROR, NR_DATA_OUT_OF_RANGE),
+            // a not supported parameter is still answered with NR_UNKNOWN_PID
+            if ((rdmMessage.Command == ERDM_Command.GET_COMMAND || rdmMessage.Command == ERDM_Command.SET_COMMAND) && this.Parameters.Contains(rdmMessage.Parameter))
+            {
+                MetadataJSONObjectDefine define = null;
+                try
+                {
+                    define = MetadataFactory.GetDefine(new ParameterBag(rdmMessage.Parameter, UID.ManufacturerID));
+                }
+                catch (DefineNotFoundException)
+                {
+                }
+                var validation = MetadataFactory.ValidatePayload(define, Tools.ConvertCommandDublicateToCommand(rdmMessage.Command), rdmMessage.ParameterData, out string reason);
+                if (validation != EPayloadValidation.Valid)
+                {
+                    Logger?.LogWarning($"{rdmMessage.Parameter} ({rdmMessage.Command}) of {rdmMessage.SourceUID} is rejected: {reason}");
+                    response = new RDMMessage(validation == EPayloadValidation.InvalidBoolean ? ERDM_NackReason.DATA_OUT_OF_RANGE : ERDM_NackReason.FORMAT_ERROR)
+                    {
+                        Parameter = rdmMessage.Parameter,
+                        Command = rdmMessage.Command | ERDM_Command.RESPONSE
+                    };
+                    goto FAIL;
+                }
+            }
+
             var module = this.Modules.FirstOrDefault(m => m.IsHandlingParameter(rdmMessage.Parameter, rdmMessage.Command));
             if (module is not null)
             {

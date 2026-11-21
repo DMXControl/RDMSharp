@@ -87,6 +87,13 @@ public class RDMMessage : IEquatable<RDMMessage>
         uint devIdSource = (uint)((data[11] << 24) | (data[12] << 16) | (data[13] << 8) | data[14]);
 
         byte paramLength = data[23];
+        // E1.20 6.2.3: Message Length = 24 + PDL, the Parameter Data are the bytes between the header and the checksum
+        int realParamLength = Math.Max(0, length - 24);
+        if (paramLength != realParamLength)
+        {
+            Logger?.LogWarning($"PDL {paramLength} of Parameter 0x{(data[21] << 8) | data[22]:X4} does not fit the Message Length {length}, the real Parameter Data ({realParamLength} bytes) is used");
+            paramLength = (byte)realParamLength;
+        }
 
         SourceUID = new UID(manIdSource, devIdSource);
         DestUID = new UID(manIdDest, devIdDest);
@@ -533,6 +540,12 @@ public class RDMMessage : IEquatable<RDMMessage>
                         return null;
                     if (cmd.Value.GetIsEmpty())
                         return null;
+                    // Parameter Data that does not fit the define is not interpreted
+                    if (MetadataFactory.ValidatePayload(define, cd, this.ParameterData, out string reason) != EPayloadValidation.Valid)
+                    {
+                        Logger?.LogWarning($"{this.Parameter} ({this.Command}) of {SourceUID} is not parsed: {reason}");
+                        return valueCache = null;
+                    }
                     return valueCache = MetadataFactory.ParseDataToPayload(define, cd, this.ParameterData).ParsedObject;
                 }
                 catch (Exception ex)

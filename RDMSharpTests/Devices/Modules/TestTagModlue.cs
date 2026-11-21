@@ -403,7 +403,7 @@ public class TestTagModlue
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.ADD_TAG));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
         }
 
 
@@ -553,7 +553,7 @@ public class TestTagModlue
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.REMOVE_TAG));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
         }
 
 
@@ -704,7 +704,7 @@ public class TestTagModlue
             Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.CHECK_TAG));
             Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
             Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.NACK_REASON));
-            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.DATA_OUT_OF_RANGE));
+            Assert.That(response.NackReason, Is.EqualTo(ERDM_NackReason.FORMAT_ERROR));
         }
 
 

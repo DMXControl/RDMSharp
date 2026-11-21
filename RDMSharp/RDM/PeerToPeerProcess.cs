@@ -247,7 +247,13 @@ public class PeerToPeerProcess : INotifyPropertyChanged
                             Define = MetadataFactory.GetDefine(ParameterBag);
                         }
                         if (Define != null)
-                            ResponsePayloadObject = MetadataFactory.ParseDataToPayload(Define, commandResponse, _byteArray);
+                        {
+                            // the (put together) Parameter Data has to fit the define, otherwise it is not interpreted and the Response stays Unset
+                            if (MetadataFactory.ValidatePayload(Define, commandResponse, _byteArray, out string reason) == EPayloadValidation.Valid)
+                                ResponsePayloadObject = MetadataFactory.ParseDataToPayload(Define, commandResponse, _byteArray);
+                            else
+                                Logger?.LogWarning($"Response of {UID} SubDevice: {SubDevice} Parameter: {ParameterBag.PID} ({Command}) is ignored: {reason}");
+                        }
                         State = EPeerToPeerProcessState.Finished;
 
                         ResponseMessage?.InvokeFailSafe(responseResult.Response);

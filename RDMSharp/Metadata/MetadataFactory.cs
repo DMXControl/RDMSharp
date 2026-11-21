@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp.Metadata;
 
-public static class MetadataFactory
+public static partial class MetadataFactory
 {
     private static readonly ILogger Logger = Logging.CreateLogger(typeof(MetadataFactory));
     private const string SCHEMA_FILE_NAME = "schema.json";
