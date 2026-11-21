@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
@@ -10,11 +11,27 @@ public sealed class DisplayInvertModule : AbstractSimpleEnumModule<ERDM_DisplayI
 
     public sealed override string DisplayName => _moduleDisplayName;
 
+    /// <summary>
+    /// Robe devices (e.g. MegaPointe FW 2.9, Spiider 4.0, iEsprite LTL 1.7) report Auto as 0x03 instead of 0x02.
+    /// </summary>
+    private const ERDM_DisplayInvert ROBE_AUTO = (ERDM_DisplayInvert)0x03;
+    private bool robeAutoLogged = false;
+
     public ERDM_DisplayInvert? DisplayInvert
     {
         get
         {
-            return base.Value;
+            var value = base.Value;
+            if (value == ROBE_AUTO && ParentRemoteDevice is not null && ParentRemoteDevice.UID.ManufacturerID == (ushort)EManufacturer.Robe_Show_Lighting_sro)
+            {
+                if (!robeAutoLogged)
+                {
+                    robeAutoLogged = true;
+                    Logger?.LogInformation($"{ParentRemoteDevice.UID} reports DISPLAY_INVERT 0x03, which Robe uses for Auto (0x02)");
+                }
+                return ERDM_DisplayInvert.AUTO;
+            }
+            return value;
         }
         set
         {

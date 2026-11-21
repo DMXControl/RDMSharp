@@ -190,6 +190,45 @@ public class TestDisplayInvertModule
             Assert.That(module.DisplayInvert, Is.EqualTo(ERDM_DisplayInvert.ON));
         }
     }
+    /// <summary>
+    /// Robe devices (e.g. MegaPointe FW 2.9, Spiider 4.0, iEsprite LTL 1.7) report Auto as 0x03 instead of 0x02,
+    /// the remote module reads it as Auto.
+    /// </summary>
+    [Test]
+    public async Task TestRemoteDeviceRobeReportsAutoAs3()
+    {
+        var uid = new UID((ushort)EManufacturer.Robe_Show_Lighting_sro, 0x0D150001);
+        using var robe = new DisplayInvertMockDevice(uid);
+        robe.Modules.OfType<DisplayInvertModule>().Single().DisplayInvert = (ERDM_DisplayInvert)0x03;
+
+        using MockDevice mockDevice = new MockDevice(uid);
+        while (!mockDevice.IsInitialized)
+            await Task.Delay(100);
+
+        var module = mockDevice.Modules.OfType<DisplayInvertModule>().Single();
+        await Wait.UntilAsync(() => Wait.Holds(module.DisplayInvert, Is.Not.Null));
+        Assert.That(module.DisplayInvert, Is.EqualTo(ERDM_DisplayInvert.AUTO));
+    }
+
+    /// <summary>
+    /// Only Robe is known to report Auto as 0x03, for other manufacturers the value is passed as it is.
+    /// </summary>
+    [Test]
+    public async Task TestRemoteDeviceOtherManufacturerReports3()
+    {
+        var uid = new UID((ushort)(0x4000 + DEVCIE_UID.ManufacturerID), 0x0D150002);
+        using var other = new DisplayInvertMockDevice(uid);
+        other.Modules.OfType<DisplayInvertModule>().Single().DisplayInvert = (ERDM_DisplayInvert)0x03;
+
+        using MockDevice mockDevice = new MockDevice(uid);
+        while (!mockDevice.IsInitialized)
+            await Task.Delay(100);
+
+        var module = mockDevice.Modules.OfType<DisplayInvertModule>().Single();
+        await Wait.UntilAsync(() => Wait.Holds(module.DisplayInvert, Is.Not.Null));
+        Assert.That(module.DisplayInvert, Is.EqualTo((ERDM_DisplayInvert)0x03));
+    }
+
     class DisplayInvertMockDevice : MockGeneratedDevice1
     {
         public DisplayInvertMockDevice(UID uid) : base(uid, new IModule[] { new DisplayInvertModule() })
