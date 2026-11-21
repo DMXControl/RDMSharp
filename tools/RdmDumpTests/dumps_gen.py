@@ -47,6 +47,14 @@ DEVIATIONS = [
                    ('STATUS_ID_DESCRIPTION', 0), ('LOCK_STATE_DESCRIPTION', 1), ('ENDPOINT_TIMING_DESCRIPTION', 1), ('ENDPOINT_LABEL', 2))
 ]
 
+# known texts of a manufacturer with characters after the NUL terminator: E1.20 10.1, the NUL terminates the text,
+# the characters after it are reported as issue. These payloads are always part of the tests: (parameter, manufacturer) -> comment
+KNOWN_TRAILING_CHARACTERS = {
+    ('DEVICE_LABEL', '5347'): 'SGM (e.g. Q-7 FW V. 3.28) fills the label up to 32 bytes with 0xFF after the NUL terminator',
+    ('SOFTWARE_VERSION_LABEL', '6A6A'): 'ROXX (Cluster B4 FC FW V1.6) sends a character after the NUL terminator',
+    ('BOOT_SOFTWARE_VERSION_LABEL', '6A6A'): 'ROXX (Cluster B4 FC FW V1.6) sends a character after the NUL terminator',
+}
+
 def manf(uid):
     return uid.replace(':', '')[:4].upper()
 
@@ -96,7 +104,14 @@ for s in samples:
     data = bytes.fromhex(s['pd'])
     s['normalized'] = None
     s['padded'] = False
+    s['trailing'] = None
     reason = None
+    known_trailing = KNOWN_TRAILING_CHARACTERS.get((name, s['device'])) if cc.endswith('RESPONSE') else None
+    if known_trailing:
+        # the only warning of the dissector is about the characters after the NUL terminator, which are tested here
+        messages = {w for w in s['warn'] if w.startswith('_ws.expert.message=')}
+        if messages <= {'_ws.expert.message=Trailing stray characters'}:
+            s['warn'] = []
     if s['warn']:
         reason = 'dissector: ' + ', '.join(sorted(set(s['warn'])))
     elif cc.endswith('RESPONSE') and name in STRING_PREFIX and len(data) > STRING_PREFIX[name]:
@@ -105,7 +120,11 @@ for s in samples:
         if b'\x00' in text:
             head, _, tail = text.partition(b'\x00')
             if tail.strip(b'\x00'):
-                reason = f'characters after the NUL terminator ({tail.hex()})'
+                if known_trailing:
+                    s['normalized'] = data[:prefix] + head
+                    s['trailing'] = known_trailing
+                else:
+                    reason = f'characters after the NUL terminator ({tail.hex()})'
             else:
                 s['normalized'] = data[:prefix] + head
                 s['padded'] = len(tail) > 0
@@ -135,7 +154,10 @@ for key, by_pd in cands.items():
     by_dev = collections.OrderedDict()
     for s in sorted(by_pd.values(), key=lambda s: (s['file'], s['frames'][0])):
         by_dev.setdefault(s['device'], []).append(s)
-    pick = []
+    # known deviations first, they are always part of the tests
+    pick = [s for s in by_pd.values() if s['trailing']]
+    for s in pick:
+        by_dev[s['device']].remove(s)
     while len(pick) < MAX_PER_KEY and any(by_dev.values()):
         for dev in list(by_dev):
             if by_dev[dev] and len(pick) < MAX_PER_KEY:
@@ -217,11 +239,15 @@ for key in sorted(selected):
             continue
         data = bytes.fromhex(s['pd'])
         comment = f'        // {s["file"]}, frame {", ".join(map(str, s["frames"]))}' + (' (ACK_OVERFLOW)' if len(s['frames']) > 1 else '')
-        if s['padded']:
+        if s['trailing']:
+            comment += ', characters after the NUL terminator'
+        elif s['padded']:
             comment += ', String padded with NUL'
         elif s['normalized'] is not None:
             comment += ', String with NUL terminator'
         block.append(comment)
+        if s['trailing']:
+            block.append(f'        // Known deviation of manufacturer 0x{s["device"]}: {s["trailing"]}')
         block.append('        yield return new PayloadToParseBagData(')
         block.append(f'            ERDM_Command.{cc},')
         block.append(f'            ERDM_Parameter.{name},')
@@ -229,7 +255,10 @@ for key in sorted(selected):
         block.append('            new Action<DataTreeBranch>((dataTreeBranch) =>')
         block.append('            {')
         block.append('                Assert.That(dataTreeBranch.IsUnset, Is.False);')
-        if s['padded']:
+        if s['trailing']:
+            block.append('                // E1.20 10.1: a NUL terminates the String, the characters after it are ignored and reported')
+            block.append('                Assert.That(allIssues(dataTreeBranch).Select(i => i.ToString()), Has.Some.Contains("Trailing Characters"));')
+        elif s['padded']:
             block.append('                // E1.20 10.1: the PDL has to match the String, but a NUL terminates it, the padding is reported')
             block.append('                Assert.That(allIssues(dataTreeBranch).Select(i => i.ToString()), Has.Some.Contains("Null-Delimiter"));')
         else:

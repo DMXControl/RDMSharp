@@ -151,6 +151,24 @@ public partial class PayloadToParsedObjectTestSubject
         #endregion
 
         #region BOOT_SOFTWARE_VERSION_LABEL GET_COMMAND_RESPONSE
+        // Lollapalooza 2026 1.pcapng, frame 7792, characters after the NUL terminator
+        // Known deviation of manufacturer 0x6A6A: ROXX (Cluster B4 FC FW V1.6) sends a character after the NUL terminator
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL,
+            new byte[] { 0x56, 0x31, 0x2e, 0x36, 0x00, 0x43 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                // E1.20 10.1: a NUL terminates the String, the characters after it are ignored and reported
+                Assert.That(allIssues(dataTreeBranch).Select(i => i.ToString()), Has.Some.Contains("Trailing Characters"));
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
+                var obj = (string)dataTreeBranch.ParsedObject!;
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj, Is.EqualTo("V1.6"));
+                }
+            }), normalizedPayload: new byte[] { 0x56, 0x31, 0x2e, 0x36 });
         // Airbus Swisson Nodes Ayrton Eurus S.pcapng, frame 425, String with NUL terminator
         yield return new PayloadToParseBagData(
             ERDM_Command.GET_COMMAND_RESPONSE,
@@ -264,22 +282,6 @@ public partial class PayloadToParsedObjectTestSubject
                     Assert.That(obj, Is.EqualTo("Bootloader 2.0.126 "));
                 }
             }), normalizedPayload: new byte[] { 0x42, 0x6f, 0x6f, 0x74, 0x6c, 0x6f, 0x61, 0x64, 0x65, 0x72, 0x20, 0x32, 0x2e, 0x30, 0x2e, 0x31, 0x32, 0x36, 0x20 });
-        // Lollapalooza 2026 1.pcapng, frame 9359
-        yield return new PayloadToParseBagData(
-            ERDM_Command.GET_COMMAND_RESPONSE,
-            ERDM_Parameter.BOOT_SOFTWARE_VERSION_LABEL,
-            new byte[] { 0x56, 0x31, 0x2e, 0x30, 0x32, 0x41 },
-            new Action<DataTreeBranch>((dataTreeBranch) =>
-            {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(allIssues(dataTreeBranch), Is.Empty);
-                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
-                var obj = (string)dataTreeBranch.ParsedObject!;
-                using (Assert.EnterMultipleScope())
-                {
-                    Assert.That(obj, Is.EqualTo("V1.02A"));
-                }
-            }));
         #endregion
 
         #region CAPTURE_PRESET SET_COMMAND
@@ -1307,6 +1309,42 @@ public partial class PayloadToParsedObjectTestSubject
         #endregion
 
         #region DEVICE_LABEL GET_COMMAND_RESPONSE
+        // DIHK 2025 1.pcapng, frame 189, characters after the NUL terminator
+        // Known deviation of manufacturer 0x5347: SGM (e.g. Q-7 FW V. 3.28) fills the label up to 32 bytes with 0xFF after the NUL terminator
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.DEVICE_LABEL,
+            new byte[] { 0x51, 0x2d, 0x37, 0x20, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                // E1.20 10.1: a NUL terminates the String, the characters after it are ignored and reported
+                Assert.That(allIssues(dataTreeBranch).Select(i => i.ToString()), Has.Some.Contains("Trailing Characters"));
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
+                var obj = (string)dataTreeBranch.ParsedObject!;
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj, Is.EqualTo("Q-7 "));
+                }
+            }), normalizedPayload: new byte[] { 0x51, 0x2d, 0x37, 0x20 });
+        // Estrel 14_01_2026_2.pcapng, frame 1875, characters after the NUL terminator
+        // Known deviation of manufacturer 0x5347: SGM (e.g. Q-7 FW V. 3.28) fills the label up to 32 bytes with 0xFF after the NUL terminator
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.DEVICE_LABEL,
+            new byte[] { 0x49, 0x2d, 0x35, 0x20, 0x52, 0x47, 0x42, 0x57, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                // E1.20 10.1: a NUL terminates the String, the characters after it are ignored and reported
+                Assert.That(allIssues(dataTreeBranch).Select(i => i.ToString()), Has.Some.Contains("Trailing Characters"));
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
+                var obj = (string)dataTreeBranch.ParsedObject!;
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj, Is.EqualTo("I-5 RGBW"));
+                }
+            }), normalizedPayload: new byte[] { 0x49, 0x2d, 0x35, 0x20, 0x52, 0x47, 0x42, 0x57 });
         // ACME CM S2 V20.pcapng, frame 102, String with NUL terminator
         yield return new PayloadToParseBagData(
             ERDM_Command.GET_COMMAND_RESPONSE,
@@ -1402,38 +1440,6 @@ public partial class PayloadToParsedObjectTestSubject
                 using (Assert.EnterMultipleScope())
                 {
                     Assert.That(obj, Is.EqualTo("JDC Burst 1"));
-                }
-            }));
-        // COLORado PXL Curve 12 V1.250624 RDM.pcapng, frame 1168, String with NUL terminator
-        yield return new PayloadToParseBagData(
-            ERDM_Command.GET_COMMAND_RESPONSE,
-            ERDM_Parameter.DEVICE_LABEL,
-            new byte[] { 0x43, 0x4f, 0x4c, 0x4f, 0x52, 0x61, 0x64, 0x6f, 0x20, 0x50, 0x58, 0x4c, 0x20, 0x43, 0x75, 0x72, 0x76, 0x65, 0x20, 0x31, 0x32, 0x00 },
-            new Action<DataTreeBranch>((dataTreeBranch) =>
-            {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(allIssues(dataTreeBranch), Is.Empty);
-                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
-                var obj = (string)dataTreeBranch.ParsedObject!;
-                using (Assert.EnterMultipleScope())
-                {
-                    Assert.That(obj, Is.EqualTo("COLORado PXL Curve 12"));
-                }
-            }), normalizedPayload: new byte[] { 0x43, 0x4f, 0x4c, 0x4f, 0x52, 0x61, 0x64, 0x6f, 0x20, 0x50, 0x58, 0x4c, 0x20, 0x43, 0x75, 0x72, 0x76, 0x65, 0x20, 0x31, 0x32 });
-        // Cameo Zenit 600 SMD.pcapng, frame 28
-        yield return new PayloadToParseBagData(
-            ERDM_Command.GET_COMMAND_RESPONSE,
-            ERDM_Parameter.DEVICE_LABEL,
-            new byte[] { 0x5a, 0x65, 0x6e, 0x69, 0x74, 0x20, 0x57, 0x36, 0x30, 0x30, 0x53, 0x4d, 0x44, 0x20, 0x52, 0x47, 0x42, 0x57 },
-            new Action<DataTreeBranch>((dataTreeBranch) =>
-            {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(allIssues(dataTreeBranch), Is.Empty);
-                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
-                var obj = (string)dataTreeBranch.ParsedObject!;
-                using (Assert.EnterMultipleScope())
-                {
-                    Assert.That(obj, Is.EqualTo("Zenit W600SMD RGBW"));
                 }
             }));
         #endregion
@@ -10496,6 +10502,24 @@ public partial class PayloadToParsedObjectTestSubject
         #endregion
 
         #region SOFTWARE_VERSION_LABEL GET_COMMAND_RESPONSE
+        // Lollapalooza 2026 1.pcapng, frame 7260, characters after the NUL terminator
+        // Known deviation of manufacturer 0x6A6A: ROXX (Cluster B4 FC FW V1.6) sends a character after the NUL terminator
+        yield return new PayloadToParseBagData(
+            ERDM_Command.GET_COMMAND_RESPONSE,
+            ERDM_Parameter.SOFTWARE_VERSION_LABEL,
+            new byte[] { 0x56, 0x31, 0x2e, 0x36, 0x00, 0x43 },
+            new Action<DataTreeBranch>((dataTreeBranch) =>
+            {
+                Assert.That(dataTreeBranch.IsUnset, Is.False);
+                // E1.20 10.1: a NUL terminates the String, the characters after it are ignored and reported
+                Assert.That(allIssues(dataTreeBranch).Select(i => i.ToString()), Has.Some.Contains("Trailing Characters"));
+                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
+                var obj = (string)dataTreeBranch.ParsedObject!;
+                using (Assert.EnterMultipleScope())
+                {
+                    Assert.That(obj, Is.EqualTo("V1.6"));
+                }
+            }), normalizedPayload: new byte[] { 0x56, 0x31, 0x2e, 0x36 });
         // ACME CM S2 V20.pcapng, frame 10, String with NUL terminator
         yield return new PayloadToParseBagData(
             ERDM_Command.GET_COMMAND_RESPONSE,
@@ -10608,22 +10632,6 @@ public partial class PayloadToParsedObjectTestSubject
                     Assert.That(obj, Is.EqualTo("V1.250624"));
                 }
             }), normalizedPayload: new byte[] { 0x56, 0x31, 0x2e, 0x32, 0x35, 0x30, 0x36, 0x32, 0x34 });
-        // Cameo Zenit W600 G2 v1.7.3 Update to v1.8.4.pcapng, frame 14
-        yield return new PayloadToParseBagData(
-            ERDM_Command.GET_COMMAND_RESPONSE,
-            ERDM_Parameter.SOFTWARE_VERSION_LABEL,
-            new byte[] { 0x56, 0x31, 0x2e, 0x37, 0x2e, 0x33 },
-            new Action<DataTreeBranch>((dataTreeBranch) =>
-            {
-                Assert.That(dataTreeBranch.IsUnset, Is.False);
-                Assert.That(allIssues(dataTreeBranch), Is.Empty);
-                Assert.That(dataTreeBranch.ParsedObject, Is.TypeOf(typeof(string)));
-                var obj = (string)dataTreeBranch.ParsedObject!;
-                using (Assert.EnterMultipleScope())
-                {
-                    Assert.That(obj, Is.EqualTo("V1.7.3"));
-                }
-            }));
         #endregion
 
         #region STATUS_ID_DESCRIPTION GET_COMMAND
