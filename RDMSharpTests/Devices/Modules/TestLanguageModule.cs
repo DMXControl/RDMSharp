@@ -187,6 +187,47 @@ public class TestLanguageModule
         }
     }
 
+    [Test, DependsOnTest(nameof(TestGetSetLANGUAGE))]
+    public async Task TestResetToDefaultLanguageGenerated()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var module = generated.Modules.OfType<LanguageModule>().Single();
+        module.CurrentLanguage = "fr";
+
+        Assert.That(await module.ResetToDefaultLanguage(), Is.True);
+        Assert.That(module.CurrentLanguage, Is.EqualTo(DEFAULT_LANGUAGE));
+        assertGetResponse(DEFAULT_LANGUAGE);
+    }
+
+    /// <summary>
+    /// E1.20 10.5.8: a remote device is reset to its default language with the Language Code 0x0000,
+    /// only the device knows its default language, so it is read again afterwards.
+    /// </summary>
+    [Test, DependsOnTest(nameof(TestRemoteDevice))]
+    public async Task TestResetToDefaultLanguageRemote()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var generatedModule = generated.Modules.OfType<LanguageModule>().Single();
+
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        while (!mockDevice.IsInitialized)
+            await Task.Delay(100);
+
+        var module = mockDevice.Modules.OfType<LanguageModule>().Single();
+        Assert.That(module.DefaultLanguage, Is.Null, "the default language of a remote device is unknown");
+
+        Assert.That(await module.SetLanguage("fr"), Is.True);
+        await Wait.UntilAsync(() => Wait.Holds(generatedModule.CurrentLanguage, Is.EqualTo("fr")) && Wait.Holds(module.CurrentLanguage, Is.EqualTo("fr")));
+
+        Assert.That(await module.ResetToDefaultLanguage(), Is.True);
+        await Wait.UntilAsync(() => Wait.Holds(generatedModule.CurrentLanguage, Is.EqualTo(DEFAULT_LANGUAGE)) && Wait.Holds(module.CurrentLanguage, Is.EqualTo(DEFAULT_LANGUAGE)));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generatedModule.CurrentLanguage, Is.EqualTo(DEFAULT_LANGUAGE));
+            Assert.That(module.CurrentLanguage, Is.EqualTo(DEFAULT_LANGUAGE), "the remote module reads the default language of the device");
+        }
+    }
+
     private RDMMessage? send(string language)
     {
         return send(PayloadTestTools.SetRequestData(ERDM_Parameter.LANGUAGE, language));

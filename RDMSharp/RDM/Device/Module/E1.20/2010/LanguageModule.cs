@@ -187,6 +187,31 @@ public sealed class LanguageModule : AbstractModule
         return response;
     }
 
+    /// <summary>
+    /// E1.20 10.5.8: the Language Code 0x0000 resets the device to its default language.
+    /// Only the device knows its default language, a remote device is read again afterwards.
+    /// </summary>
+    public async Task<bool> ResetToDefaultLanguage()
+    {
+        if (ParentGeneratedDevice is not null)
+        {
+            CurrentLanguage = _defaultLanguage;
+            return true;
+        }
+        if (ParentRemoteDevice is not null)
+        {
+            if (!await ParentRemoteDevice.SetParameter(ERDM_Parameter.LANGUAGE, RESET_TO_DEFAULT_LANGUAGE))
+                return false;
+            await ParentRemoteDevice.RequestParameter(ERDM_Command.GET_COMMAND, ERDM_Parameter.LANGUAGE);
+            return true;
+        }
+        return false;
+    }
+    /// <summary>
+    /// The Language Code 0x0000 as text, it is sent as the bytes 0x00 0x00.
+    /// </summary>
+    private const string RESET_TO_DEFAULT_LANGUAGE = "\0\0";
+
     public async Task<bool> SetLanguage(string language)
     {
         if (ParentGeneratedDevice is not null)

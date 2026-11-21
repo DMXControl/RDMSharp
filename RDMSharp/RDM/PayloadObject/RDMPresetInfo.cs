@@ -1,5 +1,6 @@
 ﻿using RDMSharp.Metadata;
 using RDMSharp.Metadata.JSON;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -41,14 +42,14 @@ public class RDMPresetInfo : AbstractRDMPayloadObject
         this.MaximumPresetFadeTimeSupported = maximumPresetFadeTimeSupported;
         this.MinimumPresetWaitTimeSupported = minimumPresetWaitTimeSupported;
         this.MaximumPresetWaitTimeSupported = maximumPresetWaitTimeSupported;
-        this.MinimumDMX512FailDelayTimeSupported = minimumDMX512FailDelayTimeSupported;
-        this.MaximumDMX512FailDelayTimeSupported = maximumDMX512FailDelayTimeSupported;
-        this.MinimumDMX512FailDelayHoldSupported = minimumDMX512FailDelayHoldSupported;
-        this.MaximumDMX512FailDelayHoldSupported = maximumDMX512FailDelayHoldSupported;
-        this.MinimumStartupDelayTimeSupported = minimumStartupDelayTimeSupported;
-        this.MaximumStartupDelayTimeSupported = maximumStartupDelayTimeSupported;
-        this.MinimumStartupDelayHoldSupported = minimumStartupDelayHoldSupported;
-        this.MaximumStartupDelayHoldSupported = maximumStartupDelayHoldSupported;
+        this.MinimumDMX512FailDelayTimeSupported = notSupportedToNull(minimumDMX512FailDelayTimeSupported);
+        this.MaximumDMX512FailDelayTimeSupported = notSupportedToNull(maximumDMX512FailDelayTimeSupported);
+        this.MinimumDMX512FailDelayHoldSupported = notSupportedToNull(minimumDMX512FailDelayHoldSupported);
+        this.MaximumDMX512FailDelayHoldSupported = notSupportedToNull(maximumDMX512FailDelayHoldSupported);
+        this.MinimumStartupDelayTimeSupported = notSupportedToNull(minimumStartupDelayTimeSupported);
+        this.MaximumStartupDelayTimeSupported = notSupportedToNull(maximumStartupDelayTimeSupported);
+        this.MinimumStartupDelayHoldSupported = notSupportedToNull(minimumStartupDelayHoldSupported);
+        this.MaximumStartupDelayHoldSupported = notSupportedToNull(maximumStartupDelayHoldSupported);
     }
 
     [DataTreeObjectProperty("level_field_supported", 0)]
@@ -74,24 +75,42 @@ public class RDMPresetInfo : AbstractRDMPayloadObject
     public double MinimumPresetWaitTimeSupported { get; private set; }
     [DataTreeObjectProperty("preset_max_wait_time", 10)]
     public double MaximumPresetWaitTimeSupported { get; private set; }
-    [DataTreeObjectProperty("dmx_fail_min_delay_time", 11)]
+    [DataTreeObjectProperty("dmx_fail_min_delay_time", 11, NOT_SUPPORTED)]
     public double? MinimumDMX512FailDelayTimeSupported { get; private set; }
-    [DataTreeObjectProperty("dmx_fail_max_delay_time", 12)]
+    [DataTreeObjectProperty("dmx_fail_max_delay_time", 12, NOT_SUPPORTED)]
     public double? MaximumDMX512FailDelayTimeSupported { get; private set; }
-    [DataTreeObjectProperty("dmx_fail_min_hold_time", 13)]
+    [DataTreeObjectProperty("dmx_fail_min_hold_time", 13, NOT_SUPPORTED)]
     public double? MinimumDMX512FailDelayHoldSupported { get; private set; }
-    [DataTreeObjectProperty("dmx_fail_max_hold_time", 14)]
+    [DataTreeObjectProperty("dmx_fail_max_hold_time", 14, NOT_SUPPORTED)]
     public double? MaximumDMX512FailDelayHoldSupported { get; private set; }
-    [DataTreeObjectProperty("startup_min_delay_time", 15)]
+    [DataTreeObjectProperty("startup_min_delay_time", 15, NOT_SUPPORTED)]
     public double? MinimumStartupDelayTimeSupported { get; private set; }
-    [DataTreeObjectProperty("startup_max_delay_time", 16)]
+    [DataTreeObjectProperty("startup_max_delay_time", 16, NOT_SUPPORTED)]
     public double? MaximumStartupDelayTimeSupported { get; private set; }
-    [DataTreeObjectProperty("startup_min_hold_time", 17)]
+    [DataTreeObjectProperty("startup_min_hold_time", 17, NOT_SUPPORTED)]
     public double? MinimumStartupDelayHoldSupported { get; private set; }
-    [DataTreeObjectProperty("startup_max_hold_time", 18)]
+    [DataTreeObjectProperty("startup_max_hold_time", 18, NOT_SUPPORTED)]
     public double? MaximumStartupDelayHoldSupported { get; private set; }
 
     public const int PDL = 0x20;
+
+    /// <summary>
+    /// E1.37-1 5.1: Devices not supporting DMX_FAIL_MODE / DMX_STARTUP_MODE report 0xFFFF (6553.5 s) for these times,
+    /// it is represented as <c>null</c>.
+    /// </summary>
+    private const double NOT_SUPPORTED = ushort.MaxValue / 10.0;
+    private static double? notSupportedToNull(double? seconds)
+    {
+        if (seconds.HasValue && Math.Round(seconds.Value * 10) >= ushort.MaxValue)
+            return null;
+        return seconds;
+    }
+    private static ushort toTenths(double? seconds)
+    {
+        if (!seconds.HasValue)
+            return ushort.MaxValue;
+        return (ushort)Math.Clamp(Math.Round(seconds.Value * 10), 0, ushort.MaxValue);
+    }
 
     public override string ToString()
     {
@@ -146,18 +165,18 @@ public class RDMPresetInfo : AbstractRDMPayloadObject
         data.AddRange(Tools.ValueToData(this.DMX512FailInfiniteHoldTimeSupported));
         data.AddRange(Tools.ValueToData(this.StartupInfiniteHoldTimeSupported));
         data.AddRange(Tools.ValueToData(this.MaximumSceneNumber));
-        data.AddRange(Tools.ValueToData((ushort)(this.MinimumPresetFadeTimeSupported * 10)));
-        data.AddRange(Tools.ValueToData((ushort)(this.MaximumPresetFadeTimeSupported * 10)));
-        data.AddRange(Tools.ValueToData((ushort)(this.MinimumPresetWaitTimeSupported * 10)));
-        data.AddRange(Tools.ValueToData((ushort)(this.MaximumPresetWaitTimeSupported * 10)));
-        data.AddRange(Tools.ValueToData((ushort)((this.MinimumDMX512FailDelayTimeSupported ?? ushort.MaxValue) * 10)));
-        data.AddRange(Tools.ValueToData((ushort)((this.MaximumDMX512FailDelayTimeSupported ?? ushort.MaxValue) * 10)));
-        data.AddRange(Tools.ValueToData((ushort)((this.MinimumDMX512FailDelayHoldSupported ?? ushort.MaxValue) * 10)));
-        data.AddRange(Tools.ValueToData((ushort)((this.MaximumDMX512FailDelayHoldSupported ?? ushort.MaxValue) * 10)));
-        data.AddRange(Tools.ValueToData((ushort)((this.MinimumStartupDelayTimeSupported ?? ushort.MaxValue) * 10)));
-        data.AddRange(Tools.ValueToData((ushort)((this.MaximumStartupDelayTimeSupported ?? ushort.MaxValue) * 10)));
-        data.AddRange(Tools.ValueToData((ushort)((this.MinimumStartupDelayHoldSupported ?? ushort.MaxValue) * 10)));
-        data.AddRange(Tools.ValueToData((ushort)((this.MaximumStartupDelayHoldSupported ?? ushort.MaxValue) * 10)));
+        data.AddRange(Tools.ValueToData(toTenths(this.MinimumPresetFadeTimeSupported)));
+        data.AddRange(Tools.ValueToData(toTenths(this.MaximumPresetFadeTimeSupported)));
+        data.AddRange(Tools.ValueToData(toTenths(this.MinimumPresetWaitTimeSupported)));
+        data.AddRange(Tools.ValueToData(toTenths(this.MaximumPresetWaitTimeSupported)));
+        data.AddRange(Tools.ValueToData(toTenths(this.MinimumDMX512FailDelayTimeSupported)));
+        data.AddRange(Tools.ValueToData(toTenths(this.MaximumDMX512FailDelayTimeSupported)));
+        data.AddRange(Tools.ValueToData(toTenths(this.MinimumDMX512FailDelayHoldSupported)));
+        data.AddRange(Tools.ValueToData(toTenths(this.MaximumDMX512FailDelayHoldSupported)));
+        data.AddRange(Tools.ValueToData(toTenths(this.MinimumStartupDelayTimeSupported)));
+        data.AddRange(Tools.ValueToData(toTenths(this.MaximumStartupDelayTimeSupported)));
+        data.AddRange(Tools.ValueToData(toTenths(this.MinimumStartupDelayHoldSupported)));
+        data.AddRange(Tools.ValueToData(toTenths(this.MaximumStartupDelayHoldSupported)));
         return data.ToArray();
     }
 }
