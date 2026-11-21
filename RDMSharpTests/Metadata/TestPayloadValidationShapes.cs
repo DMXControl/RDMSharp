@@ -18,7 +18,7 @@ public class TestPayloadValidationShapes
     }
 
     /// <summary>A define with the given fields as the response of a GET.</summary>
-    private static MetadataJSONObjectDefine define(string getResponseFields)
+    internal static MetadataJSONObjectDefine define(string getResponseFields)
     {
         string json = $$"""
         {

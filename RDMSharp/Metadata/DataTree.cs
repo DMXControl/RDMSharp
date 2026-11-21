@@ -87,7 +87,8 @@ public readonly struct DataTree : IEquatable<DataTree>
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Name, Index, Value, Children, Issues);
+        // only what Equals compares by value: Children and Issues are arrays, their hash code would be the one of the reference
+        return HashCode.Combine(Name, Index, Value);
     }
 
     public static bool operator ==(DataTree left, DataTree right)

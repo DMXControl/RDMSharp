@@ -611,11 +611,13 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
         if ((this.Children is null) || (other.Children is null))
             return false;
 
+        // without this a branch would be equal to every branch that starts with its children
+        if (Children.Length != other.Children.Length)
+            return false;
+
         for (int i = 0; i < Children.Length; i++)
         {
             DataTree me = Children[i];
-            if ((other.Children?.Length ?? 0) <= i)
-                return false;
             DataTree ot = other.Children[i];
             if (!me.Equals(ot))
                 return false;
@@ -626,7 +628,14 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Children);
+        // equal branches have equal hash codes: the children are compared by value, not the array they are in
+        var hash = new HashCode();
+        hash.Add(IsUnset);
+        hash.Add(IsEmpty);
+        if (Children != null)
+            foreach (var child in Children)
+                hash.Add(child);
+        return hash.ToHashCode();
     }
 
     public static bool operator ==(DataTreeBranch left, DataTreeBranch right)
