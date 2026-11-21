@@ -23,12 +23,17 @@ public static partial class MetadataFactory
     private static readonly ILogger Logger = Logging.CreateLogger(typeof(MetadataFactory));
     private const string SCHEMA_FILE_NAME = "schema.json";
     private const string JSON_ENDING = ".json";
-    private static ConcurrentDictionary<string, MetadataVersion> metadataVersionList;
-    private static ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>> metadataVersionDefinesBagDictionary;
-    private static ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine> parameterBagDefineCache;
+    private static volatile ConcurrentDictionary<string, MetadataVersion> metadataVersionList;
+    private static readonly object metadataVersionListLock = new object();
+    // published only when it is completely loaded
+    private static volatile ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>> metadataVersionDefinesBagDictionary;
+    private static readonly ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine> parameterBagDefineCache = new ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine>();
     private static readonly List<Assembly> resourceProvider = new List<Assembly>() { typeof(MetadataFactory).Assembly };
     public static bool IsInitialized = false;
-    private static readonly SemaphoreSlim fillDefaultMetadataVersionListSemaphoreSlim = new SemaphoreSlim(1, 1);
+    /// <summary>
+    /// The defines are loaded once, every caller waits for the same Task (the first access may come from many threads at the same time).
+    /// </summary>
+    private static readonly Lazy<Task> loadDefinesTask = new Lazy<Task>(() => Task.Run(loadDefines), LazyThreadSafetyMode.ExecutionAndPublication);
     private static readonly SemaphoreSlim readSchemaSemaphoreSlim = new SemaphoreSlim(1, 1);
     private static readonly BuildOptions schemaBuildOptions = new BuildOptions { SchemaRegistry = new SchemaRegistry() };
 
@@ -46,56 +51,52 @@ public static partial class MetadataFactory
     {
         get
         {
-            if (metadataVersionList == null)
+            var list = metadataVersionList;
+            if (list != null)
+                return list.AsReadOnly();
+
+            lock (metadataVersionListLock)
             {
-                metadataVersionList = new ConcurrentDictionary<string, MetadataVersion>();
-                foreach (Assembly assembly in resourceProvider)
+                list = metadataVersionList;
+                if (list == null)
                 {
-                    try
+                    var loading = new ConcurrentDictionary<string, MetadataVersion>();
+                    foreach (Assembly assembly in resourceProvider)
                     {
-                        var resoures = GetResources(assembly);
-                        var metaDataVersions = resoures.Select(r => new MetadataVersion(r, assembly));
-                        foreach (var mv in metaDataVersions)
-                            metadataVersionList.TryAdd(mv.Path, mv);
+                        try
+                        {
+                            var resoures = GetResources(assembly);
+                            var metaDataVersions = resoures.Select(r => new MetadataVersion(r, assembly));
+                            foreach (var mv in metaDataVersions)
+                                loading.TryAdd(mv.Path, mv);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger?.LogError(e);
+                        }
                     }
-                    catch (Exception e)
-                    {
-                        Logger?.LogError(e);
-                    }
+                    metadataVersionList = list = loading;
                 }
             }
-            return metadataVersionList.AsReadOnly();
+            return list.AsReadOnly();
         }
     }
     public static IReadOnlyCollection<string> GetResources(Assembly assembly)
     {
         return assembly.GetManifestResourceNames().Where(p => p.EndsWith(JSON_ENDING)).ToList().AsReadOnly();
     }
-    private static async Task fillDefaultMetadataVersionList()
+    /// <summary>
+    /// Starts loading the defines (only once) and returns the Task every caller can wait for.
+    /// </summary>
+    private static Task fillDefaultMetadataVersionList()
     {
-        if (fillDefaultMetadataVersionListSemaphoreSlim.CurrentCount == 0)
-            return;
-        await fillDefaultMetadataVersionListSemaphoreSlim.WaitAsync();
-        try
+        return loadDefinesTask.Value;
+    }
+    private static async Task loadDefines()
+    {
+        // the defines are collected in a local dictionary and published when all of them are loaded
+        var defines = new ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>>();
         {
-            if (metadataVersionDefinesBagDictionary != null)
-                return;
-
-            metadataVersionDefinesBagDictionary = new ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>>();
-            foreach (Assembly assembly in resourceProvider)
-            {
-                try
-                {
-                    var metaDataVersions = GetResources(assembly).Select(r => new MetadataVersion(r, assembly));
-                    foreach (var mv in metaDataVersions)
-                        metadataVersionList.TryAdd(mv.Path, mv);
-                }
-                catch (Exception e)
-                {
-                    Logger?.LogError(e);
-                }
-            }
-
             var schemaList = GetMetadataSchemaVersions();
             ConcurrentDictionary<string, JsonSchema> versionSchemas = new ConcurrentDictionary<string, JsonSchema>();
             var nonSchemaVersions = metadataVersionList.Values.Where(_mv => !_mv.IsSchema).ToList();
@@ -129,7 +130,7 @@ public static partial class MetadataFactory
                     if (result.IsValid)
                     {
                         MetadataJSONObjectDefine jsonDefine = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(metadataBag.Content);
-                        metadataVersionDefinesBagDictionary.AddOrUpdate(schema,
+                        defines.AddOrUpdate(schema,
                             _ => new List<MetadataJSONObjectDefine> { jsonDefine },
                             (_, list) =>
                             {
@@ -157,14 +158,11 @@ public static partial class MetadataFactory
                 }
                 catch (Exception e)
                 {
-                    Logger?.LogError($"Exception while Deserialize {mv.Name}", e);
+                    Logger?.LogError(e, $"Exception while Deserialize {mv.Name}");
                 }
             });
+            metadataVersionDefinesBagDictionary = defines;
             IsInitialized = true;
-        }
-        finally
-        {
-            fillDefaultMetadataVersionListSemaphoreSlim.Release();
         }
     }
 
@@ -180,15 +178,13 @@ public static partial class MetadataFactory
         }
         finally
         {
-            fillDefaultMetadataVersionList();
+            _ = fillDefaultMetadataVersionList();
         }
     }
     public static MetadataJSONObjectDefine GetDefine(ParameterBag parameter)
     {
         try
         {
-            parameterBagDefineCache ??= new ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine>();
-
             if (parameterBagDefineCache.TryGetValue(parameter, out var define))
                 return define;
 
@@ -332,14 +328,26 @@ public static partial class MetadataFactory
             return null;
         return labeledIntegerTypes.ToArray();
     }
+    /// <summary>
+    /// The completely loaded defines, waits (blocking) if they are still loading.
+    /// </summary>
+    private static ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>> waitForDefines()
+    {
+        var defines = metadataVersionDefinesBagDictionary;
+        if (defines != null)
+            return defines;
+        // loadDefines runs on the thread pool without a synchronization context, so blocking here can not dead lock
+        fillDefaultMetadataVersionList().GetAwaiter().GetResult();
+        return metadataVersionDefinesBagDictionary;
+    }
     private static MetadataJSONObjectDefine getDefine(ParameterBag parameter)
     {
+        var defines = waitForDefines();
         var version = GetMetadataSchemaVersions().First();
-        if (parameter.PID == ERDM_Parameter.QUEUED_MESSAGE && metadataVersionDefinesBagDictionary is not null)
-            return metadataVersionDefinesBagDictionary[version].FirstOrDefault(d => d.PID == (ushort)parameter.PID);
+        if (parameter.PID == ERDM_Parameter.QUEUED_MESSAGE)
+            return defines[version].FirstOrDefault(d => d.PID == (ushort)parameter.PID);
 
-        fillDefaultMetadataVersionList();
-        var possibleDefines = metadataVersionDefinesBagDictionary[version].FindAll(d => d.PID == (ushort)parameter.PID && d.ManufacturerID == parameter.ManufacturerID);
+        var possibleDefines = defines[version].FindAll(d => d.PID == (ushort)parameter.PID && d.ManufacturerID == parameter.ManufacturerID);
         if (possibleDefines.Count == 1)
             return possibleDefines[0];
 
@@ -487,25 +495,14 @@ public static partial class MetadataFactory
         return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicate.SetResponse, payloadData);
     }
 
-    private static List<Type> definedDataTreeObjects;
-    public static IReadOnlyCollection<Type> DefinedDataTreeObjects
-    {
-        get
-        {
-            fillDefinedDataTreeObjects();
-            return definedDataTreeObjects;
-        }
-    }
-
-    private static void fillDefinedDataTreeObjects()
-    {
-        if (definedDataTreeObjects != null)
-            return;
-
-        definedDataTreeObjects = new List<Type>();
-
-        definedDataTreeObjects.AddRange(Tools.FindClassesWithAttribute<DataTreeObjectAttribute>());
-    }
+    /// <summary>
+    /// Built once and published when it is complete (the first parse may come from many threads at the same time,
+    /// a list that is filled while others read it leads to an empty result or "Collection was modified").
+    /// </summary>
+    private static readonly Lazy<IReadOnlyCollection<Type>> definedDataTreeObjects = new Lazy<IReadOnlyCollection<Type>>(
+        () => Tools.FindClassesWithAttribute<DataTreeObjectAttribute>().ToList().AsReadOnly(),
+        LazyThreadSafetyMode.ExecutionAndPublication);
+    public static IReadOnlyCollection<Type> DefinedDataTreeObjects => definedDataTreeObjects.Value;
 
     public static Type GetDefinedDataTreeObjectType(MetadataJSONObjectDefine define, Command.ECommandDublicate commandType)
     {
@@ -540,10 +537,6 @@ public static partial class MetadataFactory
 
     public static async Task AwaitInitialize()
     {
-        while (!IsInitialized)
-        {
-            GetMetadataDefineVersions();
-            await Task.Delay(100);
-        }
+        await fillDefaultMetadataVersionList();
     }
 }

@@ -109,4 +109,48 @@ public class TestPeerToPeerProcessFaultyResponse
             Assert.That(process.ResponsePayloadObject.IsUnset, Is.True, "3 bytes are no list of uint16");
         }
     }
+
+    /// <summary>
+    /// A device that answers every request (and every following QUEUED_MESSAGE) with ACK_TIMER again must not keep the
+    /// process running forever. Seen live: a node answered for UID 0000:00000000 with ACK_TIMER, more than 1000 requests in 3 minutes.
+    /// </summary>
+    [Test, MaxTime(20000)]
+    public async Task TestEndlessAckTimerIsBounded()
+    {
+        int requests = 0;
+        AsyncRDMRequestHelper? helper = null;
+        helper = new AsyncRDMRequestHelper(async message =>
+        {
+            Interlocked.Increment(ref requests);
+            var response = new RDMMessage()
+            {
+                Command = message.Command | ERDM_Command.RESPONSE,
+                DestUID = message.SourceUID,
+                SourceUID = message.DestUID,
+                Parameter = message.Parameter,
+                SubDevice = message.SubDevice,
+                TransactionCounter = message.TransactionCounter,
+                PortID_or_Responsetype = (byte)ERDM_ResponseType.ACK_TIMER,
+                ParameterData = new byte[] { 0x00, 0x00 }, // estimated response time 0 -> no delay, so the loop runs as fast as possible
+            };
+            await Task.Delay(1);
+            helper?.ReceiveMessage(response);
+        });
+        var process = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, DEVICE_UID, SubDevice.Root, new ParameterBag(ERDM_Parameter.DEVICE_INFO));
+        try
+        {
+            await process.Run(helper);
+        }
+        finally
+        {
+            helper.Dispose();
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(process.State, Is.EqualTo(PeerToPeerProcess.EPeerToPeerProcessState.Failed), "endless ACK_TIMER has to fail the process");
+            // the first request plus at most MAX_ACK_TIMER_RESPONSES QUEUED_MESSAGE requests
+            Assert.That(requests, Is.LessThanOrEqualTo(PeerToPeerProcess.MAX_ACK_TIMER_RESPONSES + 1), "the number of requests must be bounded");
+            Assert.That(process.ResponsePayloadObject.IsUnset, Is.True);
+        }
+    }
 }

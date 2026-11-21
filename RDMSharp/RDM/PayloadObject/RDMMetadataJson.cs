@@ -35,7 +35,7 @@ public class RDMMetadataJson : AbstractRDMPayloadObject
     public override string ToString()
     {
         StringBuilder b = new StringBuilder();
-        b.AppendLine("RDMMetadataParameterVersion");
+        b.AppendLine("RDMMetadataJson");
         b.AppendLine($"ParameterId:    {ParameterId}");
         b.AppendLine($"JSON: {JSON}");
 

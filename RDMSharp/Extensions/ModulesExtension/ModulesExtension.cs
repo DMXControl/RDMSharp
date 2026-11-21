@@ -177,6 +177,9 @@ public sealed class ModulesExtension : AbstractModulesExtension
 
         if (parameters.Contains(ERDM_Parameter.IDENTIFY_TIMEOUT))
             _modules.Add(typeof(IdentifyTimeoutModule));
+
+        if (parameters.Contains(ERDM_Parameter.METADATA_JSON))
+            _modules.Add(typeof(MetadataJsonModule));
         #endregion
 
         #region E1.31-7 2019

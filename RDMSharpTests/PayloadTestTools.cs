@@ -17,4 +17,14 @@ internal static class PayloadTestTools
         var dataTreeBranch = DataTreeBranch.FromObject(value, null, parameterBag, ERDM_Command.SET_COMMAND);
         return MetadataFactory.SetRequestMessageData(parameterBag, dataTreeBranch).SelectMany(data => data).ToArray();
     }
+
+    /// <summary>
+    /// The Parameter Data of a GET request for <paramref name="parameter"/> with an index (e.g. the PID for METADATA_JSON).
+    /// </summary>
+    public static byte[] GetRequestData(ERDM_Parameter parameter, object index)
+    {
+        var parameterBag = new ParameterBag(parameter);
+        var dataTreeBranch = DataTreeBranch.FromObject(index, null, parameterBag, ERDM_Command.GET_COMMAND);
+        return MetadataFactory.GetRequestMessageData(parameterBag, dataTreeBranch).SelectMany(data => data).ToArray();
+    }
 }

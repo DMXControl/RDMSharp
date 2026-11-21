@@ -56,7 +56,7 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
         }
         catch (Exception e)
         {
-            Logger?.LogWarning($"Can't get a Parsed Object for {define.Name} (0x{define.PID:X4})", e);
+            Logger?.LogWarning(e, $"Can't get a Parsed Object for {define.Name} (0x{define.PID:X4})");
         }
     }
 

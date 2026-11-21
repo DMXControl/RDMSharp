@@ -16,6 +16,12 @@ public class PeerToPeerProcess : INotifyPropertyChanged
 {
     private static readonly ILogger Logger = Logging.CreateLogger<PeerToPeerProcess>();
 
+    /// <summary>
+    /// The maximum number of ACK_TIMER responses within one process (to the request and to the following QUEUED_MESSAGE requests),
+    /// after that the process fails.
+    /// </summary>
+    internal const int MAX_ACK_TIMER_RESPONSES = 20;
+
     public enum EPeerToPeerProcessState
     {
         Waiting,
@@ -160,6 +166,7 @@ public class PeerToPeerProcess : INotifyPropertyChanged
             List<byte> bytes = new List<byte>();
             bool done = false;
             int counter = 0;
+            int ackTimerCounter = 0;
             do
             {
                 try
@@ -222,6 +229,14 @@ public class PeerToPeerProcess : INotifyPropertyChanged
                     case ERDM_ResponseType.ACK_TIMER_HI_RES:
                         if (response.AcknowledgeTimer is IAcknowledgeTimer timer)
                         {
+                            // a device that answers every QUEUED_MESSAGE with ACK_TIMER again would keep this process running forever
+                            // (seen live: a node answering for UID 0000:00000000, more than 1000 requests in 3 minutes)
+                            if (++ackTimerCounter > MAX_ACK_TIMER_RESPONSES)
+                            {
+                                Logger?.LogWarning($"PeerToPeerProcess: {Command} UID: {UID} SubDevice: {SubDevice} Parameter: {ParameterBag.PID} failed: {MAX_ACK_TIMER_RESPONSES} ACK_TIMER responses");
+                                State = EPeerToPeerProcessState.Failed;
+                                return;
+                            }
                             await Task.Delay(timer.EstimidatedResponseTime);
                             request = new RDMMessage()
                             {

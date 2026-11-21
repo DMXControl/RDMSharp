@@ -272,6 +272,17 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
                         var result = await requestGetParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice, pid);
                         spm.SetParameterDescription(result);
                     }
+                else if (parameter == ERDM_Parameter.METADATA_JSON)
+                {
+                    // the device describes its manufacturer specific parameters as JSON, the MetadataJsonModule registers the defines
+                    foreach (var pid in this.supportedParameters.Where(p => p.Value.IsManufacturerSpecific).Select(p => (ushort)p.Key).ToList())
+                    {
+                        // a device that does not know METADATA_JSON is asked once, not for every manufacturer specific parameter
+                        if (!spm.IsSupported || spm.UnsupportedCommandClasses.HasFlag(ERDM_CommandClass.GET))
+                            break;
+                        await requestGetParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice, pid);
+                    }
+                }
                 else
                     await requestGetParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
             }
