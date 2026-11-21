@@ -147,6 +147,97 @@ public class TestRuntimeDefineFromParameterDescription
         Assert.That(branch.Children[0].Value, Is.EqualTo((byte)0x02));
     }
 
+    private static MetadataJSONObjectDefine addDefine(ushort deviceModelId, ushort pid, RDMParameterDescription description)
+    {
+        var (uid, deviceInfo) = makeDevice(deviceModelId, 0x00020000u + deviceModelId);
+        MetadataFactory.AddDefineFromParameterDescription(uid, SubDevice.Root, deviceInfo, description);
+        var define = MetadataFactory.GetDefine(bagFor(uid, deviceInfo, pid));
+        Assert.That(define, Is.Not.Null);
+        return define!;
+    }
+
+    [Test]
+    public void TestRuntimeDefineOfAString()
+    {
+        const ushort PID = 0x8F20;
+        var define = addDefine(0xAB10, PID, new RDMParameterDescription(
+            parameterId: PID, pdlSize: 8, dataType: ERDM_DataType.STRING,
+            commandClass: ERDM_CommandClass.GET, description: "Fictional Text"));
+
+        var branch = MetadataFactory.ParseDataToPayload(define, ECommandDublicate.GetResponse, System.Text.Encoding.ASCII.GetBytes("Hello"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(branch.IsUnset, Is.False);
+            Assert.That(branch.Children[0].Value, Is.EqualTo("Hello"));
+        }
+    }
+
+    [Test]
+    public void TestRuntimeDefineOfSignedIntegers()
+    {
+        const ushort PID_8 = 0x8F21;
+        const ushort PID_16 = 0x8F22;
+        var define8 = addDefine(0xAB11, PID_8, new RDMParameterDescription(
+            parameterId: PID_8, pdlSize: 1, dataType: ERDM_DataType.INT8,
+            commandClass: ERDM_CommandClass.GET, minValidValue: 0, maxValidValue: 100, description: "Fictional Offset"));
+        var define16 = addDefine(0xAB12, PID_16, new RDMParameterDescription(
+            parameterId: PID_16, pdlSize: 2, dataType: ERDM_DataType.INT16,
+            commandClass: ERDM_CommandClass.GET, minValidValue: 0, maxValidValue: 1000, description: "Fictional Position"));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(MetadataFactory.ParseDataToPayload(define8, ECommandDublicate.GetResponse, new byte[] { 0xFE }).Children[0].Value, Is.EqualTo((sbyte)-2));
+            Assert.That(MetadataFactory.ParseDataToPayload(define16, ECommandDublicate.GetResponse, new byte[] { 0xFF, 0xFE }).Children[0].Value, Is.EqualTo((short)-2));
+        }
+    }
+
+    [Test]
+    public void TestRuntimeDefineOfAnotherDataTypeHasNoFields()
+    {
+        // a data type that can not be described as a field: the parameter is known, but nothing can be parsed
+        const ushort PID = 0x8F23;
+        var define = addDefine(0xAB13, PID, new RDMParameterDescription(
+            parameterId: PID, pdlSize: 4, dataType: ERDM_DataType.UINT32,
+            commandClass: ERDM_CommandClass.GET, description: "Fictional Counter 32"));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(define.GetRequest.HasValue, Is.True);
+            Assert.That(define.GetResponse.HasValue, Is.True);
+            Assert.That(define.GetResponse!.Value.GetIsEmpty(), Is.True, "no field for this data type");
+        }
+    }
+
+    [Test]
+    public void TestRuntimeDefineOfASetOnlyParameter()
+    {
+        const ushort PID = 0x8F24;
+        var define = addDefine(0xAB14, PID, new RDMParameterDescription(
+            parameterId: PID, pdlSize: 1, dataType: ERDM_DataType.UINT8,
+            commandClass: ERDM_CommandClass.SET, minValidValue: 1, maxValidValue: 2, description: "Fictional Action"));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(define.GetRequest.HasValue, Is.False, "nothing can be read");
+            Assert.That(define.GetResponse.HasValue, Is.False);
+            Assert.That(define.SetRequest.HasValue, Is.True);
+            Assert.That(define.SetResponse.HasValue, Is.True);
+        }
+    }
+
+    [Test]
+    public void TestRuntimeDefineWithLabelsNameFirst()
+    {
+        // the labels of a description are "value=name" or "name=value"
+        const ushort PID = 0x8F25;
+        var define = addDefine(0xAB15, PID, new RDMParameterDescription(
+            parameterId: PID, pdlSize: 1, dataType: ERDM_DataType.UINT8,
+            commandClass: ERDM_CommandClass.GET, minValidValue: 0, maxValidValue: 2, description: "Fictional Mode Off=0 On=1 Auto=2"));
+
+        var branch = MetadataFactory.ParseDataToPayload(define, ECommandDublicate.GetResponse, new byte[] { 0x01 });
+        Assert.That(branch.Children[0].Value, Is.EqualTo((byte)0x01));
+    }
+
     // An invented JSON define in the same schema as the built-in resources and as a device's METADATA_JSON.
     // Manufacturer 32752 (0x7FF0, prototyping) and PID 36624 (0x8F10) are invented - no real product.
     private const string FICTIONAL_JSON_DEFINE = """

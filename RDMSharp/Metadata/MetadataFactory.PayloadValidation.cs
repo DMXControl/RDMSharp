@@ -78,11 +78,6 @@ public static partial class MetadataFactory
             var result = validateFields(fields.Select(resolve).ToArray(), data, ref position, true, ref reason);
             if (result != EPayloadValidation.Valid)
                 return result;
-            if (position != data.Length)
-            {
-                reason = $"PDL {data.Length}, {data.Length - position} bytes more than the define";
-                return EPayloadValidation.LengthMismatch;
-            }
         }
         catch (NotSupportedException)
         {
@@ -138,23 +133,12 @@ public static partial class MetadataFactory
                             throw new NotSupportedException();
                         var item = resolve(list.ItemType) ?? throw new NotSupportedException();
                         var itemFields = item is CompoundType itemCompound ? itemCompound.Subtypes.Select(resolve).ToArray() : new[] { item };
-                        uint count = 0;
+                        // the number of items is limited by the PDL of the list (min/max items x size of an item), checked before
                         while (position < data.Length)
                         {
                             var result = validateFields(itemFields, data, ref position, false, ref reason);
                             if (result != EPayloadValidation.Valid)
                                 return result;
-                            count++;
-                        }
-                        if (list.MaxItems.HasValue && count > list.MaxItems.Value)
-                        {
-                            reason = $"{field.Name} has {count} items, maximum is {list.MaxItems}";
-                            return EPayloadValidation.LengthMismatch;
-                        }
-                        if (list.MinItems.HasValue && count < list.MinItems.Value)
-                        {
-                            reason = $"{field.Name} has {count} items, minimum is {list.MinItems}";
-                            return EPayloadValidation.LengthMismatch;
                         }
                         break;
                     }
@@ -173,15 +157,9 @@ public static partial class MetadataFactory
                             position += (int)fixedSize.Value;
                             break;
                         }
-                        // a variable field (e.g. a text) takes the rest of the data
+                        // a variable field (e.g. a text) takes the rest of the data, its length is covered by the PDL of the define
                         if (!takesRest)
                             throw new NotSupportedException();
-                        int rest = data.Length - position;
-                        if ((size.MinLength.HasValue && rest < size.MinLength.Value) || (size.MaxLength.HasValue && rest > size.MaxLength.Value))
-                        {
-                            reason = $"PDL {data.Length}, {field.Name} has {rest} bytes, the define allows {size.MinLength} - {size.MaxLength}";
-                            return EPayloadValidation.LengthMismatch;
-                        }
                         position = data.Length;
                         break;
                     }

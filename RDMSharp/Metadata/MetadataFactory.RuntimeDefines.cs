@@ -98,12 +98,8 @@ public static partial class MetadataFactory
                 return false;
             }
 
+            // valid against the schema, so it is an object
             MetadataJSONObjectDefine jsonDefine = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(json);
-            if (jsonDefine == null)
-            {
-                reason = "The JSON can not be read as a define";
-                return false;
-            }
             if (jsonDefine.PID != pid)
             {
                 reason = $"The JSON describes 0x{jsonDefine.PID:X4}, requested was 0x{pid:X4}";

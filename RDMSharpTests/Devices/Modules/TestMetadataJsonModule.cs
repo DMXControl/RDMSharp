@@ -3,6 +3,7 @@ using RDMSharp.PayloadObject;
 using RDMSharp.RDM.Device.Module;
 using RDMSharpTests.Devices.Mock;
 using RDMSharpTests.Metadata;
+using static RDMSharp.Metadata.JSON.Command;
 
 namespace RDMSharpTests.RDM.Devices.Modules;
 
@@ -207,6 +208,75 @@ public class TestMetadataJsonModule
     }
 
     [Test]
+    public void TestWithoutDefinesNothingIsDelivered()
+    {
+        Assert.That(new MetadataJsonModule((RDMMetadataJson[])null!).MetadataJsons, Is.Empty);
+
+        var uid = new UID(PROTOTYPE_MANUFACTURER, 0x4D4A0010);
+        using var device = new MockGeneratedDevice1(uid, new IModule[] { new MetadataJsonModule() });
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(device.Parameters, Does.Contain(ERDM_Parameter.METADATA_JSON));
+            Assert.That(device.GetAllParameterValues(), Does.Not.ContainKey(ERDM_Parameter.METADATA_JSON), "there is nothing to deliver");
+        }
+    }
+
+    /// <summary>
+    /// A JSON that arrives after the module exists (e.g. the device sends it again after an update) is registered,
+    /// the module does not only read what the device model already has.
+    /// </summary>
+    [Test]
+    public async Task TestJsonDeliveredLaterIsRegistered()
+    {
+        var uid = new UID(PROTOTYPE_MANUFACTURER, 0x4D4A0011);
+        const ERDM_Parameter parameter = (ERDM_Parameter)0x9211;
+        using var generatedPlain = new PlainOtherModelMockDevice(uid);
+        using var remote = new MetadataJsonInjectDevice(uid);
+        while (!remote.IsInitialized)
+            await Task.Delay(100);
+        var module = new MetadataJsonModule(remote);
+        Assert.That(module.RegisteredParameters, Is.Empty, "the device has no JSON defines");
+
+        remote.InjectMetadataJson(parameter, TestAddDefineFromJson.MakeJson(PROTOTYPE_MANUFACTURER, (int)parameter));
+        await Wait.UntilAsync(() => Wait.Holds(module.RegisteredParameters, Does.Contain(parameter)));
+
+        var bag = new ParameterBag(parameter, uid.ManufacturerID, remote.DeviceInfo.DeviceModelId, remote.DeviceInfo.SoftwareVersionId);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(module.RegisteredParameters, Does.Contain(parameter));
+            Assert.That(MetadataFactory.GetDefine(bag), Is.Not.Null);
+        }
+    }
+
+    /// <summary>
+    /// A parameter whose GET needs a request payload (an index) can not be requested by the module, but its define is registered.
+    /// </summary>
+    [Test]
+    public async Task TestParameterWithRequestPayloadIsRegisteredButNotRequested()
+    {
+        var uid = new UID(PROTOTYPE_MANUFACTURER, 0x4D4A0012);
+        const ERDM_Parameter parameter = (ERDM_Parameter)0x9212;
+        using var generatedPlain = new PlainOtherModelMockDevice(uid);
+        using var remote = new MetadataJsonInjectDevice(uid);
+        while (!remote.IsInitialized)
+            await Task.Delay(100);
+        var module = new MetadataJsonModule(remote);
+
+        string json = $"{{\"name\":\"FICTIONAL_INDEXED\",\"manufacturer_id\":{PROTOTYPE_MANUFACTURER},\"pid\":{(int)parameter},\"version\":1," +
+                      "\"get_request_subdevice_range\":[\"root\"],\"get_request\":[{\"name\":\"index\",\"type\":\"uint8\"}],\"get_response\":[{\"name\":\"level\",\"type\":\"uint8\"}]}";
+        remote.InjectMetadataJson(parameter, json);
+        await Wait.UntilAsync(() => Wait.Holds(module.RegisteredParameters, Does.Contain(parameter)));
+        await Task.Delay(200);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(module.RegisteredParameters, Does.Contain(parameter));
+            Assert.That(module.RejectedParameters, Is.Empty);
+            Assert.That(remote.GetAllParameterValues(), Does.Not.ContainKey(parameter), "a GET with a request payload is not requested by the module");
+        }
+    }
+
+    [Test]
     public void TestModulesExtensionCreatesModuleForMetadataJson()
     {
         Assert.That(RDMSharp.Extensions.ExtensionsManager.Instance.TryGetModulesExtensions(EManufacturer.ESTA, out var extensions), Is.True);
@@ -240,6 +310,45 @@ public class TestMetadataJsonModule
 
         public MetadataJsonOtherModelMockDevice(UID uid, string json, ERDM_Parameter parameter) : base(uid, metadataJsonModules(json, parameter))
         {
+        }
+    }
+
+    /// <summary>
+    /// A device of another model without any JSON define, so nothing of the other tests is shared with it.
+    /// </summary>
+    class PlainOtherModelMockDevice : MockGeneratedDevice1
+    {
+        public override ushort DeviceModelID => 0x4D4B;
+
+        public PlainOtherModelMockDevice(UID uid) : base(uid)
+        {
+        }
+    }
+
+    /// <summary>
+    /// A remote device that gets a METADATA_JSON value like a real response: the payload is parsed with the define, then it is stored in the cache.
+    /// </summary>
+    internal sealed class MetadataJsonInjectDevice : AbstractMockDevice
+    {
+        public MetadataJsonInjectDevice(UID uid) : base(uid)
+        {
+        }
+
+        protected sealed override AbstractMockSubDevice createSubDevice(UID uid, SubDevice subDevice)
+        {
+            return new MockSubDevice(uid, subDevice);
+        }
+
+        protected override void OnDispose()
+        {
+        }
+
+        public void InjectMetadataJson(ERDM_Parameter parameter, string json)
+        {
+            var payload = new RDMMetadataJson(parameter, json);
+            var define = MetadataFactory.GetDefine(new ParameterBag(ERDM_Parameter.METADATA_JSON));
+            var branch = MetadataFactory.ParseDataToPayload(define, ECommandDublicate.GetResponse, payload.ToPayloadData());
+            updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ERDM_Parameter.METADATA_JSON, parameter), branch);
         }
     }
 

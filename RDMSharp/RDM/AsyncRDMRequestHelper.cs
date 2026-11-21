@@ -191,6 +191,11 @@ public class AsyncRDMRequestHelper : IDisposable
             Logger?.LogTrace($"Successful Request: {request?.ToString()} Response: {response?.ToString()} ElapsedTime: {bag2?.ElapsedTime}");
             return result;
         }
+        catch (OperationCanceledException) when (this.IsDisposing || this.IsDisposed)
+        {
+            // Dispose cancels the waiting, that is no error of the request
+            return new RequestResult(request, disposing: true);
+        }
         catch (TimeoutException)
         {
             Logger?.LogInformation($"Timeout Exception Request: {request}");

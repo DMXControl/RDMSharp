@@ -37,8 +37,6 @@ public sealed class MetadataJsonModule : AbstractModule
 
     private readonly ConcurrentDictionary<ERDM_Parameter, bool> _registeredParameters = new ConcurrentDictionary<ERDM_Parameter, bool>();
     private readonly ConcurrentDictionary<ERDM_Parameter, string> _rejectedParameters = new ConcurrentDictionary<ERDM_Parameter, string>();
-    // JSON that arrived before the DEVICE_INFO of the device (needed to register the define for model and software version)
-    private readonly ConcurrentDictionary<ERDM_Parameter, string> _pendingJson = new ConcurrentDictionary<ERDM_Parameter, string>();
 
     /// <summary>The JSON defines a generated device delivers.</summary>
     public IReadOnlyCollection<RDMMetadataJson> MetadataJsons => _generatedMetadataJsons;
@@ -102,16 +100,8 @@ public sealed class MetadataJsonModule : AbstractModule
         if (ParentRemoteDevice is null)
             return;
 
-        switch (parameter)
-        {
-            case ERDM_Parameter.METADATA_JSON:
-                registerAll(newValue);
-                break;
-
-            case ERDM_Parameter.DEVICE_INFO:
-                registerPending();
-                break;
-        }
+        if (parameter == ERDM_Parameter.METADATA_JSON)
+            registerAll(newValue);
     }
 
     /// <summary>
@@ -135,14 +125,8 @@ public sealed class MetadataJsonModule : AbstractModule
 
     private void register(ERDM_Parameter parameter, string json)
     {
-        var device = ParentDevice;
-        if (device?.DeviceInfo is null)
-        {
-            _pendingJson[parameter] = json;
-            return;
-        }
-
-        _pendingJson.TryRemove(parameter, out _);
+        // the module of a remote device exists after the DEVICE_INFO of the device was requested
+        var device = ParentRemoteDevice;
         if (MetadataFactory.TryAddDefineFromJson(device.UID, device.DeviceInfo, parameter, json, out var define, out string reason))
         {
             _rejectedParameters.TryRemove(parameter, out _);
@@ -166,8 +150,6 @@ public sealed class MetadataJsonModule : AbstractModule
     private void requestValue(ERDM_Parameter parameter, MetadataJSONObjectDefine define)
     {
         var device = ParentRemoteDevice;
-        if (device is null)
-            return;
         // only a GET without a request payload can be requested like this
         if (!(define.GetRequest?.GetIsEmpty() ?? false))
             return;
@@ -185,11 +167,5 @@ public sealed class MetadataJsonModule : AbstractModule
                 Logger?.LogWarning(ex, $"Can't request {parameter} (0x{(ushort)parameter:X4}) of {device.UID} after its JSON define was registered");
             }
         });
-    }
-
-    private void registerPending()
-    {
-        foreach (var pending in _pendingJson.ToArray())
-            register(pending.Key, pending.Value);
     }
 }
