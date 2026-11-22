@@ -20,9 +20,17 @@ public class TestPeerToPeerProcessFaultyResponse
     /// <summary>
     /// Runs a GET of <paramref name="parameter"/>, the device answers with <paramref name="responses"/> (Response Type, Parameter Data) one after the other.
     /// </summary>
-    private static async Task<PeerToPeerProcess> runGet(ERDM_Parameter parameter, params (ERDM_ResponseType ResponseType, byte[] Data)[] responses)
+    private static Task<PeerToPeerProcess> runGet(ERDM_Parameter parameter, params (ERDM_ResponseType ResponseType, byte[] Data)[] responses)
+        => runGet(parameter, null, responses);
+
+    /// <summary>
+    /// Runs a GET of <paramref name="parameter"/> with <paramref name="requestValue"/> as Parameter Data (e.g. an endpoint ID).
+    /// </summary>
+    private static async Task<PeerToPeerProcess> runGet(ERDM_Parameter parameter, object? requestValue, params (ERDM_ResponseType ResponseType, byte[] Data)[] responses)
     {
-        var process = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, DEVICE_UID, SubDevice.Root, new ParameterBag(parameter));
+        var bag = new ParameterBag(parameter);
+        DataTreeBranch? payload = requestValue is null ? null : DataTreeBranch.FromObject(requestValue, null, bag, ERDM_Command.GET_COMMAND);
+        var process = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, DEVICE_UID, SubDevice.Root, bag, payload);
         int index = 0;
         AsyncRDMRequestHelper? helper = null;
         helper = new AsyncRDMRequestHelper(async message =>
@@ -75,6 +83,46 @@ public class TestPeerToPeerProcessFaultyResponse
         {
             Assert.That(process.State, Is.EqualTo(PeerToPeerProcess.EPeerToPeerProcessState.Finished));
             Assert.That(process.ResponsePayloadObject.IsUnset, Is.True, "a boolean other than 0x00/0x01 must not be parsed");
+        }
+    }
+
+    [Test, MaxTime(10000)]
+    public async Task TestEndpointRespondersWithoutDataMeansNoResponders()
+    {
+        // Luminex LumiSplit 1.6 FW 7 (capture 2026-11-22): GET ENDPOINT_RESPONDERS for endpoint 3 is answered with an ACK without Parameter Data,
+        // E1.37-7 needs the endpoint ID and the list change number. Unambiguous: the endpoint has no responders.
+        var process = await runGet(ERDM_Parameter.ENDPOINT_RESPONDERS, (ushort)3, (ERDM_ResponseType.ACK, Array.Empty<byte>()));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(process.State, Is.EqualTo(PeerToPeerProcess.EPeerToPeerProcessState.Finished));
+            Assert.That(process.ResponsePayloadObject.IsUnset, Is.False, "the empty ACK is taken as 'no responders'");
+            var responders = process.ResponsePayloadObject.ParsedObject as RDMSharp.PayloadObject.GetEndpointRespondersResponse;
+            Assert.That(responders, Is.Not.Null);
+            Assert.That(responders!.EndpointId, Is.EqualTo((ushort)3), "the endpoint is the requested one");
+            Assert.That(responders.ListChangedNumber, Is.Zero);
+            Assert.That(responders.UIDs, Is.Empty);
+        }
+    }
+
+    [Test, MaxTime(10000)]
+    public async Task TestEndpointRespondersTruncatedStaysIgnored()
+    {
+        // only the empty ACK is unambiguous: a truncated answer is still not interpreted
+        var process = await runGet(ERDM_Parameter.ENDPOINT_RESPONDERS, (ushort)3, (ERDM_ResponseType.ACK, new byte[] { 0x00, 0x03, 0x00 }));
+        Assert.That(process.ResponsePayloadObject.IsUnset, Is.True);
+    }
+
+    [Test]
+    public void TestRepairOnlyForEndpointResponders()
+    {
+        var curve = MetadataFactory.GetDefine(new ParameterBag(ERDM_Parameter.CURVE));
+        var responders = MetadataFactory.GetDefine(new ParameterBag(ERDM_Parameter.ENDPOINT_RESPONDERS));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(MetadataFactory.TryRepairPayload(curve, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, Array.Empty<byte>(), Array.Empty<byte>(), out _, out _), Is.False);
+            Assert.That(MetadataFactory.TryRepairPayload(responders, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, null!, Array.Empty<byte>(), out _, out _), Is.False, "without the requested endpoint nothing can be completed");
+            Assert.That(MetadataFactory.TryRepairPayload(responders, RDMSharp.Metadata.JSON.Command.ECommandDublicate.GetResponse, new byte[] { 0x00, 0x07 }, Array.Empty<byte>(), out var repaired, out _), Is.True);
+            Assert.That(repaired, Is.EqualTo(new byte[] { 0x00, 0x07, 0, 0, 0, 0 }));
         }
     }
 

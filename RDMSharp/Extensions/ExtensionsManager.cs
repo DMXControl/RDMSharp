@@ -118,15 +118,22 @@ internal class ExtensionsManager
     {
         ensureLoaded(ref supportedParametersExtensionsLoaded, () => supportedParametersExtensions.IsEmpty, LoadSupportedParametersExtension);
 
-        List<ISupportedParametersExtension> result = new();
-
-        foreach (var spe in supportedParametersExtensions.Values)
-            if (spe.Manufacturer == EManufacturer.ESTA || spe.Manufacturer == manufacturer)
-                result.Add(spe);
-
-        supportedParametersExtensionsResult = result;
+        supportedParametersExtensionsResult = extensionsFor(manufacturer).ToList();
         return true;
     }
+
+    /// <summary>
+    /// The extensions for a manufacturer: the ESTA extensions first, so their result counts first (the order of the dictionary is undefined).
+    /// </summary>
+    private IEnumerable<ISupportedParametersExtension> extensionsFor(EManufacturer manufacturer)
+        => supportedParametersExtensions.Values
+            .Where(spe => spe.Manufacturer == EManufacturer.ESTA || spe.Manufacturer == manufacturer)
+            .OrderBy(spe => spe.Manufacturer == EManufacturer.ESTA ? 0 : 1)
+            .ThenBy(spe => spe.Key, StringComparer.Ordinal);
+
+    /// <summary>E1.20: 0x8000 - 0xFFDF are the manufacturer specific PIDs.</summary>
+    private static bool isManufacturerSpecific(ERDM_Parameter parameter)
+        => (ushort)parameter >= 0x8000 && (ushort)parameter <= 0xFFDF;
     public bool TryGetSupportedParameterMetadata(EManufacturer manufacturer, ERDM_Parameter parameter, out SupportedParameterMetadata supportedParameterMetadata)
     {
         try
@@ -138,14 +145,16 @@ internal class ExtensionsManager
             bool isManufacturerInternalParameter = false;
             string name = null;
             int updateTimeMilliseconds = -1;
-            foreach (var spe in supportedParametersExtensions.Values)
+            foreach (var spe in extensionsFor(manufacturer))
             {
-                if (spe.Manufacturer != EManufacturer.ESTA && spe.Manufacturer != manufacturer)
-                    continue;
-
                 isBlueprintModelParameter |= spe.BlueprintModelParameters.Contains(parameter);
                 isBlueprintModelPersonalityParameter |= spe.BlueprintModelPersonalityParameters.Contains(parameter);
                 isManufacturerInternalParameter |= spe.ManufacturerInternalParameters.Contains(parameter);
+
+                // A manufacturer extension describes its own (manufacturer specific) parameters only. Its defaults are meant for those,
+                // for an ESTA parameter (e.g. SENSOR_VALUE) they would replace the update time of the standard (seen: 10 min instead of 20 s).
+                if (spe.Manufacturer != EManufacturer.ESTA && !isManufacturerSpecific(parameter))
+                    continue;
 
                 if (name == null && spe.TryGetParameterName(parameter, out var paramName))
                     name = paramName;

@@ -274,6 +274,13 @@ public class PeerToPeerProcess : INotifyPropertyChanged
                             // the (put together) Parameter Data has to fit the define, otherwise it is not interpreted and the Response stays Unset
                             if (MetadataFactory.ValidatePayload(Define, commandResponse, _byteArray, out string reason) == EPayloadValidation.Valid)
                                 ResponsePayloadObject = MetadataFactory.ParseDataToPayload(Define, commandResponse, _byteArray);
+                            else if (request.Parameter == ParameterBag.PID
+                                && MetadataFactory.TryRepairPayload(Define, commandResponse, parameterData, _byteArray, out byte[] repaired, out string note)
+                                && MetadataFactory.ValidatePayload(Define, commandResponse, repaired, out _) == EPayloadValidation.Valid)
+                            {
+                                Logger?.LogDebug($"Response of {UID} SubDevice: {SubDevice} Parameter: {ParameterBag.PID} ({Command}) is faulty ({reason}): {note}");
+                                ResponsePayloadObject = MetadataFactory.ParseDataToPayload(Define, commandResponse, repaired);
+                            }
                             else
                                 Logger?.LogWarning($"Response of {UID} SubDevice: {SubDevice} Parameter: {ParameterBag.PID} ({Command}) is ignored: {reason}");
                         }

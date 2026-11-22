@@ -31,6 +31,37 @@ public static partial class MetadataFactory
     };
 
     /// <summary>
+    /// Some devices answer with a faulty Payload whose meaning is still unambiguous. Such a Payload is completed from the request,
+    /// everything else that does not fit the define stays uninterpreted.
+    /// <list type="bullet">
+    /// <item>E1.37-7 ENDPOINT_RESPONDERS: an ACK without Parameter Data for an endpoint without responders
+    /// (seen: Luminex LumiSplit 1.6 FW 7, once it never found a responder on its outputs). It means: no responders,
+    /// the endpoint is the requested one, the list change number is unknown (0).</item>
+    /// </list>
+    /// </summary>
+    /// <param name="requestData">The Parameter Data of the request the Payload answers</param>
+    /// <param name="repaired">The completed Parameter Data, <c>null</c> if it can not be repaired</param>
+    /// <param name="note">What was repaired</param>
+    public static bool TryRepairPayload(MetadataJSONObjectDefine define, Command.ECommandDublicate commandType, byte[] requestData, byte[] data, out byte[] repaired, out string note)
+    {
+        repaired = null;
+        note = null;
+        if (define is null || define.ManufacturerID != 0)
+            return false;
+
+        if (define.PID == (ushort)ERDM_Parameter.ENDPOINT_RESPONDERS
+            && commandType == Command.ECommandDublicate.GetResponse
+            && (data?.Length ?? 0) == 0
+            && requestData?.Length == 2)
+        {
+            repaired = new byte[] { requestData[0], requestData[1], 0, 0, 0, 0 };
+            note = $"ACK without Parameter Data taken as: endpoint {(requestData[0] << 8) | requestData[1]} has no responders";
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
     /// Checks the Parameter Data against the define before it is parsed, so a faulty Payload is not interpreted:
     /// <list type="bullet">
     /// <item>the length has to fit the fields of the define (fixed sizes, PDL range, complete list items, text length),</item>
