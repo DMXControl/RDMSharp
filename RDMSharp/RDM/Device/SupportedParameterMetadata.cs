@@ -29,6 +29,42 @@ public class SupportedParameterMetadata : INotifyPropertyChanged
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSupported)));
         }
     }
+    private readonly ConcurrentDictionary<UID, int> silentReports = new();
+    private bool _isSilent;
+    /// <summary>
+    /// The devices of the model do not answer this parameter while they answer everything else: a faulty implementation ignores a parameter it does not
+    /// support instead of a NACK with UNKNOWN_PID. It is only set when it is confirmed (a second device of the model did not answer, or the same device
+    /// the second time), because a device that is too busy drops requests as well. It is withdrawn as soon as a device answers the parameter.
+    /// </summary>
+    public bool IsSilent
+    {
+        get
+        {
+            return _isSilent;
+        }
+        private set
+        {
+            if (_isSilent == value)
+                return;
+            _isSilent = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSilent)));
+        }
+    }
+    internal void ReportSilent(UID uid)
+    {
+        int reports = silentReports.AddOrUpdate(uid, 1, (_, count) => count + 1);
+        if (silentReports.Count >= 2 || reports >= 2)
+            IsSilent = true;
+    }
+    internal void ReportAnswered()
+    {
+        // called for every answer: nothing to do for almost all of them
+        if (silentReports.IsEmpty && !IsSilent)
+            return;
+        silentReports.Clear();
+        IsSilent = false;
+    }
+
     private ERDM_CommandClass _unsupportedCommandClasses = ERDM_CommandClass.NONE;
     public ERDM_CommandClass UnsupportedCommandClasses
     {

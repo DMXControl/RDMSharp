@@ -316,8 +316,99 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
 
         }
     }
+    #region Requests without an answer
+    /// <summary>
+    /// A request that got no answer: either the device is silent for this parameter (it answered everything else, so it does not
+    /// support it and ignores it, a faulty implementation), or it was not reachable (or too busy) and the request is only missed.
+    /// </summary>
+    private sealed class UnansweredRequest
+    {
+        public bool IsSilent;
+        public DateTime LastTry = DateTime.UtcNow;
+        public int Attempts;
+    }
+    // An entry of a list (it has an index), or a parameter the device answered before, is not taken for a parameter the device ignores:
+    // a lost answer can happen to every request. It is only asked for rarely when it got no answer this often in a row.
+    private const int MAX_ATTEMPTS_OF_AN_ENTRY = 3;
+    // the parameters the device answered (an ACK or a NACK): they are no parameters the device ignores
+    private readonly ConcurrentDictionary<ERDM_Parameter, byte> answeredParameters = new();
+    private readonly ConcurrentDictionary<(ERDM_Parameter Parameter, object Index), UnansweredRequest> unansweredRequests = new();
+
+    protected override async Task OnProcessTimedOut(PeerToPeerProcess process)
+    {
+        // A SET without an answer says nothing about the support, DEVICE_INFO is the question itself and the queued messages are polled anyway.
+        if (process.Command != ERDM_Command.GET_COMMAND)
+            return;
+        var parameter = process.ParameterBag.PID;
+        if (parameter == ERDM_Parameter.DEVICE_INFO || parameter == ERDM_Parameter.QUEUED_MESSAGE || parameter == ERDM_Parameter.STATUS_MESSAGES)
+            return;
+
+        // What does the missing answer mean? A device that answers DEVICE_INFO right after it is alive and ignores this parameter.
+        // A device that does not answer that either is not reachable or too busy: that is nothing to blame the parameter for.
+        bool alive = await probeAlive(UID, Subdevice);
+        var key = (parameter, process.RequestIndex);
+        var unanswered = unansweredRequests.GetOrAdd(key, _ => new UnansweredRequest());
+        unanswered.LastTry = DateTime.UtcNow;
+        if (!alive)
+        {
+            Logger?.LogInformation($"{UID}: {parameter} got no answer and the device is not reachable, it is asked again later");
+            return;
+        }
+
+        unanswered.Attempts++;
+        if (key.Item2 is null && !answeredParameters.ContainsKey(parameter))
+        {
+            // The device never answered this parameter, but answers everything else. The model is told, it is flagged when it is confirmed
+            // (see SupportedParameterMetadata.IsSilent).
+            unanswered.IsSilent = true;
+            deviceModel?.ReportSilent(parameter, UID);
+            Logger?.LogInformation($"{UID}: {parameter} got no answer, the device answers everything else: it ignores the parameter");
+        }
+        else if (unanswered.Attempts >= MAX_ATTEMPTS_OF_AN_ENTRY)
+        {
+            // it answered before (or it is an entry of a list): a lost answer says nothing about the model, so nothing is reported
+            unanswered.IsSilent = true;
+        }
+    }
+    protected override void OnProcessAnswered(PeerToPeerProcess process)
+    {
+        var parameter = process.ParameterBag.PID;
+        answeredParameters.TryAdd(parameter, 0);
+        unansweredRequests.TryRemove((parameter, process.RequestIndex), out _);
+        // The answer of any device withdraws what was reported about the parameter, not only the one of the device that reported it:
+        // a parameter that is answered is not ignored.
+        deviceModel?.ReportAnswered(parameter);
+    }
+    private bool isParked(ERDM_Parameter parameter, object index)
+    {
+        return unansweredRequests.ContainsKey((parameter, index));
+    }
+    /// <summary>
+    /// Asks again for what got no answer: a silent parameter now and then (does it answer by now?), what was missed because the device was not reachable
+    /// sooner. The outcome is handled like the one of every request: an answer ends it, no answer is classified again.
+    /// </summary>
+    private async Task retryUnansweredRequests()
+    {
+        if (deviceModel is not null)
+            await deviceModel.RetryMissed(UID, Subdevice);
+
+        foreach (var pair in unansweredRequests.ToArray())
+        {
+            int interval = pair.Value.IsSilent ? GlobalTimers.Instance.SilentParameterRetryInterval : GlobalTimers.Instance.MissedRequestRetryInterval;
+            if (DateTime.UtcNow - pair.Value.LastTry < TimeSpan.FromMilliseconds(interval))
+                continue;
+            pair.Value.LastTry = DateTime.UtcNow;
+            await requestParameter(pair.Key.Parameter, pair.Key.Index);
+            await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
+        }
+    }
+    #endregion
+
     private async Task requestParameters()
     {
+        foreach (var silent in this.DeviceModel?.GetSilentParameters() ?? Array.Empty<SupportedParameterMetadata>())
+            unansweredRequests.TryAdd((silent.Parameter, null), new UnansweredRequest { IsSilent = true });
+
         var parameters = this.DeviceModel?.GetSupportedNonBlueprintParameters().Select(spm => spm.Parameter);
         if (parameters == null)
             return;
@@ -407,6 +498,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         await updateSenaphoreSlim.WaitAsync();
         try
         {
+            await retryUnansweredRequests();
             await requestQueuedMessages();
             var loopDetectionCache = new HashSet<ParameterUpdatedBag>();
             while (ParameterUpdatedBag.TryPeek(out ParameterUpdatedBag bag))
@@ -442,7 +534,8 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
                 {
                     Stopwatch sw = new Stopwatch();
                     sw?.Restart();
-                    await requestParameter(bag.Parameter, bag.Index);
+                    if (!isParked(bag.Parameter, bag.Index))
+                        await requestParameter(bag.Parameter, bag.Index);
                     sw?.Stop();
                     Logger?.LogTrace($"Parameter update for {bag.Parameter} with index {bag.Index} took {sw.ElapsedMilliseconds}ms");
 
@@ -550,7 +643,18 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
             deviceModel.Initialized += DeviceModel_Initialized;
             deviceModel.ParameterValueAdded += DeviceModel_ParameterValueAdded;
             if (!deviceModel.IsInitializing)
-                await deviceModel.Initialize();
+            {
+                // the model is initialized by the first device that can: if this one does not answer (not reachable, or too busy) it is tried again
+                await deviceModel.Initialize(UID, Subdevice);
+                while (!deviceModel.IsInitialized && !IsDisposed && !IsDisposing)
+                {
+                    await Task.Delay(GlobalTimers.Instance.MissedRequestRetryInterval);
+                    while (deviceModel.IsInitializing)
+                        await Task.Delay(100);
+                    if (!deviceModel.IsInitialized)
+                        await deviceModel.Initialize(UID, Subdevice);
+                }
+            }
             else
                 InvkoeDeviceModelParameterValueAdded();
         }

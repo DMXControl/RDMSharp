@@ -29,6 +29,8 @@ public class GlobalTimers
     public const int DefaultDiscoveryTimeout = 5; // 5 milliseconds
     public const int DefaultRequestTimeout = 10000; // 10 seconds
     public const int DefaultRequestRetryInterval = 1500; // 1.5 seconds
+    public const int DefaultMissedRequestRetryInterval = 10000; // 10 seconds
+    public const int DefaultSilentParameterRetryInterval = 1800000; // 30 minutes
 
     public const int DefaultParameterUpdateTimerInterval = 7500; // 7.5 seconds
     public const int DefaultPresentUpdateTimerInterval = 500; // 0.5 seconds
@@ -49,6 +51,16 @@ public class GlobalTimers
     /// Time in milliseconds after which a (non discovery) request without a response is sent again.
     /// </summary>
     public int RequestRetryInterval { get; set; } = DefaultRequestRetryInterval;
+    /// <summary>
+    /// Time in milliseconds after which a request that got no answer while the device could not be reached (or an entry of a list that got none)
+    /// is asked for again.
+    /// </summary>
+    public int MissedRequestRetryInterval { get; set; } = DefaultMissedRequestRetryInterval;
+    /// <summary>
+    /// Time in milliseconds after which a parameter the device did not answer (while it answered everything else) is asked for again,
+    /// to find out if it answers now. A parameter that is answered is not silent any more.
+    /// </summary>
+    public int SilentParameterRetryInterval { get; set; } = DefaultSilentParameterRetryInterval;
     /// <summary>
     /// Upper limit in milliseconds for the update time of a single parameter (see <c>ParameterUpdateTimeAttribute</c>).
     /// A negative value means no limit. Only used to speed up tests, where e.g. DMX_PERSONALITY would otherwise be polled only every 62 seconds.
@@ -233,6 +245,8 @@ public class GlobalTimers
         DiscoveryTimeout = DefaultDiscoveryTimeout;
         RequestTimeout = DefaultRequestTimeout;
         RequestRetryInterval = DefaultRequestRetryInterval;
+        MissedRequestRetryInterval = DefaultMissedRequestRetryInterval;
+        SilentParameterRetryInterval = DefaultSilentParameterRetryInterval;
         ParameterUpdateTimeLimit = -1;
 
         ParameterUpdateTimerInterval = DefaultParameterUpdateTimerInterval;
@@ -249,6 +263,8 @@ public class GlobalTimers
         PresentLostTime = 10000;
 
         DiscoveryTimeout = 15;
+        MissedRequestRetryInterval = 300;
+        SilentParameterRetryInterval = 500;
         ParameterUpdateTimeLimit = 250;
 
         ParameterUpdateTimerInterval = 15;

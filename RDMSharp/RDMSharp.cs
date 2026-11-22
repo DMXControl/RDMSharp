@@ -108,24 +108,23 @@ public class RDMSharp
             return 0;
         }
     }
-    internal Task lockTransaktion(UID uid, TimeSpan? timeout = null)
+    /// <summary>
+    /// Waits until no other transaction runs for the UID (one request at a time).
+    /// </summary>
+    /// <returns>
+    /// false if the wait timed out: the caller can go on, but it does not hold the lock and must not release it
+    /// (that would let two transactions run at once from then on).
+    /// </returns>
+    internal async Task<bool> lockTransaktion(UID uid, TimeSpan? timeout = null)
     {
-        if (!transactionLock.TryGetValue(uid, out SemaphoreSlim semaphore))
-        {
-            semaphore = new SemaphoreSlim(1);
-            transactionLock.TryAdd(uid, semaphore);
-        }
+        // the semaphore is created once, even if several transactions of a new UID start at the same time
+        var semaphore = transactionLock.GetOrAdd(uid, _ => new SemaphoreSlim(1, 1));
 
         if (timeout.HasValue)
-            try
-            {
-                return semaphore.WaitAsync(timeout.Value);
-            }
-            catch (TimeoutException) { }// Ignore Exception
-        else
-            return semaphore.WaitAsync();
+            return await semaphore.WaitAsync(timeout.Value);
 
-        return Task.CompletedTask;
+        await semaphore.WaitAsync();
+        return true;
     }
     internal void unlockTransaktion(UID uid)
     {

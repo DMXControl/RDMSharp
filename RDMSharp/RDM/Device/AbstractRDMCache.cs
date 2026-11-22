@@ -237,6 +237,44 @@ public abstract class AbstractRDMCache : IDisposable
 
         parameterMetadataBag[ptpProcess.ParameterBag.PID].AddPeerToPeerProcess(ptpProcess);
         await ptpProcess?.Run();
+        try
+        {
+            if (ptpProcess.TimedOut)
+                await OnProcessTimedOut(ptpProcess);
+            else if (ptpProcess.State == EPeerToPeerProcessState.Finished || ptpProcess.NackReason.HasValue)
+                OnProcessAnswered(ptpProcess);
+        }
+        catch (Exception e)
+        {
+            Logger?.LogError(e);
+        }
+    }
+
+    /// <summary>
+    /// A request got no answer at all. It says nothing about the parameter yet: the device can ignore a parameter it does not support
+    /// (faulty implementation), or it is too busy or not reachable.
+    /// </summary>
+    protected virtual Task OnProcessTimedOut(PeerToPeerProcess process)
+    {
+        return Task.CompletedTask;
+    }
+    /// <summary>
+    /// The device answered a request (an ACK or a NACK).
+    /// </summary>
+    protected virtual void OnProcessAnswered(PeerToPeerProcess process)
+    {
+    }
+    /// <summary>
+    /// Asks for DEVICE_INFO, every device has to answer it. Tells a device that ignores one parameter from a device that
+    /// does not answer at all (not reachable, or too busy).
+    /// </summary>
+    protected async Task<bool> probeAlive(UID uid, SubDevice subDevice)
+    {
+        var probe = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, new ParameterBag(ERDM_Parameter.DEVICE_INFO));
+        probe.BeforeSendMessage = OnSendRDMMessage;
+        probe.ResponseMessage = OnResponseMessage;
+        await probe.Run();
+        return probe.State == EPeerToPeerProcessState.Finished || probe.NackReason.HasValue;
     }
     protected async Task<bool> requestSetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
     {
@@ -382,7 +420,7 @@ public abstract class AbstractRDMCache : IDisposable
                                 DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
                                 PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
                                 await runPeerToPeerProcess(ptpProcess);
-                                if (ptpProcess.State == EPeerToPeerProcessState.Failed && (ptpProcess.NackReason == ERDM_NackReason.DATA_OUT_OF_RANGE || ptpProcess.NackReason == ERDM_NackReason.UNKNOWN_PID || ptpProcess.NackReason is null))
+                                if (ptpProcess.State == EPeerToPeerProcessState.Failed && !ptpProcess.TimedOut && (ptpProcess.NackReason == ERDM_NackReason.DATA_OUT_OF_RANGE || ptpProcess.NackReason == ERDM_NackReason.UNKNOWN_PID || ptpProcess.NackReason is null))
                                 {
                                     if (((IComparable)dataOutOfRangeMin).CompareTo(i) < 0)
                                         return new RequestResult(ptpProcess);

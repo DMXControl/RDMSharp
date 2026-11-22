@@ -1,4 +1,5 @@
-﻿using RDMSharp.Extensions;
+﻿using Microsoft.Extensions.Logging;
+using RDMSharp.Extensions;
 using RDMSharp.Metadata;
 using RDMSharp.PayloadObject;
 using RDMSharp.RDM.Device;
@@ -130,23 +131,41 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
 
     public IReadOnlyCollection<SupportedParameterMetadata> GetSupportedParameters()
     {
-        return this.supportedParameters.Where(sp => sp.Value.IsSupported && ((ushort)sp.Value.Parameter > 0x000F)).Select(sp => sp.Value).OrderBy(p => p.Parameter).ToArray().AsReadOnly();
+        return this.supportedParameters.Where(sp => sp.Value.IsSupported && !sp.Value.IsSilent && ((ushort)sp.Value.Parameter > 0x000F)).Select(sp => sp.Value).OrderBy(p => p.Parameter).ToArray().AsReadOnly();
     }
     public IReadOnlyCollection<SupportedParameterMetadata> GetSupportedBlueprintModelParameters()
     {
-        return this.supportedParameters.Where(sp => sp.Value.IsSupported && sp.Value.IsBlueprintModel && ((ushort)sp.Value.Parameter > 0x000F)).Select(sp => sp.Value).OrderBy(p => p.Parameter).ToArray().AsReadOnly();
+        return this.supportedParameters.Where(sp => sp.Value.IsSupported && !sp.Value.IsSilent && sp.Value.IsBlueprintModel && ((ushort)sp.Value.Parameter > 0x000F)).Select(sp => sp.Value).OrderBy(p => p.Parameter).ToArray().AsReadOnly();
     }
     public IReadOnlyCollection<SupportedParameterMetadata> GetSupportedBlueprintModelPersonalityParameters()
     {
-        return this.supportedParameters.Where(sp => sp.Value.IsSupported && sp.Value.IsBlueprintModelPersonality && ((ushort)sp.Value.Parameter > 0x000F)).Select(sp => sp.Value).OrderBy(p => p.Parameter).ToArray().AsReadOnly();
+        return this.supportedParameters.Where(sp => sp.Value.IsSupported && !sp.Value.IsSilent && sp.Value.IsBlueprintModelPersonality && ((ushort)sp.Value.Parameter > 0x000F)).Select(sp => sp.Value).OrderBy(p => p.Parameter).ToArray().AsReadOnly();
     }
     public IReadOnlyCollection<SupportedParameterMetadata> GetSupportedNonBlueprintParameters()
     {
-        return this.supportedParameters.Where(sp => sp.Value.IsSupported && sp.Value.IsNonBlueprint && ((ushort)sp.Value.Parameter > 0x000F)).Select(sp => sp.Value).OrderBy(p => p.Parameter).ToArray().AsReadOnly();
+        return this.supportedParameters.Where(sp => sp.Value.IsSupported && !sp.Value.IsSilent && sp.Value.IsNonBlueprint && ((ushort)sp.Value.Parameter > 0x000F)).Select(sp => sp.Value).OrderBy(p => p.Parameter).ToArray().AsReadOnly();
     }
     public IReadOnlyCollection<SupportedParameterMetadata> GetKnownNotSupportedParameters()
     {
-        return this.supportedParameters.Where(sp => !sp.Value.IsSupported && ((ushort)sp.Value.Parameter > 0x000F)).Select(sp => sp.Value).OrderBy(p => p.Parameter).ToArray().AsReadOnly();
+        return this.supportedParameters.Where(sp => (!sp.Value.IsSupported || sp.Value.IsSilent) && ((ushort)sp.Value.Parameter > 0x000F)).Select(sp => sp.Value).OrderBy(p => p.Parameter).ToArray().AsReadOnly();
+    }
+
+    /// <summary>
+    /// The parameters the devices of the model do not answer while they answer everything else (see <see cref="SupportedParameterMetadata.IsSilent"/>).
+    /// </summary>
+    public IReadOnlyCollection<SupportedParameterMetadata> GetSilentParameters()
+    {
+        return this.supportedParameters.Where(sp => sp.Value.IsSupported && sp.Value.IsSilent && ((ushort)sp.Value.Parameter > 0x000F)).Select(sp => sp.Value).OrderBy(p => p.Parameter).ToArray().AsReadOnly();
+    }
+    internal void ReportSilent(ERDM_Parameter parameter, UID uid)
+    {
+        if (this.supportedParameters is not null && this.supportedParameters.TryGetValue(parameter, out SupportedParameterMetadata supportedParameterMetadata))
+            supportedParameterMetadata.ReportSilent(uid);
+    }
+    internal void ReportAnswered(ERDM_Parameter parameter)
+    {
+        if (this.supportedParameters is not null && this.supportedParameters.TryGetValue(parameter, out SupportedParameterMetadata supportedParameterMetadata))
+            supportedParameterMetadata.ReportAnswered();
     }
 
     internal RDMDeviceModel(UID uid, SubDevice subdevice, RDMDeviceInfo deviceInfo)
@@ -160,6 +179,20 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
     }
 
     private readonly SemaphoreSlim initializeSemaphoreSlim = new SemaphoreSlim(1);
+    // SUPPORTED_PARAMETERS is asked for this often if the device does not answer, then the device is asked if it answers at all
+    private const int MAX_ATTEMPTS = 3;
+
+    /// <summary>
+    /// Initializes the model with the device that asks: if the device that was used before is not reachable, the next one can do it.
+    /// </summary>
+    internal async Task Initialize(UID uid, SubDevice subDevice)
+    {
+        if (IsInitialized || initializeSemaphoreSlim.CurrentCount == 0)
+            return;
+        CurrentUsedUID = uid;
+        CurrentUsedSubDevice = subDevice;
+        await Initialize();
+    }
     internal async Task Initialize()
     {
         if (IsInitialized)
@@ -171,7 +204,21 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
         await initializeSemaphoreSlim.WaitAsync();
         try
         {
-            await requestSupportedParameters();
+            // The model is shared by all devices of the model: if it was initialized without the supported parameters because one request got no answer,
+            // all of them would have to do without. A device that is not reachable (or too busy) does not initialize it, the next attempt asks again.
+            // A device that answers everything else, but not this, is faulty: the model is initialized without it, as before.
+            bool answered = false;
+            for (int attempt = 0; attempt < MAX_ATTEMPTS && !answered; attempt++)
+            {
+                if (attempt > 0)
+                    await Task.Delay(GlobalTimers.Instance.MissedRequestRetryInterval);
+                answered = await requestSupportedParameters();
+            }
+            if (!answered && !await probeAlive(CurrentUsedUID, CurrentUsedSubDevice))
+            {
+                Logger?.LogInformation($"The model of {CurrentUsedUID} is not initialized, the device did not answer SUPPORTED_PARAMETERS and is not reachable");
+                return;
+            }
             await requestBlueprintParameters(this.GetSupportedBlueprintModelParameters());
             await requestSupportedParametersExtensions();
             //await requestPersonalityBlueprintParameters();
@@ -192,8 +239,76 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
 
 
 
+    #region Requests without an answer
+    private sealed class MissedRequest
+    {
+        public DateTime LastTry = DateTime.UtcNow;
+        public int Attempts;
+    }
+    private readonly ConcurrentDictionary<(ERDM_Parameter Parameter, object Index), MissedRequest> missedRequests = new();
+    private readonly SemaphoreSlim retrySemaphoreSlim = new SemaphoreSlim(1);
+
+    protected override Task OnProcessTimedOut(PeerToPeerProcess process)
+    {
+        // an entry that got no answer must not end a list or leave a hole in the model for good: it is asked for again
+        if (process.Command == ERDM_Command.GET_COMMAND && process.ParameterBag.PID != ERDM_Parameter.SUPPORTED_PARAMETERS && process.ParameterBag.PID != ERDM_Parameter.DEVICE_INFO)
+            missedRequests.TryAdd((process.ParameterBag.PID, process.RequestIndex), new MissedRequest());
+        return Task.CompletedTask;
+    }
+    protected override void OnProcessAnswered(PeerToPeerProcess process)
+    {
+        missedRequests.TryRemove((process.ParameterBag.PID, process.RequestIndex), out _);
+    }
+    /// <summary>
+    /// Asks again for what got no answer, with the device that asks (the one that was used before can be gone). Every entry a few times,
+    /// then it is given up.
+    /// </summary>
+    internal async Task RetryMissed(UID uid, SubDevice subDevice)
+    {
+        if (!IsInitialized || missedRequests.IsEmpty || retrySemaphoreSlim.CurrentCount == 0)
+            return;
+
+        await retrySemaphoreSlim.WaitAsync();
+        try
+        {
+            foreach (var pair in missedRequests.ToArray())
+            {
+                if (DateTime.UtcNow - pair.Value.LastTry < TimeSpan.FromMilliseconds(GlobalTimers.Instance.MissedRequestRetryInterval))
+                    continue;
+                if (pair.Value.Attempts >= MAX_ATTEMPTS)
+                {
+                    missedRequests.TryRemove(pair.Key, out _);
+                    Logger?.LogInformation($"{pair.Key.Parameter} (index {pair.Key.Index ?? "none"}) of the model of {uid} got no answer {MAX_ATTEMPTS} times, it is given up");
+                    continue;
+                }
+                pair.Value.LastTry = DateTime.UtcNow;
+                pair.Value.Attempts++;
+
+                var parameterBag = new ParameterBag(pair.Key.Parameter, ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
+                var define = MetadataFactory.GetDefine(parameterBag);
+                if (define?.GetRequest.HasValue ?? false)
+                {
+                    if (define.GetRequest.Value.GetIsEmpty())
+                        await requestGetParameterWithEmptyPayload(parameterBag, define, uid, subDevice);
+                    else
+                        await requestGetParameterWithPayload(parameterBag, define, uid, subDevice, pair.Key.Index);
+                }
+                await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
+            }
+        }
+        catch (Exception e)
+        {
+            Logger?.LogError(e);
+        }
+        finally
+        {
+            retrySemaphoreSlim.Release();
+        }
+    }
+    #endregion
+
     #region Requests
-    private async Task requestSupportedParameters()
+    private async Task<bool> requestSupportedParameters()
     {
         ParameterBag parameterBag = new ParameterBag(ERDM_Parameter.SUPPORTED_PARAMETERS);
         PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, CurrentUsedUID, CurrentUsedSubDevice, parameterBag);
@@ -232,6 +347,7 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
             //    this.supportedParameters.TryAdd(ERDM_Parameter.ENDPOINT_LIST, true);
         }
         await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
+        return !ptpProcess.TimedOut;
     }
     private async Task requestSupportedParametersExtensions()
     {

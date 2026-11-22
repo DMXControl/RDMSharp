@@ -84,6 +84,17 @@ public class PeerToPeerProcess : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// The request got no answer at all (after the retries), this is no NACK.
+    /// A device that does not answer can be a device that ignores a parameter it does not support, or a device that is too busy to answer.
+    /// </summary>
+    public bool TimedOut { get; private set; }
+
+    /// <summary>
+    /// The index of the request (the value of its first field, e.g. the id of a sensor), null if the request has no Parameter Data.
+    /// </summary>
+    internal object RequestIndex => RequestPayloadObject.Children is { Length: > 0 } children ? children[0].Value : null;
+
     private ERDM_NackReason? _nackReason;
     public ERDM_NackReason? NackReason
     {
@@ -169,38 +180,35 @@ public class PeerToPeerProcess : INotifyPropertyChanged
             int ackTimerCounter = 0;
             do
             {
-                try
-                {
-                    await RDMSharp.Instance.lockTransaktion(UID, TimeSpan.FromSeconds(7));
-                }
-                catch (TimeoutException)
-                {
-
-                }
-
-                counter++;
-                if (response?.ResponseType == ERDM_ResponseType.ACK)
-                    return;
-                if (BeforeSendMessage != null)
-                    await BeforeSendMessage(request);
-                var historyEntry = new RequestResponseHistoryEntry(request);
-                requestResponseHistory.Add(historyEntry);
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RequestResponseHistory)));
-                OnRequestResponseHistoryAdded?.Invoke(this, historyEntry);
-
+                // One request at a time to a device. The lock is released whatever happens in between (an exception of a handler, a return),
+                // and only if it is held: a wait that timed out goes on without the lock, it has nothing to release.
+                bool locked = await RDMSharp.Instance.lockTransaktion(UID, TimeSpan.FromSeconds(7));
+                RequestResponseHistoryEntry historyEntry;
                 RequestResult responseResult;
                 try
                 {
+                    counter++;
+                    if (response?.ResponseType == ERDM_ResponseType.ACK)
+                        return;
+                    if (BeforeSendMessage != null)
+                        await BeforeSendMessage(request);
+                    historyEntry = new RequestResponseHistoryEntry(request);
+                    requestResponseHistory.Add(historyEntry);
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(RequestResponseHistory)));
+                    OnRequestResponseHistoryAdded?.Invoke(this, historyEntry);
+
                     responseResult = await asyncRDMRequestHelper.RequestMessage(request);
                 }
                 finally
                 {
-                    RDMSharp.Instance.unlockTransaktion(UID);
+                    if (locked)
+                        RDMSharp.Instance.unlockTransaktion(UID);
                 }
 
                 if (responseResult.Timeout)
                 {
                     historyEntry.SetResponse(responseResult.Response, "Timeout");
+                    TimedOut = true;
                     State = EPeerToPeerProcessState.Failed;
                     return;
                 }

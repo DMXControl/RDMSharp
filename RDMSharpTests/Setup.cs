@@ -9,6 +9,11 @@ public class GlobalTestSetup
     private readonly ConcurrentDictionary<long, RDMMessage> identifyer = new ConcurrentDictionary<long, RDMMessage>();
     private readonly Random rnd = new Random();
     public static bool ImitateRealConditions { get; set; } = false; // Set to false to use the Mock SendReceivePipeline
+    /// <summary>
+    /// A request this returns true for is not answered at all, like a device that is silent for this parameter or too busy to answer
+    /// (retries of the request are dropped as well). Tests that set it have to reset it to null.
+    /// </summary>
+    public static Func<RDMMessage, bool>? DropRequest { get; set; }
     [OneTimeSetUp]
     public async Task GlobalSetUp()
     {
@@ -58,8 +63,12 @@ public class GlobalTestSetup
             if (rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
                 RDMSharp.RDMSharp.Instance.ResponseReceived(rdmMessage);
             else
+            {
+                if (DropRequest?.Invoke(rdmMessage) == true)
+                    return;
                 if (RDMSharp.RDMSharp.Instance.RequestReceived(rdmMessage, out RDMMessage response))
                     _ = SendRDMMessage(response);
+            }
         };
     }
 
