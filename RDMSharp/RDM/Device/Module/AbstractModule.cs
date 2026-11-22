@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -98,6 +99,33 @@ public abstract class AbstractModule : IModule, IDisposable
     protected virtual void OnRemoteParentDeviceChanged(AbstractRemoteRDMDevice device)
     {
 
+    }
+
+    /// <summary>
+    /// Hands the values the device already has to <see cref="ParameterChanged"/>, once the module is completely constructed.
+    /// A module is created after the device answered most of its parameters: without this it would only learn them when they change.
+    /// </summary>
+    internal void ApplyCachedValues()
+    {
+        if (ParentRemoteDevice is null || IsDisposed)
+            return;
+        foreach (var parameter in SupportedParameters)
+        {
+            if (!ParentRemoteDevice.ParameterValues.TryGetValue(parameter, out object value))
+                continue;
+            try
+            {
+                if (value is ConcurrentDictionary<object, object> indexed)
+                    foreach (var pair in indexed)
+                        ParameterChanged(parameter, pair.Value, pair.Key);
+                else
+                    ParameterChanged(parameter, value, null);
+            }
+            catch (Exception ex)
+            {
+                Logger?.LogError(ex, $"Error applying the cached value of {parameter} to module {Name}");
+            }
+        }
     }
 
     private void Device_ParameterValueAdded(object sender, AbstractRDMCache.ParameterValueAddedEventArgs e)

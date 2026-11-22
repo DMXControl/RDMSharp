@@ -129,90 +129,88 @@ public abstract class AbstractRDMCache : IDisposable
         parameterValuesDataTreeBranch.AddOrUpdate(bag, dataTreeBranch, (o1, o2) => dataTreeBranch);
 
         object valueToStore = dataTreeBranch.ParsedObject ?? dataTreeBranch;
+        // store first, raise one event afterwards: the factories of AddOrUpdate can run more than once when threads race,
+        // and a value that is polled again without a change is no change
+        object old = null;
+        bool added = false;
+        object stored;
         if (bag.Index == null)
-            this.parameterValues.AddOrUpdate(bag.Parameter, (o1) =>
-            {
-                try
+        {
+            stored = this.parameterValues.AddOrUpdate(bag.Parameter,
+                _ =>
                 {
+                    added = true;
+                    old = null;
                     return valueToStore;
-                }
-                finally
+                },
+                (_, o2) =>
                 {
-                    ParameterValueAdded?.InvokeFailSafe(this, new ParameterValueAddedEventArgs(o1, valueToStore));
-                }
-            }, (o1, o2) =>
-            {
-                try
-                {
-                    if (o2.GetType() != valueToStore.GetType())
-                    {
-                        if (o2 is IRDMPayloadObjectOneOf oneOf)
-                        {
-                            oneOf = (IRDMPayloadObjectOneOf)Activator.CreateInstance(oneOf.GetType(), valueToStore, oneOf.Count);
-                            valueToStore = oneOf;
-                        }
-                    }
+                    added = false;
+                    old = o2;
+                    if (o2 is IRDMPayloadObjectOneOf oneOf && o2.GetType() != valueToStore.GetType())
+                        return (IRDMPayloadObjectOneOf)Activator.CreateInstance(oneOf.GetType(), valueToStore, oneOf.Count);
                     return valueToStore;
-                }
-                finally
-                {
-                    if (o2 != valueToStore)
-                        ParameterValueChanged?.InvokeFailSafe(this, new ParameterValueChangedEventArgs(o1, valueToStore, o2));
-                }
-            });
-
+                });
+        }
         else
         {
-            this.parameterValues.AddOrUpdate(bag.Parameter,
-                (pid) =>
-                //Add
+            stored = valueToStore;
+            // the dictionary of the parameter, then the entry of the index: the update factory only reports what was stored before
+            var dict = (ConcurrentDictionary<object, object>)this.parameterValues.AddOrUpdate(bag.Parameter,
+                _ => new ConcurrentDictionary<object, object>(),
+                (_, cd) => cd as ConcurrentDictionary<object, object> ?? new ConcurrentDictionary<object, object>());
+            dict.AddOrUpdate(bag.Index,
+                _ =>
                 {
-                    try
-                    {
-                        ConcurrentDictionary<object, object> dict = new ConcurrentDictionary<object, object>();
-                        dict.AddOrUpdate(bag.Index, valueToStore, (o1, o2) => valueToStore);
-                        return dict;
-                    }
-                    finally
-                    {
-                        ParameterValueAdded?.InvokeFailSafe(this, new ParameterValueAddedEventArgs(pid, valueToStore, bag.Index));
-                    }
+                    added = true;
+                    old = null;
+                    return valueToStore;
                 },
-                (pid, cd) =>
-                // Update
+                (_, o2) =>
                 {
-                    object old = null;
-                    bool changed = false;
-                    try
-                    {
-                        ConcurrentDictionary<object, object> dict = cd as ConcurrentDictionary<object, object> ?? new ConcurrentDictionary<object, object>();
-                        dict.AddOrUpdate(bag.Index, valueToStore, (_, o2) =>
-                        {
-                            if (o2 == valueToStore)
-                                return valueToStore;
-
-                            old = o2;
-                            changed = true;
-                            return valueToStore;
-                        });
-                        return dict;
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger?.LogError(ex);
-                        return null;
-                    }
-                    finally
-                    {
-                        if (changed)
-                            ParameterValueChanged?.InvokeFailSafe(this, new ParameterValueChangedEventArgs(pid, valueToStore, old, bag.Index));
-                        else
-                            ParameterValueAdded?.InvokeFailSafe(this, new ParameterValueAddedEventArgs(pid, valueToStore, bag.Index));
-                    }
+                    added = false;
+                    old = o2;
+                    return valueToStore;
                 });
         }
 
+        if (added)
+            ParameterValueAdded?.InvokeFailSafe(this, new ParameterValueAddedEventArgs(bag.Parameter, stored, bag.Index));
+        else if (!ValuesEqual(old, stored))
+            ParameterValueChanged?.InvokeFailSafe(this, new ParameterValueChangedEventArgs(bag.Parameter, stored, old, bag.Index));
+
         ParameterRequested?.InvokeFailSafe(this, new ParameterRequestedEventArgs(bag.Parameter, bag.Index));
+    }
+    /// <summary>
+    /// Compares parameter values by value: payload objects by their Parameter Data, arrays and lists element by element.
+    /// A GET answered again with the same data creates a new object, that is no change.
+    /// </summary>
+    internal static bool ValuesEqual(object a, object b)
+    {
+        if (ReferenceEquals(a, b))
+            return true;
+        if (a is null || b is null)
+            return false;
+        if (a.GetType() != b.GetType())
+            return false;
+        if (a is not string && a is not IRDMPayloadObject && a is not DataTreeBranch
+            && a is System.Collections.IEnumerable enumerableA && b is System.Collections.IEnumerable enumerableB)
+        {
+            var enumeratorA = enumerableA.GetEnumerator();
+            var enumeratorB = enumerableB.GetEnumerator();
+            while (true)
+            {
+                bool hasA = enumeratorA.MoveNext();
+                bool hasB = enumeratorB.MoveNext();
+                if (hasA != hasB)
+                    return false;
+                if (!hasA)
+                    return true;
+                if (!ValuesEqual(enumeratorA.Current, enumeratorB.Current))
+                    return false;
+            }
+        }
+        return a.Equals(b);
     }
     protected virtual async Task OnSendRDMMessage(RDMMessage rdmMessage)
     {
@@ -317,7 +315,7 @@ public abstract class AbstractRDMCache : IDisposable
                 updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), dataTreeBranch);
                 if (this.ParameterValues.TryGetValue(parameterBag.PID, out object cacheValue))
                 {
-                    if (value != cacheValue)
+                    if (!ValuesEqual(value, cacheValue))
                         throw new Exception($"Failed to set parameter {parameterBag.PID} with value {value}, cache value is {cacheValue}");
                 }
             }

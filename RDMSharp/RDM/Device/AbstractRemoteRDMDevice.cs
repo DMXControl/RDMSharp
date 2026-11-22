@@ -209,6 +209,8 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         {
             disposeModules();
             this._modules.AddRange(modules);
+            foreach (var module in modules.OfType<AbstractModule>())
+                module.ApplyCachedValues();
             OnPropertyChanged(nameof(Modules));
         }
     }

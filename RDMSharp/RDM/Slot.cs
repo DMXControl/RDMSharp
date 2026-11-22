@@ -40,6 +40,12 @@ public class Slot : INotifyPropertyChanged, IEquatable<Slot>
         }
     }
 
+    /// <summary>
+    /// The slot a secondary slot (fine, timing, speed, ...) belongs to, <c>null</c> for a primary slot.
+    /// E1.20 SLOT_INFO: for a secondary slot the Slot Label ID field holds the offset of its primary slot, not a <see cref="ERDM_SlotCategory"/>.
+    /// </summary>
+    public ushort? PrimarySlotId => Type == ERDM_SlotType.PRIMARY ? null : (ushort)Category;
+
     private string description;
     public string Description
     {
