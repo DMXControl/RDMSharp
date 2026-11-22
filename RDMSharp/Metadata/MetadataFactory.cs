@@ -374,13 +374,8 @@ public static partial class MetadataFactory
             }
             return possibleDefines.MaxBy(d => d.Version);
         }
-        if (parameter.ManufacturerID == 0)
-            throw new InvalidOperationException($"Parameter: {parameter}, {parameter.ManufacturerID} of 0 should lead to exact 1 Define");
-
-
-
-        if ((ushort)parameter.PID < 0x8000 || (ushort)parameter.PID > 0xFFDF)
-            throw new DefineNotFoundException($"{parameter}");
+        // no define: GetDefine throws a DefineNotFoundException for the ESTA range (e.g. a draft or reserved PID a device reports),
+        // a manufacturer specific PID without define is null
         return null;
     }
 

@@ -11,13 +11,30 @@ namespace RDMSharp.Extensions;
 internal class ExtensionsManager
 {
     private readonly ILogger Logger;
-    private static ExtensionsManager _instance;
-    public static ExtensionsManager Instance
+    // Lazy: the first access can come from several threads at once (e.g. parallel device initialization)
+    private static readonly Lazy<ExtensionsManager> _instance = new(() => new ExtensionsManager(), System.Threading.LazyThreadSafetyMode.ExecutionAndPublication);
+    public static ExtensionsManager Instance => _instance.Value;
+
+    private readonly object loadLock = new();
+    private bool bytesParsersLoaded;
+    private bool supportedParametersExtensionsLoaded;
+    private bool modulesExtensionsLoaded;
+
+    /// <summary>
+    /// Loads the extensions once, if none were registered before. Other threads wait until the loading is complete,
+    /// so they never see a partly filled dictionary.
+    /// </summary>
+    private void ensureLoaded(ref bool loaded, Func<bool> isEmpty, Action load)
     {
-        get
+        if (System.Threading.Volatile.Read(ref loaded))
+            return;
+        lock (loadLock)
         {
-            _instance ??= new ExtensionsManager();
-            return _instance;
+            if (loaded)
+                return;
+            if (isEmpty())
+                load();
+            System.Threading.Volatile.Write(ref loaded, true);
         }
     }
 
@@ -65,8 +82,7 @@ internal class ExtensionsManager
             return false;
         }
 
-        if (bytesParsers.IsEmpty)
-            LoadBytesParsersFromAssemblies();
+        ensureLoaded(ref bytesParsersLoaded, () => bytesParsers.IsEmpty, LoadBytesParsersFromAssemblies);
 
         return bytesParsers.TryGetValue(formatIdentifyer, out bytesParser);
     }
@@ -100,8 +116,7 @@ internal class ExtensionsManager
 
     public bool TryGetSupportedParametersExtensions(EManufacturer manufacturer, out IReadOnlyCollection<ISupportedParametersExtension> supportedParametersExtensionsResult)
     {
-        if (supportedParametersExtensions.IsEmpty)
-            LoadSupportedParametersExtension();
+        ensureLoaded(ref supportedParametersExtensionsLoaded, () => supportedParametersExtensions.IsEmpty, LoadSupportedParametersExtension);
 
         List<ISupportedParametersExtension> result = new();
 
@@ -116,8 +131,7 @@ internal class ExtensionsManager
     {
         try
         {
-            if (supportedParametersExtensions.IsEmpty)
-                LoadSupportedParametersExtension();
+            ensureLoaded(ref supportedParametersExtensionsLoaded, () => supportedParametersExtensions.IsEmpty, LoadSupportedParametersExtension);
 
             bool isBlueprintModelParameter = false;
             bool isBlueprintModelPersonalityParameter = false;
@@ -187,8 +201,7 @@ internal class ExtensionsManager
     }
     public bool TryGetModulesExtensions(EManufacturer manufacturer, out IReadOnlyCollection<IModulesExtension> modulesExtensionsResult)
     {
-        if (modulesExtensions.IsEmpty)
-            LoadModulesExtension();
+        ensureLoaded(ref modulesExtensionsLoaded, () => modulesExtensions.IsEmpty, LoadModulesExtension);
 
         List<IModulesExtension> result = new();
 

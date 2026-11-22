@@ -29,7 +29,16 @@ public sealed class SupportedParametersExtension : AbstractSupportedParametersEx
             return false;
         }
 
-        var define = MetadataFactory.GetDefine(new ParameterBag(parameter));
+        MetadataJSONObjectDefine define;
+        try
+        {
+            define = MetadataFactory.GetDefine(new ParameterBag(parameter));
+        }
+        catch (DefineNotFoundException)
+        {
+            // ESTA-range PID without a known define (e.g. draft or reserved PID reported by a device)
+            define = null;
+        }
         if (define is not MetadataJSONObjectDefine)
         {
             name = parameter.ToString();

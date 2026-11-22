@@ -279,6 +279,11 @@ public readonly struct DataTreeBranch : IEquatable<DataTreeBranch>
             throw e;
 #pragma warning restore CA2200
         }
+        // No C# type is defined for this PID (e.g. a manufacturer-specific define with several fields):
+        // there is no typed object, consumers fall back to the DataTreeBranch itself.
+        if (definedDataTreeObjectType is null)
+            return null;
+
         throw new NotImplementedException();
     }
     private Dictionary<string, object> flateningDateTree(DataTree[] children)

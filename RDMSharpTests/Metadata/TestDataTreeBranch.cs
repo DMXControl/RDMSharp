@@ -79,6 +79,41 @@ public class TestDataTreeBranch
             Assert.That(branch.Children[0].Children, Is.Empty);
         }
     }
+
+    [Test]
+    public void TestSeveralFieldsWithoutDefinedTypeHaveNoParsedObjectWithoutException()
+    {
+        // like a manufacturer define (e.g. SGM 0xA10E): several fields, but no C# type for it
+        var define = TestPayloadValidationShapes.define("""
+            [ { "name": "id", "type": "uint8" }, { "name": "calibration_levels", "type": "bytes" } ]
+            """);
+
+        var exceptions = new List<Exception>();
+        int threadId = Environment.CurrentManagedThreadId;
+        void onFirstChance(object? sender, System.Runtime.ExceptionServices.FirstChanceExceptionEventArgs e)
+        {
+            if (Environment.CurrentManagedThreadId == threadId)
+                lock (exceptions)
+                    exceptions.Add(e.Exception);
+        }
+        AppDomain.CurrentDomain.FirstChanceException += onFirstChance;
+        DataTreeBranch branch;
+        try
+        {
+            branch = MetadataFactory.ParseDataToPayload(define, CommandType.GetResponse, new byte[] { 0x03, 0x10, 0x20, 0x30 });
+        }
+        finally
+        {
+            AppDomain.CurrentDomain.FirstChanceException -= onFirstChance;
+        }
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(exceptions, Is.Empty, "parsing a define without a C# type must not throw internally");
+            Assert.That(branch.ParsedObject, Is.Null);
+            Assert.That(branch.Children, Has.Length.EqualTo(2));
+            Assert.That(branch.Children[0].Value, Is.EqualTo((byte)3));
+        }
+    }
     #endregion
 
     #region Comparing

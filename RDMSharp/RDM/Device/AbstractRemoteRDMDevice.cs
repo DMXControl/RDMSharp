@@ -436,7 +436,16 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         try
         {
             ParameterBag parameterBag = new ParameterBag(parameter, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
-            var define = MetadataFactory.GetDefine(parameterBag);
+            MetadataJSONObjectDefine define;
+            try
+            {
+                define = MetadataFactory.GetDefine(parameterBag);
+            }
+            catch (DefineNotFoundException)
+            {
+                // ESTA-range PID the device lists, but there is no define for it (e.g. a draft or reserved PID)
+                define = null;
+            }
             if (define == null)
             {
                 ConcurrentDictionary<object, object> pd = null;
