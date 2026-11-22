@@ -155,45 +155,64 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
         if (!((ushort)ManufacturerID).Equals(uid.ManufacturerID))
             throw new Exception($"{uid.ManufacturerID} not match the {ManufacturerID}");
 
-        RDMSharp.Instance.RequestReceivedEvent += Instance_RequestReceivedEvent;
-
         List<IModule> moduleList = new List<IModule>();
-        identifyDeviceModule = new IdentifyDeviceModule();
-        moduleList.Add(identifyDeviceModule);
+        RDMSharp.Instance.RequestReceivedEvent += Instance_RequestReceivedEvent;
+        try
+        {
+            identifyDeviceModule = new IdentifyDeviceModule();
+            moduleList.Add(identifyDeviceModule);
 
-        if (modules is not null)
-            moduleList.AddRange(modules);
+            if (modules is not null)
+                moduleList.AddRange(modules);
 
-        deviceInfoModule = new DeviceInfoModule();
-        moduleList.Add(deviceInfoModule);
-        _modules = moduleList.AsReadOnly();
-        dmxStartAddressModule = _modules.OfType<DMX_StartAddressModule>().FirstOrDefault();
-        dmxPersonalityModule = _modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
-        slotsModule = _modules.OfType<SlotsModule>().FirstOrDefault();
-        sensorsModule = _modules.OfType<SensorsModule>().FirstOrDefault();
-        statusMessageModule = _modules.OfType<StatusMessagesModule>().FirstOrDefault();
-        dmxPersonalityModule?.PropertyChanged += DmxPersonalityModule_PropertyChanged;
+            deviceInfoModule = new DeviceInfoModule();
+            moduleList.Add(deviceInfoModule);
+            _modules = moduleList.AsReadOnly();
+            dmxStartAddressModule = _modules.OfType<DMX_StartAddressModule>().FirstOrDefault();
+            dmxPersonalityModule = _modules.OfType<DMX_PersonalityModule>().FirstOrDefault();
+            slotsModule = _modules.OfType<SlotsModule>().FirstOrDefault();
+            sensorsModule = _modules.OfType<SensorsModule>().FirstOrDefault();
+            statusMessageModule = _modules.OfType<StatusMessagesModule>().FirstOrDefault();
+            dmxPersonalityModule?.PropertyChanged += DmxPersonalityModule_PropertyChanged;
 
-        var _params = new HashSet<ERDM_Parameter>();
+            var _params = new HashSet<ERDM_Parameter>();
 
-        if (SupportQueued)
-            _params.Add(ERDM_Parameter.QUEUED_MESSAGE);
+            if (SupportQueued)
+                _params.Add(ERDM_Parameter.QUEUED_MESSAGE);
 
-        _params.Add(ERDM_Parameter.SUPPORTED_PARAMETERS);
+            _params.Add(ERDM_Parameter.SUPPORTED_PARAMETERS);
 
-        foreach (IModule module in _modules)
-            foreach (var parameter in module.SupportedParameters)
-                _params.Add(parameter);
+            foreach (IModule module in _modules)
+                foreach (var parameter in module.SupportedParameters)
+                    _params.Add(parameter);
 
-        Parameters = _params;
+            Parameters = _params;
 
-        foreach (IModule module in _modules)
-            if (module is AbstractModule aModule)
-                aModule.SetGeneratedParentDevice(this);
+            foreach (IModule module in _modules)
+                if (module is AbstractModule aModule)
+                    aModule.SetGeneratedParentDevice(this);
 
-        trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters.ToArray());
+            trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters.ToArray());
 
-        _initialized = true;
+            _initialized = true;
+        }
+        catch
+        {
+            // a device that can not be built must not stay registered: it would answer requests (e.g. discovery)
+            RDMSharp.Instance.RequestReceivedEvent -= Instance_RequestReceivedEvent;
+            foreach (var module in moduleList.OfType<IDisposable>())
+            {
+                try
+                {
+                    module.Dispose();
+                }
+                catch (Exception e)
+                {
+                    Logger?.LogError(e);
+                }
+            }
+            throw;
+        }
     }
 
     private void DmxPersonalityModule_PropertyChanged(object sender, PropertyChangedEventArgs e)//Remove after Refactoring to Modules

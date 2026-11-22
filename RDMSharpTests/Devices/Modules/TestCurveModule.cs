@@ -188,6 +188,24 @@ public class TestCurveModule
         }
     }
 
+    [Test]
+    public void TestDuplicateCurveIdThrowsAtTheCaller()
+    {
+        // a configuration error of a generated device has to reach the code that creates it:
+        // from an async void override it was rethrown on the thread pool and terminated the process
+        var ex = Assert.Catch(() => new DuplicateCurveMockDevice(new UID(DEVCIE_UID.ManufacturerID, DEVCIE_UID.DeviceID + 1)));
+        Assert.That(ex!.ToString(), Does.Contain("already used"));
+    }
+
+    class DuplicateCurveMockDevice : MockGeneratedDevice1
+    {
+        public DuplicateCurveMockDevice(UID uid) : base(uid, new IModule[] { new CurveModule(1,
+            new RDMCurveDescription(1, "Linear"),
+            new RDMCurveDescription(1, "Linear again")) })
+        {
+        }
+    }
+
     class CurveModuleMockDevice : MockGeneratedDevice1
     {
         public CurveModuleMockDevice(UID uid) : base(uid, new IModule[] { new CurveModule(1,

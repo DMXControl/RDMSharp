@@ -102,7 +102,7 @@ public sealed class OutputResponseTimeModule : AbstractModule
             fillFromRemote(outputResponseTime);
     }
 
-    protected override async void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         if (_generatedOutputResponseTimes is not null)
         {
@@ -119,7 +119,7 @@ public sealed class OutputResponseTimeModule : AbstractModule
                 device.setParameterValue(ERDM_Parameter.OUTPUT_RESPONSE_TIME_DESCRIPTION, outputResponseTimeDesc);
             }
         }
-        await SetOutputResponseTime(_initialOutputResponseTimeId);
+        RunSafe(() => SetOutputResponseTime(_initialOutputResponseTimeId));
     }
 
     protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)

@@ -89,7 +89,7 @@ public class PresetsModule : AbstractModule
     {
     }
 
-    protected override async void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         if (_generatedPresets is not null && _generatedPresets.Count != 0)
         {

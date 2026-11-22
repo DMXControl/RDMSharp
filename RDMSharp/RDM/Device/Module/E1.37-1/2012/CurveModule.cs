@@ -101,7 +101,7 @@ public sealed class CurveModule : AbstractModule
             fillFromRemote(curve);
     }
 
-    protected override async void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         if (_generatedCurves is not null)
         {
@@ -118,7 +118,7 @@ public sealed class CurveModule : AbstractModule
                 device.setParameterValue(ERDM_Parameter.CURVE_DESCRIPTION, curveDesc);
             }
         }
-        await SetCurve(_initialCurveId);
+        RunSafe(() => SetCurve(_initialCurveId));
     }
 
     protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)

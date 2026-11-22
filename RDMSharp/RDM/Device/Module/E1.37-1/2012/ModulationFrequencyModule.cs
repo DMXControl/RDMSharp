@@ -102,7 +102,7 @@ public sealed class ModulationFrequencyModule : AbstractModule
             fillFromRemote(ModulationFrequency);
     }
 
-    protected override async void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         if (_generatedModulationFrequencys is not null)
         {
@@ -119,7 +119,7 @@ public sealed class ModulationFrequencyModule : AbstractModule
                 device.setParameterValue(ERDM_Parameter.MODULATION_FREQUENCY_DESCRIPTION, ModulationFrequencyDesc);
             }
         }
-        await SetModulationFrequency(_initialModulationFrequencyId);
+        RunSafe(() => SetModulationFrequency(_initialModulationFrequencyId));
     }
 
     protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)

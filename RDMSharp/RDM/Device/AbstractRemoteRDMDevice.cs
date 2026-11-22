@@ -223,31 +223,57 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
 
     private async void Instance_PresentUpdateTimerElapsed(object sender, EventArgs e)
     {
-        bool result = DateTime.UtcNow - lastSeen < TimeSpan.FromMilliseconds(GlobalTimers.Instance.PresentLostTime);
-
-        if (!result)
+        try // async void: an escaping exception would terminate the host application
         {
+            bool result = DateTime.UtcNow - lastSeen < TimeSpan.FromMilliseconds(GlobalTimers.Instance.PresentLostTime);
 
-            _ = updateParameters();
-            await Task.Delay(1000);
-            result = DateTime.UtcNow - lastSeen < TimeSpan.FromMilliseconds(GlobalTimers.Instance.PresentLostTime);
+            if (!result)
+            {
+
+                _ = updateParameters();
+                await Task.Delay(1000);
+                result = DateTime.UtcNow - lastSeen < TimeSpan.FromMilliseconds(GlobalTimers.Instance.PresentLostTime);
+            }
+
+            Present = result;
         }
-
-        Present = result;
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, $"{UID}: error in Instance_PresentUpdateTimerElapsed");
+        }
     }
 
     private async void DeviceModel_Initialized(object sender, EventArgs e)
     {
-        deviceModel.Initialized -= DeviceModel_Initialized;
-        deviceModel.ParameterValueAdded -= DeviceModel_ParameterValueAdded;
-        await getPersonalityModelAndCollectAllParameters();
-        await collectParameters();
+        try // async void: an escaping exception would terminate the host application
+        {
+            deviceModel.Initialized -= DeviceModel_Initialized;
+            deviceModel.ParameterValueAdded -= DeviceModel_ParameterValueAdded;
+            await getPersonalityModelAndCollectAllParameters();
+            await collectParameters();
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, $"{UID}: error in DeviceModel_Initialized");
+        }
+    }
+    /// <summary>Who the device is, so a log entry with only the UID can be matched to a product.</summary>
+    private void logIdentity()
+    {
+        if (Logger is null || !Logger.IsEnabled(LogLevel.Information))
+            return;
+        var values = GetAllParameterValues();
+        string text(ERDM_Parameter parameter) => values.TryGetValue(parameter, out object value) && value is string s ? $"'{s}'" : "-";
+        var info = DeviceInfo;
+        Logger.LogInformation($"Remote RDM Device {UID} SubDevice: {Subdevice}: {text(ERDM_Parameter.MANUFACTURER_LABEL)} {text(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION)} " +
+            $"(Model 0x{info?.DeviceModelId:X4}), Software {text(ERDM_Parameter.SOFTWARE_VERSION_LABEL)} (0x{info?.SoftwareVersionId:X8}), Label {text(ERDM_Parameter.DEVICE_LABEL)}");
     }
     private async Task collectParameters()
     {
         await collectAllParametersOnRoot();
         await scanSubDevices();
         AllDataPulled = true;
+        logIdentity();
         GlobalTimers.Instance.ParameterUpdateTimerElapsed += Instance_ParameterUpdateTimerElapsed;
     }
 
@@ -718,41 +744,55 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
 
     private async void AbstractRDMDevice_ParameterValueAdded(object sender, ParameterValueAddedEventArgs e)
     {
-        switch (e.Parameter)
+        try // async void: an escaping exception would terminate the host application
         {
-            case ERDM_Parameter.DMX_PERSONALITY:
-                if (DeviceModel.IsInitialized)
-                {
-                    if (e.Value is RDMDMXPersonality personality)
-                        await getPersonalityModelAndCollectAllParameters(personality.CurrentPersonality);
-                }
-                break;
-            case ERDM_Parameter.SENSOR_VALUE when e.Value is RDMSensorValue sensorValue:
-                var sensor = sensors.GetOrAdd(sensorValue.SensorId, (a) => new Sensor(a));
-                if (deviceModel.GetSensorDefinitions()?.FirstOrDefault(a => a.SensorId == sensorValue.SensorId) is RDMSensorDefinition sd)
-                    sensor.UpdateDescription(sd);
-                sensor.UpdateValue(sensorValue);
-                break;
+            switch (e.Parameter)
+            {
+                case ERDM_Parameter.DMX_PERSONALITY:
+                    if (DeviceModel.IsInitialized)
+                    {
+                        if (e.Value is RDMDMXPersonality personality)
+                            await getPersonalityModelAndCollectAllParameters(personality.CurrentPersonality);
+                    }
+                    break;
+                case ERDM_Parameter.SENSOR_VALUE when e.Value is RDMSensorValue sensorValue:
+                    var sensor = sensors.GetOrAdd(sensorValue.SensorId, (a) => new Sensor(a));
+                    if (deviceModel.GetSensorDefinitions()?.FirstOrDefault(a => a.SensorId == sensorValue.SensorId) is RDMSensorDefinition sd)
+                        sensor.UpdateDescription(sd);
+                    sensor.UpdateValue(sensorValue);
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, $"{UID}: error in AbstractRDMDevice_ParameterValueAdded");
         }
     }
     private async void AbstractRDMDevice_ParameterValueChanged(object sender, ParameterValueChangedEventArgs e)
     {
-        switch (e.Parameter)
+        try // async void: an escaping exception would terminate the host application
         {
-            case ERDM_Parameter.DEVICE_INFO:
-                if (this.PersonalityModel?.PersonalityID != this.DeviceInfo.Dmx512CurrentPersonality)
-                    goto case ERDM_Parameter.DMX_PERSONALITY;
-                break;
-            case ERDM_Parameter.DMX_PERSONALITY:
-                if (DeviceModel.IsInitialized)
-                    await getPersonalityModelAndCollectAllParameters();
-                break;
-            case ERDM_Parameter.SENSOR_VALUE when e.NewValue is RDMSensorValue sensorValue:
-                if (sensorValue.SensorId == byte.MaxValue) //Ignore Broadcast as in Spec.
+            switch (e.Parameter)
+            {
+                case ERDM_Parameter.DEVICE_INFO:
+                    if (this.PersonalityModel?.PersonalityID != this.DeviceInfo.Dmx512CurrentPersonality)
+                        goto case ERDM_Parameter.DMX_PERSONALITY;
                     break;
-                var sensor = sensors.GetOrAdd(sensorValue.SensorId, (a) => new Sensor(a));
-                sensor.UpdateValue(sensorValue);
-                break;
+                case ERDM_Parameter.DMX_PERSONALITY:
+                    if (DeviceModel.IsInitialized)
+                        await getPersonalityModelAndCollectAllParameters();
+                    break;
+                case ERDM_Parameter.SENSOR_VALUE when e.NewValue is RDMSensorValue sensorValue:
+                    if (sensorValue.SensorId == byte.MaxValue) //Ignore Broadcast as in Spec.
+                        break;
+                    var sensor = sensors.GetOrAdd(sensorValue.SensorId, (a) => new Sensor(a));
+                    sensor.UpdateValue(sensorValue);
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, $"{UID}: error in AbstractRDMDevice_ParameterValueChanged");
         }
     }
     private void AbstractRDMDevice_ParameterRequested(object sender, ParameterRequestedEventArgs e)
@@ -831,7 +871,14 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
 
     private async void Instance_ParameterUpdateTimerElapsed(object sender, EventArgs e)
     {
-        await updateParameters();
+        try // async void: an escaping exception would terminate the host application
+        {
+            await updateParameters();
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, $"{UID}: error in Instance_ParameterUpdateTimerElapsed");
+        }
     }
 
     public override string ToString()

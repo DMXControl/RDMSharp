@@ -149,6 +149,26 @@ public abstract class AbstractModule : IModule, IDisposable
 
     }
 
+    /// <summary>
+    /// Runs asynchronous work started from a synchronous override (e.g. setting the initial value) in the background.
+    /// An exception is logged: from an <c>async void</c> method it would terminate the host application.
+    /// </summary>
+    protected void RunSafe(System.Func<System.Threading.Tasks.Task> work, [CallerMemberName] string caller = null)
+    {
+        _ = runSafe(work, caller);
+    }
+    private async System.Threading.Tasks.Task runSafe(System.Func<System.Threading.Tasks.Task> work, string caller)
+    {
+        try
+        {
+            await work();
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, $"Error in {GetType().Name}.{caller}");
+        }
+    }
+
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

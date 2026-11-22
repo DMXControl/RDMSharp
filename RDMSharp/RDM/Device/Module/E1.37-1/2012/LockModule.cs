@@ -173,7 +173,7 @@ public sealed class LockModule : AbstractModule
             fillFromRemote(lockState);
     }
 
-    protected override async void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         if (_generatedLockStates is not null)
         {
@@ -190,10 +190,13 @@ public sealed class LockModule : AbstractModule
                 device.setParameterValue(ERDM_Parameter.LOCK_STATE_DESCRIPTION, lockStateDesc);
             }
         }
-        if (_initialLockPin.HasValue)
-            await SetLockPin(_initialLockPin.Value);
+        RunSafe(async () =>
+        {
+            if (_initialLockPin.HasValue)
+                await SetLockPin(_initialLockPin.Value);
 
-        await SetLockState(_initialLockStateId);
+            await SetLockState(_initialLockStateId);
+        });
     }
 
     protected override void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)

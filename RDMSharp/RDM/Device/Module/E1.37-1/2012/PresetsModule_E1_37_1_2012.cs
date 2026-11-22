@@ -86,7 +86,7 @@ public class PresetsModule_E1_37_1_2012 : PresetsModule
     {
     }
 
-    protected override async void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
+    protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
     {
         PresetInfo = _initialPresetInfo;
         base.OnParentGeneratedDeviceChanged(device);
