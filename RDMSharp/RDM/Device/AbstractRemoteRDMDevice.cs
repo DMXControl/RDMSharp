@@ -787,7 +787,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         }
         catch (Exception e)
         {
-            Logger?.LogError(string.Empty, e);
+            Logger?.LogError(e, $"{UID}: Failed to set {parameter} to {value}");
         }
         return false;
     }
