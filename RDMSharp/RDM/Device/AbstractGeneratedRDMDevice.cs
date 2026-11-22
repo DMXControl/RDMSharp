@@ -935,6 +935,17 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
     protected sealed override void OnDispose()
     {
         RDMSharp.Instance.RequestReceivedEvent -= Instance_RequestReceivedEvent;
+        foreach (var module in _modules.OfType<IDisposable>())
+        {
+            try
+            {
+                module.Dispose();
+            }
+            catch (Exception e)
+            {
+                Logger?.LogError(e);
+            }
+        }
         try
         {
             onDispose();

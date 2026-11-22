@@ -33,6 +33,7 @@ public class TestEndpointsModlue
     {
         generated?.Dispose();
         generated = null;
+        endpointsModule?.Dispose(); // already done by the device, the module is IDisposable
         endpointsModule = null;
     }
 

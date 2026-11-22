@@ -127,4 +127,28 @@ public class TestRealTimeClockModule
         {
         }
     }
+    [Test]
+    public void TestDisposingTheDeviceReleasesTheModule()
+    {
+        // the module subscribes to the global timers: without dispose it stays alive and keeps updating a device that is gone
+        Assert.That(generated, Is.Not.Null);
+        var module = generated.Modules.OfType<RealTimeClockModule>().Single();
+        Assert.That(timerSubscribers("presentUpdateTimerElapsed"), Does.Contain(module), "precondition");
+
+        generated.Dispose();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(module.IsDisposed, Is.True);
+            Assert.That(generated.Modules.OfType<AbstractModule>().All(m => m.IsDisposed), Is.True);
+            Assert.That(timerSubscribers("presentUpdateTimerElapsed"), Does.Not.Contain(module));
+            Assert.That(timerSubscribers("realTimeClockUpdateTimerElapsed"), Does.Not.Contain(module));
+        }
+    }
+
+    private static object?[] timerSubscribers(string eventField)
+    {
+        var field = typeof(GlobalTimers).GetField(eventField, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var handler = (Delegate?)field.GetValue(GlobalTimers.Instance);
+        return handler?.GetInvocationList().Select(d => d.Target).ToArray() ?? Array.Empty<object?>();
+    }
 }

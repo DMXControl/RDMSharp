@@ -46,6 +46,7 @@ public class TestInterfaceModule
     {
         generated?.Dispose();
         generated = null;
+        interfaceModule?.Dispose(); // already done by the device, the module is IDisposable
         interfaceModule = null;
     }
 

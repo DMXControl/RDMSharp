@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Runtime.CompilerServices;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public abstract class AbstractModule : IModule
+public abstract class AbstractModule : IModule, IDisposable
 {
     protected static ILogger Logger = Logging.CreateLogger<AbstractModule>();
 
@@ -123,5 +124,41 @@ public abstract class AbstractModule : IModule
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public bool IsDisposed { get; private set; }
+    /// <summary>
+    /// Called by the device when it is disposed or replaces its modules: the module stops listening to the device
+    /// and releases what it subscribed to (e.g. timers), so it does not keep working for a device that is gone.
+    /// </summary>
+    public void Dispose()
+    {
+        if (IsDisposed)
+            return;
+        IsDisposed = true;
+        if (ParentRemoteDevice is not null)
+        {
+            ParentRemoteDevice.ParameterValueAdded -= Device_ParameterValueAdded;
+            ParentRemoteDevice.ParameterValueChanged -= Device_ParameterValueChanged;
+        }
+        if (ParentGeneratedDevice is not null)
+        {
+            ParentGeneratedDevice.ParameterValueAdded -= Device_ParameterValueAdded;
+            ParentGeneratedDevice.ParameterValueChanged -= Device_ParameterValueChanged;
+        }
+        try
+        {
+            OnDispose();
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, $"Error disposing module {Name}");
+        }
+        PropertyChanged = null;
+        GC.SuppressFinalize(this);
+    }
+    /// <summary>Release what the module subscribed to.</summary>
+    protected virtual void OnDispose()
+    {
     }
 }

@@ -340,6 +340,43 @@ public static partial class MetadataFactory
         fillDefaultMetadataVersionList().GetAwaiter().GetResult();
         return metadataVersionDefinesBagDictionary;
     }
+    /// <summary>
+    /// Picks the define that fits the device best out of the defines for one PID and manufacturer:
+    /// <list type="number">
+    /// <item>a define for the device model: the one for the software version, else the one for all software versions, else the closest software version,</item>
+    /// <item>else the define for all models (none, if the device model is known and no define fits it),</item>
+    /// <item>several defines that fit equally: the highest version.</item>
+    /// </list>
+    /// </summary>
+    internal static MetadataJSONObjectDefine selectDefine(IReadOnlyCollection<MetadataJSONObjectDefine> possibleDefines, ParameterBag parameter)
+    {
+        static MetadataJSONObjectDefine newest(IEnumerable<MetadataJSONObjectDefine> defines) => defines.MaxBy(d => d.Version);
+
+        if (possibleDefines.Count == 1)
+            return possibleDefines.First();
+
+        var forAllModels = possibleDefines.Where(d => d.DeviceModelID == null && d.SoftwareVersionID == null).ToList();
+        if (parameter.DeviceModelID == null)
+            return newest(forAllModels) ?? newest(possibleDefines);
+
+        var forModel = possibleDefines.Where(d => d.DeviceModelID == parameter.DeviceModelID).ToList();
+        if (forModel.Count == 0)
+            return newest(forAllModels);
+
+        if (parameter.SoftwareVersionID is uint softwareVersion)
+        {
+            var forSoftwareVersion = forModel.Where(d => d.SoftwareVersionID == softwareVersion).ToList();
+            if (forSoftwareVersion.Count != 0)
+                return newest(forSoftwareVersion);
+        }
+        var forAllSoftwareVersions = forModel.Where(d => d.SoftwareVersionID == null).ToList();
+        if (forAllSoftwareVersions.Count != 0)
+            return newest(forAllSoftwareVersions);
+
+        long target = parameter.SoftwareVersionID ?? 0;
+        long closest = forModel.Min(d => Math.Abs((long)d.SoftwareVersionID.Value - target));
+        return newest(forModel.Where(d => Math.Abs((long)d.SoftwareVersionID.Value - target) == closest));
+    }
     private static MetadataJSONObjectDefine getDefine(ParameterBag parameter)
     {
         var defines = waitForDefines();
@@ -348,32 +385,8 @@ public static partial class MetadataFactory
             return defines[version].FirstOrDefault(d => d.PID == (ushort)parameter.PID);
 
         var possibleDefines = defines[version].FindAll(d => d.PID == (ushort)parameter.PID && d.ManufacturerID == parameter.ManufacturerID);
-        if (possibleDefines.Count == 1)
-            return possibleDefines[0];
-
-        if (possibleDefines.Count > 1)
-        {
-            MetadataJSONObjectDefine define = possibleDefines.FirstOrDefault(d => d.DeviceModelID == null && d.SoftwareVersionID == null);
-            if (parameter.DeviceModelID != null)
-            {
-                possibleDefines = possibleDefines.Where(d => d.DeviceModelID == parameter.DeviceModelID).ToList();
-                if (possibleDefines.Count == 0)
-                    return define;
-                if (possibleDefines.Count == 1)
-                    define = possibleDefines[0];
-                else if (possibleDefines.Count > 1)
-                {
-                    define = possibleDefines.FirstOrDefault(d => d.SoftwareVersionID == null) ?? define;
-                    if (parameter.SoftwareVersionID != null)
-                    {
-                        define = possibleDefines.FirstOrDefault(d => d.SoftwareVersionID == parameter.SoftwareVersionID) ?? define;
-
-                        define ??= possibleDefines.MinBy(d => parameter.SoftwareVersionID - d.SoftwareVersionID);
-                    }
-                }
-            }
-            return possibleDefines.MaxBy(d => d.Version);
-        }
+        if (possibleDefines.Count != 0)
+            return selectDefine(possibleDefines, parameter);
         // no define: GetDefine throws a DefineNotFoundException for the ESTA range (e.g. a draft or reserved PID a device reports),
         // a manufacturer specific PID without define is null
         return null;

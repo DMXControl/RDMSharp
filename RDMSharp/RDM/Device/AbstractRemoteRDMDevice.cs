@@ -207,10 +207,16 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
 
         if (ExtensionsManager.Instance.TryGetMatchingModules(this, out var modules))
         {
-            this._modules.Clear();
+            disposeModules();
             this._modules.AddRange(modules);
             OnPropertyChanged(nameof(Modules));
         }
+    }
+    private void disposeModules()
+    {
+        foreach (var module in this._modules.OfType<IDisposable>())
+            module.Dispose();
+        this._modules.Clear();
     }
 
     private async void Instance_PresentUpdateTimerElapsed(object sender, EventArgs e)
@@ -834,6 +840,14 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
     {
         GlobalTimers.Instance.PresentUpdateTimerElapsed -= Instance_PresentUpdateTimerElapsed;
         GlobalTimers.Instance.ParameterUpdateTimerElapsed -= Instance_ParameterUpdateTimerElapsed;
+        try
+        {
+            disposeModules();
+        }
+        catch (Exception e)
+        {
+            Logger?.LogError(e);
+        }
         try
         {
             onDispose();

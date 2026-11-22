@@ -51,7 +51,7 @@ public sealed class RealTimeClockModule : AbstractModule
             var result = await SetClock(DateTime.Now);
         });
     }
-    ~RealTimeClockModule()
+    protected override void OnDispose()
     {
         GlobalTimers.Instance.RealTimeClockUpdateTimerElapsed -= Instance_RealTimeClockUpdateTimerElapsed;
         GlobalTimers.Instance.PresentUpdateTimerElapsed -= Instance_PresentUpdateTimerElapsed;

@@ -8,16 +8,8 @@ namespace RDMSharp;
 public class GlobalTimers
 {
     private static readonly ILogger Logger = Logging.CreateLogger<GlobalTimers>();
-    private static GlobalTimers instance = null;
-    public static GlobalTimers Instance
-    {
-        get
-        {
-            if (instance == null)
-                instance = new GlobalTimers();
-            return instance;
-        }
-    }
+    private static readonly Lazy<GlobalTimers> instance = new Lazy<GlobalTimers>(() => new GlobalTimers(), System.Threading.LazyThreadSafetyMode.ExecutionAndPublication);
+    public static GlobalTimers Instance => instance.Value;
 
     public const int DefaultQueuedUpdateTime = 10000; // 10 seconds
     public const int DefaultNonQueuedUpdateTime = 60000; // 60 seconds
@@ -115,23 +107,32 @@ public class GlobalTimers
     private System.Timers.Timer parameterUpdateTimer = null;
     private System.Timers.Timer presentUpdateTimer = null;
     private System.Timers.Timer realTimeClockUpdateTimer = null;
+    // devices and modules subscribe from many threads at once (parallel initialization): creating and destroying the timers has to be atomic
+    private readonly object timerLock = new object();
+
+    internal bool IsParameterUpdateTimerRunning => parameterUpdateTimer != null;
+    internal bool IsPresentUpdateTimerRunning => presentUpdateTimer != null;
+    internal bool IsRealTimeClockUpdateTimerRunning => realTimeClockUpdateTimer != null;
 
     private event EventHandler parameterUpdateTimerElapsed;
     public event EventHandler ParameterUpdateTimerElapsed
     {
         add
         {
-            if (parameterUpdateTimer == null)
-                initializeParameterUpdateTimer();
-
-            parameterUpdateTimerElapsed += value;
+            lock (timerLock)
+            {
+                parameterUpdateTimerElapsed += value;
+                parameterUpdateTimer ??= createTimer(nameof(ParameterUpdateTimerElapsed), ParameterUpdateTimerInterval, ParameterUpdateTimer_Elapsed);
+            }
         }
         remove
         {
-            parameterUpdateTimerElapsed -= value;
-
-            if (parameterUpdateTimer != null && parameterUpdateTimerElapsed == null)
-                destroyParameterUpdateTimer();
+            lock (timerLock)
+            {
+                parameterUpdateTimerElapsed -= value;
+                if (parameterUpdateTimerElapsed == null)
+                    destroyTimer(nameof(ParameterUpdateTimerElapsed), ref parameterUpdateTimer, ParameterUpdateTimer_Elapsed);
+            }
         }
     }
     private event EventHandler presentUpdateTimerElapsed;
@@ -139,17 +140,20 @@ public class GlobalTimers
     {
         add
         {
-            if (presentUpdateTimerElapsed == null)
-                initializePresentUpdateTimer();
-
-            presentUpdateTimerElapsed += value;
+            lock (timerLock)
+            {
+                presentUpdateTimerElapsed += value;
+                presentUpdateTimer ??= createTimer(nameof(PresentUpdateTimerElapsed), PresentUpdateTimerInterval, PresentUpdateTimer_Elapsed);
+            }
         }
         remove
         {
-            presentUpdateTimerElapsed -= value;
-
-            if (presentUpdateTimerElapsed != null && presentUpdateTimerElapsed == null)
-                destroyPresentUpdateTimer();
+            lock (timerLock)
+            {
+                presentUpdateTimerElapsed -= value;
+                if (presentUpdateTimerElapsed == null)
+                    destroyTimer(nameof(PresentUpdateTimerElapsed), ref presentUpdateTimer, PresentUpdateTimer_Elapsed);
+            }
         }
     }
 
@@ -158,83 +162,45 @@ public class GlobalTimers
     {
         add
         {
-            if (realTimeClockUpdateTimerElapsed == null)
-                initializeRealTimeClockUpdateTimer();
-
-            realTimeClockUpdateTimerElapsed += value;
+            lock (timerLock)
+            {
+                realTimeClockUpdateTimerElapsed += value;
+                realTimeClockUpdateTimer ??= createTimer(nameof(RealTimeClockUpdateTimerElapsed), RealTimeClockUpdateTimerInterval, RealTimeClockUpdateTimer_Elapsed);
+            }
         }
         remove
         {
-            realTimeClockUpdateTimerElapsed -= value;
-
-            if (realTimeClockUpdateTimerElapsed != null && realTimeClockUpdateTimerElapsed == null)
-                destroyRealTimeClockUpdateTimer();
+            lock (timerLock)
+            {
+                realTimeClockUpdateTimerElapsed -= value;
+                if (realTimeClockUpdateTimerElapsed == null)
+                    destroyTimer(nameof(RealTimeClockUpdateTimerElapsed), ref realTimeClockUpdateTimer, RealTimeClockUpdateTimer_Elapsed);
+            }
         }
     }
-    private void initializeParameterUpdateTimer()
+    private static System.Timers.Timer createTimer(string name, int interval, System.Timers.ElapsedEventHandler elapsed)
     {
-        Logger?.LogInformation("InitializeParameterUpdateTimer");
-        if (parameterUpdateTimer != null)
-            return;
-        parameterUpdateTimer = new System.Timers.Timer(ParameterUpdateTimerInterval);
-        parameterUpdateTimer.Elapsed += ParameterUpdateTimer_Elapsed;
-        parameterUpdateTimer.Enabled = true;
+        Logger?.LogInformation($"Start {name} Timer");
+        var timer = new System.Timers.Timer(interval);
+        timer.Elapsed += elapsed;
+        timer.Enabled = true;
+        return timer;
     }
-    private void destroyParameterUpdateTimer()
+    private static void destroyTimer(string name, ref System.Timers.Timer timer, System.Timers.ElapsedEventHandler elapsed)
     {
-        Logger?.LogCritical("DestroyParameterUpdateTimer");
-        if (parameterUpdateTimer == null)
+        if (timer == null)
             return;
-        parameterUpdateTimer.Enabled = false;
-        parameterUpdateTimer.Elapsed -= ParameterUpdateTimer_Elapsed;
-        parameterUpdateTimer.Dispose();
-        parameterUpdateTimer = null;
-    }
-
-    private void initializePresentUpdateTimer()
-    {
-        Logger?.LogInformation("InitializePresentUpdateTimer");
-        if (parameterUpdateTimer != null)
-            return;
-        presentUpdateTimer = new System.Timers.Timer(PresentUpdateTimerInterval);
-        presentUpdateTimer.Elapsed += PresentUpdateTimer_Elapsed;
-        presentUpdateTimer.Enabled = true;
-    }
-    private void destroyPresentUpdateTimer()
-    {
-        Logger?.LogCritical("DestroyPresentUpdateTimer");
-        if (parameterUpdateTimer == null)
-            return;
-        presentUpdateTimer.Enabled = false;
-        presentUpdateTimer.Elapsed -= PresentUpdateTimer_Elapsed;
-        presentUpdateTimer.Dispose();
-        presentUpdateTimer = null;
-    }
-
-    private void initializeRealTimeClockUpdateTimer()
-    {
-        Logger?.LogInformation("InitializeRealTimeClockUpdateTimer");
-        if (parameterUpdateTimer != null)
-            return;
-        realTimeClockUpdateTimer = new System.Timers.Timer(RealTimeClockUpdateTimerInterval);
-        realTimeClockUpdateTimer.Elapsed += RealTimeClockUpdateTimer_Elapsed;
-        realTimeClockUpdateTimer.Enabled = true;
-    }
-    private void destroyRealTimeClockUpdateTimer()
-    {
-        Logger?.LogCritical("DestroyRealTimeClockUpdateTimer");
-        if (parameterUpdateTimer == null)
-            return;
-        realTimeClockUpdateTimer.Enabled = false;
-        realTimeClockUpdateTimer.Elapsed -= RealTimeClockUpdateTimer_Elapsed;
-        realTimeClockUpdateTimer.Dispose();
-        realTimeClockUpdateTimer = null;
+        Logger?.LogInformation($"Stop {name} Timer");
+        timer.Enabled = false;
+        timer.Elapsed -= elapsed;
+        timer.Dispose();
+        timer = null;
     }
 
 
     public void ResetAllTimersToDefault()
     {
-        Logger?.LogCritical("ResetAllTimersToDefault");
+        Logger?.LogInformation("ResetAllTimersToDefault");
         QueuedUpdateTime = DefaultQueuedUpdateTime;
         NonQueuedUpdateTime = DefaultNonQueuedUpdateTime;
         UpdateDelayBetweenRequests = DefaultUpdateDelayBetweenRequests;
@@ -251,6 +217,7 @@ public class GlobalTimers
 
         ParameterUpdateTimerInterval = DefaultParameterUpdateTimerInterval;
         PresentUpdateTimerInterval = DefaultPresentUpdateTimerInterval;
+        RealTimeClockUpdateTimerInterval = DefaultRealTimeClockUpdateTimerInterval;
     }
     internal void InternalAllTimersToTestSpeed()
     {
@@ -325,13 +292,12 @@ public class GlobalTimers
     {
         try
         {
-            Random random = new Random();
             var handlers = realTimeClockUpdateTimerElapsed?.GetInvocationList();
             if (handlers != null)
             {
                 System.Threading.Tasks.Parallel.ForEachAsync(handlers, async (handler, token) =>
                 {
-                    await Task.Delay(random.Next(1000, 15000)); //Add some randomness to distribute the load on the bus.
+                    await Task.Delay(Random.Shared.Next(1000, 15000)); //Add some randomness to distribute the load on the bus.
                     try
                     {
                         ((EventHandler)handler)?.Invoke(sender, EventArgs.Empty);
