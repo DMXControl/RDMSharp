@@ -4,6 +4,7 @@ using RDMSharp.Metadata;
 using RDMSharp.PayloadObject;
 using RDMSharp.RDM.Device;
 using RDMSharp.RDM.Device.Module;
+using RDMSharp.RDM.Device.Module.Generic;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -106,7 +107,16 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
     }
 
     private readonly List<IModule> _modules = new List<IModule>();
-    public IReadOnlyCollection<IModule> Modules { get => _modules.AsReadOnly(); }
+    private readonly object _modulesLock = new object();
+    /// <summary>A snapshot of the modules: the list changes while the device is initialized (generic modules are added later).</summary>
+    public IReadOnlyCollection<IModule> Modules
+    {
+        get
+        {
+            lock (_modulesLock)
+                return _modules.ToArray();
+        }
+    }
 
     private bool allDataPulled;
     public bool AllDataPulled
@@ -207,18 +217,44 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
 
         if (ExtensionsManager.Instance.TryGetMatchingModules(this, out var modules))
         {
-            disposeModules();
-            this._modules.AddRange(modules);
+            lock (_modulesLock)
+            {
+                disposeModules();
+                this._modules.AddRange(modules);
+            }
             foreach (var module in modules.OfType<AbstractModule>())
                 module.ApplyCachedValues();
             OnPropertyChanged(nameof(Modules));
         }
+        addGenericModules();
+    }
+    /// <summary>
+    /// Adds a generic module (built from the define) for every simple supported parameter that no module handles yet.
+    /// Called again when all data is pulled: some devices report parameters later (e.g. a list of private parameters).
+    /// </summary>
+    private void addGenericModules()
+    {
+        IReadOnlyCollection<IModule> created;
+        lock (_modulesLock)
+        {
+            created = GenericModuleFactory.CreateMissing(this, this._modules);
+            this._modules.AddRange(created);
+        }
+        if (created.Count == 0)
+            return;
+        Logger?.LogDebug($"{UID} SubDevice: {Subdevice}: {created.Count} generic module(s): {string.Join(", ", created.OfType<IGenericModule>().Select(m => $"{m.Parameter} ({m.GetType().Name.Split('`')[0]})"))}");
+        foreach (var module in created.OfType<AbstractModule>())
+            module.ApplyCachedValues();
+        OnPropertyChanged(nameof(Modules));
     }
     private void disposeModules()
     {
-        foreach (var module in this._modules.OfType<IDisposable>())
-            module.Dispose();
-        this._modules.Clear();
+        lock (_modulesLock)
+        {
+            foreach (var module in this._modules.OfType<IDisposable>())
+                module.Dispose();
+            this._modules.Clear();
+        }
     }
 
     private async void Instance_PresentUpdateTimerElapsed(object sender, EventArgs e)
@@ -272,6 +308,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
     {
         await collectAllParametersOnRoot();
         await scanSubDevices();
+        addGenericModules();
         AllDataPulled = true;
         logIdentity();
         GlobalTimers.Instance.ParameterUpdateTimerElapsed += Instance_ParameterUpdateTimerElapsed;

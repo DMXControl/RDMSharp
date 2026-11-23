@@ -155,6 +155,17 @@ public class TestMetadataJsonModule
         await Wait.UntilAsync(() => mockDevice.GetAllParameterValues().ContainsKey(FICTIONAL_PARAMETER));
         Assert.That(mockDevice.GetAllParameterValues(), Does.ContainKey(FICTIONAL_PARAMETER));
         Assert.That(mockDevice.GetAllParameterValues()[FICTIONAL_PARAMETER], Is.EqualTo(FICTIONAL_LEVEL));
+
+        // no module is written for the parameter: a generic one is built from the define (one uint8, read only)
+        await Wait.UntilAsync(() => mockDevice.Modules.OfType<RDMSharp.RDM.Device.Module.Generic.IGenericModule>().Any(m => m.Parameter == FICTIONAL_PARAMETER));
+        var generic = mockDevice.Modules.OfType<RDMSharp.RDM.Device.Module.Generic.GenericNumericModule<byte>>().Single(m => m.Parameter == FICTIONAL_PARAMETER);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generic.Value, Is.EqualTo(FICTIONAL_LEVEL));
+            Assert.That(generic.SupportedCommandClass, Is.EqualTo(ERDM_CommandClass.GET));
+            Assert.That(mockDevice.Modules.OfType<RDMSharp.RDM.Device.Module.Generic.IGenericModule>().Select(m => m.Parameter), Has.None.EqualTo(ERDM_Parameter.METADATA_JSON),
+                "a parameter with a written module gets no generic one");
+        }
     }
 
     /// <summary>
