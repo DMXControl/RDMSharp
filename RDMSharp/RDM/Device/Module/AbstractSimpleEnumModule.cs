@@ -5,6 +5,7 @@ namespace RDMSharp.RDM.Device.Module;
 
 public abstract class AbstractSimpleEnumModule<T> : AbstractSimpleModule where T : struct, Enum
 {
+    public override object CurrentValue => Value;
     private bool initialized = false;
     private T _value;
     protected T? Value

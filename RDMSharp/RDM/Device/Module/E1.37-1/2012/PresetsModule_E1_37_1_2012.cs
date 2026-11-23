@@ -1,5 +1,8 @@
 ﻿using RDMSharp.PayloadObject;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
@@ -34,6 +37,19 @@ public class PresetsModule_E1_37_1_2012 : PresetsModule
         {
             if (ParentGeneratedDevice is not null)
                 ParentGeneratedDevice.setParameterValue(ERDM_Parameter.PRESET_INFO, value);
+        }
+    }
+
+    /// <summary>The PRESET_STATUS of the scenes the device answered, ordered by scene.</summary>
+    public IReadOnlyList<GetPresetStatus> PresetStatuses
+    {
+        get
+        {
+            if (ParentDevice is null)
+                return Array.Empty<GetPresetStatus>();
+            if (!ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.PRESET_STATUS, out object res) || res is not ConcurrentDictionary<object, object> statuses)
+                return Array.Empty<GetPresetStatus>();
+            return statuses.Values.OfType<GetPresetStatus>().OrderBy(s => s.SceneId).ToList().AsReadOnly();
         }
     }
 
@@ -97,6 +113,10 @@ public class PresetsModule_E1_37_1_2012 : PresetsModule
         base.ParameterChanged(parameter, newValue, index);
         if (parameter == ERDM_Parameter.PRESET_MERGEMODE)
             OnPropertyChanged(nameof(CurrentMergeMode));
+        else if (parameter == ERDM_Parameter.PRESET_INFO)
+            OnPropertyChanged(nameof(PresetInfo));
+        else if (parameter == ERDM_Parameter.PRESET_STATUS)
+            OnPropertyChanged(nameof(PresetStatuses));
     }
 
     public async Task<bool> SetCurrentMergeMode(ERDM_MergeMode mergeMode)

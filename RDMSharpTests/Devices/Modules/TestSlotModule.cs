@@ -296,7 +296,9 @@ public class TestSlotModule
         SemaphoreSlim semaphoreSlim = new SemaphoreSlim(0, 1);
         personalityModule.PropertyChanged += (o, e) =>
         {
-            semaphoreSlim.Release();
+            // the module reports more than the personality (e.g. DmxPersonality, CurrentPersonalityId): wait for the personality only
+            if (e.PropertyName == nameof(DMX_PersonalityModule.CurrentPersonality) && semaphoreSlim.CurrentCount == 0)
+                semaphoreSlim.Release();
         };
         await personalityModule.SetPersonality(2);
         await semaphoreSlim.WaitAsync();

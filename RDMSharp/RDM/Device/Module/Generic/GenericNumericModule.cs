@@ -1,4 +1,4 @@
-using RDMSharp.Metadata;
+﻿using RDMSharp.Metadata;
 using RDMSharp.Metadata.JSON.OneOfTypes;
 using System;
 using System.Collections.Generic;
@@ -13,7 +13,6 @@ namespace RDMSharp.RDM.Device.Module.Generic;
 /// </summary>
 public class GenericNumericModule<T> : AbstractSimpleNumericModule<T>, IGenericModule where T : struct, IComparable, IConvertible, IFormattable
 {
-    public ERDM_Parameter Parameter => ModuleParameter;
     public MetadataJSONObjectDefine Define { get; }
     public override string DisplayName { get; }
     public T MinValue { get; }

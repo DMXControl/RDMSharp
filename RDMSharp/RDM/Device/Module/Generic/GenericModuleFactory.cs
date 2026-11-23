@@ -1,4 +1,4 @@
-using RDMSharp.Metadata;
+﻿using RDMSharp.Metadata;
 using RDMSharp.Metadata.JSON;
 using RDMSharp.Metadata.JSON.OneOfTypes;
 using System;
@@ -26,27 +26,63 @@ public static class GenericModuleFactory
     internal static string DisplayNameOf(MetadataJSONObjectDefine define) => string.IsNullOrWhiteSpace(define.DisplayName) ? define.Name : define.DisplayName;
 
     /// <summary>
-    /// Creates the generic modules of <paramref name="device"/> for its supported parameters that no module in <paramref name="existingModules"/> handles.
+    /// Creates the modules of <paramref name="device"/> for its supported parameters that no module in <paramref name="existingModules"/> handles:
+    /// a generic module if the define is simple, else a <see cref="FallbackParameterModule"/> (also for manufacturer internal parameters),
+    /// so every parameter of the device has a module. A fallback module is replaced by a generic one, once the define allows it
+    /// (<paramref name="replaced"/>: the fallback modules to remove).
     /// </summary>
-    public static IReadOnlyCollection<IModule> CreateMissing(AbstractRemoteRDMDevice device, IEnumerable<IModule> existingModules)
+    public static IReadOnlyCollection<IModule> CreateMissing(AbstractRemoteRDMDevice device, IEnumerable<IModule> existingModules, out IReadOnlyCollection<IModule> replaced)
     {
         var result = new List<IModule>();
+        var replacedList = new List<IModule>();
+        replaced = replacedList;
         var supported = device?.DeviceModel?.GetSupportedParameters();
         if (supported is null)
             return result;
 
-        var covered = new HashSet<ERDM_Parameter>(existingModules.SelectMany(m => m.SupportedParameters));
+        var existing = existingModules.ToList();
+        var fallbacks = existing.OfType<FallbackParameterModule>().ToDictionary(f => f.Parameter);
+        var covered = new HashSet<ERDM_Parameter>(existing.Where(m => m is not FallbackParameterModule).SelectMany(m => m.SupportedParameters));
         foreach (var metadata in supported)
         {
-            if (!metadata.IsNonBlueprint || metadata.IsManufacturerInternal || covered.Contains(metadata.Parameter))
+            var parameter = metadata.Parameter;
+            if (covered.Contains(parameter) || FallbackParameterModule.HandledByDevice.Contains(parameter))
                 continue;
-            if (TryCreate(device, metadata.Parameter, out IGenericModule module))
+            covered.Add(parameter);
+
+            if (metadata.IsNonBlueprint && !metadata.IsManufacturerInternal && TryCreate(device, parameter, out IGenericModule module))
             {
                 result.Add(module);
-                covered.Add(metadata.Parameter);
+                if (fallbacks.TryGetValue(parameter, out var fallback))
+                    replacedList.Add(fallback);
+                continue;
             }
+            var define = tryGetDefine(device, parameter);
+            // an action (SET without data): a button, also for manufacturer internal parameters
+            if (GenericActionModule.IsAction(define))
+            {
+                result.Add(new GenericActionModule(device, define, parameter, metadata.IsManufacturerInternal));
+                if (fallbacks.TryGetValue(parameter, out var fallback))
+                    replacedList.Add(fallback);
+                continue;
+            }
+            if (!fallbacks.ContainsKey(parameter))
+                result.Add(new FallbackParameterModule(device, parameter, define, metadata.Name, metadata.IsManufacturerInternal));
         }
         return result;
+    }
+
+    private static MetadataJSONObjectDefine tryGetDefine(AbstractRemoteRDMDevice device, ERDM_Parameter parameter)
+    {
+        try
+        {
+            var info = device.DeviceInfo;
+            return MetadataFactory.GetDefine(new ParameterBag(parameter, device.UID.ManufacturerID, info?.DeviceModelId, info?.SoftwareVersionId));
+        }
+        catch (DefineNotFoundException)
+        {
+            return null;
+        }
     }
 
     /// <summary>Creates the generic module for <paramref name="parameter"/> of <paramref name="device"/>, if its define fits a simple module.</summary>

@@ -35,6 +35,17 @@ public abstract class AbstractModule : IModule, IDisposable
         }
     }
 
+    /// <summary>
+    /// The device supports <paramref name="parameter"/>: a module can cover parameters the device does not all support
+    /// (e.g. CAPTURE_PRESET without PRESET_PLAYBACK). A generated device supports every parameter of its modules.
+    /// </summary>
+    public bool IsSupportedByDevice(ERDM_Parameter parameter)
+    {
+        if (ParentRemoteDevice is AbstractRemoteRDMDevice remote)
+            return remote.DeviceModel?.GetSupportedParameters()?.Any(spm => spm.Parameter == parameter) == true;
+        return _supportedParameters.Contains(parameter);
+    }
+
     protected AbstractModule(string name, params ERDM_Parameter[] supportedParameters)
     {
         this._name = name;

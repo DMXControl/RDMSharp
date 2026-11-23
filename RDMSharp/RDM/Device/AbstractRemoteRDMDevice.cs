@@ -249,7 +249,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
             var covered = new HashSet<ERDM_Parameter>(added.SelectMany(m => m.SupportedParameters));
             lock (_modulesLock)
             {
-                replaced.AddRange(this._modules.OfType<IGenericModule>().Where(g => covered.Contains(g.Parameter)));
+                replaced.AddRange(this._modules.Where(m => m is IGenericModule or FallbackParameterModule && m.SupportedParameters.Any(covered.Contains)));
                 foreach (var generic in replaced)
                     this._modules.Remove(generic);
                 this._modules.AddRange(added);
@@ -264,20 +264,31 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         addGenericModules();
     }
     /// <summary>
-    /// Adds a generic module (built from the define) for every simple supported parameter that no module handles yet.
+    /// Adds a generic module (built from the define) for every simple supported parameter that no module handles yet,
+    /// and a <see cref="FallbackParameterModule"/> for every other one, so every parameter has a module.
     /// Called again when all data is pulled: some devices report parameters later (e.g. a list of private parameters).
     /// </summary>
     private void addGenericModules()
     {
         IReadOnlyCollection<IModule> created;
+        IReadOnlyCollection<IModule> replaced;
         lock (_modulesLock)
         {
-            created = GenericModuleFactory.CreateMissing(this, this._modules);
+            created = GenericModuleFactory.CreateMissing(this, this._modules, out replaced);
+            foreach (var module in replaced)
+                this._modules.Remove(module);
             this._modules.AddRange(created);
         }
         if (created.Count == 0)
             return;
-        Logger?.LogDebug($"{UID} SubDevice: {Subdevice}: {created.Count} generic module(s): {string.Join(", ", created.OfType<IGenericModule>().Select(m => $"{m.Parameter} ({m.GetType().Name.Split('`')[0]})"))}");
+        var generic = created.OfType<IGenericModule>().ToList();
+        var fallback = created.OfType<FallbackParameterModule>().ToList();
+        if (generic.Count != 0)
+            Logger?.LogDebug($"{UID} SubDevice: {Subdevice}: {generic.Count} generic module(s): {string.Join(", ", generic.Select(m => $"{m.Parameter} ({m.GetType().Name.Split('`')[0]})"))}");
+        if (fallback.Count != 0)
+            Logger?.LogDebug($"{UID} SubDevice: {Subdevice}: {fallback.Count} fallback module(s): {string.Join(", ", fallback.Select(m => $"0x{(ushort)m.Parameter:X4}{(m.IsManufacturerInternal ? " (internal)" : "")}"))}");
+        foreach (var module in replaced.OfType<IDisposable>())
+            module.Dispose();
         foreach (var module in created.OfType<AbstractModule>())
             module.ApplyCachedValues();
         OnPropertyChanged(nameof(Modules));

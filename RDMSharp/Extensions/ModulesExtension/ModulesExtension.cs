@@ -51,7 +51,12 @@ public sealed class ModulesExtension : AbstractModulesExtension
         if (parameters.Contains(ERDM_Parameter.MANUFACTURER_LABEL))
             _modules.Add(typeof(ManufacturerLabelModule));
 
-        if (parameters.Contains(ERDM_Parameter.PRESET_PLAYBACK))
+        // a device can support a part of the presets only (seen: LumiSplit with CAPTURE_PRESET, PRESET_INFO and PRESET_STATUS, without PRESET_PLAYBACK)
+        if (parameters.Contains(ERDM_Parameter.PRESET_PLAYBACK) ||
+            parameters.Contains(ERDM_Parameter.CAPTURE_PRESET) ||
+            parameters.Contains(ERDM_Parameter.PRESET_INFO) ||
+            parameters.Contains(ERDM_Parameter.PRESET_STATUS) ||
+            parameters.Contains(ERDM_Parameter.PRESET_MERGEMODE))
         {
             if (parameters.Contains(ERDM_Parameter.PRESET_INFO) ||
                 parameters.Contains(ERDM_Parameter.PRESET_STATUS) ||

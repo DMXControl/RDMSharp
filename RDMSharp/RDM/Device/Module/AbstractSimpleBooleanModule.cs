@@ -4,6 +4,7 @@ namespace RDMSharp.RDM.Device.Module;
 
 public abstract class AbstractSimpleBooleanModule : AbstractSimpleModule
 {
+    public override object CurrentValue => Value;
     private bool initialized = false;
     private bool _value;
     protected bool? Value

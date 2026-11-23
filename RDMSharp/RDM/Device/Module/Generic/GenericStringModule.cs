@@ -1,4 +1,4 @@
-using RDMSharp.Metadata;
+﻿using RDMSharp.Metadata;
 using RDMSharp.Metadata.JSON.OneOfTypes;
 using System.Threading.Tasks;
 
@@ -7,7 +7,6 @@ namespace RDMSharp.RDM.Device.Module.Generic;
 /// <summary>A parameter with one string field, built from its define.</summary>
 public sealed class GenericStringModule : AbstractSimpleStringModule, IGenericModule
 {
-    public ERDM_Parameter Parameter => ModuleParameter;
     public MetadataJSONObjectDefine Define { get; }
     public override string DisplayName { get; }
     public uint MinLength { get; }

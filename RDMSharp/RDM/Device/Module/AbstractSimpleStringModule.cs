@@ -4,6 +4,7 @@ namespace RDMSharp.RDM.Device.Module;
 
 public abstract class AbstractSimpleStringModule : AbstractSimpleModule
 {
+    public override object CurrentValue => Value;
     private bool initialized = false;
     private string _value;
     protected string Value

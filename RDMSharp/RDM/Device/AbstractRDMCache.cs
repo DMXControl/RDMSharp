@@ -310,6 +310,12 @@ public abstract class AbstractRDMCache : IDisposable
 
                         updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), dataTreeBranch);
                     }
+                    else if (define.GetRequest.HasValue && define.GetRequest.Value.GetIsEmpty())
+                    {
+                        // the cached value can not be built from the SET (e.g. DMX_PERSONALITY: SET the personality, GET personality and count):
+                        // read it again, else the cache keeps the old value although the device changed
+                        await requestGetParameterWithEmptyPayload(parameterBag, define, uid, subDevice);
+                    }
                     return true;
                 }
                 updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), dataTreeBranch);

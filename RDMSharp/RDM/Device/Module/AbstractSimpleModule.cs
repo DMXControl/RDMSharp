@@ -6,6 +6,23 @@ public abstract class AbstractSimpleModule : AbstractModule
 
     public ERDM_CommandClass SupportedCommandClass { get; }
 
+    /// <summary>The one parameter of the module.</summary>
+    public ERDM_Parameter Parameter => ModuleParameter;
+    /// <summary>The current value, read only and boxed (e.g. for a table with one column per module); <c>null</c> until it is known.</summary>
+    public abstract object CurrentValue { get; }
+    /// <summary>The current value as text (the label of the value, if it has one); <c>null</c> until it is known.</summary>
+    public virtual string ValueText => CurrentValue?.ToString();
+
+    protected override void OnPropertyChanged(string propertyName = null)
+    {
+        base.OnPropertyChanged(propertyName);
+        if (propertyName == "Value")
+        {
+            base.OnPropertyChanged(nameof(CurrentValue));
+            base.OnPropertyChanged(nameof(ValueText));
+        }
+    }
+
     public AbstractSimpleModule(string name, ERDM_Parameter supportedParameter, ERDM_CommandClass supportedCommandClass) : base(name, supportedParameter)
     {
         ModuleParameter = supportedParameter;

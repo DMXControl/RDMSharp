@@ -34,6 +34,9 @@ public sealed class ProductDetailIdListModule : AbstractSimpleModule
         }
     }
 
+    public override object CurrentValue => ProductDetails;
+    public override string ValueText => ProductDetails is { } details ? string.Join(", ", details) : null;
+
     public ProductDetailIdListModule(params ERDM_ProductDetail[] productDetails) : base(
         _moduleName,
         _moduleParameter,

@@ -5,6 +5,7 @@ namespace RDMSharp.RDM.Device.Module;
 
 public abstract class AbstractSimpleNumericModule<T> : AbstractSimpleModule where T : struct, IComparable, IConvertible, IFormattable
 {
+    public override object CurrentValue => Value;
     private bool initialized = false;
     private T _value;
     protected T? Value

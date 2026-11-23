@@ -1,4 +1,5 @@
-﻿using RDMSharp.PayloadObject;
+﻿using Microsoft.Extensions.Logging;
+using RDMSharp.PayloadObject;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -43,6 +44,36 @@ public sealed class DMX_PersonalityModule : AbstractModule
         }
     }
     private byte _initialPersonalityId;
+
+    public bool IsSettable
+    {
+        get
+        {
+            return field;
+        }
+        private set
+        {
+            if (field == value)
+                return;
+            field = value;
+            OnPropertyChanged();
+        }
+    }
+    public bool IsUsable
+    {
+        get
+        {
+            return field;
+        }
+        private set
+        {
+            if (field == value)
+                return;
+            field = value;
+            OnPropertyChanged();
+        }
+    }
+
     //public byte? CurrentPersonalityId
     //{
     //    get
@@ -78,10 +109,34 @@ public sealed class DMX_PersonalityModule : AbstractModule
     //        }
     //    }
     //}
+    /// <summary>
+    /// The DMX_PERSONALITY value of the device (current personality and count), <c>null</c> until it answered.
+    /// Without it (e.g. a device that does not list DMX_PERSONALITY, its support is assumed from DEVICE_INFO) the values of DEVICE_INFO.
+    /// </summary>
+    public RDMDMXPersonality DmxPersonality
+    {
+        get
+        {
+            if (ParentDevice is null)
+                return null;
+            if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.DMX_PERSONALITY, out object res) && res is RDMDMXPersonality personality)
+                return personality;
+            if (ParentDevice.DeviceInfo is RDMDeviceInfo info && info.Dmx512CurrentPersonality is byte current && current != 0 && info.Dmx512NumberOfPersonalities != 0)
+                return new RDMDMXPersonality(current, info.Dmx512NumberOfPersonalities);
+            return null;
+        }
+    }
+    /// <summary>The ID of the current personality as the device reports it (the personality model may still load).</summary>
+    public byte? CurrentPersonalityId => DmxPersonality?.CurrentPersonality ?? currentPersonality?.ID;
+    /// <summary>How many personalities the device has: DMX_PERSONALITY, else the known descriptions.</summary>
+    public byte PersonalityCount => DmxPersonality?.OfPersonalities is byte count && count != 0 ? count : (byte)PersonalityDesriptions.Count;
+
     public IReadOnlyCollection<RDMDMXPersonalityDescription> PersonalityDesriptions
     {
         get
         {
+            if (ParentDevice is null)
+                return Array.Empty<RDMDMXPersonalityDescription>();
             if (ParentDevice.GetAllParameterValues().TryGetValue(ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION, out object res))
                 if (res is ConcurrentDictionary<object, object> dict)
                     return dict.Select(d => d.Value).OfType<RDMDMXPersonalityDescription>().ToList().AsReadOnly();
@@ -158,37 +213,61 @@ public sealed class DMX_PersonalityModule : AbstractModule
     }
     protected override async void ParameterChanged(ERDM_Parameter parameter, object newValue, object index)
     {
-        switch (parameter)
+        try // async void: an escaping exception (also of a PropertyChanged subscriber) would terminate the process
         {
-            case ERDM_Parameter.DMX_PERSONALITY:
-                if (newValue is RDMDMXPersonality personality)
-                {
-                    if (ParentGeneratedDevice is not null)
-                        await SetPersonality(personality.CurrentPersonality);
-
-                    else if (ParentRemoteDevice is not null)
+            switch (parameter)
+            {
+                case ERDM_Parameter.DMX_PERSONALITY:
+                    updateUsability();
+                    OnPropertyChanged(nameof(DmxPersonality));
+                    OnPropertyChanged(nameof(CurrentPersonalityId));
+                    OnPropertyChanged(nameof(PersonalityCount));
+                    if (newValue is RDMDMXPersonality personality)
                     {
-                        try
+                        if (ParentGeneratedDevice is not null)
+                            await SetPersonality(personality.CurrentPersonality);
+
+                        else if (ParentRemoteDevice is not null)
                         {
-                            var pm = ParentRemoteDevice.DeviceModel.KnownPersonalityModels.FirstOrDefault(p => p.Personality?.ID == personality.CurrentPersonality);
-                            if (pm is null)
-                                pm = ParentRemoteDevice.DeviceModel.getPersonalityModel(ParentRemoteDevice, personality.CurrentPersonality);
-                            if (!pm.IsInitialized)
-                                await pm.Initialize();
-                            CurrentPersonality = pm.Personality;
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger?.LogError(ex);
+                            try
+                            {
+                                var pm = ParentRemoteDevice.DeviceModel.KnownPersonalityModels.FirstOrDefault(p => p.Personality?.ID == personality.CurrentPersonality);
+                                if (pm is null)
+                                    pm = ParentRemoteDevice.DeviceModel.getPersonalityModel(ParentRemoteDevice, personality.CurrentPersonality);
+                                if (!pm.IsInitialized)
+                                    await pm.Initialize();
+                                CurrentPersonality = pm.Personality;
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger?.LogError(ex);
+                            }
                         }
                     }
-                }
-                break;
-            case ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION when ParentGeneratedDevice is not null:
-                OnPropertyChanged(nameof(PersonalityDesriptions));
-                break;
+                    break;
+                case ERDM_Parameter.DMX_PERSONALITY_DESCRIPTION:
+                    updateUsability();
+                    OnPropertyChanged(nameof(PersonalityDesriptions));
+                    OnPropertyChanged(nameof(PersonalityCount));
+                    OnPropertyChanged(nameof(Personalities));
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, $"Error in {nameof(DMX_PersonalityModule)}.{nameof(ParameterChanged)} for {parameter}");
         }
     }
+    /// <summary>Usable with one personality at least, settable with more than one (DMX_PERSONALITY or the descriptions).</summary>
+    private void updateUsability()
+    {
+        int count = Math.Max(PersonalityCount, PersonalityDesriptions.Count);
+        if (count > 0)
+            IsUsable = true;
+        if (count > 1)
+            IsSettable = true;
+    }
+
     public override bool IsHandlingParameter(ERDM_Parameter parameter, ERDM_Command command)
     {
         if (parameter == ERDM_Parameter.DMX_PERSONALITY)
@@ -256,7 +335,10 @@ public sealed class DMX_PersonalityModule : AbstractModule
         }
         if (ParentRemoteDevice is not null)
         {
-            if (!this.PersonalityDesriptions.Any(p => p.PersonalityId == personalityId))
+            bool known = this.PersonalityDesriptions.Count != 0
+                ? this.PersonalityDesriptions.Any(p => p.PersonalityId == personalityId)
+                : personalityId >= 1 && personalityId <= PersonalityCount;
+            if (!known)
                 throw new ArgumentOutOfRangeException($"No Personality found with ID: {personalityId}");
             return await ParentRemoteDevice.SetParameter(ERDM_Parameter.DMX_PERSONALITY, personalityId);
         }
