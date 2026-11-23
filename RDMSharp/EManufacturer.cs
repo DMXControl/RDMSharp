@@ -20,6 +20,8 @@ public enum EManufacturer : ushort
     LUMINEX_Lighting_Control_Equipment_bvba = 0x4C4C,
     [Description("LumenRadio AB")]
     LumenRadio_AB = 0x4C55,
+    [Description("LSC Lighting Systems (Aust) Pty. Ltd.")]
+    LSC = 0x4C73,
     [Description("MDG")]
     MDG = 0x4D44,
     [Description("Martin Professional A/S")]
