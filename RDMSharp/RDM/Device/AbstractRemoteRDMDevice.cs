@@ -215,7 +215,9 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
         //    await Task.Delay(100);
         //}
 
-        if (ExtensionsManager.Instance.TryGetMatchingModules(this, out var modules))
+        bool matched = ExtensionsManager.Instance.TryGetMatchingModules(this, out var modules);
+        Logger?.LogDebug($"{UID} SubDevice: {Subdevice}: {modules?.Count ?? 0} module(s) for {DeviceModel?.GetSupportedParameters()?.Count ?? 0} supported parameter(s)");
+        if (matched)
         {
             lock (_modulesLock)
             {
@@ -223,6 +225,39 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
                 this._modules.AddRange(modules);
             }
             foreach (var module in modules.OfType<AbstractModule>())
+                module.ApplyCachedValues();
+            OnPropertyChanged(nameof(Modules));
+        }
+        addGenericModules();
+    }
+    /// <summary>
+    /// Once all data is pulled: adds the modules that are missing. Devices of one model share the model, while one device fills it
+    /// another one can see an incomplete list of supported parameters and get no modules (seen with two devices of the same model).
+    /// A generic module is replaced by a written module that now handles its parameter.
+    /// </summary>
+    private void addMissingModules()
+    {
+        IReadOnlyCollection<Type> existingTypes;
+        lock (_modulesLock)
+            existingTypes = this._modules.Select(m => m.GetType()).ToList();
+        ExtensionsManager.Instance.TryGetMatchingModules(this, existingTypes, out var added);
+        added ??= Array.Empty<IModule>();
+
+        var replaced = new List<IModule>();
+        if (added.Count != 0)
+        {
+            var covered = new HashSet<ERDM_Parameter>(added.SelectMany(m => m.SupportedParameters));
+            lock (_modulesLock)
+            {
+                replaced.AddRange(this._modules.OfType<IGenericModule>().Where(g => covered.Contains(g.Parameter)));
+                foreach (var generic in replaced)
+                    this._modules.Remove(generic);
+                this._modules.AddRange(added);
+            }
+            Logger?.LogDebug($"{UID} SubDevice: {Subdevice}: {added.Count} missing module(s) added, {replaced.Count} generic module(s) replaced");
+            foreach (var module in replaced.OfType<IDisposable>())
+                module.Dispose();
+            foreach (var module in added.OfType<AbstractModule>())
                 module.ApplyCachedValues();
             OnPropertyChanged(nameof(Modules));
         }
@@ -308,7 +343,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
     {
         await collectAllParametersOnRoot();
         await scanSubDevices();
-        addGenericModules();
+        addMissingModules();
         AllDataPulled = true;
         logIdentity();
         GlobalTimers.Instance.ParameterUpdateTimerElapsed += Instance_ParameterUpdateTimerElapsed;

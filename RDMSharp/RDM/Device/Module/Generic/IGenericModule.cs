@@ -9,6 +9,8 @@ namespace RDMSharp.RDM.Device.Module.Generic;
 /// </summary>
 public interface IGenericModule : IModule
 {
+    /// <summary>The name to show: displayName of the define, else its name.</summary>
+    string DisplayName { get; }
     /// <summary>The parameter the module is built for.</summary>
     ERDM_Parameter Parameter { get; }
     /// <summary>The define the module is built from.</summary>

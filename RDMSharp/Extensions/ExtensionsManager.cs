@@ -223,6 +223,13 @@ internal class ExtensionsManager
     }
 
     public bool TryGetMatchingModules(AbstractRemoteRDMDevice device, out IReadOnlyCollection<IModule> modulesResult)
+        => TryGetMatchingModules(device, null, out modulesResult);
+
+    /// <summary>
+    /// Creates the modules of the extensions that match the supported parameters of <paramref name="device"/>,
+    /// except the module types in <paramref name="existingTypes"/> (a module can do something when it is created, e.g. send a SET).
+    /// </summary>
+    public bool TryGetMatchingModules(AbstractRemoteRDMDevice device, IReadOnlyCollection<Type> existingTypes, out IReadOnlyCollection<IModule> modulesResult)
     {
         List<IModule> result = new();
         try
@@ -231,7 +238,7 @@ internal class ExtensionsManager
                 foreach (var modulesExtension in modulesExtensionsResult)
                     if (modulesExtension.TryGetModules(device.DeviceModel.GetSupportedParameters().Select(spm => spm.Parameter).ToArray(), out IReadOnlyCollection<Type> modulTypes))
                         foreach (var modulType in modulTypes)
-                            if (modulesExtension.TryCreateModuleInstance(modulType, device, out IModule moduleInstance))
+                            if (existingTypes?.Contains(modulType) != true && modulesExtension.TryCreateModuleInstance(modulType, device, out IModule moduleInstance))
                                 result.Add(moduleInstance);
         }
         catch (Exception e)
