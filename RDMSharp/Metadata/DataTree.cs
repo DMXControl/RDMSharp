@@ -49,7 +49,7 @@ public readonly struct DataTree : IEquatable<DataTree>
 
     public override string ToString()
     {
-        return $"[{Index}] {Name}: {Value}";
+        return $"[{Index}] {Name}: {Value}{Unit}";
     }
 
     public override bool Equals(object obj)
