@@ -236,4 +236,94 @@ public class TestRDMDeviceModel
         }
     }
     #endregion
+
+    #region A device that ignores METADATA_JSON
+    private static readonly ERDM_Parameter[] FOUR_PARAMETERS = { (ERDM_Parameter)0x9311, (ERDM_Parameter)0x9312, (ERDM_Parameter)0x9313, (ERDM_Parameter)0x9314 };
+
+    /// <summary>
+    /// The device does not answer METADATA_JSON at all (no NACK either), while it answers everything else. The model must not run into the timeout
+    /// for every manufacturer specific parameter: after the second request without an answer the parameter is flagged and not asked for any more.
+    /// </summary>
+    [Test, MaxTime(90000)]
+    public async Task TestDeviceThatIgnoresMetadataJsonIsNotAskedForEveryParameter()
+    {
+        var uid = new UID(PROTOTYPE_MANUFACTURER, 0x0000000D);
+        using var timeouts = new ShortTimeouts(silentParameterRetryInterval: 60000);
+        using var generated = new IgnoringMetadataJsonMockDevice(uid);
+
+        var asked = new ConcurrentDictionary<object, byte>();
+        GlobalTestSetup.DropRequest = m =>
+        {
+            if (m.DestUID != uid || m.Command != ERDM_Command.GET_COMMAND || m.Parameter != ERDM_Parameter.METADATA_JSON)
+                return false;
+            asked.TryAdd(m.Value ?? 0, 0);
+            return true;
+        };
+        try
+        {
+            using MockDevice mockDevice = new MockDevice(uid);
+            while (!mockDevice.IsInitialized)
+                await Task.Delay(100);
+            while (!mockDevice.AllDataPulled)
+                await Task.Delay(100);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(asked.Count, Is.InRange(1, 2), "not one request for each of the four manufacturer specific parameters");
+                Assert.That(mockDevice.DeviceModel.GetSilentParameters().Select(p => p.Parameter), Does.Contain(ERDM_Parameter.METADATA_JSON));
+                Assert.That(mockDevice.DeviceModel.GetSupportedParameters().Select(p => p.Parameter), Does.Not.Contain(ERDM_Parameter.METADATA_JSON));
+            }
+        }
+        finally
+        {
+            GlobalTestSetup.DropRequest = null;
+        }
+    }
+
+    private sealed class IgnoringMetadataJsonMockDevice : MockGeneratedDevice1
+    {
+        public override ushort DeviceModelID => 0x4D4E;
+
+        public IgnoringMetadataJsonMockDevice(UID uid) : base(uid, new IModule[] { new FourParametersModule() })
+        {
+        }
+    }
+
+    /// <summary>Four manufacturer specific parameters, described with PARAMETER_DESCRIPTION. There is no METADATA_JSON.</summary>
+    private sealed class FourParametersModule : AbstractModule
+    {
+        public override string DisplayName => "Four Parameters";
+
+        public FourParametersModule() : base("FourParameters", [ERDM_Parameter.PARAMETER_DESCRIPTION, .. FOUR_PARAMETERS])
+        {
+        }
+
+        protected override void OnParentGeneratedDeviceChanged(AbstractGeneratedRDMDevice device)
+        {
+            var descriptions = new ConcurrentDictionary<object, object>();
+            foreach (var parameter in FOUR_PARAMETERS)
+                descriptions.TryAdd(parameter, new RDMParameterDescription(
+                    parameterId: (ushort)parameter, pdlSize: 1, dataType: ERDM_DataType.UINT8, commandClass: ERDM_CommandClass.GET,
+                    minValidValue: 0, maxValidValue: 255, description: $"Fictional Level {(ushort)parameter:X4}"));
+            device.setParameterValue(ERDM_Parameter.PARAMETER_DESCRIPTION, descriptions);
+        }
+
+        public override bool IsHandlingParameter(ERDM_Parameter parameter, ERDM_Command command)
+        {
+            return FOUR_PARAMETERS.Contains(parameter) && command == ERDM_Command.GET_COMMAND;
+        }
+
+        protected override RDMMessage handleRequest(RDMMessage message)
+        {
+            return new RDMMessage()
+            {
+                DestUID = message.SourceUID,
+                SourceUID = message.DestUID,
+                Parameter = message.Parameter,
+                Command = ERDM_Command.GET_COMMAND_RESPONSE,
+                ParameterData = new byte[] { 7 }
+            };
+        }
+    }
+    #endregion
 }

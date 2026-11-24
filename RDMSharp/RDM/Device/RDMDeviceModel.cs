@@ -248,16 +248,38 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
     private readonly ConcurrentDictionary<(ERDM_Parameter Parameter, object Index), MissedRequest> missedRequests = new();
     private readonly SemaphoreSlim retrySemaphoreSlim = new SemaphoreSlim(1);
 
-    protected override Task OnProcessTimedOut(PeerToPeerProcess process)
+    // the parameters the device answered (an ACK or a NACK)
+    private readonly ConcurrentDictionary<ERDM_Parameter, byte> answeredParameters = new();
+
+    /// <summary>
+    /// The index of these parameters is the manufacturer specific parameter the request is about, the model asks for one after the other. A device that does not
+    /// know such a parameter and ignores it (instead of a NACK) would run into the timeout for every manufacturer specific parameter.
+    /// </summary>
+    private static bool isAskedPerParameter(ERDM_Parameter parameter)
+        => parameter == ERDM_Parameter.METADATA_JSON || parameter == ERDM_Parameter.PARAMETER_DESCRIPTION;
+
+    protected override async Task OnProcessTimedOut(PeerToPeerProcess process)
     {
+        if (process.Command != ERDM_Command.GET_COMMAND || process.ParameterBag.PID == ERDM_Parameter.SUPPORTED_PARAMETERS || process.ParameterBag.PID == ERDM_Parameter.DEVICE_INFO)
+            return;
+
         // an entry that got no answer must not end a list or leave a hole in the model for good: it is asked for again
-        if (process.Command == ERDM_Command.GET_COMMAND && process.ParameterBag.PID != ERDM_Parameter.SUPPORTED_PARAMETERS && process.ParameterBag.PID != ERDM_Parameter.DEVICE_INFO)
-            missedRequests.TryAdd((process.ParameterBag.PID, process.RequestIndex), new MissedRequest());
-        return Task.CompletedTask;
+        missedRequests.TryAdd((process.ParameterBag.PID, process.RequestIndex), new MissedRequest());
+
+        // A device that never answered such a parameter, but answers everything else, ignores it: the parameter is reported (it is confirmed by the next
+        // request without an answer, see SupportedParameterMetadata.IsSilent), a device that does not answer at all is only missed.
+        var parameter = process.ParameterBag.PID;
+        if (isAskedPerParameter(parameter) && !answeredParameters.ContainsKey(parameter) && await probeAlive(CurrentUsedUID, CurrentUsedSubDevice))
+        {
+            ReportSilent(parameter, CurrentUsedUID);
+            Logger?.LogInformation($"{CurrentUsedUID}: {parameter} got no answer, the device answers everything else: it ignores the parameter");
+        }
     }
     protected override void OnProcessAnswered(PeerToPeerProcess process)
     {
         missedRequests.TryRemove((process.ParameterBag.PID, process.RequestIndex), out _);
+        answeredParameters.TryAdd(process.ParameterBag.PID, 0);
+        ReportAnswered(process.ParameterBag.PID);
     }
     /// <summary>
     /// Asks again for what got no answer, with the device that asks (the one that was used before can be gone). Every entry a few times,
@@ -275,6 +297,12 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
             {
                 if (DateTime.UtcNow - pair.Value.LastTry < TimeSpan.FromMilliseconds(GlobalTimers.Instance.MissedRequestRetryInterval))
                     continue;
+                if (this.supportedParameters.TryGetValue(pair.Key.Parameter, out SupportedParameterMetadata silent) && silent.IsSilent)
+                {
+                    // the devices of the model ignore the parameter: that is not asked for again here (see SupportedParameterMetadata.IsSilent)
+                    missedRequests.TryRemove(pair.Key, out _);
+                    continue;
+                }
                 if (pair.Value.Attempts >= MAX_ATTEMPTS)
                 {
                     missedRequests.TryRemove(pair.Key, out _);
@@ -383,8 +411,11 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
                 if (define.GetRequest.Value.GetIsEmpty())
                     await requestGetParameterWithEmptyPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice);
                 else if (parameter == ERDM_Parameter.PARAMETER_DESCRIPTION)
-                    foreach (var pid in this.supportedParameters.Where(p => p.Value.IsManufacturerSpecific && p.Value.ParameterDescription is null).Select(p => (ushort)p.Key))
+                    foreach (var pid in this.supportedParameters.Where(p => p.Value.IsManufacturerSpecific && p.Value.ParameterDescription is null).Select(p => (ushort)p.Key).ToList())
                     {
+                        // a device that ignores PARAMETER_DESCRIPTION is not asked for every manufacturer specific parameter
+                        if (spm.IsSilent)
+                            break;
                         var result = await requestGetParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice, pid);
                         spm.SetParameterDescription(result);
                     }
@@ -394,7 +425,8 @@ public sealed class RDMDeviceModel : AbstractRDMCache, IRDMDeviceModel
                     foreach (var pid in this.supportedParameters.Where(p => p.Value.IsManufacturerSpecific).Select(p => (ushort)p.Key).ToList())
                     {
                         // a device that does not know METADATA_JSON is asked once, not for every manufacturer specific parameter
-                        if (!spm.IsSupported || spm.UnsupportedCommandClasses.HasFlag(ERDM_CommandClass.GET))
+                        // (a device that ignores it is reported by the requests that got no answer, see OnProcessTimedOut)
+                        if (!spm.IsSupported || spm.IsSilent || spm.UnsupportedCommandClasses.HasFlag(ERDM_CommandClass.GET))
                             break;
                         await requestGetParameterWithPayload(parameterBag, define, CurrentUsedUID, CurrentUsedSubDevice, pid);
                     }
