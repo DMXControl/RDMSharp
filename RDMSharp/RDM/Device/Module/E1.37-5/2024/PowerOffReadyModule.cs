@@ -5,7 +5,7 @@
 /// GET only, <c>true</c> if power can be removed from the device without causing an issue.
 /// A change is reported via the queued messages, as the standard asks for after the shutdown.
 /// </summary>
-public sealed class PowerOffReadyModule : AbstractSimpleBooleanModule
+public sealed class PowerOffReadyModule : AbstractSimpleBooleanParameterIDModule
 {
     private const string _moduleName = "PowerOffReady";
     private const string _moduleDisplayName = "Power Off Ready";

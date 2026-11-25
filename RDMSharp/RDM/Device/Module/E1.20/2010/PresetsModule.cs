@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public class PresetsModule : AbstractModule
+public class PresetsModule : AbstractParameterIDModule
 {
     private const string _moduleName = "Presets";
     private const string _moduleDisplayName = "Presets";

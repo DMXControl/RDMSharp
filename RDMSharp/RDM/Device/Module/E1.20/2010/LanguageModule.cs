@@ -13,7 +13,7 @@ namespace RDMSharp.RDM.Device.Module;
 /// <item>The Language Code 0x0000 resets the device to its default language.</item>
 /// </list>
 /// </summary>
-public sealed class LanguageModule : AbstractModule
+public sealed class LanguageModule : AbstractParameterIDModule
 {
     private const string _moduleName = "Language";
     private const string _moduleDisplayName = "Language";

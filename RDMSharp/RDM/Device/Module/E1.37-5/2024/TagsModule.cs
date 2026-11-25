@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class TagsModule : AbstractModule
+public sealed class TagsModule : AbstractParameterIDModule
 {
     private const string _moduleName = "Tags";
     private const string _moduleDisplayName = "Tags";

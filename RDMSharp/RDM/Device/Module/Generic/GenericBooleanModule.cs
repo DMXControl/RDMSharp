@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace RDMSharp.RDM.Device.Module.Generic;
 
 /// <summary>A parameter with one boolean field, built from its define.</summary>
-public sealed class GenericBooleanModule : AbstractSimpleBooleanModule, IGenericModule
+public sealed class GenericBooleanModule : AbstractSimpleBooleanParameterIDModule, IGenericModule
 {
     public MetadataJSONObjectDefine Define { get; }
     public override string DisplayName { get; }

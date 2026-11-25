@@ -18,7 +18,7 @@ namespace RDMSharp.RDM.Device.Module;
 /// </list>
 /// On a generated device the module watches the <see cref="IdentifyDeviceModule"/> of the same device.
 /// </summary>
-public sealed class IdentifyTimeoutModule : AbstractSimpleNumericModule<ushort>
+public sealed class IdentifyTimeoutModule : AbstractSimpleNumericParameterIDModule<ushort>
 {
     private const string _moduleName = "IdentifyTimeout";
     private const string _moduleDisplayName = "Identify Timeout";

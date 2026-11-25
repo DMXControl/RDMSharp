@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class InterfaceModule : AbstractModule
+public sealed class InterfaceModule : AbstractParameterIDModule
 {
     private const string _moduleName = "Interface";
     private const string _moduleDisplayName = "Interface";

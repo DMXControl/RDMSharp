@@ -10,7 +10,7 @@ namespace RDMSharp.RDM.Device.Module.Generic;
 /// It only holds the value, read only, so every parameter of a device is reachable through <see cref="AbstractRemoteRDMDevice.Modules"/>
 /// and an application can show it, marked as "no module yet".
 /// </summary>
-public sealed class FallbackParameterModule : AbstractModule
+public sealed class FallbackParameterModule : AbstractParameterIDModule
 {
     /// <summary>
     /// Parameters the device itself processes (discovery, status, sensors, slots, metadata): they need no module.

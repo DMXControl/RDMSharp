@@ -7,7 +7,7 @@ namespace RDMSharp.RDM.Device.Module.Generic;
 /// It covers simple parameters (one boolean, integer or string) that no specific module handles,
 /// so an application can show them, and mark them as generic.
 /// </summary>
-public interface IGenericModule : IModule
+public interface IGenericModule : IParameterIDModule
 {
     /// <summary>The name to show: displayName of the define, else its name.</summary>
     string DisplayName { get; }

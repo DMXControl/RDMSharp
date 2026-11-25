@@ -7,7 +7,7 @@ namespace RDMSharp.RDM.Device.Module;
 /// SERIAL_NUMBER (E1.37-5 4.7): the manufacturer's serial number of the device.
 /// GET only, a string of up to 231 bytes. A longer serial has to be truncated by the manufacturer.
 /// </summary>
-public sealed class SerialNumberModule : AbstractSimpleStringModule
+public sealed class SerialNumberModule : AbstractSimpleStringParameterIDModule
 {
     private const string _moduleName = "SerialNumber";
     private const string _moduleDisplayName = "Serial Number";

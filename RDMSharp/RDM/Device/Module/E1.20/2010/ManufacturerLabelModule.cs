@@ -2,7 +2,7 @@
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class ManufacturerLabelModule : AbstractSimpleStringModule
+public sealed class ManufacturerLabelModule : AbstractSimpleStringParameterIDModule
 {
     private const string _moduleName = "ManufacturerLabel";
     private const string _moduleDisplayName = "Manufacturer Label";

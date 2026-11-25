@@ -2,7 +2,7 @@
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class LampOnModeModule : AbstractSimpleEnumModule<ERDM_LampMode>
+public sealed class LampOnModeModule : AbstractSimpleEnumParameterIDModule<ERDM_LampMode>
 {
     private const string _moduleName = "LampOnMode";
     private const string _moduleDisplayName = "Lamp On Mode";

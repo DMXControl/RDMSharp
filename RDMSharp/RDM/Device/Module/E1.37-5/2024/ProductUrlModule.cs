@@ -6,7 +6,7 @@ namespace RDMSharp.RDM.Device.Module;
 /// PRODUCT_URL (E1.37-5 4.3): URL of the product page on the manufacturer's website.
 /// GET only. A URL longer than one packet is sent with ACK_OVERFLOW.
 /// </summary>
-public sealed class ProductUrlModule : AbstractSimpleStringModule
+public sealed class ProductUrlModule : AbstractSimpleStringParameterIDModule
 {
     private const string _moduleName = "ProductUrl";
     private const string _moduleDisplayName = "Product URL";

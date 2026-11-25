@@ -18,11 +18,11 @@ public abstract class AbstractModulesExtension : IModulesExtension
 
     public abstract bool TryGetModules(ERDM_Parameter[] parameters, out IReadOnlyCollection<Type> modules);
 
-    public virtual bool TryCreateModuleInstance(Type moduleType, IRDMRemoteDevice remoteDevice, out IModule moduleInstance)
+    public virtual bool TryCreateModuleInstance(Type moduleType, IRDMRemoteDevice remoteDevice, out IParameterIDModule moduleInstance)
     {
         try
         {
-            moduleInstance = Activator.CreateInstance(moduleType, remoteDevice) as IModule
+            moduleInstance = Activator.CreateInstance(moduleType, remoteDevice) as IParameterIDModule
                 ?? throw new InvalidOperationException($"Could not create instance of module type '{moduleType.FullName}'");
             return true;
         }

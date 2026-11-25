@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class StatusMessagesModule : AbstractModule
+public sealed class StatusMessagesModule : AbstractParameterIDModule
 {
     private const string _moduleName = "StatusMessages";
     private const string _moduleDisplayName = "Status Messages";

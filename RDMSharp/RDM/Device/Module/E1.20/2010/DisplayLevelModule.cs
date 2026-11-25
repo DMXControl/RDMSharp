@@ -7,7 +7,7 @@ namespace RDMSharp.RDM.Device.Module;
 /// 0x00 = display off, 0xFF = full, values in between are a relative intensity.
 /// A device without relative intensity interprets any non-zero value as on.
 /// </summary>
-public sealed class DisplayLevelModule : AbstractSimpleNumericModule<byte>
+public sealed class DisplayLevelModule : AbstractSimpleNumericParameterIDModule<byte>
 {
     private const string _moduleName = "DisplayLevel";
     private const string _moduleDisplayName = "Display Level";

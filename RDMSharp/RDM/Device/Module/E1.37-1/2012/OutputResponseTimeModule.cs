@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class OutputResponseTimeModule : AbstractModule
+public sealed class OutputResponseTimeModule : AbstractParameterIDModule
 {
     private const string _moduleName = "OutputResponseTime";
     private const string _moduleDisplayName = "Output Response Time";

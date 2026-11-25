@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class SlotsModule : AbstractModule
+public sealed class SlotsModule : AbstractParameterIDModule
 {
     private const string _moduleName = "Slots";
     private const string _moduleDisplayName = "Slots";

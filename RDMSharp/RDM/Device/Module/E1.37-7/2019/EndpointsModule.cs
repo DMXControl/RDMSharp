@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class EndpointsModule : AbstractModule
+public sealed class EndpointsModule : AbstractParameterIDModule
 {
     private const string _moduleName = "Endpoints";
     private const string _moduleDisplayName = "Endpoints";

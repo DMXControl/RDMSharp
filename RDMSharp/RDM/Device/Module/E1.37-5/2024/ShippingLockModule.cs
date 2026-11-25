@@ -8,7 +8,7 @@ namespace RDMSharp.RDM.Device.Module;
 /// A device with a remotely operable (electronic) lock also supports SET with Unlock (0x00) / Lock (0x01),
 /// a device with only a sensor supports GET only.
 /// </summary>
-public sealed class ShippingLockModule : AbstractSimpleEnumModule<ERDM_ShippingLockState>
+public sealed class ShippingLockModule : AbstractSimpleEnumParameterIDModule<ERDM_ShippingLockState>
 {
     private const string _moduleName = "ShippingLock";
     private const string _moduleDisplayName = "Shipping Lock";

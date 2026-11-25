@@ -2,7 +2,7 @@
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class LampStateModule : AbstractSimpleEnumModule<ERDM_LampState>
+public sealed class LampStateModule : AbstractSimpleEnumParameterIDModule<ERDM_LampState>
 {
     private const string _moduleName = "LampState";
     private const string _moduleDisplayName = "Lamp State";

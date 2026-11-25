@@ -11,7 +11,7 @@ namespace RDMSharp.RDM.Device.Module.Generic;
 /// A parameter with one integer field, built from its define. <typeparamref name="T"/> is the type of the field (byte for uint8, ...),
 /// the value of the device is stored with exactly this type.
 /// </summary>
-public class GenericNumericModule<T> : AbstractSimpleNumericModule<T>, IGenericModule where T : struct, IComparable, IConvertible, IFormattable
+public class GenericNumericModule<T> : AbstractSimpleNumericParameterIDModule<T>, IGenericModule where T : struct, IComparable, IConvertible, IFormattable
 {
     public MetadataJSONObjectDefine Define { get; }
     public override string DisplayName { get; }

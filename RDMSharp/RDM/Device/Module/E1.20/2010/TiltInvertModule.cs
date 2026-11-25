@@ -2,7 +2,7 @@
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class TiltInvertModule : AbstractSimpleBooleanModule
+public sealed class TiltInvertModule : AbstractSimpleBooleanParameterIDModule
 {
     private const string _moduleName = "TiltInvert";
     private const string _moduleDisplayName = "Tilt Invert";

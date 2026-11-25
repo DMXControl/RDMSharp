@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class FactoryDefaultsModule : AbstractModule
+public sealed class FactoryDefaultsModule : AbstractParameterIDModule
 {
     private const string _moduleName = "FactoryDefaults";
     private const string _moduleDisplayName = "Factory Defaults";

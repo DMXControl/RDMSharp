@@ -8,7 +8,7 @@ namespace RDMSharp.RDM.Device.Module;
 /// SET 0 aborts a running burn-in.
 /// The device itself runs the burn-in and counts down <see cref="HoursRemaining"/>.
 /// </summary>
-public sealed class BurnInModule : AbstractSimpleNumericModule<byte>
+public sealed class BurnInModule : AbstractSimpleNumericParameterIDModule<byte>
 {
     private const string _moduleName = "BurnIn";
     private const string _moduleDisplayName = "Burn-In";

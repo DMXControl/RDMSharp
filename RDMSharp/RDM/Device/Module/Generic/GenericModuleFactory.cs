@@ -31,10 +31,10 @@ public static class GenericModuleFactory
     /// so every parameter of the device has a module. A fallback module is replaced by a generic one, once the define allows it
     /// (<paramref name="replaced"/>: the fallback modules to remove).
     /// </summary>
-    public static IReadOnlyCollection<IModule> CreateMissing(AbstractRemoteRDMDevice device, IEnumerable<IModule> existingModules, out IReadOnlyCollection<IModule> replaced)
+    public static IReadOnlyCollection<IParameterIDModule> CreateMissing(AbstractRemoteRDMDevice device, IEnumerable<IParameterIDModule> existingModules, out IReadOnlyCollection<IParameterIDModule> replaced)
     {
-        var result = new List<IModule>();
-        var replacedList = new List<IModule>();
+        var result = new List<IParameterIDModule>();
+        var replacedList = new List<IParameterIDModule>();
         replaced = replacedList;
         var supported = device?.DeviceModel?.GetSupportedParameters();
         if (supported is null)

@@ -2,7 +2,7 @@
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class PanInvertModule : AbstractSimpleBooleanModule
+public sealed class PanInvertModule : AbstractSimpleBooleanParameterIDModule
 {
     private const string _moduleName = "PanInvert";
     private const string _moduleDisplayName = "Pan Invert";

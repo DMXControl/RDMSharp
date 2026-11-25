@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class ResetDeviceModule : AbstractModule
+public sealed class ResetDeviceModule : AbstractParameterIDModule
 {
     private const string _moduleName = "ResetDevice";
     private const string _moduleDisplayName = "Reset Device";

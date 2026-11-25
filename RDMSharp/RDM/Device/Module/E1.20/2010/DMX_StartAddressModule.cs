@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class DMX_StartAddressModule : AbstractModule
+public sealed class DMX_StartAddressModule : AbstractParameterIDModule
 {
     private const string _moduleName = "DMX_StartAddress";
     private const string _moduleDisplayName = "DMX Start-Address";

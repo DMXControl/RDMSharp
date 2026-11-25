@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.RDM.Device.Module;
 
-public sealed class BootSoftwareVersionModule : AbstractModule
+public sealed class BootSoftwareVersionModule : AbstractParameterIDModule
 {
     private const string _moduleName = "BootSoftwareVersion";
     private const string _moduleDisplayName = "Boot Software Version";

@@ -2,7 +2,7 @@
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class SoftwareVersionModule : AbstractModule
+public sealed class SoftwareVersionModule : AbstractParameterIDModule
 {
     private const string _moduleName = "SoftwareVersion";
     private const string _moduleDisplayName = "Software Version";

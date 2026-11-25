@@ -2,7 +2,7 @@
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class IdentifyDeviceModule : AbstractSimpleBooleanModule
+public sealed class IdentifyDeviceModule : AbstractSimpleBooleanParameterIDModule
 {
     private const string _moduleName = "IdentifyDevice";
     private const string _moduleDisplayName = "Identify Device";

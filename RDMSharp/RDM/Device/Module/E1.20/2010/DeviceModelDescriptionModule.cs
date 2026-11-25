@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.RDM.Device.Module;
 
-public sealed class DeviceModelDescriptionModule : AbstractSimpleStringModule
+public sealed class DeviceModelDescriptionModule : AbstractSimpleStringParameterIDModule
 {
     private const string _moduleName = "DeviceModelDescription";
     private const string _moduleDisplayName = "Device Model Description";

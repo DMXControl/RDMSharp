@@ -1,20 +1,21 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public abstract class AbstractSimpleBooleanModule : AbstractSimpleModule
+public abstract class AbstractSimpleEnumParameterIDModule<T> : AbstractSimpleParameterIDModule where T : struct, Enum
 {
     public override object CurrentValue => Value;
     private bool initialized = false;
-    private bool _value;
-    protected bool? Value
+    private T _value;
+    protected T? Value
     {
         get
         {
             if (ParentDevice is null)
                 return _value;
             if (ParentDevice.GetAllParameterValues().TryGetValue(ModuleParameter, out object res))
-                return (bool)res;
+                return (T)res;
             return _value;
         }
         set
@@ -24,7 +25,7 @@ public abstract class AbstractSimpleBooleanModule : AbstractSimpleModule
 
             // compare with the stored value of the device, the field is outdated after a SET by RDM
             if (initialized)
-                if (bool.Equals(Value, value.Value))
+                if (Object.Equals(Value, value.Value))
                     return;
 
             _value = value.Value;
@@ -36,9 +37,9 @@ public abstract class AbstractSimpleBooleanModule : AbstractSimpleModule
         }
     }
 
-    private readonly bool _initialValue;
-    public AbstractSimpleBooleanModule(
-        bool initialValue,
+    private readonly T _initialValue;
+    public AbstractSimpleEnumParameterIDModule(
+        T initialValue,
         string name,
         ERDM_Parameter supportedParameter,
         ERDM_CommandClass supportedCommandClass) : base(
@@ -48,7 +49,7 @@ public abstract class AbstractSimpleBooleanModule : AbstractSimpleModule
     {
         _initialValue = initialValue;
     }
-    public AbstractSimpleBooleanModule(
+    public AbstractSimpleEnumParameterIDModule(
         AbstractRemoteRDMDevice remoteDevice,
         string name,
         ERDM_Parameter supportedParameter,
@@ -70,7 +71,7 @@ public abstract class AbstractSimpleBooleanModule : AbstractSimpleModule
             OnPropertyChanged(nameof(Value));
     }
 
-    protected async Task<bool> SetValue(bool value)
+    protected async Task<bool> SetValue(T value)
     {
         return await ParentRemoteDevice.SetParameter(ModuleParameter, value);
     }

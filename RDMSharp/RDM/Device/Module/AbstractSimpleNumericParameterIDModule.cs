@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public abstract class AbstractSimpleEnumModule<T> : AbstractSimpleModule where T : struct, Enum
+public abstract class AbstractSimpleNumericParameterIDModule<T> : AbstractSimpleParameterIDModule where T : struct, IComparable, IConvertible, IFormattable
 {
     public override object CurrentValue => Value;
     private bool initialized = false;
@@ -38,7 +38,7 @@ public abstract class AbstractSimpleEnumModule<T> : AbstractSimpleModule where T
     }
 
     private readonly T _initialValue;
-    public AbstractSimpleEnumModule(
+    public AbstractSimpleNumericParameterIDModule(
         T initialValue,
         string name,
         ERDM_Parameter supportedParameter,
@@ -49,7 +49,7 @@ public abstract class AbstractSimpleEnumModule<T> : AbstractSimpleModule where T
     {
         _initialValue = initialValue;
     }
-    public AbstractSimpleEnumModule(
+    public AbstractSimpleNumericParameterIDModule(
         AbstractRemoteRDMDevice remoteDevice,
         string name,
         ERDM_Parameter supportedParameter,

@@ -10,5 +10,5 @@ public interface IModulesExtension
     EManufacturer Manufacturer { get; }
 
     bool TryGetModules(ERDM_Parameter[] parameters, out IReadOnlyCollection<Type> modules);
-    bool TryCreateModuleInstance(Type moduleType, IRDMRemoteDevice remoteDevice, out IModule moduleInstance);
+    bool TryCreateModuleInstance(Type moduleType, IRDMRemoteDevice remoteDevice, out IParameterIDModule moduleInstance);
 }

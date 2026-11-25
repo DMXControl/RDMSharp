@@ -2,7 +2,7 @@
 
 namespace RDMSharp.RDM.Device.Module;
 
-public abstract class AbstractSimpleStringModule : AbstractSimpleModule
+public abstract class AbstractSimpleStringParameterIDModule : AbstractSimpleParameterIDModule
 {
     public override object CurrentValue => Value;
     private bool initialized = false;
@@ -37,7 +37,7 @@ public abstract class AbstractSimpleStringModule : AbstractSimpleModule
     }
 
     private readonly string _initialValue;
-    public AbstractSimpleStringModule(
+    public AbstractSimpleStringParameterIDModule(
         string initialValue,
         string name,
         ERDM_Parameter supportedParameter,
@@ -48,7 +48,7 @@ public abstract class AbstractSimpleStringModule : AbstractSimpleModule
     {
         _initialValue = initialValue;
     }
-    public AbstractSimpleStringModule(
+    public AbstractSimpleStringParameterIDModule(
         AbstractRemoteRDMDevice remoteDevice,
         string name,
         ERDM_Parameter supportedParameter,

@@ -8,9 +8,9 @@ using System.Runtime.CompilerServices;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public abstract class AbstractModule : IModule, IDisposable
+public abstract class AbstractParameterIDModule : IParameterIDModule, IDisposable
 {
-    protected static ILogger Logger = Logging.CreateLogger<AbstractModule>();
+    protected static ILogger Logger = Logging.CreateLogger<AbstractParameterIDModule>();
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -46,12 +46,12 @@ public abstract class AbstractModule : IModule, IDisposable
         return _supportedParameters.Contains(parameter);
     }
 
-    protected AbstractModule(string name, params ERDM_Parameter[] supportedParameters)
+    protected AbstractParameterIDModule(string name, params ERDM_Parameter[] supportedParameters)
     {
         this._name = name;
         this._supportedParameters = supportedParameters;
     }
-    protected AbstractModule(AbstractRemoteRDMDevice remoteDevice, string name, params ERDM_Parameter[] supportedParameters) : this(name, supportedParameters)
+    protected AbstractParameterIDModule(AbstractRemoteRDMDevice remoteDevice, string name, params ERDM_Parameter[] supportedParameters) : this(name, supportedParameters)
     {
         ParentRemoteDevice = remoteDevice;
         if (remoteDevice is AbstractRemoteRDMDevice device)

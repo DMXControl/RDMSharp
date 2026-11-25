@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class ProxiedDevicesModule : AbstractModule
+public sealed class ProxiedDevicesModule : AbstractParameterIDModule
 {
     private const string _moduleName = "ProxiedDevices";
     private const string _moduleDisplayName = "Proxied Devices";

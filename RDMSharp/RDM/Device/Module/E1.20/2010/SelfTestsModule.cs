@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.RDM.Device.Module;
 
-public sealed class SelfTestsModule : AbstractModule
+public sealed class SelfTestsModule : AbstractParameterIDModule
 {
     private const string _moduleName = "SelfTests";
     private const string _moduleDisplayName = "Self Tests";

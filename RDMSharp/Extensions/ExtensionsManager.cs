@@ -222,23 +222,23 @@ internal class ExtensionsManager
         return true;
     }
 
-    public bool TryGetMatchingModules(AbstractRemoteRDMDevice device, out IReadOnlyCollection<IModule> modulesResult)
+    public bool TryGetMatchingModules(AbstractRemoteRDMDevice device, out IReadOnlyCollection<IParameterIDModule> modulesResult)
         => TryGetMatchingModules(device, null, out modulesResult);
 
     /// <summary>
     /// Creates the modules of the extensions that match the supported parameters of <paramref name="device"/>,
     /// except the module types in <paramref name="existingTypes"/> (a module can do something when it is created, e.g. send a SET).
     /// </summary>
-    public bool TryGetMatchingModules(AbstractRemoteRDMDevice device, IReadOnlyCollection<Type> existingTypes, out IReadOnlyCollection<IModule> modulesResult)
+    public bool TryGetMatchingModules(AbstractRemoteRDMDevice device, IReadOnlyCollection<Type> existingTypes, out IReadOnlyCollection<IParameterIDModule> modulesResult)
     {
-        List<IModule> result = new();
+        List<IParameterIDModule> result = new();
         try
         {
             if (this.TryGetModulesExtensions((EManufacturer)device.UID.ManufacturerID, out IReadOnlyCollection<IModulesExtension> modulesExtensionsResult))
                 foreach (var modulesExtension in modulesExtensionsResult)
                     if (modulesExtension.TryGetModules(device.DeviceModel.GetSupportedParameters().Select(spm => spm.Parameter).ToArray(), out IReadOnlyCollection<Type> modulTypes))
                         foreach (var modulType in modulTypes)
-                            if (existingTypes?.Contains(modulType) != true && modulesExtension.TryCreateModuleInstance(modulType, device, out IModule moduleInstance))
+                            if (existingTypes?.Contains(modulType) != true && modulesExtension.TryCreateModuleInstance(modulType, device, out IParameterIDModule moduleInstance))
                                 result.Add(moduleInstance);
         }
         catch (Exception e)

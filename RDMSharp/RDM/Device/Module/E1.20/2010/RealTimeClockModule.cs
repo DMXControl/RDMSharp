@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class RealTimeClockModule : AbstractModule
+public sealed class RealTimeClockModule : AbstractParameterIDModule
 {
     private const string _moduleName = "RealTimeClock";
     private const string _moduleDisplayName = "Real Time Clock";

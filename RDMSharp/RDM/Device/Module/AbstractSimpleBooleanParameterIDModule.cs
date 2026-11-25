@@ -1,21 +1,20 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public abstract class AbstractSimpleNumericModule<T> : AbstractSimpleModule where T : struct, IComparable, IConvertible, IFormattable
+public abstract class AbstractSimpleBooleanParameterIDModule : AbstractSimpleParameterIDModule
 {
     public override object CurrentValue => Value;
     private bool initialized = false;
-    private T _value;
-    protected T? Value
+    private bool _value;
+    protected bool? Value
     {
         get
         {
             if (ParentDevice is null)
                 return _value;
             if (ParentDevice.GetAllParameterValues().TryGetValue(ModuleParameter, out object res))
-                return (T)res;
+                return (bool)res;
             return _value;
         }
         set
@@ -25,7 +24,7 @@ public abstract class AbstractSimpleNumericModule<T> : AbstractSimpleModule wher
 
             // compare with the stored value of the device, the field is outdated after a SET by RDM
             if (initialized)
-                if (Object.Equals(Value, value.Value))
+                if (bool.Equals(Value, value.Value))
                     return;
 
             _value = value.Value;
@@ -37,9 +36,9 @@ public abstract class AbstractSimpleNumericModule<T> : AbstractSimpleModule wher
         }
     }
 
-    private readonly T _initialValue;
-    public AbstractSimpleNumericModule(
-        T initialValue,
+    private readonly bool _initialValue;
+    public AbstractSimpleBooleanParameterIDModule(
+        bool initialValue,
         string name,
         ERDM_Parameter supportedParameter,
         ERDM_CommandClass supportedCommandClass) : base(
@@ -49,7 +48,7 @@ public abstract class AbstractSimpleNumericModule<T> : AbstractSimpleModule wher
     {
         _initialValue = initialValue;
     }
-    public AbstractSimpleNumericModule(
+    public AbstractSimpleBooleanParameterIDModule(
         AbstractRemoteRDMDevice remoteDevice,
         string name,
         ERDM_Parameter supportedParameter,
@@ -71,7 +70,7 @@ public abstract class AbstractSimpleNumericModule<T> : AbstractSimpleModule wher
             OnPropertyChanged(nameof(Value));
     }
 
-    protected async Task<bool> SetValue(T value)
+    protected async Task<bool> SetValue(bool value)
     {
         return await ParentRemoteDevice.SetParameter(ModuleParameter, value);
     }

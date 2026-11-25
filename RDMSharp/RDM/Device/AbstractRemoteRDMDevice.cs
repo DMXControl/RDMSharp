@@ -224,7 +224,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
                 disposeModules();
                 this._modules.AddRange(modules);
             }
-            foreach (var module in modules.OfType<AbstractModule>())
+            foreach (var module in modules.OfType<AbstractParameterIDModule>())
                 module.ApplyCachedValues();
             OnPropertyChanged(nameof(Modules));
         }
@@ -239,9 +239,9 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
     {
         IReadOnlyCollection<Type> existingTypes;
         lock (_modulesLock)
-            existingTypes = this._modules.Select(m => m.GetType()).ToList();
+            existingTypes = this._modules.OfType<IParameterIDModule>().Select(m => m.GetType()).ToList();
         ExtensionsManager.Instance.TryGetMatchingModules(this, existingTypes, out var added);
-        added ??= Array.Empty<IModule>();
+        added ??= Array.Empty<IParameterIDModule>();
 
         var replaced = new List<IModule>();
         if (added.Count != 0)
@@ -249,7 +249,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
             var covered = new HashSet<ERDM_Parameter>(added.SelectMany(m => m.SupportedParameters));
             lock (_modulesLock)
             {
-                replaced.AddRange(this._modules.Where(m => m is IGenericModule or FallbackParameterModule && m.SupportedParameters.Any(covered.Contains)));
+                replaced.AddRange(this._modules.OfType<IParameterIDModule>().Where(m => m is IGenericModule or FallbackParameterModule && m.SupportedParameters.Any(covered.Contains)));
                 foreach (var generic in replaced)
                     this._modules.Remove(generic);
                 this._modules.AddRange(added);
@@ -257,7 +257,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
             Logger?.LogDebug($"{UID} SubDevice: {Subdevice}: {added.Count} missing module(s) added, {replaced.Count} generic module(s) replaced");
             foreach (var module in replaced.OfType<IDisposable>())
                 module.Dispose();
-            foreach (var module in added.OfType<AbstractModule>())
+            foreach (var module in added.OfType<AbstractParameterIDModule>())
                 module.ApplyCachedValues();
             OnPropertyChanged(nameof(Modules));
         }
@@ -270,11 +270,11 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
     /// </summary>
     private void addGenericModules()
     {
-        IReadOnlyCollection<IModule> created;
-        IReadOnlyCollection<IModule> replaced;
+        IReadOnlyCollection<IParameterIDModule> created;
+        IReadOnlyCollection<IParameterIDModule> replaced;
         lock (_modulesLock)
         {
-            created = GenericModuleFactory.CreateMissing(this, this._modules, out replaced);
+            created = GenericModuleFactory.CreateMissing(this, this._modules.OfType<IParameterIDModule>(), out replaced);
             foreach (var module in replaced)
                 this._modules.Remove(module);
             this._modules.AddRange(created);
@@ -289,7 +289,7 @@ public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDev
             Logger?.LogDebug($"{UID} SubDevice: {Subdevice}: {fallback.Count} fallback module(s): {string.Join(", ", fallback.Select(m => $"0x{(ushort)m.Parameter:X4}{(m.IsManufacturerInternal ? " (internal)" : "")}"))}");
         foreach (var module in replaced.OfType<IDisposable>())
             module.Dispose();
-        foreach (var module in created.OfType<AbstractModule>())
+        foreach (var module in created.OfType<AbstractParameterIDModule>())
             module.ApplyCachedValues();
         OnPropertyChanged(nameof(Modules));
     }

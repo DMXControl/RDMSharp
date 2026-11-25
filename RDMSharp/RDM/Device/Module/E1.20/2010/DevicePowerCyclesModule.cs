@@ -2,7 +2,7 @@
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class DevicePowerCyclesModule : AbstractSimpleNumericModule<uint>
+public sealed class DevicePowerCyclesModule : AbstractSimpleNumericParameterIDModule<uint>
 {
     private const string _moduleName = "DevicePowerCycles";
     private const string _moduleDisplayName = "Device Power Cycles";

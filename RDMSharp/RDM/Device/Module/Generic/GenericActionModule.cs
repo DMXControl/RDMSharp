@@ -9,7 +9,7 @@ namespace RDMSharp.RDM.Device.Module.Generic;
 /// Unlike the other generic modules it is also created for manufacturer internal parameters (e.g. SGM "Internal Test Pixel"),
 /// an application shows those apart (<see cref="IsManufacturerInternal"/>).
 /// </summary>
-public sealed class GenericActionModule : AbstractModule, IGenericModule
+public sealed class GenericActionModule : AbstractParameterIDModule, IGenericModule
 {
     public override string DisplayName { get; }
     public ERDM_Parameter Parameter { get; }

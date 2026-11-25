@@ -1,6 +1,6 @@
 ﻿namespace RDMSharp.RDM.Device.Module;
 
-public abstract class AbstractSimpleModule : AbstractModule
+public abstract class AbstractSimpleParameterIDModule : AbstractParameterIDModule
 {
     protected ERDM_Parameter ModuleParameter { get; private set; }
 
@@ -23,12 +23,12 @@ public abstract class AbstractSimpleModule : AbstractModule
         }
     }
 
-    public AbstractSimpleModule(string name, ERDM_Parameter supportedParameter, ERDM_CommandClass supportedCommandClass) : base(name, supportedParameter)
+    public AbstractSimpleParameterIDModule(string name, ERDM_Parameter supportedParameter, ERDM_CommandClass supportedCommandClass) : base(name, supportedParameter)
     {
         ModuleParameter = supportedParameter;
         SupportedCommandClass = supportedCommandClass;
     }
-    public AbstractSimpleModule(AbstractRemoteRDMDevice remoteDevice, string name, ERDM_Parameter supportedParameter, ERDM_CommandClass supportedCommandClass) : base(
+    public AbstractSimpleParameterIDModule(AbstractRemoteRDMDevice remoteDevice, string name, ERDM_Parameter supportedParameter, ERDM_CommandClass supportedCommandClass) : base(
         remoteDevice,
         name,
         supportedParameter)

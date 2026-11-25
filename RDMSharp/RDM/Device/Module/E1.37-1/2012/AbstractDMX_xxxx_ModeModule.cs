@@ -15,7 +15,7 @@ namespace RDMSharp.RDM.Device.Module;
 /// <item>Without PRESET_INFO the device has no known limits and accepts every time.</item>
 /// </list>
 /// </summary>
-public abstract class AbstractDMX_xxxx_ModeModule : AbstractModule
+public abstract class AbstractDMX_xxxx_ModeModule : AbstractParameterIDModule
 {
     private const ushort INFINITE = ushort.MaxValue;
     private const ushort SCENE_PRESET_PLAYBACK_OFF = 0x0000;

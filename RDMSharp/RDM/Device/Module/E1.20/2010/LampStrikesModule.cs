@@ -2,7 +2,7 @@
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class LampStrikesModule : AbstractSimpleNumericModule<uint>
+public sealed class LampStrikesModule : AbstractSimpleNumericParameterIDModule<uint>
 {
     private const string _moduleName = "LampStrikes";
     private const string _moduleDisplayName = "Lamp Strikes";

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class CurveModule : AbstractModule
+public sealed class CurveModule : AbstractParameterIDModule
 {
     private const string _moduleName = "Curve";
     private const string _moduleDisplayName = "Curve";

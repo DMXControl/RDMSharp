@@ -7,7 +7,7 @@ namespace RDMSharp.RDM.Device.Module;
 /// 0x00 = Quiet Identify (e.g. a front panel indicator), 0xFF = Loud Identify (e.g. strobing),
 /// the values 0x01-0xFE are not defined and rejected.
 /// </summary>
-public sealed class IdentifyModeModule : AbstractSimpleEnumModule<ERDM_IdentifyMode>
+public sealed class IdentifyModeModule : AbstractSimpleEnumParameterIDModule<ERDM_IdentifyMode>
 {
     private const string _moduleName = "IdentifyMode";
     private const string _moduleDisplayName = "Identify Mode";

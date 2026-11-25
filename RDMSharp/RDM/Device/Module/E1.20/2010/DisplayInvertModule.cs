@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class DisplayInvertModule : AbstractSimpleEnumModule<ERDM_DisplayInvert>
+public sealed class DisplayInvertModule : AbstractSimpleEnumParameterIDModule<ERDM_DisplayInvert>
 {
     private const string _moduleName = "DisplayInvert";
     private const string _moduleDisplayName = "Display Invert";

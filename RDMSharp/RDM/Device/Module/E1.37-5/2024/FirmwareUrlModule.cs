@@ -6,7 +6,7 @@ namespace RDMSharp.RDM.Device.Module;
 /// FIRMWARE_URL (E1.37-5 4.4): URL of the product firmware on the manufacturer's website.
 /// GET only. A URL longer than one packet is sent with ACK_OVERFLOW.
 /// </summary>
-public sealed class FirmwareUrlModule : AbstractSimpleStringModule
+public sealed class FirmwareUrlModule : AbstractSimpleStringParameterIDModule
 {
     private const string _moduleName = "FirmwareUrl";
     private const string _moduleDisplayName = "Firmware URL";

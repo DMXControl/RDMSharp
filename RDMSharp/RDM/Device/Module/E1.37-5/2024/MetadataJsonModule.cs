@@ -23,7 +23,7 @@ namespace RDMSharp.RDM.Device.Module;
 /// A JSON define that is not accepted (invalid, not for this device, not a manufacturer specific parameter) is not registered,
 /// the reason is kept in <see cref="RejectedParameters"/> and logged.
 /// </remarks>
-public sealed class MetadataJsonModule : AbstractModule
+public sealed class MetadataJsonModule : AbstractParameterIDModule
 {
     private const string _moduleName = "MetadataJson";
     private const string _moduleDisplayName = "Metadata JSON";

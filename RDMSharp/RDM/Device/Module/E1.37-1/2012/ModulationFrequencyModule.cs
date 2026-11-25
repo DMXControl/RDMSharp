@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class ModulationFrequencyModule : AbstractModule
+public sealed class ModulationFrequencyModule : AbstractParameterIDModule
 {
     private const string _moduleName = "ModulationFrequency";
     private const string _moduleDisplayName = "Modulation Frequency";

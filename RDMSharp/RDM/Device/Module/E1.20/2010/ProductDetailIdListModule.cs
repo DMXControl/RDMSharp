@@ -9,7 +9,7 @@ namespace RDMSharp.RDM.Device.Module;
 /// GET only, a packed list of 16-bit Product Detail IDs with at least one entry,
 /// a device without details declares <see cref="ERDM_ProductDetail.NONE"/>.
 /// </summary>
-public sealed class ProductDetailIdListModule : AbstractSimpleModule
+public sealed class ProductDetailIdListModule : AbstractSimpleParameterIDModule
 {
     private const string _moduleName = "ProductDetailIdList";
     private const string _moduleDisplayName = "Product Detail ID List";

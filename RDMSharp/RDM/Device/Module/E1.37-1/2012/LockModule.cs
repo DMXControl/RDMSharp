@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class LockModule : AbstractModule
+public sealed class LockModule : AbstractParameterIDModule
 {
     private readonly SemaphoreSlim semaphoreSlimLockPin = new SemaphoreSlim(1);
     private readonly SemaphoreSlim semaphoreSlimLockState = new SemaphoreSlim(1);

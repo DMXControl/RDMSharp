@@ -182,15 +182,14 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
 
             _params.Add(ERDM_Parameter.SUPPORTED_PARAMETERS);
 
-            foreach (IModule module in _modules)
+            foreach (IParameterIDModule module in _modules.OfType<IParameterIDModule>())
                 foreach (var parameter in module.SupportedParameters)
                     _params.Add(parameter);
 
             Parameters = _params;
 
-            foreach (IModule module in _modules)
-                if (module is AbstractModule aModule)
-                    aModule.SetGeneratedParentDevice(this);
+            foreach (AbstractParameterIDModule aModule in _modules.OfType<AbstractParameterIDModule>())
+                aModule.SetGeneratedParentDevice(this);
 
             trySetParameter(ERDM_Parameter.SUPPORTED_PARAMETERS, Parameters.ToArray());
 
@@ -507,7 +506,7 @@ public abstract class AbstractGeneratedRDMDevice : AbstractRDMDevice
                 }
             }
 
-            var module = this.Modules.FirstOrDefault(m => m.IsHandlingParameter(rdmMessage.Parameter, rdmMessage.Command));
+            var module = this.Modules.OfType<IParameterIDModule>().FirstOrDefault(m => m.IsHandlingParameter(rdmMessage.Parameter, rdmMessage.Command));
             if (module is not null)
             {
                 response = module.HandleRequest(rdmMessage);

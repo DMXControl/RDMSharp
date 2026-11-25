@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace RDMSharp.RDM.Device.Module;
 
-public sealed class DMX_PersonalityModule : AbstractModule
+public sealed class DMX_PersonalityModule : AbstractParameterIDModule
 {
     private const string _moduleName = "DMX_Personality";
     private const string _moduleDisplayName = "DMX Personality";
