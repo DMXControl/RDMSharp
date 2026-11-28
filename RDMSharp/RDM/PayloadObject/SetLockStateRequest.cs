@@ -10,7 +10,7 @@ public class SetLockStateRequest : AbstractRDMPayloadObject
     [DataTreeObjectConstructor]
     public SetLockStateRequest(
         [DataTreeObjectParameter("pin_code")] ushort pinCode = 0,
-        [DataTreeObjectParameter("state")] byte lockStateId = 0)
+        [DataTreeObjectParameter("lock_state")] byte lockStateId = 0)
     {
         this.PinCode = pinCode;
         this.LockStateId = lockStateId;
@@ -18,7 +18,7 @@ public class SetLockStateRequest : AbstractRDMPayloadObject
 
     [DataTreeObjectProperty("pin_code", 0)]
     public ushort PinCode { get; private set; }
-    [DataTreeObjectProperty("state", 1)]
+    [DataTreeObjectProperty("lock_state", 1)]
     public byte LockStateId { get; private set; }
     public const int PDL = 3;
 

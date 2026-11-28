@@ -21,7 +21,7 @@ public class GetDiscoveryStateResponse : AbstractRDMPayloadObject
     public GetDiscoveryStateResponse(
         [DataTreeObjectParameter("endpoint_id")] ushort endpointId,
         [DataTreeObjectParameter("device_count")] ushort deviceCount,
-        [DataTreeObjectParameter("state")] byte discoveryState) :
+        [DataTreeObjectParameter("discovery_state")] byte discoveryState) :
         this(endpointId, deviceCount, (ERDM_DiscoveryState)discoveryState)
     {
     }
@@ -30,7 +30,7 @@ public class GetDiscoveryStateResponse : AbstractRDMPayloadObject
     public ushort EndpointId { get; private set; }
     [DataTreeObjectProperty("device_count", 1)]
     public ushort DeviceCount { get; private set; }
-    [DataTreeObjectProperty("state", 2)]
+    [DataTreeObjectProperty("discovery_state", 2)]
     public ERDM_DiscoveryState DiscoveryState { get; private set; }
     public const int PDL = 0x05;
 

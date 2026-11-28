@@ -3,7 +3,7 @@ using RDMSharp.Metadata.JSON;
 
 namespace RDMSharp
 {
-    [DataTreeEnum(ERDM_Parameter.RESET_DEVICE, Command.ECommandDublicate.SetRequest, "state")]
+    [DataTreeEnum(ERDM_Parameter.RESET_DEVICE, Command.ECommandDublicate.SetRequest, "reset_type")]
     public enum ERDM_ResetType : byte
     {
         Warm = 0x01,

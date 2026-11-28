@@ -197,7 +197,7 @@ public class TestRDMDeviceModel
     /// <summary>
     /// Two manufacturer specific parameters: a GET returns the value, PARAMETER_DESCRIPTION describes them. There is no METADATA_JSON.
     /// </summary>
-    private sealed class DescribedParametersModule : AbstractModule
+    private sealed class DescribedParametersModule : AbstractParameterIDModule
     {
         public override string DisplayName => "Described Parameters";
 
@@ -290,7 +290,7 @@ public class TestRDMDeviceModel
     }
 
     /// <summary>Four manufacturer specific parameters, described with PARAMETER_DESCRIPTION. There is no METADATA_JSON.</summary>
-    private sealed class FourParametersModule : AbstractModule
+    private sealed class FourParametersModule : AbstractParameterIDModule
     {
         public override string DisplayName => "Four Parameters";
 

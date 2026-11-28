@@ -8,7 +8,7 @@
   "get_request": [],
   "get_response": [
     {
-      "name": "state",
+      "name": "lock_state",
       "type": "uint8",
       "labels": [
         { "name": "Unlocked", "value": 0 }
@@ -26,7 +26,7 @@
       ]
     },
     {
-      "name": "state",
+      "name": "lock_state",
       "type": "uint8",
       "labels": [
         { "name": "Unlocked", "value": 0 }

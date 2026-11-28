@@ -7,7 +7,7 @@
   "set_request_subdevice_range": [ "root", "subdevices", "broadcast" ],
   "set_request": [
     {
-      "name": "state",
+      "name": "reset_type",
       "type": "uint8",
       "labels": [
         {

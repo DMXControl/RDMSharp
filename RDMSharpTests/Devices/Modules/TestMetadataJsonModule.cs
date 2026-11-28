@@ -366,7 +366,7 @@ public class TestMetadataJsonModule
     /// <summary>
     /// The manufacturer specific parameter itself: a GET returns one byte (the level). Without the JSON define nobody can parse it.
     /// </summary>
-    sealed class FictionalLevelModule : AbstractModule
+    sealed class FictionalLevelModule : AbstractParameterIDModule
     {
         private readonly byte _level;
         public override string DisplayName => "Fictional Level";

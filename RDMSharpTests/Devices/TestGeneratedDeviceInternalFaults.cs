@@ -102,7 +102,7 @@ public class TestGeneratedDeviceInternalFaults
     }
 
     /// <summary>A module whose parameter always fails.</summary>
-    private sealed class ThrowingModule : AbstractModule
+    private sealed class ThrowingModule : AbstractParameterIDModule
     {
         public override string DisplayName => "Throwing";
 

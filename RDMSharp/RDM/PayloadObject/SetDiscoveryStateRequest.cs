@@ -17,14 +17,14 @@ public class SetDiscoveryStateRequest : AbstractRDMPayloadObject
     [DataTreeObjectConstructor]
     public SetDiscoveryStateRequest(
         [DataTreeObjectParameter("endpoint_id")] ushort endpointId,
-        [DataTreeObjectParameter("state")] byte discoveryState)
+        [DataTreeObjectParameter("discovery_state")] byte discoveryState)
         : this(endpointId, (ERDM_DiscoveryState)discoveryState)
     {
     }
 
     [DataTreeObjectProperty("endpoint_id", 0)]
     public ushort EndpointId { get; private set; }
-    [DataTreeObjectProperty("state", 1)]
+    [DataTreeObjectProperty("discovery_state", 1)]
     public ERDM_DiscoveryState DiscoveryState { get; private set; }
     public const int PDL = 0x03;
 

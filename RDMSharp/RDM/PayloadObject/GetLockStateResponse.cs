@@ -10,17 +10,17 @@ public class GetLockStateResponse : AbstractRDMPayloadObjectOneOf
 {
     [DataTreeObjectConstructor]
     public GetLockStateResponse(
-        [DataTreeObjectParameter("state")] byte currentLockStateId = 1,
+        [DataTreeObjectParameter("lock_state")] byte currentLockStateId = 1,
         [DataTreeObjectParameter("state_count")] byte lockStates = 0)
     {
         this.CurrentLockStateId = currentLockStateId;
         this.LockStates = lockStates;
     }
 
-    [DataTreeObjectProperty("state", 0)]
+    [DataTreeObjectProperty("lock_state", 0)]
     public byte CurrentLockStateId { get; private set; }
 
-    [DataTreeObjectDependecieProperty("state", ERDM_Parameter.LOCK_STATE_DESCRIPTION, Command.ECommandDublicate.GetRequest)]
+    [DataTreeObjectDependecieProperty("lock_state", ERDM_Parameter.LOCK_STATE_DESCRIPTION, Command.ECommandDublicate.GetRequest)]
     [DataTreeObjectProperty("state_count", 1)]
     public byte LockStates { get; private set; }
 

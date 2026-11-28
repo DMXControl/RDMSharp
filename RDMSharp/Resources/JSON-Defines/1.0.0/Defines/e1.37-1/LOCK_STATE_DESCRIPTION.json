@@ -7,7 +7,7 @@
   "get_request_subdevice_range": [ "root", "subdevices" ],
   "get_request": [
     {
-      "name": "state",
+      "name": "lock_state",
       "type": "uint8",
       "ranges": [
         { "minimum": 1, "maximum": 255 }
@@ -16,7 +16,7 @@
   ],
   "get_response": [
     {
-      "name": "state",
+      "name": "lock_state",
       "type": "uint8",
       "ranges": [
         { "minimum": 1, "maximum": 255 }

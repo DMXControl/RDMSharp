@@ -139,7 +139,7 @@ public class TestRealTimeClockModule
         using (Assert.EnterMultipleScope())
         {
             Assert.That(module.IsDisposed, Is.True);
-            Assert.That(generated.Modules.OfType<AbstractModule>().All(m => m.IsDisposed), Is.True);
+            Assert.That(generated.Modules.OfType<AbstractParameterIDModule>().All(m => m.IsDisposed), Is.True);
             Assert.That(timerSubscribers("presentUpdateTimerElapsed"), Does.Not.Contain(module));
             Assert.That(timerSubscribers("realTimeClockUpdateTimerElapsed"), Does.Not.Contain(module));
         }

@@ -9,7 +9,7 @@ public class RDMLockStateDescription : AbstractRDMPayloadObject, IRDMPayloadObje
 {
     [DataTreeObjectConstructor]
     public RDMLockStateDescription(
-        [DataTreeObjectParameter("state")] byte lockStateId = default,
+        [DataTreeObjectParameter("lock_state")] byte lockStateId = default,
         [DataTreeObjectParameter("description")] string description = "")
     {
         this.LockStateId = lockStateId;
@@ -23,7 +23,7 @@ public class RDMLockStateDescription : AbstractRDMPayloadObject, IRDMPayloadObje
         this.Description = description;
     }
 
-    [DataTreeObjectProperty("state", 0)]
+    [DataTreeObjectProperty("lock_state", 0)]
     public byte LockStateId { get; private set; }
     [DataTreeObjectProperty("description", 1, "")]
     public string Description { get; private set; }
