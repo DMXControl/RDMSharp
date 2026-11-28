@@ -6,7 +6,7 @@ namespace RDMSharp.RDM.Device.Module;
 /// DEVICE_UNIT_NUMBER (E1.37-5 4.15): a 32-bit unit number stored in the device to identify it in the rig.
 /// Valid unit numbers are 0x00000001 - 0xFFFFFFFF, 0x00000000 means "un-set".
 /// </summary>
-public sealed class DeviceUnitNumberModule : AbstractSimpleNumericParameterIDModule<uint>
+public sealed class DeviceUnitNumberModule : AbstractSimpleNumericParameterIDModule<uint>, IDeviceUnitNumberModule
 {
     private const string _moduleName = "DeviceUnitNumber";
     private const string _moduleDisplayName = "Device Unit Number";

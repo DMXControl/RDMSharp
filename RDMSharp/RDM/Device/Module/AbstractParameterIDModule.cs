@@ -220,4 +220,9 @@ public abstract class AbstractParameterIDModule : IParameterIDModule, IDisposabl
     protected virtual void OnDispose()
     {
     }
+
+    public override string ToString()
+    {
+        return $"{Name} ({string.Join(", ", SupportedParameters)})";
+    }
 }
