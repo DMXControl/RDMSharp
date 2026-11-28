@@ -1,3 +1,4 @@
+using RDMSharp.Metadata;
 using RDMSharpTests.Devices.Mock;
 
 namespace RDMSharpTests.RDM.Devices;
@@ -7,6 +8,13 @@ public class TestRDMSendReceive_SlotOverflow
     private MockGeneratedDevice_SlotOverflow? generated;
     private MockDevice? remote;
     private Random random = new Random();
+
+    [OneTimeSetUp]
+    public async Task OneTimeSetup()
+    {
+        await MetadataFactory.AwaitInitialize();
+    }
+
     [SetUp]
     public void Setup()
     {
@@ -27,13 +35,20 @@ public class TestRDMSendReceive_SlotOverflow
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Assertion", "NUnit2010:Use EqualConstraint for better assertion messages in case of failure", Justification = "<Ausstehend>")]
     public async Task TestDevice1()
     {
+        // Wait until the remote device is initialized and has polled QUEUED_MESSAGE at least a few times.
+        // Without this the result depended on whether the first poll had already happened (flaky test):
+        // the device supports QUEUED_MESSAGE but not STATUS_MESSAGES, so "nothing queued" is answered with an empty STATUS_MESSAGES.
+        while (!remote!.IsInitialized)
+            await Task.Delay(10);
+        await Task.Delay(Math.Max(200, GlobalTimers.Instance.QueuedUpdateTime * 5));
+
         var parameterValuesRemote = remote!.GetAllParameterValues();
         var parameterValuesGenerated = generated!.GetAllParameterValues();
 
         Console.WriteLine($"Generated: {String.Join(", ", parameterValuesGenerated.OrderBy(p => p.Key).Select(x => $"{x.Key}"))}");
         Console.WriteLine($"Remote:    {String.Join(", ", parameterValuesRemote.OrderBy(p => p.Key).Select(x => $"{x.Key}"))}");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(parameterValuesGenerated.Keys, Is.EquivalentTo(parameterValuesRemote.Keys));
             foreach (var parameter in parameterValuesGenerated.Keys)
@@ -53,6 +68,6 @@ public class TestRDMSendReceive_SlotOverflow
                     Assert.That(parameterValuesRemote[parameter], Is.EqualTo(parameterValuesGenerated[parameter]), $"Tested Parameter {parameter}");
             }
             Assert.That(parameterValuesRemote, Has.Count.EqualTo(parameterValuesGenerated.Count));
-        });
+        }
     }
 }

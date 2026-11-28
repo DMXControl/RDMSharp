@@ -1,7 +1,6 @@
-﻿namespace RDMSharp
+﻿namespace RDMSharp.PayloadObject;
+
+public interface IRDMPayloadObject
 {
-    public interface IRDMPayloadObject
-    {
-        byte[] ToPayloadData();
-    }
+    byte[] ToPayloadData();
 }

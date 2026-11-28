@@ -13,7 +13,7 @@ public class DataTreeObjectAttribute : Attribute
     public readonly bool IsArray;
     public readonly string Path;
 
-    public DataTreeObjectAttribute(ERDM_Parameter parameter, Command.ECommandDublicate command, bool isArray = false, string path = null)
+    internal DataTreeObjectAttribute(ERDM_Parameter parameter, Command.ECommandDublicate command, bool isArray = false, string path = null)
     {
         Parameter = parameter;
         Command = command;
@@ -23,6 +23,8 @@ public class DataTreeObjectAttribute : Attribute
     public DataTreeObjectAttribute(EManufacturer manufacturer, ERDM_Parameter parameter, Command.ECommandDublicate command, bool isArray = false, string path = null)
         : this(parameter, command, isArray, path)
     {
+        if (manufacturer == EManufacturer.ESTA)
+            throw new NotSupportedException();
         Manufacturer = manufacturer;
     }
 }

@@ -2,55 +2,54 @@
 using RDMSharp.Metadata.JSON;
 using System.Collections.Generic;
 
-namespace RDMSharp
+namespace RDMSharp.PayloadObject;
+
+[DataTreeObject(ERDM_Parameter.IPV4_DEFAULT_ROUTE, Command.ECommandDublicate.GetResponse)]
+[DataTreeObject(ERDM_Parameter.IPV4_DEFAULT_ROUTE, Command.ECommandDublicate.SetRequest)]
+public class GetSetIPv4DefaultRoute : AbstractRDMPayloadObject
 {
-    [DataTreeObject(ERDM_Parameter.IPV4_DEFAULT_ROUTE, Command.ECommandDublicate.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.IPV4_DEFAULT_ROUTE, Command.ECommandDublicate.SetRequest)]
-    public class GetSetIPv4DefaultRoute : AbstractRDMPayloadObject
+    [DataTreeObjectConstructor]
+    public GetSetIPv4DefaultRoute(
+        [DataTreeObjectParameter("id")] uint interfaceId = 0,
+        [DataTreeObjectParameter("default_route")] IPv4Address ipAddress = default)
     {
-        [DataTreeObjectConstructor]
-        public GetSetIPv4DefaultRoute(
-            [DataTreeObjectParameter("id")] uint interfaceId = 0,
-            [DataTreeObjectParameter("default_route")] IPv4Address ipAddress = default)
-        {
-            this.InterfaceId = interfaceId;
-            this.IPAddress = ipAddress;
-        }
+        this.InterfaceId = interfaceId;
+        this.IPAddress = ipAddress;
+    }
 
-        [DataTreeObjectProperty("id", 0)]
-        public uint InterfaceId { get; private set; }
-        [DataTreeObjectProperty("default_route", 1)]
-        public IPv4Address IPAddress { get; private set; }
-        public const int PDL = 0x08;
+    [DataTreeObjectProperty("id", 0)]
+    public uint InterfaceId { get; private set; }
+    [DataTreeObjectProperty("default_route", 1)]
+    public IPv4Address IPAddress { get; private set; }
+    public const int PDL = 0x08;
 
-        public override string ToString()
-        {
-            return $"{InterfaceId} - {IPAddress}";
-        }
+    public override string ToString()
+    {
+        return $"{InterfaceId} - {IPAddress}";
+    }
 
-        public static GetSetIPv4DefaultRoute FromMessage(RDMMessage msg)
-        {
-            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.IPV4_DEFAULT_ROUTE, PDL);
+    public static GetSetIPv4DefaultRoute FromMessage(RDMMessage msg)
+    {
+        RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.IPV4_DEFAULT_ROUTE, PDL);
 
-            return FromPayloadData(msg.ParameterData);
-        }
-        public static GetSetIPv4DefaultRoute FromPayloadData(byte[] data)
-        {
-            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
+        return FromPayloadData(msg.ParameterData);
+    }
+    public static GetSetIPv4DefaultRoute FromPayloadData(byte[] data)
+    {
+        RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
 
-            var i = new GetSetIPv4DefaultRoute(
-                interfaceId: Tools.DataToUInt(ref data),
-                ipAddress: Tools.DataToIPAddressIPv4(ref data));
+        var i = new GetSetIPv4DefaultRoute(
+            interfaceId: Tools.DataToUInt(ref data),
+            ipAddress: Tools.DataToIPAddressIPv4(ref data));
 
-            return i;
-        }
+        return i;
+    }
 
-        public override byte[] ToPayloadData()
-        {
-            List<byte> data = new List<byte>();
-            data.AddRange(Tools.ValueToData(this.InterfaceId));
-            data.AddRange(Tools.ValueToData(this.IPAddress));
-            return data.ToArray();
-        }
+    public override byte[] ToPayloadData()
+    {
+        List<byte> data = new List<byte>();
+        data.AddRange(Tools.ValueToData(this.InterfaceId));
+        data.AddRange(Tools.ValueToData(this.IPAddress));
+        return data.ToArray();
     }
 }

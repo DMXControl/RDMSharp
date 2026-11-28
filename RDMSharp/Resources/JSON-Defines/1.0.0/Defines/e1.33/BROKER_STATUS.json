@@ -1,0 +1,59 @@
+{
+  "name": "BROKER_STATUS",
+  "displayName": "Broker Status",
+  "notes": "E1.33 Section 7.6.4. Support for SET by Brokers is optional and reported in the SET Allowed field.",
+  "manufacturer_id": 0,
+  "pid": 2051,
+  "version": 1,
+  "get_request_subdevice_range": [
+    "root"
+  ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "set_allowed",
+      "type": "boolean"
+    },
+    {
+      "name": "broker_state",
+      "type": "uint8",
+      "labels": [
+        {
+          "name": "DISABLED",
+          "value": 0
+        },
+        {
+          "name": "ACTIVE",
+          "value": 1
+        },
+        {
+          "name": "STANDBY",
+          "value": 2
+        }
+      ],
+      "restrictToLabeled": true
+    }
+  ],
+  "set_request_subdevice_range": [
+    "root"
+  ],
+  "set_request": [
+    {
+      "name": "broker_state",
+      "type": "uint8",
+      "notes": "STANDBY is not a valid value in a SET and is answered with NR_DATA_OUT_OF_RANGE.",
+      "labels": [
+        {
+          "name": "DISABLED",
+          "value": 0
+        },
+        {
+          "name": "ACTIVE",
+          "value": 1
+        }
+      ],
+      "restrictToLabeled": true
+    }
+  ],
+  "set_response": []
+}

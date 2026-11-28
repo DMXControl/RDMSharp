@@ -8,7 +8,7 @@
   "get_request": [],
   "get_response": [
     {
-      "name": "state",
+      "name": "power_state",
       "type": "uint8",
       "labels": [
         {

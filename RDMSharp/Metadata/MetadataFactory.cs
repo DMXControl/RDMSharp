@@ -2,127 +2,168 @@
 using Microsoft.Extensions.Logging;
 using RDMSharp.Metadata.JSON;
 using RDMSharp.Metadata.JSON.OneOfTypes;
+using RDMSharp.PayloadObject;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("RDMSharpTests")]
 
 namespace RDMSharp.Metadata;
 
-public static class MetadataFactory
+public static partial class MetadataFactory
 {
     private static readonly ILogger Logger = Logging.CreateLogger(typeof(MetadataFactory));
     private const string SCHEMA_FILE_NAME = "schema.json";
     private const string JSON_ENDING = ".json";
-    private static ConcurrentDictionary<string, MetadataVersion> metadataVersionList;
-    private static ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>> metadataVersionDefinesBagDictionary;
-    private static ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine> parameterBagDefineCache;
-    private static List<Assembly> resourceProvider = new List<Assembly>() { typeof(MetadataFactory).Assembly };
-    private static BuildOptions schemaBuildOptions = new BuildOptions { SchemaRegistry = new SchemaRegistry() };
+    private static volatile ConcurrentDictionary<string, MetadataVersion> metadataVersionList;
+    private static readonly object metadataVersionListLock = new object();
+    // published only when it is completely loaded
+    private static volatile ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>> metadataVersionDefinesBagDictionary;
+    private static readonly ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine> parameterBagDefineCache = new ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine>();
+    private static readonly List<Assembly> resourceProvider = new List<Assembly>() { typeof(MetadataFactory).Assembly };
+    public static bool IsInitialized = false;
+    /// <summary>
+    /// The defines are loaded once, every caller waits for the same Task (the first access may come from many threads at the same time).
+    /// </summary>
+    private static readonly Lazy<Task> loadDefinesTask = new Lazy<Task>(() => Task.Run(loadDefines), LazyThreadSafetyMode.ExecutionAndPublication);
+    private static readonly SemaphoreSlim readSchemaSemaphoreSlim = new SemaphoreSlim(1, 1);
+    private static readonly BuildOptions schemaBuildOptions = new BuildOptions { SchemaRegistry = new SchemaRegistry() };
+
+    private static readonly EvaluationOptions options = new EvaluationOptions
+    {
+        OutputFormat = OutputFormat.List
+    };
 
     public static void AddResourceProvider(Assembly assembly)
     {
-        resourceProvider.Add(assembly);
+        if (!resourceProvider.Contains(assembly))
+            resourceProvider.Add(assembly);
     }
     public static IReadOnlyDictionary<string, MetadataVersion> MetadataVersionList
     {
         get
         {
-            if (metadataVersionList == null)
+            var list = metadataVersionList;
+            if (list != null)
+                return list.AsReadOnly();
+
+            lock (metadataVersionListLock)
             {
-                metadataVersionList = new ConcurrentDictionary<string, MetadataVersion>();
-                foreach (Assembly assembly in resourceProvider)
+                list = metadataVersionList;
+                if (list == null)
                 {
-                    try
+                    var loading = new ConcurrentDictionary<string, MetadataVersion>();
+                    foreach (Assembly assembly in resourceProvider)
                     {
-                        var resoures = GetResources(assembly);
-                        var metaDataVersions = resoures.Select(r => new MetadataVersion(r, assembly));
-                        foreach (var mv in metaDataVersions)
-                            metadataVersionList.TryAdd(mv.Path, mv);
+                        try
+                        {
+                            var resoures = GetResources(assembly);
+                            var metaDataVersions = resoures.Select(r => new MetadataVersion(r, assembly));
+                            foreach (var mv in metaDataVersions)
+                                loading.TryAdd(mv.Path, mv);
+                        }
+                        catch (Exception e)
+                        {
+                            Logger?.LogError(e);
+                        }
                     }
-                    catch (Exception e)
-                    {
-                        Logger?.LogError(e);
-                    }
+                    metadataVersionList = list = loading;
                 }
             }
-            return metadataVersionList.AsReadOnly();
+            return list.AsReadOnly();
         }
     }
     public static IReadOnlyCollection<string> GetResources(Assembly assembly)
     {
         return assembly.GetManifestResourceNames().Where(p => p.EndsWith(JSON_ENDING)).ToList().AsReadOnly();
     }
-    private static void fillDefaultMetadataVersionList()
+    /// <summary>
+    /// Starts loading the defines (only once) and returns the Task every caller can wait for.
+    /// </summary>
+    private static Task fillDefaultMetadataVersionList()
     {
-        if (metadataVersionDefinesBagDictionary != null)
-            return;
-
-        metadataVersionDefinesBagDictionary = new ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>>();
-        foreach (Assembly assembly in resourceProvider)
+        return loadDefinesTask.Value;
+    }
+    private static async Task loadDefines()
+    {
+        // the defines are collected in a local dictionary and published when all of them are loaded
+        var defines = new ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>>();
         {
-            try
+            var schemaList = GetMetadataSchemaVersions();
+            ConcurrentDictionary<string, JsonSchema> versionSchemas = new ConcurrentDictionary<string, JsonSchema>();
+            var nonSchemaVersions = metadataVersionList.Values.Where(_mv => !_mv.IsSchema).ToList();
+            ParallelOptions parallelOptions = new ParallelOptions
             {
-                var metaDataVersions = GetResources(assembly).Select(r => new MetadataVersion(r, assembly));
-                foreach (var mv in metaDataVersions)
-                    metadataVersionList.TryAdd(mv.Path, mv);
-            }
-            catch (Exception e)
+                MaxDegreeOfParallelism = Environment.ProcessorCount,
+            };
+            await Parallel.ForEachAsync(nonSchemaVersions, parallelOptions, async (mv, token) =>
             {
-                Logger?.LogError(e);
-            }
-        }
-
-        var schemaList = GetMetadataSchemaVersions();
-        ConcurrentDictionary<string, JsonSchema> versionSchemas = new ConcurrentDictionary<string, JsonSchema>();
-
-        var nonSchemaVersions = metadataVersionList.Values.Where(_mv => !_mv.IsSchema).ToList();
-
-        ParallelOptions parallelOptions = new ParallelOptions
-        {
-            MaxDegreeOfParallelism = Environment.ProcessorCount, // Optional: Set the maximum degree of parallelism
-        };
-        Parallel.ForEach(nonSchemaVersions, parallelOptions, mv =>
-        {
-            try
-            {
-                var schema = schemaList.First(s => s.Version.Equals(mv.Version));
-                if (!versionSchemas.TryGetValue(schema.Version, out JsonSchema jsonSchema))
+                try
                 {
-                    jsonSchema = JsonSchema.FromText(new MetadataBag(schema).Content, schemaBuildOptions);
-                    versionSchemas.TryAdd(schema.Version, jsonSchema);
-                }
-                MetadataBag metadataBag = new MetadataBag(mv);
-                using var jsonDocument = JsonDocument.Parse(metadataBag.Content);
-                var result = jsonSchema.Evaluate(jsonDocument.RootElement);
-                if (result.IsValid)
-                {
-                    MetadataJSONObjectDefine jsonDefine = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(metadataBag.Content);
-                    metadataVersionDefinesBagDictionary.AddOrUpdate(schema,
-                        _ => new List<MetadataJSONObjectDefine> { jsonDefine },
-                        (_, list) =>
+                    var schema = schemaList.First(s => s.Version.Equals(mv.Version));
+                    JsonSchema jsonSchema;
+                    await readSchemaSemaphoreSlim.WaitAsync();
+                    try
+                    {
+                        if (!versionSchemas.TryGetValue(schema.Version, out jsonSchema))
                         {
-                            lock (list)
+                            jsonSchema = JsonSchema.FromText(new MetadataBag(schema).Content, schemaBuildOptions);
+                            versionSchemas.TryAdd(schema.Version, jsonSchema);
+                        }
+                    }
+                    finally
+                    {
+                        readSchemaSemaphoreSlim.Release();
+                    }
+
+                    MetadataBag metadataBag = new MetadataBag(mv);
+                    using JsonDocument doc = JsonDocument.Parse(metadataBag.Content);
+                    EvaluationResults result = jsonSchema.Evaluate(doc.RootElement, options);
+                    if (result.IsValid)
+                    {
+                        MetadataJSONObjectDefine jsonDefine = JsonSerializer.Deserialize<MetadataJSONObjectDefine>(metadataBag.Content);
+                        defines.AddOrUpdate(schema,
+                            _ => new List<MetadataJSONObjectDefine> { jsonDefine },
+                            (_, list) =>
                             {
-                                list.Add(jsonDefine);
-                                return list;
-                            }
-                        });
+                                lock (list)
+                                {
+                                    list.Add(jsonDefine);
+                                    return list;
+                                }
+                            });
+                    }
+                    else
+                    {
+                        StringBuilder sb = new StringBuilder();
+
+                        var errors = result.Details
+                            .Where(x => !x.IsValid)
+                            .SelectMany(x => x.Errors?.Select(error =>
+                                $"{x.InstanceLocation}: {error.Value}")
+                                ?? Enumerable.Empty<string>());
+
+                        foreach (var error in errors)
+                            sb.AppendLine(error);
+                        throw new Exception($"Schema Invalid for {mv.Name}{Environment.NewLine}{Environment.NewLine}Schema result{sb}");
+                    }
                 }
-                else
-                    throw new Exception($"Schema Invalid for {mv.Name}");
-            }
-            catch (Exception e)
-            {
-                Logger?.LogError($"Exception while Deserialize {mv.Name}", e);
-            }
-        });
+                catch (Exception e)
+                {
+                    Logger?.LogError(e, $"Exception while Deserialize {mv.Name}");
+                }
+            });
+            metadataVersionDefinesBagDictionary = defines;
+            IsInitialized = true;
+        }
     }
 
     public static IReadOnlyCollection<MetadataVersion> GetMetadataSchemaVersions()
@@ -137,16 +178,13 @@ public static class MetadataFactory
         }
         finally
         {
-            fillDefaultMetadataVersionList();
+            _ = fillDefaultMetadataVersionList();
         }
     }
     public static MetadataJSONObjectDefine GetDefine(ParameterBag parameter)
     {
         try
         {
-            if (parameterBagDefineCache == null)
-                parameterBagDefineCache = new ConcurrentDictionary<ParameterBag, MetadataJSONObjectDefine>();
-
             if (parameterBagDefineCache.TryGetValue(parameter, out var define))
                 return define;
 
@@ -290,48 +328,67 @@ public static class MetadataFactory
             return null;
         return labeledIntegerTypes.ToArray();
     }
+    /// <summary>
+    /// The completely loaded defines, waits (blocking) if they are still loading.
+    /// </summary>
+    private static ConcurrentDictionary<MetadataVersion, List<MetadataJSONObjectDefine>> waitForDefines()
+    {
+        var defines = metadataVersionDefinesBagDictionary;
+        if (defines != null)
+            return defines;
+        // loadDefines runs on the thread pool without a synchronization context, so blocking here can not dead lock
+        fillDefaultMetadataVersionList().GetAwaiter().GetResult();
+        return metadataVersionDefinesBagDictionary;
+    }
+    /// <summary>
+    /// Picks the define that fits the device best out of the defines for one PID and manufacturer:
+    /// <list type="number">
+    /// <item>a define for the device model: the one for the software version, else the one for all software versions, else the closest software version,</item>
+    /// <item>else the define for all models (none, if the device model is known and no define fits it),</item>
+    /// <item>several defines that fit equally: the highest version.</item>
+    /// </list>
+    /// </summary>
+    internal static MetadataJSONObjectDefine selectDefine(IReadOnlyCollection<MetadataJSONObjectDefine> possibleDefines, ParameterBag parameter)
+    {
+        static MetadataJSONObjectDefine newest(IEnumerable<MetadataJSONObjectDefine> defines) => defines.MaxBy(d => d.Version);
+
+        if (possibleDefines.Count == 1)
+            return possibleDefines.First();
+
+        var forAllModels = possibleDefines.Where(d => d.DeviceModelID == null && d.SoftwareVersionID == null).ToList();
+        if (parameter.DeviceModelID == null)
+            return newest(forAllModels) ?? newest(possibleDefines);
+
+        var forModel = possibleDefines.Where(d => d.DeviceModelID == parameter.DeviceModelID).ToList();
+        if (forModel.Count == 0)
+            return newest(forAllModels);
+
+        if (parameter.SoftwareVersionID is uint softwareVersion)
+        {
+            var forSoftwareVersion = forModel.Where(d => d.SoftwareVersionID == softwareVersion).ToList();
+            if (forSoftwareVersion.Count != 0)
+                return newest(forSoftwareVersion);
+        }
+        var forAllSoftwareVersions = forModel.Where(d => d.SoftwareVersionID == null).ToList();
+        if (forAllSoftwareVersions.Count != 0)
+            return newest(forAllSoftwareVersions);
+
+        long target = parameter.SoftwareVersionID ?? 0;
+        long closest = forModel.Min(d => Math.Abs((long)d.SoftwareVersionID.Value - target));
+        return newest(forModel.Where(d => Math.Abs((long)d.SoftwareVersionID.Value - target) == closest));
+    }
     private static MetadataJSONObjectDefine getDefine(ParameterBag parameter)
     {
+        var defines = waitForDefines();
         var version = GetMetadataSchemaVersions().First();
         if (parameter.PID == ERDM_Parameter.QUEUED_MESSAGE)
-            return metadataVersionDefinesBagDictionary[version].FirstOrDefault(d => d.PID == (ushort)parameter.PID);
+            return defines[version].FirstOrDefault(d => d.PID == (ushort)parameter.PID);
 
-        fillDefaultMetadataVersionList();
-        var possibleDefines = metadataVersionDefinesBagDictionary[version].FindAll(d => d.PID == (ushort)parameter.PID && d.ManufacturerID == parameter.ManufacturerID);
-        if (possibleDefines.Count == 1)
-            return possibleDefines[0];
-
-        if (possibleDefines.Count > 1)
-        {
-            MetadataJSONObjectDefine define = possibleDefines.FirstOrDefault(d => d.DeviceModelID == null && d.SoftwareVersionID == null);
-            if (parameter.DeviceModelID != null)
-            {
-                possibleDefines = possibleDefines.Where(d => d.DeviceModelID == parameter.DeviceModelID).ToList();
-                if (possibleDefines.Count == 0)
-                    return define;
-                if (possibleDefines.Count == 1)
-                    define = possibleDefines[0];
-                else if (possibleDefines.Count > 1)
-                {
-                    define = possibleDefines.FirstOrDefault(d => d.SoftwareVersionID == null) ?? define;
-                    if (parameter.SoftwareVersionID != null)
-                    {
-                        define = possibleDefines.FirstOrDefault(d => d.SoftwareVersionID == parameter.SoftwareVersionID) ?? define;
-
-                        if (define == null)
-                            define = possibleDefines.MinBy(d => parameter.SoftwareVersionID - d.SoftwareVersionID);
-                    }
-                }
-            }
-            return possibleDefines.MaxBy(d => d.Version);
-        }
-        if (parameter.ManufacturerID == 0)
-            throw new InvalidOperationException($"{parameter.ManufacturerID} of 0 should lead to exact 1 Define");
-
-
-
-        if ((ushort)parameter.PID < 0x8000 || (ushort)parameter.PID > 0xFFDF)
-            throw new DefineNotFoundException($"{parameter}");
+        var possibleDefines = defines[version].FindAll(d => d.PID == (ushort)parameter.PID && d.ManufacturerID == parameter.ManufacturerID);
+        if (possibleDefines.Count != 0)
+            return selectDefine(possibleDefines, parameter);
+        // no define: GetDefine throws a DefineNotFoundException for the ESTA range (e.g. a draft or reserved PID a device reports),
+        // a manufacturer specific PID without define is null
         return null;
     }
 
@@ -349,7 +406,11 @@ public static class MetadataFactory
 
         if (command.SingleField.HasValue && payload.Children.SingleOrDefault() is DataTree dataTree)
         {
-            result.AddRange(command.SingleField.Value.ParsePayloadToData(dataTree));
+            List<byte> singleData = new List<byte>();
+            foreach (var nData in command.SingleField.Value.ParsePayloadToData(dataTree))
+                addToPackets(result, singleData, nData);
+            if (singleData.Count != 0)
+                result.Add(singleData.ToArray());
             return result.AsReadOnly();
         }
         if (command.ListOfFields.Length != 0 && payload.Children is DataTree[] dataTreeArray)
@@ -362,14 +423,7 @@ public static class MetadataFactory
             {
                 var newData = command.ListOfFields[i].ParsePayloadToData(dataTreeArray[i]);
                 foreach (var nData in newData)
-                {
-                    if (data.Count + nData.Length > 231)
-                    {
-                        result.Add(data.ToArray());
-                        data.Clear();
-                    }
-                    data.AddRange(nData);
-                }
+                    addToPackets(result, data, nData);
                 //data.AddRange(newData.SelectMany(en=>en).ToArray());
             }
 
@@ -408,6 +462,30 @@ public static class MetadataFactory
 
         throw new ArithmeticException();
     }
+    private const int MAX_PDL = 231;
+    /// <summary>
+    /// Adds the data of one field to the packets (one packet = max. 231 bytes of Parameter Data).
+    /// A field that fits into one packet is not split, it starts a new packet if the current one is too full.
+    /// A field larger than one packet (e.g. a long URL, E1.37-5) is split over several packets, which are sent with ACK_OVERFLOW.
+    /// </summary>
+    private static void addToPackets(List<byte[]> packets, List<byte> current, byte[] fieldData)
+    {
+        if (current.Count + fieldData.Length > MAX_PDL && fieldData.Length <= MAX_PDL && current.Count != 0)
+        {
+            packets.Add(current.ToArray());
+            current.Clear();
+        }
+        int offset = 0;
+        while (current.Count + (fieldData.Length - offset) > MAX_PDL)
+        {
+            int take = MAX_PDL - current.Count;
+            current.AddRange(fieldData.Skip(offset).Take(take));
+            offset += take;
+            packets.Add(current.ToArray());
+            current.Clear();
+        }
+        current.AddRange(fieldData.Skip(offset));
+    }
     internal static IEnumerable<byte[]> GetRequestMessageData(ParameterBag parameter, DataTreeBranch payloadData)
     {
         return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicate.GetRequest, payloadData);
@@ -425,47 +503,48 @@ public static class MetadataFactory
         return ParsePayloadToData(GetDefine(parameter), Command.ECommandDublicate.SetResponse, payloadData);
     }
 
-    private static List<Type> definedDataTreeObjects;
-    public static IReadOnlyCollection<Type> DefinedDataTreeObjects
-    {
-        get
-        {
-            fillDefinedDataTreeObjects();
-            return definedDataTreeObjects;
-        }
-    }
-
-    private static void fillDefinedDataTreeObjects()
-    {
-        if (definedDataTreeObjects != null)
-            return;
-
-        definedDataTreeObjects = new List<Type>();
-
-        definedDataTreeObjects.AddRange(Tools.FindClassesWithAttribute<DataTreeObjectAttribute>());
-    }
+    /// <summary>
+    /// Built once and published when it is complete (the first parse may come from many threads at the same time,
+    /// a list that is filled while others read it leads to an empty result or "Collection was modified").
+    /// </summary>
+    private static readonly Lazy<IReadOnlyCollection<Type>> definedDataTreeObjects = new Lazy<IReadOnlyCollection<Type>>(
+        () => Tools.FindClassesWithAttribute<DataTreeObjectAttribute>().ToList().AsReadOnly(),
+        LazyThreadSafetyMode.ExecutionAndPublication);
+    public static IReadOnlyCollection<Type> DefinedDataTreeObjects => definedDataTreeObjects.Value;
 
     public static Type GetDefinedDataTreeObjectType(MetadataJSONObjectDefine define, Command.ECommandDublicate commandType)
     {
-        return GetDefinedDataTreeObjectType((ERDM_Parameter)define.PID, commandType);
+        return GetDefinedDataTreeObjectType((EManufacturer)define.ManufacturerID, (ERDM_Parameter)define.PID, commandType);
     }
     public static Type GetDefinedDataTreeObjectType(MetadataJSONObjectDefine define, ERDM_Command command)
     {
         Command.ECommandDublicate commandType = Tools.ConvertCommandDublicateToCommand(command);
-        return GetDefinedDataTreeObjectType((ERDM_Parameter)define.PID, commandType);
+        return GetDefinedDataTreeObjectType((EManufacturer)define.ManufacturerID, (ERDM_Parameter)define.PID, commandType);
     }
-    public static Type GetDefinedDataTreeObjectType(ERDM_Parameter parameter, ERDM_Command command)
+    public static Type GetDefinedDataTreeObjectType(EManufacturer manufacturer, ERDM_Parameter parameter, ERDM_Command command)
     {
         Command.ECommandDublicate commandType = Tools.ConvertCommandDublicateToCommand(command);
-        return GetDefinedDataTreeObjectType(parameter, commandType);
+        return GetDefinedDataTreeObjectType(manufacturer, parameter, commandType);
     }
-    public static Type GetDefinedDataTreeObjectType(ERDM_Parameter parameter, Command.ECommandDublicate commandType)
+    public static Type GetDefinedDataTreeObjectType(EManufacturer manufacturer, ERDM_Parameter parameter, Command.ECommandDublicate commandType)
     {
+        bool checkManufacturer(EManufacturer attrManu)
+        {
+            if (attrManu == EManufacturer.ESTA)
+                return true;
+
+            return attrManu == manufacturer;
+        }
         return DefinedDataTreeObjects.Where(t =>
         {
-            if (t.GetCustomAttributes<DataTreeObjectAttribute>().Any(attribute => attribute.Parameter == parameter && attribute.Command == commandType))
+            if (t.GetCustomAttributes<DataTreeObjectAttribute>().Any(attribute => attribute.Parameter == parameter && attribute.Command == commandType && checkManufacturer(attribute.Manufacturer)))
                 return true;
             return false;
         }).FirstOrDefault();
+    }
+
+    public static async Task AwaitInitialize()
+    {
+        await fillDefaultMetadataVersionList();
     }
 }

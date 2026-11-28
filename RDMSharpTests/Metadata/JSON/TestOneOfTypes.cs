@@ -12,7 +12,7 @@ namespace RDMSharpTests.Metadata.JSON
             Assert.That(oneOfTypes.ToString(), Is.Null);
             Assert.DoesNotThrow(() =>
             {
-                Assert.That(oneOfTypes.GetDataLength().Value, Is.EqualTo(0));
+                Assert.That(oneOfTypes.GetDataLength().Value, Is.Zero);
             });
         }
     }

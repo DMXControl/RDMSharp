@@ -16,7 +16,7 @@ namespace RDMSharpTests
         [Test]
         public void TestStatusMessages()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Dictionary<string, ERDM_StatusMessage> results = new Dictionary<string, ERDM_StatusMessage>();
                 var enums = new List<ERDM_StatusMessage>();
@@ -34,12 +34,12 @@ namespace RDMSharpTests
 
                     Assert.That(results.TryAdd(str, e), Is.True, $"{e} => {str}");
                 }
-            });
+            }
         }
         [Test]
         public void TestSensorUnitSymbol()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Dictionary<string, ERDM_SensorUnit> results = new Dictionary<string, ERDM_SensorUnit>();
                 var enums = Enum.GetValues(typeof(ERDM_SensorUnit));
@@ -54,12 +54,12 @@ namespace RDMSharpTests
 
                     Assert.That(results.TryAdd(str, e), Is.True, $"{e} => {str}");
                 }
-            });
+            }
         }
         [Test]
         public void TestUnitPrefixGetNormalizedValue()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Dictionary<double, ERDM_UnitPrefix> results = new Dictionary<double, ERDM_UnitPrefix>();
                 var enums = Enum.GetValues(typeof(ERDM_UnitPrefix));
@@ -75,12 +75,12 @@ namespace RDMSharpTests
 
                     Assert.That(results.TryAdd(ret, e), Is.True, $"{e} => {ret}");
                 }
-            });
+            }
         }
         [Test]
         public void TestDataToValueExceptions()
         {
-            Assert.Multiple(() =>
+            using (Assert.EnterMultipleScope())
             {
                 Assert.Throws(typeof(IndexOutOfRangeException), () => { var data = Array.Empty<byte>(); Tools.DataToBool(ref data); });
                 Assert.Throws(typeof(IndexOutOfRangeException), () => { var data = Array.Empty<byte>(); Tools.DataToBoolArray(ref data, 8); });
@@ -95,7 +95,7 @@ namespace RDMSharpTests
                 Assert.Throws(typeof(IndexOutOfRangeException), () => { var data = new byte[5]; Tools.DataToRDMUID(ref data); });
                 Assert.Throws(typeof(IndexOutOfRangeException), () => { var data = new byte[3]; Tools.DataToIPAddressIPv4(ref data); });
                 Assert.Throws(typeof(IndexOutOfRangeException), () => { var data = new byte[15]; Tools.DataToIPAddressIPv6(ref data); });
-            });
+            }
         }
     }
 }

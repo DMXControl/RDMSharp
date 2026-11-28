@@ -2,55 +2,37 @@
 using RDMSharp.Metadata.JSON;
 using System.Collections.Generic;
 
-namespace RDMSharp
+namespace RDMSharp.PayloadObject;
+
+[DataTreeObject(ERDM_Parameter.ENDPOINT_TO_UNIVERSE, Command.ECommandDublicate.GetResponse)]
+[DataTreeObject(ERDM_Parameter.ENDPOINT_TO_UNIVERSE, Command.ECommandDublicate.SetRequest)]
+public class GetSetEndpointToUniverse : AbstractRDMPayloadObject
 {
-    [DataTreeObject(ERDM_Parameter.ENDPOINT_TO_UNIVERSE, Command.ECommandDublicate.GetResponse)]
-    [DataTreeObject(ERDM_Parameter.ENDPOINT_TO_UNIVERSE, Command.ECommandDublicate.SetRequest)]
-    public class GetSetEndpointToUniverse : AbstractRDMPayloadObject
+    [DataTreeObjectConstructor]
+    public GetSetEndpointToUniverse(
+        [DataTreeObjectParameter("endpoint_id")] ushort endpointId = default,
+        [DataTreeObjectParameter("universe")] ushort universe = default)
     {
-        [DataTreeObjectConstructor]
-        public GetSetEndpointToUniverse(
-            [DataTreeObjectParameter("endpoint_id")] ushort endpointId = default,
-            [DataTreeObjectParameter("universe")] ushort universe = default)
-        {
-            this.EndpointId = endpointId;
-            this.Universe = universe;
-        }
+        this.EndpointId = endpointId;
+        this.Universe = universe;
+    }
 
-        [DataTreeObjectProperty("endpoint_id", 0)]
-        public ushort EndpointId { get; private set; }
-        [DataTreeObjectProperty("universe", 1)]
-        public ushort Universe { get; private set; }
-        public const int PDL = 0x04;
+    [DataTreeObjectProperty("endpoint_id", 0)]
+    public ushort EndpointId { get; private set; }
+    [DataTreeObjectProperty("universe", 1)]
+    public ushort Universe { get; private set; }
+    public const int PDL = 0x04;
 
-        public override string ToString()
-        {
-            return $"Endpoint: {EndpointId} to Universe: {Universe}";
-        }
+    public override string ToString()
+    {
+        return $"Endpoint: {EndpointId} to Universe: {Universe}";
+    }
 
-        public static GetSetEndpointToUniverse FromMessage(RDMMessage msg)
-        {
-            RDMMessageInvalidException.ThrowIfInvalidPDL(msg, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.ENDPOINT_TO_UNIVERSE, PDL);
-
-            return FromPayloadData(msg.ParameterData);
-        }
-        public static GetSetEndpointToUniverse FromPayloadData(byte[] data)
-        {
-            RDMMessageInvalidPDLException.ThrowIfInvalidPDL(data, PDL);
-
-            var i = new GetSetEndpointToUniverse(
-                endpointId: Tools.DataToUShort(ref data),
-                universe: Tools.DataToUShort(ref data));
-
-            return i;
-        }
-
-        public override byte[] ToPayloadData()
-        {
-            List<byte> data = new List<byte>();
-            data.AddRange(Tools.ValueToData(this.EndpointId));
-            data.AddRange(Tools.ValueToData(this.Universe));
-            return data.ToArray();
-        }
+    public override byte[] ToPayloadData()
+    {
+        List<byte> data = new List<byte>();
+        data.AddRange(Tools.ValueToData(this.EndpointId));
+        data.AddRange(Tools.ValueToData(this.Universe));
+        return data.ToArray();
     }
 }

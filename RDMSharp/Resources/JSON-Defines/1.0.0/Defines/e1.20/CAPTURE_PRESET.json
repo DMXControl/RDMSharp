@@ -9,9 +9,7 @@
   "set_request": [
     {
       "name": "scene_num",
-      "type": "uint16",
-      "units": 21,
-      "prefixPower": -1
+      "type": "uint16"
     },
     {
       "name": "up_fade_time",

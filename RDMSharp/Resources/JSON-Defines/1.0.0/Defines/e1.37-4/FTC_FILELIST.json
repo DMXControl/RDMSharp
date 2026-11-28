@@ -1,0 +1,126 @@
+{
+  "name": "FTC_FILELIST",
+  "displayName": "FTC File List",
+  "notes": "E1.37-4-2026 File Transfer Control, Section 13.5. Up to five files per response, ACK_OVERFLOW is used for more.",
+  "manufacturer_id": 0,
+  "pid": 4612,
+  "version": 1,
+  "get_request_subdevice_range": [
+    "root"
+  ],
+  "get_request": [],
+  "get_response": [
+    {
+      "name": "files",
+      "type": "list",
+      "itemType": {
+        "name": "file",
+        "type": "compound",
+        "subtypes": [
+          {
+            "name": "file_id",
+            "type": "uint8",
+            "ranges": [
+              {
+                "minimum": 1,
+                "maximum": 254
+              }
+            ]
+          },
+          {
+            "name": "capabilities",
+            "type": "bitField",
+            "notes": "Table A-7. Bits 27-31 are reserved for manufacturer specific use.",
+            "size": 32,
+            "bits": [
+              {
+                "name": "accept_upload",
+                "index": 0
+              },
+              {
+                "name": "accept_download",
+                "index": 1
+              },
+              {
+                "name": "process_filecrc",
+                "index": 2
+              },
+              {
+                "name": "process_packetcrc",
+                "index": 3
+              },
+              {
+                "name": "generate_filecrc",
+                "index": 4
+              },
+              {
+                "name": "generate_packetcrc",
+                "index": 5
+              },
+              {
+                "name": "download_key",
+                "index": 6
+              },
+              {
+                "name": "bootloader_switch",
+                "index": 7
+              },
+              {
+                "name": "nsc_no_interleave",
+                "index": 8
+              },
+              {
+                "name": "nsc_ignore",
+                "index": 9
+              },
+              {
+                "name": "functional_limit",
+                "index": 10
+              },
+              {
+                "name": "e137_lock",
+                "index": 12
+              },
+              {
+                "name": "other_lock",
+                "index": 13
+              },
+              {
+                "name": "accept_broadcasts",
+                "index": 15
+              },
+              {
+                "name": "fail_may_brick",
+                "index": 16
+              },
+              {
+                "name": "alternate_error_recovery",
+                "index": 17
+              },
+              {
+                "name": "testmode_supported",
+                "index": 23
+              }
+            ]
+          },
+          {
+            "name": "file_description",
+            "type": "string",
+            "notes": "Fixed 32 octet field, padded with null characters.",
+            "maxLength": 32,
+            "minBytes": 32,
+            "maxBytes": 32
+          },
+          {
+            "name": "file_suffix",
+            "type": "string",
+            "notes": "Fixed 6 octet field without suffix separator, padded with null characters.",
+            "maxLength": 6,
+            "minBytes": 6,
+            "maxBytes": 6
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,64 +1,103 @@
-﻿using System.Collections.Concurrent;
+﻿namespace RDMSharpTests.Devices.Mock;
 
-namespace RDMSharpTests.Devices.Mock
+/// <summary>
+/// Simulates a shared RDM line (one DMX cable) with several responders.
+/// <para>
+/// A request is put on the line, every responder processes it and puts its response on the same line.
+/// On a real cable responses that are sent at the same time collide (the bits get mixed), which is
+/// exactly what the discovery (DISC_UNIQUE_BRANCH) relies on.
+/// </para>
+/// <para>
+/// The line works in rounds instead of time windows: a round is opened before the request is handed
+/// to the responders and closed when all of them have processed it. All responses put on the line
+/// during the round are merged (bitwise OR, like colliding signals) and delivered exactly once.
+/// This makes the result independent of thread scheduling and CPU load.
+/// </para>
+/// <para>
+/// Requirement: responders answer synchronously while the request is processed
+/// (true for the generated mock devices). A response that arrives outside of a round is delivered on its own.
+/// </para>
+/// </summary>
+internal static class SendReceivePipelineImitateRealConditions
 {
-    internal static class SendReceivePipelineImitateRealConditions
+    // Only one request can be on the line at a time.
+    private static readonly object lineLock = new object();
+    // Protects the responses of the currently open round, responders run in parallel.
+    private static readonly object roundLock = new object();
+    private static List<byte[]>? openRound;
+
+    public static Task RDMMessageSend(RDMMessage rdmMessage)
     {
-        private static byte[]? data;
-        private static SemaphoreSlim? semaphoreSlim;
-        private static SemaphoreSlim? semaphoreSlim2;
-        private static ConcurrentQueue<Task> queue = new ConcurrentQueue<Task>();
-        public static async Task RDMMessageSend(RDMMessage rdmMessage)
+        if (rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
+            putResponseOnLine(rdmMessage.BuildMessage());
+        else
         {
-            if (!rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
-                if (!rdmMessage.SourceUID.IsValidDeviceUID)
-                    rdmMessage.SourceUID = new UID(0x1fff, 0x44444444);
+            if (!rdmMessage.SourceUID.IsValidDeviceUID)
+                rdmMessage.SourceUID = new UID(0x1fff, 0x44444444);
+            sendRequest(rdmMessage);
+        }
+        return Task.CompletedTask;
+    }
 
-            if (rdmMessage.Command.HasFlag(ERDM_Command.RESPONSE))
+    private static void sendRequest(RDMMessage request)
+    {
+        List<byte[]> responses;
+        lock (lineLock)
+        {
+            lock (roundLock)
+                openRound = new List<byte[]>();
+            try
             {
-                if (semaphoreSlim == null)
-                    semaphoreSlim = new SemaphoreSlim(1);
-                if (semaphoreSlim2 == null)
-                    semaphoreSlim2 = new SemaphoreSlim(1);
-                if (data == null)
-                    data = rdmMessage.BuildMessage();
-                else
-                {
-                    queue.Enqueue(Task.Run(async () =>
-                    {
-                        await semaphoreSlim2.WaitAsync();
-                        var newData = rdmMessage.BuildMessage();
-                        for (int i = 0; i < Math.Min(newData.Length, data.Length); i++)
-                        {
-                            byte n = (byte)(newData.Length > i ? newData[i] : 0);
-                            data[i] |= n;
-                        }
-                        semaphoreSlim2.Release();
-                    }));
-                }
-
-                if (semaphoreSlim.CurrentCount == 1)
-                {
-                    await semaphoreSlim.WaitAsync();
-                    await Task.Delay(GlobalTimers.Instance.DiscoveryTimeout);
-                    while (queue.TryDequeue(out Task? waitOnMee)) // wait for all other MockDevices to put their Data on the Line, in real World this would be the time is not nessecary to wait for the other devices because they all act simultan but in the Test-Environment it needs time to itterate throu all Devices
-                        if (waitOnMee != null)
-                            await waitOnMee;
-                    await semaphoreSlim2.WaitAsync();
-
-                    RDMMessageReceivedResponse?.InvokeFailSafe(null, data);
-                    data = null;
-                    queue.Clear();
-                    semaphoreSlim2.Release();
-                    semaphoreSlim.Release();
-                }
+                // All responders process the request here and put their responses on the line.
+                RDMMessageReceivedRequest?.InvokeFailSafe(null, request);
             }
-            else
+            finally
             {
-                RDMMessageReceivedRequest?.InvokeFailSafe(null, rdmMessage);
+                lock (roundLock)
+                {
+                    responses = openRound!;
+                    openRound = null;
+                }
             }
         }
-        public static event EventHandler<RDMMessage>? RDMMessageReceivedRequest;
-        public static event EventHandler<byte[]>? RDMMessageReceivedResponse;
+
+        byte[]? lineData = mergeCollidingResponses(responses);
+        if (lineData != null)
+            RDMMessageReceivedResponse?.InvokeFailSafe(null, lineData);
     }
+
+    private static void putResponseOnLine(byte[] data)
+    {
+        lock (roundLock)
+        {
+            if (openRound != null)
+            {
+                openRound.Add(data);
+                return;
+            }
+        }
+        // Not part of a round (e.g. an asynchronous responder), deliver it on its own.
+        RDMMessageReceivedResponse?.InvokeFailSafe(null, data);
+    }
+
+    /// <summary>
+    /// Responses sent at the same time collide on the line, simulated by a bitwise OR of all responses.
+    /// A single response stays unchanged, no response means silence on the line.
+    /// </summary>
+    private static byte[]? mergeCollidingResponses(List<byte[]> responses)
+    {
+        if (responses.Count == 0)
+            return null;
+        if (responses.Count == 1)
+            return responses[0];
+
+        byte[] line = new byte[responses.Max(r => r.Length)];
+        foreach (byte[] response in responses)
+            for (int i = 0; i < response.Length; i++)
+                line[i] |= response[i];
+        return line;
+    }
+
+    public static event EventHandler<RDMMessage>? RDMMessageReceivedRequest;
+    public static event EventHandler<byte[]>? RDMMessageReceivedResponse;
 }

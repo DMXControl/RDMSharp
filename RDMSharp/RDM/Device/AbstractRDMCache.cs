@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using RDMSharp.Metadata;
+using RDMSharp.PayloadObject;
+using RDMSharp.RDM.Device;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,380 +10,502 @@ using System.Reflection;
 using System.Threading.Tasks;
 using static RDMSharp.PeerToPeerProcess;
 
-namespace RDMSharp
+namespace RDMSharp;
+
+public abstract class AbstractRDMCache : IDisposable
 {
-    public abstract class AbstractRDMCache : IDisposable
+    protected static ILogger Logger = Logging.CreateLogger<AbstractRDMCache>();
+    protected bool IsDisposed { get; private set; }
+    protected bool IsDisposing { get; private set; }
+    internal ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch> parameterValuesDataTreeBranch { get; private set; } = new ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch>();
+    protected ConcurrentDictionary<DataTreeObjectDependeciePropertyBag, object> parameterValuesDependeciePropertyBag { get; private set; } = new ConcurrentDictionary<DataTreeObjectDependeciePropertyBag, object>();
+
+    protected ConcurrentDictionary<ERDM_Parameter, object> parameterValues { get; private set; } = new ConcurrentDictionary<ERDM_Parameter, object>();
+    public virtual IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues
     {
-        protected static ILogger Logger = Logging.CreateLogger<AbstractRDMCache>();
-        protected bool IsDisposed { get; private set; }
-        protected bool IsDisposing { get; private set; }
-        internal ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch> parameterValuesDataTreeBranch { get; private set; } = new ConcurrentDictionary<ParameterDataCacheBag, DataTreeBranch>();
-        protected ConcurrentDictionary<DataTreeObjectDependeciePropertyBag, object> parameterValuesDependeciePropertyBag { get; private set; } = new ConcurrentDictionary<DataTreeObjectDependeciePropertyBag, object>();
+        get { return this.parameterValues?.AsReadOnly(); }
+    }
+    internal protected event EventHandler<ParameterValueAddedEventArgs> ParameterValueAdded;
+    internal protected event EventHandler<ParameterValueChangedEventArgs> ParameterValueChanged;
+    protected event EventHandler<ParameterRequestedEventArgs> ParameterRequested;
+    protected ConcurrentDictionary<ERDM_Parameter, ParameterMetadata> parameterMetadataBag { get; private set; } = new ConcurrentDictionary<ERDM_Parameter, ParameterMetadata>();
+    public virtual IReadOnlyDictionary<ERDM_Parameter, ParameterMetadata> ParameterMetadataBag
+    {
+        get { return this.parameterMetadataBag?.AsReadOnly(); }
+    }
+    internal protected event EventHandler<ParameterMetadata> ParameterMetadataAdded;
 
-        protected ConcurrentDictionary<ERDM_Parameter, object> parameterValues { get; private set; } = new ConcurrentDictionary<ERDM_Parameter, object>();
-        public virtual IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues
+    public class ParameterValueAddedEventArgs : EventArgs
+    {
+        public readonly ERDM_Parameter Parameter;
+        public readonly object Index;
+        public readonly object Value;
+
+        public ParameterValueAddedEventArgs(ERDM_Parameter parameter, object value, object index = null)
         {
-            get { return this.parameterValues?.AsReadOnly(); }
+            Parameter = parameter;
+            Index = index;
+            Value = value;
         }
-        protected event EventHandler<ParameterValueAddedEventArgs> ParameterValueAdded;
-        protected event EventHandler<ParameterValueChangedEventArgs> ParameterValueChanged;
-        protected event EventHandler<ParameterRequestedEventArgs> ParameterRequested;
+    }
+    public class ParameterValueChangedEventArgs : EventArgs
+    {
+        public readonly ERDM_Parameter Parameter;
+        public readonly object Index;
+        public readonly object NewValue;
+        public readonly object OldValue;
 
-        public class ParameterValueAddedEventArgs : EventArgs
+        public ParameterValueChangedEventArgs(ERDM_Parameter parameter, object newValue, object oldValue, object index = null)
         {
-            public readonly ERDM_Parameter Parameter;
-            public readonly object Index;
-            public readonly object Value;
-
-            public ParameterValueAddedEventArgs(ERDM_Parameter parameter, object value, object index = null)
-            {
-                Parameter = parameter;
-                Index = index;
-                Value = value;
-            }
+            Parameter = parameter;
+            Index = index;
+            NewValue = newValue;
+            OldValue = oldValue;
         }
-        public class ParameterValueChangedEventArgs : EventArgs
-        {
-            public readonly ERDM_Parameter Parameter;
-            public readonly object Index;
-            public readonly object NewValue;
-            public readonly object OldValue;
+    }
+    public class ParameterRequestedEventArgs : EventArgs
+    {
+        public readonly ERDM_Parameter Parameter;
+        public readonly object Index;
 
-            public ParameterValueChangedEventArgs(ERDM_Parameter parameter, object newValue, object oldValue, object index = null)
-            {
-                Parameter = parameter;
-                Index = index;
-                NewValue = newValue;
-                OldValue = oldValue;
-            }
+        public ParameterRequestedEventArgs(ERDM_Parameter parameter, object index = null)
+        {
+            Parameter = parameter;
+            Index = index;
         }
-        public class ParameterRequestedEventArgs : EventArgs
-        {
-            public readonly ERDM_Parameter Parameter;
-            public readonly object Index;
+    }
 
-            public ParameterRequestedEventArgs(ERDM_Parameter parameter, object index = null)
-            {
-                Parameter = parameter;
-                Index = index;
-            }
+    public AbstractRDMCache()
+    {
+
+    }
+
+    protected void InvokeParameterValueAdded(ParameterValueAddedEventArgs e)
+    {
+        this.ParameterValueAdded?.InvokeFailSafe(this, e);
+    }
+
+    protected void InvokeParameterValueChanged(ParameterValueChangedEventArgs e)
+    {
+        this.ParameterValueChanged?.InvokeFailSafe(this, e);
+    }
+
+    protected void updateParameterValuesDependeciePropertyBag(ERDM_Parameter parameter, DataTreeBranch dataTreeBranch)
+    {
+        object obj = dataTreeBranch.ParsedObject;
+        if (obj == null)
+            return;
+
+        foreach (var p in obj.GetType().GetProperties().Where(p => p.GetCustomAttributes<DataTreeObjectDependeciePropertyAttribute>().Any()).ToList())
+        {
+            object value = p.GetValue(obj);
+            foreach (var item in p.GetCustomAttributes<DataTreeObjectDependeciePropertyAttribute>())
+                parameterValuesDependeciePropertyBag.AddOrUpdate(item.Bag, value, (o1, o2) => value);
         }
+    }
 
-        public AbstractRDMCache()
+    /// <summary>
+    /// Whether the device declares support for <paramref name="parameter"/>. The base implementation knows no supported parameters.
+    /// </summary>
+    protected virtual bool IsParameterSupported(ERDM_Parameter parameter)
+    {
+        return true;
+    }
+
+    /// <summary>
+    /// A QUEUED_MESSAGE request with nothing queued is answered with an empty STATUS_MESSAGES response,
+    /// even if the device does not support STATUS_MESSAGES (E1.20 10.3.1). Such a response is only a
+    /// "nothing queued" signal and must not create a STATUS_MESSAGES value for a device without STATUS_MESSAGES.
+    /// </summary>
+    private bool isQueuedStatusMessagesOfUnsupportedParameter(ParameterBag requestBag, PeerToPeerProcess ptpProcess)
+    {
+        return requestBag.PID == ERDM_Parameter.QUEUED_MESSAGE
+            && ptpProcess.ParameterBag.PID == ERDM_Parameter.STATUS_MESSAGES
+            && !IsParameterSupported(ERDM_Parameter.STATUS_MESSAGES);
+    }
+
+    protected void updateParameterValuesDataTreeBranch(ParameterDataCacheBag bag, DataTreeBranch dataTreeBranch)
+    {
+        parameterValuesDataTreeBranch.AddOrUpdate(bag, dataTreeBranch, (o1, o2) => dataTreeBranch);
+
+        object valueToStore = dataTreeBranch.ParsedObject ?? dataTreeBranch;
+        // store first, raise one event afterwards: the factories of AddOrUpdate can run more than once when threads race,
+        // and a value that is polled again without a change is no change
+        object old = null;
+        bool added = false;
+        object stored;
+        if (bag.Index == null)
         {
-
-        }
-
-        protected void InvokeParameterValueAdded(ParameterValueAddedEventArgs e)
-        {
-            this.ParameterValueAdded?.InvokeFailSafe(this, e);
-        }
-
-
-        protected void updateParameterValuesDependeciePropertyBag(ERDM_Parameter parameter, DataTreeBranch dataTreeBranch)
-        {
-            object obj = dataTreeBranch.ParsedObject;
-            if (obj == null)
-                return;
-
-            foreach (var p in obj.GetType().GetProperties().Where(p => p.GetCustomAttributes<DataTreeObjectDependeciePropertyAttribute>().Any()).ToList())
-            {
-                object value = p.GetValue(obj);
-                foreach (var item in p.GetCustomAttributes<DataTreeObjectDependeciePropertyAttribute>())
-                    parameterValuesDependeciePropertyBag.AddOrUpdate(item.Bag, value, (o1, o2) => value);
-            }
-        }
-
-        protected void updateParameterValuesDataTreeBranch(ParameterDataCacheBag bag, DataTreeBranch dataTreeBranch)
-        {
-            parameterValuesDataTreeBranch.AddOrUpdate(bag, dataTreeBranch, (o1, o2) => dataTreeBranch);
-
-            object valueToStore = dataTreeBranch.ParsedObject ?? dataTreeBranch;
-            if (bag.Index == null)
-                this.parameterValues.AddOrUpdate(bag.Parameter, (o1) =>
+            stored = this.parameterValues.AddOrUpdate(bag.Parameter,
+                _ =>
                 {
-                    try
-                    {
-                        return valueToStore;
-                    }
-                    finally
-                    {
-                        ParameterValueAdded?.InvokeFailSafe(this, new ParameterValueAddedEventArgs(o1, valueToStore));
-                    }
-                }, (o1, o2) =>
+                    added = true;
+                    old = null;
+                    return valueToStore;
+                },
+                (_, o2) =>
                 {
-                    try
-                    {
-                        if(o2.GetType() != valueToStore.GetType())
-                        {
-                            if(o2 is IRDMPayloadObjectOneOf oneOf)
-                            {
-                                oneOf = (IRDMPayloadObjectOneOf)Activator.CreateInstance(oneOf.GetType(), valueToStore, oneOf.Count);
-                                valueToStore = oneOf;
-                            }
-                        }
-                        return valueToStore;
-                    }
-                    finally
-                    {
-                        if (o2 != valueToStore)
-                            ParameterValueChanged?.InvokeFailSafe(this, new ParameterValueChangedEventArgs(o1, valueToStore, o2));
-                    }
+                    added = false;
+                    old = o2;
+                    if (o2 is IRDMPayloadObjectOneOf oneOf && o2.GetType() != valueToStore.GetType())
+                        return (IRDMPayloadObjectOneOf)Activator.CreateInstance(oneOf.GetType(), valueToStore, oneOf.Count);
+                    return valueToStore;
                 });
+        }
+        else
+        {
+            stored = valueToStore;
+            // the dictionary of the parameter, then the entry of the index: the update factory only reports what was stored before
+            var dict = (ConcurrentDictionary<object, object>)this.parameterValues.AddOrUpdate(bag.Parameter,
+                _ => new ConcurrentDictionary<object, object>(),
+                (_, cd) => cd as ConcurrentDictionary<object, object> ?? new ConcurrentDictionary<object, object>());
+            dict.AddOrUpdate(bag.Index,
+                _ =>
+                {
+                    added = true;
+                    old = null;
+                    return valueToStore;
+                },
+                (_, o2) =>
+                {
+                    added = false;
+                    old = o2;
+                    return valueToStore;
+                });
+        }
 
-            else
+        if (added)
+            ParameterValueAdded?.InvokeFailSafe(this, new ParameterValueAddedEventArgs(bag.Parameter, stored, bag.Index));
+        else if (!ValuesEqual(old, stored))
+            ParameterValueChanged?.InvokeFailSafe(this, new ParameterValueChangedEventArgs(bag.Parameter, stored, old, bag.Index));
+
+        ParameterRequested?.InvokeFailSafe(this, new ParameterRequestedEventArgs(bag.Parameter, bag.Index));
+    }
+    /// <summary>
+    /// Compares parameter values by value: payload objects by their Parameter Data, arrays and lists element by element.
+    /// A GET answered again with the same data creates a new object, that is no change.
+    /// </summary>
+    internal static bool ValuesEqual(object a, object b)
+    {
+        if (ReferenceEquals(a, b))
+            return true;
+        if (a is null || b is null)
+            return false;
+        if (a.GetType() != b.GetType())
+            return false;
+        if (a is not string && a is not IRDMPayloadObject && a is not DataTreeBranch
+            && a is System.Collections.IEnumerable enumerableA && b is System.Collections.IEnumerable enumerableB)
+        {
+            var enumeratorA = enumerableA.GetEnumerator();
+            var enumeratorB = enumerableB.GetEnumerator();
+            while (true)
             {
-                this.parameterValues.AddOrUpdate(bag.Parameter,
-                    (pid) =>
-                    //Add
-                    {
-                        try
-                        {
-                            ConcurrentDictionary<object, object> dict = new ConcurrentDictionary<object, object>();
-                            dict.AddOrUpdate(bag.Index, valueToStore, (o1, o2) => valueToStore);
-                            return dict;
-                        }
-                        finally
-                        {
-                            ParameterValueAdded?.InvokeFailSafe(this, new ParameterValueAddedEventArgs(pid, valueToStore, bag.Index));
-                        }
-                    },
-                    (pid, cd) =>
-                    // Update
-                    {
-                        object old = null;
-                        bool changed = false;
-                        try
-                        {
-                            ConcurrentDictionary<object, object> dict = cd as ConcurrentDictionary<object, object> ?? new ConcurrentDictionary<object, object>();
-                            dict.AddOrUpdate(bag.Index, valueToStore, (_, o2) =>
-                            {
-                                if (o2 == valueToStore)
-                                    return valueToStore;
-
-                                old = o2;
-                                changed = true;
-                                return valueToStore;
-                            });
-                            return dict;
-                        }
-                        catch(Exception ex)
-                        {
-                            Logger?.LogError(ex);
-                            return null;
-                        }
-                        finally
-                        {
-                            if (changed)
-                                ParameterValueChanged?.InvokeFailSafe(this, new ParameterValueChangedEventArgs(pid, valueToStore, old, bag.Index));
-                            else
-                                ParameterValueAdded?.InvokeFailSafe(this, new ParameterValueAddedEventArgs(pid, valueToStore, bag.Index));
-                        }
-                    });
+                bool hasA = enumeratorA.MoveNext();
+                bool hasB = enumeratorB.MoveNext();
+                if (hasA != hasB)
+                    return false;
+                if (!hasA)
+                    return true;
+                if (!ValuesEqual(enumeratorA.Current, enumeratorB.Current))
+                    return false;
             }
+        }
+        return a.Equals(b);
+    }
+    protected virtual async Task OnSendRDMMessage(RDMMessage rdmMessage)
+    {
+        await Task.CompletedTask;
+    }
+    protected virtual async Task OnResponseMessage(RDMMessage rdmMessage)
+    {
+        await Task.CompletedTask;
+    }
 
-            ParameterRequested?.InvokeFailSafe(this, new ParameterRequestedEventArgs(bag.Parameter, bag.Index));
-        }
-        protected virtual async Task OnSendRDMMessage(RDMMessage rdmMessage)
-        {
-            await Task.CompletedTask;
-        }
-        protected virtual async Task OnResponseMessage(RDMMessage rdmMessage)
-        {
-            await Task.CompletedTask;
-        }
+    internal protected void tryAddParameterMetadata(ERDM_Parameter pid)
+    {
+        if (!parameterMetadataBag.ContainsKey(pid))
+            if (parameterMetadataBag.TryAdd(pid, new ParameterMetadata(pid)))
+                ParameterMetadataAdded?.InvokeFailSafe(this, parameterMetadataBag[pid]);
+    }
+    internal async Task runPeerToPeerProcess(PeerToPeerProcess ptpProcess)
+    {
+        ptpProcess.BeforeSendMessage = OnSendRDMMessage;
+        ptpProcess.ResponseMessage = OnResponseMessage;
+        tryAddParameterMetadata(ptpProcess.ParameterBag.PID);
 
-        protected async Task runPeerToPeerProcess(PeerToPeerProcess ptpProcess)
+        parameterMetadataBag[ptpProcess.ParameterBag.PID].AddPeerToPeerProcess(ptpProcess);
+        await ptpProcess?.Run();
+        try
         {
-            ptpProcess.BeforeSendMessage = OnSendRDMMessage;
-            ptpProcess.ResponseMessage = OnResponseMessage;
-            await ptpProcess?.Run();
+            if (ptpProcess.TimedOut)
+                await OnProcessTimedOut(ptpProcess);
+            else if (ptpProcess.State == EPeerToPeerProcessState.Finished || ptpProcess.NackReason.HasValue)
+                OnProcessAnswered(ptpProcess);
         }
-        protected async Task<bool> requestSetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
+        catch (Exception e)
         {
-            PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.SET_COMMAND, uid, subDevice, parameterBag);
+            Logger?.LogError(e);
+        }
+    }
+
+    /// <summary>
+    /// A request got no answer at all. It says nothing about the parameter yet: the device can ignore a parameter it does not support
+    /// (faulty implementation), or it is too busy or not reachable.
+    /// </summary>
+    protected virtual Task OnProcessTimedOut(PeerToPeerProcess process)
+    {
+        return Task.CompletedTask;
+    }
+    /// <summary>
+    /// The device answered a request (an ACK or a NACK).
+    /// </summary>
+    protected virtual void OnProcessAnswered(PeerToPeerProcess process)
+    {
+    }
+    /// <summary>
+    /// Asks for DEVICE_INFO, every device has to answer it. Tells a device that ignores one parameter from a device that
+    /// does not answer at all (not reachable, or too busy).
+    /// </summary>
+    protected async Task<bool> probeAlive(UID uid, SubDevice subDevice)
+    {
+        var probe = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, new ParameterBag(ERDM_Parameter.DEVICE_INFO));
+        probe.BeforeSendMessage = OnSendRDMMessage;
+        probe.ResponseMessage = OnResponseMessage;
+        await probe.Run();
+        return probe.State == EPeerToPeerProcessState.Finished || probe.NackReason.HasValue;
+    }
+    protected async Task<bool> requestSetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
+    {
+        PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.SET_COMMAND, uid, subDevice, parameterBag);
+        await runPeerToPeerProcess(ptpProcess);
+        if (!ptpProcess.ResponsePayloadObject.IsUnset)
+        {
+            updateParameterValuesDependeciePropertyBag(parameterBag.PID, ptpProcess.ResponsePayloadObject);
+            updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(parameterBag.PID), ptpProcess.ResponsePayloadObject);
+            return ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Finished;
+        }
+        return false;
+    }
+    protected async Task<bool> requestSetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice, object value)
+    {
+        define.GetCommand(Metadata.JSON.Command.ECommandDublicate.SetRequest, out var cmd);
+        var req = cmd.Value.GetRequiredProperties();
+        //if (req.Length == 1)
+        //{
+        DataTreeBranch dataTreeBranch = DataTreeBranch.FromObject(value, null, parameterBag, ERDM_Command.SET_COMMAND);
+        PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.SET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
+        await runPeerToPeerProcess(ptpProcess);
+        if (ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Failed)
+            throw new Exception($"Failed to set parameter {parameterBag.PID} with value {value}");
+        if (ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Finished)
+        {
+            if (ptpProcess.ResponsePayloadObject.IsEmpty && define.GetResponse.HasValue)
+            {
+                if (!(define.GetResponse.Equals(define.SetRequest) || define.SetRequest.Value.EnumValue == Metadata.JSON.Command.ECommandDublicate.GetResponse))
+                {
+                    if (define.GetResponse.Value.ListOfFields.Length == 1)
+                    {
+                        var first = dataTreeBranch.Children.FirstOrDefault(c => string.Equals(c.Name, define.GetResponse.Value.ListOfFields[0].ObjectType.Name));
+                        dataTreeBranch = DataTreeBranch.FromObject(first.Value, null, parameterBag, ERDM_Command.GET_COMMAND_RESPONSE);
+
+                        updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), dataTreeBranch);
+                    }
+                    else if (define.GetRequest.HasValue && define.GetRequest.Value.GetIsEmpty())
+                    {
+                        // the cached value can not be built from the SET (e.g. DMX_PERSONALITY: SET the personality, GET personality and count):
+                        // read it again, else the cache keeps the old value although the device changed
+                        await requestGetParameterWithEmptyPayload(parameterBag, define, uid, subDevice);
+                    }
+                    return true;
+                }
+                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), dataTreeBranch);
+                if (this.ParameterValues.TryGetValue(parameterBag.PID, out object cacheValue))
+                {
+                    if (!ValuesEqual(value, cacheValue))
+                        throw new Exception($"Failed to set parameter {parameterBag.PID} with value {value}, cache value is {cacheValue}");
+                }
+            }
+            else if (!ptpProcess.ResponsePayloadObject.IsUnset && define.GetResponse.HasValue)
+                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), ptpProcess.ResponsePayloadObject);
+            return true;
+        }
+        //}
+        return false;
+    }
+
+    protected async Task<byte> requestGetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
+    {
+        try
+        {
+            PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag);
             await runPeerToPeerProcess(ptpProcess);
             if (!ptpProcess.ResponsePayloadObject.IsUnset)
             {
-                updateParameterValuesDependeciePropertyBag(parameterBag.PID, ptpProcess.ResponsePayloadObject);
-                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(parameterBag.PID), ptpProcess.ResponsePayloadObject);
-                return ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Finished;
+                updateParameterValuesDependeciePropertyBag(ptpProcess.ParameterBag.PID, ptpProcess.ResponsePayloadObject);
+                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), ptpProcess.ResponsePayloadObject);
             }
-            return false;
+            return ptpProcess.MessageCounter;
         }
-        protected async Task<bool> requestSetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice, object value)
+        catch (Exception e)
         {
-            define.GetCommand(Metadata.JSON.Command.ECommandDublicate.SetRequest, out var cmd);
-            var req = cmd.Value.GetRequiredProperties();
-            if (req.Length == 1)
-            {
-                DataTreeBranch dataTreeBranch = DataTreeBranch.FromObject(value, null, parameterBag, ERDM_Command.SET_COMMAND);
-                PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.SET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
-                await runPeerToPeerProcess(ptpProcess);
-                if (ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Failed)
-                    throw new Exception($"Failed to set parameter {parameterBag.PID} with value {value}");
-                if (ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Finished)
-                {
-                    if (ptpProcess.ResponsePayloadObject.IsEmpty && define.GetResponse.HasValue)
-                    {
-                        updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), dataTreeBranch);
-                        if (this.ParameterValues.TryGetValue(parameterBag.PID, out object cacheValue))
-                        {
-                            if (value != cacheValue)
-                                throw new Exception($"Failed to set parameter {parameterBag.PID} with value {value}, cache value is {cacheValue}");
-                        }
-                    }
-                    else if (!ptpProcess.ResponsePayloadObject.IsUnset && define.GetResponse.HasValue)
-                        updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), ptpProcess.ResponsePayloadObject);
-                    return true;
-                }
-            }
-            return false;
+            Logger?.LogError(e, $"Failed to get parameter {parameterBag.PID} with empty payload");
         }
-
-        protected async Task<byte> requestGetParameterWithEmptyPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice)
+        return 0;
+    }
+    protected async Task<RequestResult> requestGetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice, object i = null)
+    {
+        define.GetCommand(Metadata.JSON.Command.ECommandDublicate.GetRequest, out var cmd);
+        var req = cmd.Value.GetRequiredProperties();
+        if (req.Length == 1 && req[0] is Metadata.JSON.OneOfTypes.IIntegerType intType)
         {
             try
             {
-                PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag);
-                await runPeerToPeerProcess(ptpProcess);
-                if (!ptpProcess.ResponsePayloadObject.IsUnset)
+                string name = intType.Name;
+                var depBag = parameterValuesDependeciePropertyBag.FirstOrDefault(bag => bag.Key.Parameter == parameterBag.PID && bag.Key.Command == Metadata.JSON.Command.ECommandDublicate.GetRequest && string.Equals(bag.Key.Name, name));
+                object dependecyValue = depBag.Value;
+                switch (parameterBag.PID)
                 {
-                    updateParameterValuesDependeciePropertyBag(ptpProcess.ParameterBag.PID, ptpProcess.ResponsePayloadObject);
-                    updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), ptpProcess.ResponsePayloadObject);
+                    case ERDM_Parameter.STATUS_MESSAGES:
+                        i = (byte)0;
+                        break;
                 }
-                return ptpProcess.MessageCounter;
-            }
-            catch(Exception e)
-            {
-                Logger?.LogError(e, $"Failed to get parameter {parameterBag.PID} with empty payload");
-            }
-            return 0;
-        }
-        protected async Task<RequestResult> requestGetParameterWithPayload(ParameterBag parameterBag, MetadataJSONObjectDefine define, UID uid, SubDevice subDevice, object i=null)
-        {
-            define.GetCommand(Metadata.JSON.Command.ECommandDublicate.GetRequest, out var cmd);
-            var req = cmd.Value.GetRequiredProperties();
-            if (req.Length == 1 && req[0] is Metadata.JSON.OneOfTypes.IIntegerType intType)
-            {
-                try
+
+                if (i == null)
                 {
-                    string name = intType.Name;
-                    var depBag = parameterValuesDependeciePropertyBag.FirstOrDefault(bag => bag.Key.Parameter == parameterBag.PID && bag.Key.Command == Metadata.JSON.Command.ECommandDublicate.GetRequest && string.Equals(bag.Key.Name, name));
-                    IComparable dependecyValue = (IComparable)depBag.Value;
-
-                    if (i == null)
+                    if (dependecyValue == null)
                     {
-                        if(dependecyValue == null)
+                        switch (parameterBag.PID)
                         {
-                            switch (parameterBag.PID)
-                            {
-                                case ERDM_Parameter.STATUS_ID_DESCRIPTION:
-                                    break;
-                                default:
-                                    Logger?.LogDebug($"No {nameof(dependecyValue)} found for {parameterBag.PID}");
-                                    dependecyValue = (IComparable)intType.GetMaximum();
-                                    break;
-                            }
+                            case ERDM_Parameter.STATUS_ID_DESCRIPTION:
+                            case ERDM_Parameter.STATUS_MESSAGES:
+                            case ERDM_Parameter.METADATA_PARAMETER_VERSION:
+                            case ERDM_Parameter.METADATA_JSON:
+                                break;
+
+                            //case ERDM_Parameter.IDENTIFY_ENDPOINT:
+                            //case ERDM_Parameter.ENDPOINT_TO_UNIVERSE:
+                            //case ERDM_Parameter.ENDPOINT_TIMING:
+                            //case ERDM_Parameter.ENDPOINT_LABEL:
+                            //case ERDM_Parameter.ENDPOINT_MODE:
+                            //case ERDM_Parameter.BINDING_CONTROL_FIELDS:
+                            //case ERDM_Parameter.DISCOVERY_STATE:
+                            //case ERDM_Parameter.ENDPOINT_RESPONDER_LIST_CHANGE:
+                            //case ERDM_Parameter.BACKGROUND_DISCOVERY:
+                            //case ERDM_Parameter.RDM_TRAFFIC_ENABLE:
+                            //case ERDM_Parameter.ENDPOINT_RESPONDERS:
+                            //    if (this.parameterValues.TryGetValue(ERDM_Parameter.ENDPOINT_LIST, out object value))
+                            //    {
+                            //        if (value is EndpointDescriptor[] endpoints)
+                            //            dependecyValue = (ushort)endpoints.Max(ep => ep.EndpointId);
+                            //    }
+                            //    break;
+                            default:
+                                Logger?.LogDebug($"No {nameof(dependecyValue)} found for {parameterBag.PID}");
+                                dependecyValue = (IComparable)intType.GetMaximum();
+                                break;
                         }
-                        if (dependecyValue != null)
+                    }
+                    if (dependecyValue != null)
+                    {
+                        if (!dependecyValue.GetType().IsArray && dependecyValue is IComparable comparable_dependecyValue)
                         {
-                            if (!dependecyValue.GetType().IsArray)
+                            i = intType.GetMinimum();
+                            object max = intType.GetMaximum();
+                            object count = Convert.ChangeType(0, i.GetType());
+                            object dataOutOfRangeMin = Convert.ChangeType(2, i.GetType());
+                            while (comparable_dependecyValue.CompareTo(count) > 0)
                             {
-                                i = intType.GetMinimum();
-                                object max = intType.GetMaximum();
-                                object count = Convert.ChangeType(0, i.GetType());
-                                while (dependecyValue.CompareTo(count) > 0)
+                                if (!intType.IsInRange(i))
+                                    continue;
+
+                                if (((IComparable)max).CompareTo(i) == -1)
+                                    return new RequestResult(0);
+
+                                DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
+                                PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
+                                await runPeerToPeerProcess(ptpProcess);
+                                if (ptpProcess.State == EPeerToPeerProcessState.Failed && !ptpProcess.TimedOut && (ptpProcess.NackReason == ERDM_NackReason.DATA_OUT_OF_RANGE || ptpProcess.NackReason == ERDM_NackReason.UNKNOWN_PID || ptpProcess.NackReason is null))
                                 {
-                                    if (!intType.IsInRange(i))
-                                        continue;
-
-                                    if (((IComparable)max).CompareTo(i) == -1)
-                                        return new RequestResult(0);
-
-                                    DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
-                                    PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
-                                    await runPeerToPeerProcess(ptpProcess);
-                                    if (ptpProcess.State == EPeerToPeerProcessState.Failed && ptpProcess.NackReason.Contains(ERDM_NackReason.DATA_OUT_OF_RANGE))
+                                    if (((IComparable)dataOutOfRangeMin).CompareTo(i) < 0)
                                         return new RequestResult(ptpProcess);
-                                    if (!ptpProcess.ResponsePayloadObject.IsUnset)
-                                        updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, i), ptpProcess.ResponsePayloadObject);
+                                }
+                                if (!ptpProcess.ResponsePayloadObject.IsUnset)
+                                    updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, i), ptpProcess.ResponsePayloadObject);
 
-                                    i = intType.IncrementJumpRange(i);
-                                    count = intType.Increment(count);
-                                }
+                                i = intType.IncrementJumpRange(i);
+                                count = intType.Increment(count);
                             }
-                            else
-                            {
-                                foreach (var item in (Array)dependecyValue)
-                                {
-                                    var type = item.GetType();
-                                    i = type.GetProperty(depBag.Key.Property);
-                                    DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
-                                    PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
-                                    await runPeerToPeerProcess(ptpProcess);
-                                    if (!ptpProcess.ResponsePayloadObject.IsUnset)
-                                        updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, i), ptpProcess.ResponsePayloadObject);
-                                }
-                            }
-                            return new RequestResult(0);
                         }
-                    }
-                    else
-                    {
-                        DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
-                        PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
-                        await runPeerToPeerProcess(ptpProcess);
-                        if (!ptpProcess.ResponsePayloadObject.IsUnset)
-                            updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, parameterBag.PID == ERDM_Parameter.QUEUED_MESSAGE || parameterBag.PID == ERDM_Parameter.STATUS_MESSAGES ? null : i), ptpProcess.ResponsePayloadObject);
-                        return new RequestResult(ptpProcess);
+                        else
+                        {
+                            foreach (var item in (Array)dependecyValue)
+                            {
+                                var type = item.GetType();
+                                i = type.GetProperty(depBag.Key.Property).GetValue(item);
+                                DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
+                                PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
+                                await runPeerToPeerProcess(ptpProcess);
+                                if (!ptpProcess.ResponsePayloadObject.IsUnset)
+                                    updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, i), ptpProcess.ResponsePayloadObject);
+                            }
+                        }
+                        return new RequestResult(0);
                     }
                 }
-                catch (Exception e)
+                else
                 {
-                    Logger?.LogError(e, $"Failed to get parameter {parameterBag.PID} with Bag: {parameterBag}");
+                    DataTreeBranch dataTreeBranch = new DataTreeBranch(new DataTree(name, 0, i));
+                    PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, uid, subDevice, parameterBag, dataTreeBranch);
+                    await runPeerToPeerProcess(ptpProcess);
+                    if (!ptpProcess.ResponsePayloadObject.IsUnset && !isQueuedStatusMessagesOfUnsupportedParameter(parameterBag, ptpProcess))
+                        updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID, parameterBag.PID == ERDM_Parameter.QUEUED_MESSAGE || parameterBag.PID == ERDM_Parameter.STATUS_MESSAGES ? null : i), ptpProcess.ResponsePayloadObject);
+                    return new RequestResult(ptpProcess);
                 }
             }
-            return new RequestResult(0);
+            catch (Exception e)
+            {
+                Logger?.LogError(e, $"Failed to get parameter {parameterBag.PID} with Bag: {parameterBag}");
+            }
         }
+        return new RequestResult(0);
+    }
 
 
-        public void Dispose()
+    public void Dispose()
+    {
+        if (this.IsDisposed || this.IsDisposing)
+            return;
+
+        this.IsDisposing = true;
+
+        this.parameterValues.Clear();
+        this.parameterValues = null;
+        this.parameterValuesDataTreeBranch.Clear();
+        this.parameterValuesDataTreeBranch = null;
+        this.parameterValuesDependeciePropertyBag.Clear();
+        this.parameterValuesDependeciePropertyBag = null;
+        this.IsDisposed = true;
+        this.IsDisposing = false;
+    }
+
+    public class RequestResult
+    {
+        public readonly byte MessageCounter;
+        public readonly EPeerToPeerProcessState State;
+        public readonly Exception Exception;
+
+        public RequestResult(PeerToPeerProcess peerToPeerProcess) : this(peerToPeerProcess.MessageCounter, peerToPeerProcess.State)
         {
-            if (this.IsDisposed || this.IsDisposing)
-                return;
-
-            this.IsDisposing = true;
-
-            this.parameterValues.Clear();
-            this.parameterValues = null;
-            this.parameterValuesDataTreeBranch.Clear();
-            this.parameterValuesDataTreeBranch = null;
-            this.parameterValuesDependeciePropertyBag.Clear();
-            this.parameterValuesDependeciePropertyBag = null;
-            this.IsDisposed = true;
-            this.IsDisposing = false;
+            Exception = peerToPeerProcess.Exception;
         }
-
-        public class RequestResult
+        public RequestResult(byte messageCounter, EPeerToPeerProcessState state)
         {
-            public readonly byte MessageCounter;
-            public readonly EPeerToPeerProcessState State;
-            public readonly Exception Exception;
-
-            public RequestResult(PeerToPeerProcess peerToPeerProcess) : this(peerToPeerProcess.MessageCounter, peerToPeerProcess.State)
-            {
-                Exception = peerToPeerProcess.Exception;
-            }
-            public RequestResult(byte messageCounter, EPeerToPeerProcessState state)
-            {
-                MessageCounter = messageCounter;
-                State = state;
-            }
-            public RequestResult(byte messageCounter)
-            {
-                MessageCounter = messageCounter;
-            }
+            MessageCounter = messageCounter;
+            State = state;
+        }
+        public RequestResult(byte messageCounter)
+        {
+            MessageCounter = messageCounter;
         }
     }
 }

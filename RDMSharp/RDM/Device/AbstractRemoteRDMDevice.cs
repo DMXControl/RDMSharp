@@ -1,5 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+using RDMSharp.Extensions;
 using RDMSharp.Metadata;
+using RDMSharp.PayloadObject;
+using RDMSharp.RDM.Device;
+using RDMSharp.RDM.Device.Module;
+using RDMSharp.RDM.Device.Module.Generic;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,443 +13,830 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace RDMSharp
+namespace RDMSharp;
+
+public interface IRDMRemoteDevice : IRDMDevice
 {
-    public interface IRDMRemoteDevice: IRDMDevice
+    bool AllDataPulled { get; }
+    bool Present { get; }
+    DateTime LastSeen { get; }
+    ushort Universe { get; }
+
+    Task<bool> SetParameter(ERDM_Parameter parameter, object value = null);
+}
+public interface IRDMRemoteSubDevice : IRDMRemoteDevice
+{
+}
+public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice, IRDMRemoteDevice
+{
+    public sealed override bool IsGenerated => false;
+
+    private readonly ConcurrentDictionary<byte, Sensor> sensors = new ConcurrentDictionary<byte, Sensor>();
+    public sealed override IReadOnlyDictionary<byte, Sensor> Sensors { get { return sensors.AsReadOnly(); } }
+    public sealed override IReadOnlyDictionary<ushort, Slot> Slots { get { return PersonalityModel?.Slots; } }
+
+
+    private readonly ConcurrentDictionary<int, RDMStatusMessage> statusMessages = new ConcurrentDictionary<int, RDMStatusMessage>();
+    public sealed override IReadOnlyDictionary<int, RDMStatusMessage> StatusMessages { get { return statusMessages.AsReadOnly(); } }
+
+    protected ConcurrentQueue<ParameterUpdatedBag> ParameterUpdatedBag = new ConcurrentQueue<ParameterUpdatedBag>();
+
+    private RDMDeviceInfo deviceInfo;
+    public override RDMDeviceInfo DeviceInfo { get { return deviceInfo; } }
+
+    private RDMDeviceModel deviceModel;
+    public RDMDeviceModel DeviceModel
     {
-        bool AllDataPulled { get; }
-        bool Present { get; }
-        DateTime LastSeen { get; }
-        Task<bool> SetParameter(ERDM_Parameter parameter, object value = null);
+        get { return deviceModel; }
+        private set
+        {
+            if (deviceModel == value)
+                return;
+            deviceModel = value;
+            OnPropertyChanged(nameof(DeviceModel));
+        }
     }
-    public interface IRDMRemoteSubDevice : IRDMRemoteDevice
+    protected override bool IsParameterSupported(ERDM_Parameter parameter)
+    {
+        var supportedParameters = DeviceModel?.GetSupportedParameters();
+        if (supportedParameters is null)
+            return true; // unknown, keep the previous behavior
+        return supportedParameters.Any(spm => spm.Parameter == parameter);
+    }
+    private RDMPersonalityModel personalityModel;
+    public RDMPersonalityModel PersonalityModel
+    {
+        get { return personalityModel; }
+        private set
+        {
+            if (personalityModel == value)
+                return;
+            personalityModel = value;
+            OnPropertyChanged(nameof(PersonalityModel));
+        }
+    }
+    public sealed override IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues
+    {
+        get
+        {
+            if (DeviceModel == null)
+                return parameterValues.AsReadOnly();
+
+            return DeviceModel.ParameterValues.Where(x => !parameterValues.ContainsKey(x.Key)).Concat(parameterValues).ToDictionary(k => k.Key, v => v.Value).AsReadOnly();
+        }
+    }
+    public sealed override IReadOnlyDictionary<ERDM_Parameter, ParameterMetadata> ParameterMetadataBag
+    {
+        get
+        {
+            IReadOnlyDictionary<ERDM_Parameter, ParameterMetadata> deviceModelParameterMetadataBag = null;
+            IReadOnlyDictionary<ERDM_Parameter, ParameterMetadata> personalityModelParameterMetadataBag = null;
+            if (PersonalityModel is not null)
+                personalityModelParameterMetadataBag = PersonalityModel.ParameterMetadataBag.Where(x => !parameterMetadataBag.ContainsKey(x.Key)).ToDictionary(k => k.Key, v => v.Value).AsReadOnly();
+            if (DeviceModel is not null)
+                deviceModelParameterMetadataBag = DeviceModel.ParameterMetadataBag.Where(x => !parameterMetadataBag.ContainsKey(x.Key) && !(personalityModelParameterMetadataBag?.ContainsKey(x.Key) ?? false)).ToDictionary(k => k.Key, v => v.Value).AsReadOnly();
+
+            if (deviceModelParameterMetadataBag is not null || personalityModelParameterMetadataBag is not null)
+                return parameterMetadataBag.Concat(deviceModelParameterMetadataBag ?? Enumerable.Empty<KeyValuePair<ERDM_Parameter, ParameterMetadata>>())
+                    .Concat(personalityModelParameterMetadataBag ?? Enumerable.Empty<KeyValuePair<ERDM_Parameter, ParameterMetadata>>())
+                    .ToDictionary(k => k.Key, v => v.Value)
+                    .AsReadOnly();
+
+            return parameterMetadataBag.AsReadOnly();
+        }
+    }
+
+    private readonly List<IModule> _modules = new List<IModule>();
+    private readonly object _modulesLock = new object();
+    /// <summary>A snapshot of the modules: the list changes while the device is initialized (generic modules are added later).</summary>
+    public IReadOnlyCollection<IModule> Modules
+    {
+        get
+        {
+            lock (_modulesLock)
+                return _modules.ToArray();
+        }
+    }
+
+    private bool allDataPulled;
+    public bool AllDataPulled
+    {
+        get
+        {
+            return allDataPulled;
+        }
+        private set
+        {
+            if (allDataPulled == value)
+                return;
+            allDataPulled = value;
+            OnPropertyChanged(nameof(AllDataPulled));
+        }
+    }
+
+    private DateTime lastSeen;
+    public DateTime LastSeen
+    {
+        get
+        {
+            return lastSeen;
+        }
+        private set
+        {
+            if (lastSeen == value)
+                return;
+            lastSeen = value;
+            OnPropertyChanged(nameof(LastSeen));
+        }
+    }
+
+    private DateTime lastSendQueuedMessage;
+
+    private bool present;
+    public bool Present
+    {
+        get
+        {
+            return present;
+        }
+        internal set
+        {
+            if (present == value)
+                return;
+            present = value;
+            OnPropertyChanged(nameof(Present));
+        }
+    }
+
+    private ushort universe;
+    public ushort Universe
+    {
+        get
+        {
+            return universe;
+        }
+        protected set
+        {
+            if (universe == value)
+                return;
+            universe = value;
+            OnPropertyChanged(nameof(Universe));
+        }
+    }
+
+    public AbstractRemoteRDMDevice(UID uid) : base(uid)
     {
     }
-    public abstract class AbstractRemoteRDMDevice : AbstractRDMDevice , IRDMRemoteDevice
+    public AbstractRemoteRDMDevice(UID uid, SubDevice? subDevice = null) : base(uid, subDevice)
     {
-        public sealed override bool IsGenerated => false;
+        if (subDevice.HasValue && subDevice.Value.IsBroadcast)
+            throw new NotSupportedException("A SubDevice can't be Broadcast.");
+    }
+    protected override async Task initialize(RDMDeviceInfo deviceInfo = null)
+    {
+        Logger?.LogDebug($"Remote RDM Device {UID} SubDevice: {Subdevice} initializing.");
+        await base.initialize(deviceInfo);
+        GlobalTimers.Instance.PresentUpdateTimerElapsed += Instance_PresentUpdateTimerElapsed;
+        ParameterValueAdded += AbstractRDMDevice_ParameterValueAdded;
+        ParameterValueChanged += AbstractRDMDevice_ParameterValueChanged;
+        ParameterRequested += AbstractRDMDevice_ParameterRequested;
+        await requestDeviceInfo(deviceInfo);
+        await Task.Delay(100);
+        await UpdateModules();
+        Logger?.LogDebug($"Remote RDM Device {UID} SubDevice: {Subdevice} initialized.");
 
-        private readonly ConcurrentDictionary<byte, Sensor> sensors = new ConcurrentDictionary<byte, Sensor>();
-        public sealed override IReadOnlyDictionary<byte, Sensor> Sensors { get { return sensors.AsReadOnly(); } }
-        public sealed override IReadOnlyDictionary<ushort, Slot> Slots { get { return PersonalityModel?.Slots; } }
+        RDMSharp.Instance.AddRemoteDeviceToCache(this);
+    }
 
+    private async Task UpdateModules()
+    {
+        //while (deviceModel is null)
+        //{
+        //    await Task.Delay(100);
+        //}
 
-        private readonly ConcurrentDictionary<int, RDMStatusMessage> statusMessages = new ConcurrentDictionary<int, RDMStatusMessage>();
-        public sealed override IReadOnlyDictionary<int, RDMStatusMessage> StatusMessages { get { return statusMessages.AsReadOnly(); } }
-
-        protected ConcurrentQueue<ParameterUpdatedBag> ParameterUpdatedBag = new ConcurrentQueue<ParameterUpdatedBag>();
-
-        private RDMDeviceInfo deviceInfo;
-        public override RDMDeviceInfo DeviceInfo { get { return deviceInfo; } }
-
-        private RDMDeviceModel deviceModel;
-        public RDMDeviceModel DeviceModel
+        bool matched = ExtensionsManager.Instance.TryGetMatchingModules(this, out var modules);
+        Logger?.LogDebug($"{UID} SubDevice: {Subdevice}: {modules?.Count ?? 0} module(s) for {DeviceModel?.GetSupportedParameters()?.Count ?? 0} supported parameter(s)");
+        if (matched)
         {
-            get { return deviceModel; }
-            private set
+            lock (_modulesLock)
             {
-                if (deviceModel == value)
-                    return;
-                deviceModel = value;
-                OnPropertyChanged(nameof(DeviceModel));
+                disposeModules();
+                this._modules.AddRange(modules);
             }
+            foreach (var module in modules.OfType<AbstractParameterIDModule>())
+                module.ApplyCachedValues();
+            OnPropertyChanged(nameof(Modules));
         }
-        private RDMPersonalityModel personalityModel;
-        public RDMPersonalityModel PersonalityModel
-        {
-            get { return personalityModel; }
-            private set
-            {
-                if (personalityModel == value)
-                    return;
-                personalityModel = value;
-                OnPropertyChanged(nameof(PersonalityModel));
-            }
-        }
-        public sealed override IReadOnlyDictionary<ERDM_Parameter, object> ParameterValues
-        {
-            get
-            {
-                if (DeviceModel == null)
-                    return parameterValues.AsReadOnly();
+        addGenericModules();
+    }
+    /// <summary>
+    /// Once all data is pulled: adds the modules that are missing. Devices of one model share the model, while one device fills it
+    /// another one can see an incomplete list of supported parameters and get no modules (seen with two devices of the same model).
+    /// A generic module is replaced by a written module that now handles its parameter.
+    /// </summary>
+    private void addMissingModules()
+    {
+        IReadOnlyCollection<Type> existingTypes;
+        lock (_modulesLock)
+            existingTypes = this._modules.OfType<IParameterIDModule>().Select(m => m.GetType()).ToList();
+        ExtensionsManager.Instance.TryGetMatchingModules(this, existingTypes, out var added);
+        added ??= Array.Empty<IParameterIDModule>();
 
-                return DeviceModel.ParameterValues.Where(x => !parameterValues.ContainsKey(x.Key)).Concat(parameterValues).ToDictionary(k => k.Key, v => v.Value).AsReadOnly();
-            }
-        }
-
-        private bool allDataPulled;
-        public bool AllDataPulled
+        var replaced = new List<IModule>();
+        if (added.Count != 0)
         {
-            get
+            var covered = new HashSet<ERDM_Parameter>(added.SelectMany(m => m.SupportedParameters));
+            lock (_modulesLock)
             {
-                return allDataPulled;
+                replaced.AddRange(this._modules.OfType<IParameterIDModule>().Where(m => m is IGenericModule or FallbackParameterModule && m.SupportedParameters.Any(covered.Contains)));
+                foreach (var generic in replaced)
+                    this._modules.Remove(generic);
+                this._modules.AddRange(added);
             }
-            private set
-            {
-                if (allDataPulled == value)
-                    return;
-                allDataPulled = value;
-                OnPropertyChanged(nameof(AllDataPulled));
-            }
+            Logger?.LogDebug($"{UID} SubDevice: {Subdevice}: {added.Count} missing module(s) added, {replaced.Count} generic module(s) replaced");
+            foreach (var module in replaced.OfType<IDisposable>())
+                module.Dispose();
+            foreach (var module in added.OfType<AbstractParameterIDModule>())
+                module.ApplyCachedValues();
+            OnPropertyChanged(nameof(Modules));
         }
-
-        private DateTime lastSeen;
-        public DateTime LastSeen
+        addGenericModules();
+    }
+    /// <summary>
+    /// Adds a generic module (built from the define) for every simple supported parameter that no module handles yet,
+    /// and a <see cref="FallbackParameterModule"/> for every other one, so every parameter has a module.
+    /// Called again when all data is pulled: some devices report parameters later (e.g. a list of private parameters).
+    /// </summary>
+    private void addGenericModules()
+    {
+        IReadOnlyCollection<IParameterIDModule> created;
+        IReadOnlyCollection<IParameterIDModule> replaced;
+        lock (_modulesLock)
         {
-            get
-            {
-                return lastSeen;
-            }
-            private set
-            {
-                if (lastSeen == value)
-                    return;
-                lastSeen = value;
-                OnPropertyChanged(nameof(LastSeen));
-            }
+            created = GenericModuleFactory.CreateMissing(this, this._modules.OfType<IParameterIDModule>(), out replaced);
+            foreach (var module in replaced)
+                this._modules.Remove(module);
+            this._modules.AddRange(created);
         }
-
-        private DateTime lastSendQueuedMessage;
-
-        private bool present;
-        public bool Present
+        if (created.Count == 0)
+            return;
+        var generic = created.OfType<IGenericModule>().ToList();
+        var fallback = created.OfType<FallbackParameterModule>().ToList();
+        if (generic.Count != 0)
+            Logger?.LogDebug($"{UID} SubDevice: {Subdevice}: {generic.Count} generic module(s): {string.Join(", ", generic.Select(m => $"{m.Parameter} ({m.GetType().Name.Split('`')[0]})"))}");
+        if (fallback.Count != 0)
+            Logger?.LogDebug($"{UID} SubDevice: {Subdevice}: {fallback.Count} fallback module(s): {string.Join(", ", fallback.Select(m => $"0x{(ushort)m.Parameter:X4}{(m.IsManufacturerInternal ? " (internal)" : "")}"))}");
+        foreach (var module in replaced.OfType<IDisposable>())
+            module.Dispose();
+        foreach (var module in created.OfType<AbstractParameterIDModule>())
+            module.ApplyCachedValues();
+        OnPropertyChanged(nameof(Modules));
+    }
+    private void disposeModules()
+    {
+        lock (_modulesLock)
         {
-            get
+            foreach (var module in this._modules.OfType<IDisposable>())
+                module.Dispose();
+            this._modules.Clear();
+        }
+    }
+
+    private async void Instance_PresentUpdateTimerElapsed(object sender, EventArgs e)
+    {
+        try // async void: an escaping exception would terminate the host application
+        {
+            bool result = DateTime.UtcNow - lastSeen < TimeSpan.FromMilliseconds(GlobalTimers.Instance.PresentLostTime);
+
+            if (!result)
             {
-                return present;
+
+                _ = updateParameters();
+                await Task.Delay(1000);
+                result = DateTime.UtcNow - lastSeen < TimeSpan.FromMilliseconds(GlobalTimers.Instance.PresentLostTime);
             }
-            internal set
-            {
-                if (present == value)
-                    return;
-                present = value;
-                OnPropertyChanged(nameof(Present));
-            }
-        }
 
-        private bool queuedSupported = true;
-        public bool QueuedSupported
-        {
-            get
-            {
-                return queuedSupported;
-            }
-            private set
-            {
-                if (queuedSupported == value)
-                    return;
-                queuedSupported = value;
-                OnPropertyChanged(nameof(QueuedSupported));
-            }
+            Present = result;
         }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, $"{UID}: error in Instance_PresentUpdateTimerElapsed");
+        }
+    }
 
-
-        public AbstractRemoteRDMDevice(UID uid) : base(uid)
-        {
-        }
-        public AbstractRemoteRDMDevice(UID uid, SubDevice? subDevice = null) : base(uid, subDevice)
-        {
-            if (subDevice.HasValue && subDevice.Value.IsBroadcast)
-                throw new NotSupportedException("A SubDevice can't be Broadcast.");
-        }
-        protected override async Task initialize(RDMDeviceInfo deviceInfo = null)
-        {
-            Logger?.LogDebug($"Remote RDM Device {UID} SubDevice: {Subdevice} initializing.");
-            await base.initialize(deviceInfo);
-            GlobalTimers.Instance.PresentUpdateTimerElapsed += Instance_PresentUpdateTimerElapsed;
-            ParameterValueAdded += AbstractRDMDevice_ParameterValueAdded;
-            ParameterValueChanged += AbstractRDMDevice_ParameterValueChanged;
-            ParameterRequested += AbstractRDMDevice_ParameterRequested;
-            await requestDeviceInfo(deviceInfo);
-            Logger ?.LogDebug($"Remote RDM Device {UID} SubDevice: {Subdevice} initialized.");
-        }
-
-        private void Instance_PresentUpdateTimerElapsed(object sender, EventArgs e)
-        {
-            Present = DateTime.UtcNow - lastSeen < TimeSpan.FromMilliseconds(GlobalTimers.Instance.PresentLostTime);
-        }
-
-        private async void DeviceModel_Initialized(object sender, EventArgs e)
+    private async void DeviceModel_Initialized(object sender, EventArgs e)
+    {
+        try // async void: an escaping exception would terminate the host application
         {
             deviceModel.Initialized -= DeviceModel_Initialized;
             deviceModel.ParameterValueAdded -= DeviceModel_ParameterValueAdded;
             await getPersonalityModelAndCollectAllParameters();
             await collectParameters();
         }
-        private async Task collectParameters()
+        catch (Exception ex)
         {
-            await collectAllParametersOnRoot();
-            await scanSubDevices();
-            AllDataPulled = true;
-            GlobalTimers.Instance.ParameterUpdateTimerElapsed += Instance_ParameterUpdateTimerElapsed;
+            Logger?.LogError(ex, $"{UID}: error in DeviceModel_Initialized");
         }
+    }
+    /// <summary>Who the device is, so a log entry with only the UID can be matched to a product.</summary>
+    private void logIdentity()
+    {
+        if (Logger is null || !Logger.IsEnabled(LogLevel.Information))
+            return;
+        var values = GetAllParameterValues();
+        string text(ERDM_Parameter parameter) => values.TryGetValue(parameter, out object value) && value is string s ? $"'{s}'" : "-";
+        var info = DeviceInfo;
+        Logger.LogInformation($"Remote RDM Device {UID} SubDevice: {Subdevice}: {text(ERDM_Parameter.MANUFACTURER_LABEL)} {text(ERDM_Parameter.DEVICE_MODEL_DESCRIPTION)} " +
+            $"(Model 0x{info?.DeviceModelId:X4}), Software {text(ERDM_Parameter.SOFTWARE_VERSION_LABEL)} (0x{info?.SoftwareVersionId:X8}), Label {text(ERDM_Parameter.DEVICE_LABEL)}");
+    }
+    private async Task collectParameters()
+    {
+        await collectAllParametersOnRoot();
+        await scanSubDevices();
+        addMissingModules();
+        AllDataPulled = true;
+        logIdentity();
+        GlobalTimers.Instance.ParameterUpdateTimerElapsed += Instance_ParameterUpdateTimerElapsed;
+    }
 
-        private async Task scanSubDevices()
+    private async Task scanSubDevices()
+    {
+        if (DeviceInfo.SubDeviceCount == 0)
+            return;
+        if (!this.Subdevice.IsRoot)
+            return;
+
+        ushort foundSubDevices = 0;
+        ushort currentID = 0;
+        var dict = new Dictionary<SubDevice, RDMDeviceInfo>();
+        while (foundSubDevices < DeviceInfo.SubDeviceCount)
         {
-            if (DeviceInfo.SubDeviceCount == 0)
-                return;
-            if (!this.Subdevice.IsRoot)
-                return;
+            currentID++;
+            if (currentID > 512)
+                break;
 
-            ushort foundSubDevices = 0;
-            ushort currentID = 0;
-            var dict = new Dictionary<SubDevice, RDMDeviceInfo>();
-            while (foundSubDevices < DeviceInfo.SubDeviceCount)
+            PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, UID, new SubDevice(currentID), new ParameterBag(ERDM_Parameter.DEVICE_INFO));
+            await runPeerToPeerProcess(ptpProcess);
+            if (ptpProcess.ResponsePayloadObject.ParsedObject is RDMDeviceInfo _deviceInfo)
             {
-                currentID++;
-                if (currentID > 512)
-                    break;
-
-                PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, UID, new SubDevice(currentID), new ParameterBag(ERDM_Parameter.DEVICE_INFO));
-                await runPeerToPeerProcess(ptpProcess);
-                if (ptpProcess.ResponsePayloadObject.ParsedObject is RDMDeviceInfo _deviceInfo)
-                {
-                    foundSubDevices++;
-                    var subDevice = createSubDevice(UID, ptpProcess.SubDevice);
-                    this.SubDevices_Internal.Add(subDevice);
-                    dict.Add(ptpProcess.SubDevice, _deviceInfo);
-                }
-                await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
+                foundSubDevices++;
+                var subDevice = createSubDevice(UID, ptpProcess.SubDevice);
+                this.SubDevices_Internal.Add(subDevice);
+                dict.Add(ptpProcess.SubDevice, _deviceInfo);
             }
-            foreach (AbstractRemoteRDMDevice sd in this.SubDevices_Internal)
-            {
-                if (sd.Subdevice.IsRoot)
-                    continue;
-                sd.performInitialize(dict[sd.Subdevice]);
-            }
+            await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
         }
-
-        protected abstract IRDMRemoteSubDevice createSubDevice(UID uid, SubDevice subDevice);
-
-        #region Requests
-
-        private async Task requestDeviceInfo(RDMDeviceInfo deviceInfo = null)
+        foreach (AbstractRemoteRDMDevice sd in this.SubDevices_Internal)
         {
-            DataTreeBranch? rpl = null;
-            if (deviceInfo == null)
+            if (sd.Subdevice.IsRoot)
+                continue;
+            sd.performInitialize(dict[sd.Subdevice]);
+        }
+    }
+
+    protected abstract IRDMRemoteSubDevice createSubDevice(UID uid, SubDevice subDevice);
+
+    #region Requests
+
+    private async Task requestDeviceInfo(RDMDeviceInfo deviceInfo = null)
+    {
+        DataTreeBranch? rpl;
+        if (deviceInfo == null)
+        {
+            PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, UID, Subdevice, new ParameterBag(ERDM_Parameter.DEVICE_INFO));
+            await runPeerToPeerProcess(ptpProcess);
+            rpl = ptpProcess.ResponsePayloadObject;
+            if (rpl.Value.ParsedObject is RDMDeviceInfo _deviceInfo)
             {
-                PeerToPeerProcess ptpProcess = new PeerToPeerProcess(ERDM_Command.GET_COMMAND, UID, Subdevice, new ParameterBag(ERDM_Parameter.DEVICE_INFO));
-                await runPeerToPeerProcess(ptpProcess);
-                rpl= ptpProcess.ResponsePayloadObject;
-                if (rpl.Value.ParsedObject is RDMDeviceInfo _deviceInfo)
-                {
-                    this.deviceInfo = _deviceInfo;
-                    updateParameterValuesDependeciePropertyBag(ERDM_Parameter.DEVICE_INFO, ptpProcess.ResponsePayloadObject);
-                    updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ERDM_Parameter.DEVICE_INFO), ptpProcess.ResponsePayloadObject);
-                    await getDeviceModelAndCollectAllParameters();
-                }
+                this.deviceInfo = _deviceInfo;
+                updateParameterValuesDependeciePropertyBag(ERDM_Parameter.DEVICE_INFO, ptpProcess.ResponsePayloadObject);
+                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ERDM_Parameter.DEVICE_INFO), ptpProcess.ResponsePayloadObject);
+                await getDeviceModelAndCollectAllParameters();
             }
             else
             {
-                rpl = DataTreeBranch.FromObject(deviceInfo, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DEVICE_INFO);
-                this.deviceInfo = deviceInfo;
-                updateParameterValuesDependeciePropertyBag(ERDM_Parameter.DEVICE_INFO, rpl.Value);
-                updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ERDM_Parameter.DEVICE_INFO), rpl.Value);
-                await getDeviceModelAndCollectAllParameters();
+                await Task.Delay(1000);
+                await requestDeviceInfo();
             }
         }
-        private async Task requestParameters()
+        else
         {
-            var parameters = this.DeviceModel?.SupportedNonBlueprintParameters.OrderBy(p=>(ushort)p).ToList();
-            if (parameters == null)
-                return;
+            rpl = DataTreeBranch.FromObject(deviceInfo, null, ERDM_Command.GET_COMMAND_RESPONSE, ERDM_Parameter.DEVICE_INFO);
+            this.deviceInfo = deviceInfo;
+            updateParameterValuesDependeciePropertyBag(ERDM_Parameter.DEVICE_INFO, rpl.Value);
+            updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ERDM_Parameter.DEVICE_INFO), rpl.Value);
+            await getDeviceModelAndCollectAllParameters();
+        }
+        if (DeviceModel is null)
+        {
 
-            foreach (ERDM_Parameter parameter in parameters)
-            {
-                switch (parameter)
-                {
-                    case ERDM_Parameter.DEVICE_INFO:
-                        continue;
-                    case ERDM_Parameter.QUEUED_MESSAGE:
-                        continue;
-                    case ERDM_Parameter.STATUS_MESSAGES:
-                        await requestParameter(parameter, ERDM_Status.NONE);
-                        continue;
-                }
-                await requestParameter(parameter);
-                await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
-            }
         }
-        private async Task requestParameter(ERDM_Parameter parameter, object payload = null)
+    }
+    #region Requests without an answer
+    /// <summary>
+    /// A request that got no answer: either the device is silent for this parameter (it answered everything else, so it does not
+    /// support it and ignores it, a faulty implementation), or it was not reachable (or too busy) and the request is only missed.
+    /// </summary>
+    private sealed class UnansweredRequest
+    {
+        public bool IsSilent;
+        public DateTime LastTry = DateTime.UtcNow;
+        public int Attempts;
+    }
+    // An entry of a list (it has an index), or a parameter the device answered before, is not taken for a parameter the device ignores:
+    // a lost answer can happen to every request. It is only asked for rarely when it got no answer this often in a row.
+    private const int MAX_ATTEMPTS_OF_AN_ENTRY = 3;
+    // the parameters the device answered (an ACK or a NACK): they are no parameters the device ignores
+    private readonly ConcurrentDictionary<ERDM_Parameter, byte> answeredParameters = new();
+    private readonly ConcurrentDictionary<(ERDM_Parameter Parameter, object Index), UnansweredRequest> unansweredRequests = new();
+
+    protected override async Task OnProcessTimedOut(PeerToPeerProcess process)
+    {
+        // A SET without an answer says nothing about the support, DEVICE_INFO is the question itself and the queued messages are polled anyway.
+        if (process.Command != ERDM_Command.GET_COMMAND)
+            return;
+        var parameter = process.ParameterBag.PID;
+        if (parameter == ERDM_Parameter.DEVICE_INFO || parameter == ERDM_Parameter.QUEUED_MESSAGE || parameter == ERDM_Parameter.STATUS_MESSAGES)
+            return;
+
+        // What does the missing answer mean? A device that answers DEVICE_INFO right after it is alive and ignores this parameter.
+        // A device that does not answer that either is not reachable or too busy: that is nothing to blame the parameter for.
+        bool alive = await probeAlive(UID, Subdevice);
+        var key = (parameter, process.RequestIndex);
+        var unanswered = unansweredRequests.GetOrAdd(key, _ => new UnansweredRequest());
+        unanswered.LastTry = DateTime.UtcNow;
+        if (!alive)
         {
+            Logger?.LogInformation($"{UID}: {parameter} got no answer and the device is not reachable, it is asked again later");
+            return;
+        }
+
+        unanswered.Attempts++;
+        if (key.Item2 is null && !answeredParameters.ContainsKey(parameter))
+        {
+            // The device never answered this parameter, but answers everything else. The model is told, it is flagged when it is confirmed
+            // (see SupportedParameterMetadata.IsSilent).
+            unanswered.IsSilent = true;
+            deviceModel?.ReportSilent(parameter, UID);
+            Logger?.LogInformation($"{UID}: {parameter} got no answer, the device answers everything else: it ignores the parameter");
+        }
+        else if (unanswered.Attempts >= MAX_ATTEMPTS_OF_AN_ENTRY)
+        {
+            // it answered before (or it is an entry of a list): a lost answer says nothing about the model, so nothing is reported
+            unanswered.IsSilent = true;
+        }
+    }
+    protected override void OnProcessAnswered(PeerToPeerProcess process)
+    {
+        var parameter = process.ParameterBag.PID;
+        answeredParameters.TryAdd(parameter, 0);
+        unansweredRequests.TryRemove((parameter, process.RequestIndex), out _);
+        // The answer of any device withdraws what was reported about the parameter, not only the one of the device that reported it:
+        // a parameter that is answered is not ignored.
+        deviceModel?.ReportAnswered(parameter);
+    }
+    private bool isParked(ERDM_Parameter parameter, object index)
+    {
+        return unansweredRequests.ContainsKey((parameter, index));
+    }
+    /// <summary>
+    /// Asks again for what got no answer: a silent parameter now and then (does it answer by now?), what was missed because the device was not reachable
+    /// sooner. The outcome is handled like the one of every request: an answer ends it, no answer is classified again.
+    /// </summary>
+    private async Task retryUnansweredRequests()
+    {
+        if (deviceModel is not null)
+            await deviceModel.RetryMissed(UID, Subdevice);
+
+        foreach (var pair in unansweredRequests.ToArray())
+        {
+            int interval = pair.Value.IsSilent ? GlobalTimers.Instance.SilentParameterRetryInterval : GlobalTimers.Instance.MissedRequestRetryInterval;
+            if (DateTime.UtcNow - pair.Value.LastTry < TimeSpan.FromMilliseconds(interval))
+                continue;
+            pair.Value.LastTry = DateTime.UtcNow;
+            await requestParameter(pair.Key.Parameter, pair.Key.Index);
+            await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
+        }
+    }
+    #endregion
+
+    private async Task requestParameters()
+    {
+        foreach (var silent in this.DeviceModel?.GetSilentParameters() ?? Array.Empty<SupportedParameterMetadata>())
+            unansweredRequests.TryAdd((silent.Parameter, null), new UnansweredRequest { IsSilent = true });
+
+        var parameters = this.DeviceModel?.GetSupportedNonBlueprintParameters().Select(spm => spm.Parameter);
+        if (parameters == null)
+            return;
+
+        foreach (ERDM_Parameter parameter in parameters)
+        {
+            switch (parameter)
+            {
+                case ERDM_Parameter.DEVICE_INFO:
+                    continue;
+                case ERDM_Parameter.QUEUED_MESSAGE:
+                    tryAddParameterMetadata(parameter);
+                    continue;
+                case ERDM_Parameter.STATUS_MESSAGES:
+                    await requestParameter(parameter, ERDM_Status.NONE);
+                    continue;
+            }
+            tryAddParameterMetadata(parameter);
+            await requestParameter(parameter);
+            await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenRequests);
+        }
+    }
+    private async Task requestParameter(ERDM_Parameter parameter, object payload = null)
+    {
+        try
+        {
+            ParameterBag parameterBag = new ParameterBag(parameter, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
+            MetadataJSONObjectDefine define;
             try
             {
-                ParameterBag parameterBag = new ParameterBag(parameter, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
-                var define = MetadataFactory.GetDefine(parameterBag);
-                if (define == null)
-                {
-                    ConcurrentDictionary<object, object> pd = null;
-                    if (this.deviceModel.ParameterValues.TryGetValue(ERDM_Parameter.PARAMETER_DESCRIPTION, out var obj))
-                        pd = obj as ConcurrentDictionary<object, object>;
+                define = MetadataFactory.GetDefine(parameterBag);
+            }
+            catch (DefineNotFoundException)
+            {
+                // ESTA-range PID the device lists, but there is no define for it (e.g. a draft or reserved PID)
+                define = null;
+            }
+            if (define == null)
+            {
+                ConcurrentDictionary<object, object> pd = null;
+                if (this.deviceModel.ParameterValues.TryGetValue(ERDM_Parameter.PARAMETER_DESCRIPTION, out var obj))
+                    pd = obj as ConcurrentDictionary<object, object>;
 
-                    if ((pd?.TryGetValue((ushort)parameter, out var desc) ?? false) && desc is RDMParameterDescription pDesc)
-                    {
-                        if (pDesc.CommandClass.HasFlag(ERDM_CommandClass.GET))
-                            await requestGetParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
-                    }
-                }
-                if (define?.GetRequest.HasValue ?? false)
+                if ((pd?.TryGetValue((ushort)parameter, out var desc) ?? false) && desc is RDMParameterDescription pDesc)
                 {
-                    if (define.GetRequest.Value.GetIsEmpty())
+                    if (pDesc.CommandClass.HasFlag(ERDM_CommandClass.GET))
                         await requestGetParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
-                    else
-                        await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice, payload);
                 }
             }
-            catch (Exception ex)
+            if (define?.GetRequest.HasValue ?? false)
             {
-                Logger?.LogError(ex);
+                if (define.GetRequest.Value.GetIsEmpty())
+                    await requestGetParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
+                else
+                    await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice, payload);
             }
         }
-
-        private SemaphoreSlim updateSenaphoreSlim = new SemaphoreSlim(1);
-        private async Task updateParameters()
+        catch (Exception ex)
         {
-            if (QueuedSupported && deviceModel.KnownNotSupportedParameters.Contains(ERDM_Parameter.QUEUED_MESSAGE))
-                QueuedSupported = false;
+            Logger?.LogError(ex);
+        }
+    }
+    public async Task RequestParameter(ERDM_Command command, ERDM_Parameter parameter)
+    {
+        ParameterBag parameterBag = new ParameterBag(parameter, this.UID.ManufacturerID, this.deviceInfo.DeviceModelId, this.deviceInfo.SoftwareVersionId);
 
-            if (updateSenaphoreSlim.CurrentCount == 0)
-                return;
+        PeerToPeerProcess ptpProcess = new PeerToPeerProcess(command, this.UID, this.Subdevice, parameterBag);
+        await runPeerToPeerProcess(ptpProcess);
+        if (!ptpProcess.ResponsePayloadObject.IsUnset)
+        {
+            updateParameterValuesDependeciePropertyBag(ptpProcess.ParameterBag.PID, ptpProcess.ResponsePayloadObject);
+            updateParameterValuesDataTreeBranch(new ParameterDataCacheBag(ptpProcess.ParameterBag.PID), ptpProcess.ResponsePayloadObject);
+        }
+    }
+    public async Task<object> RequestParameterWithPayload(ERDM_Command command, ERDM_Parameter parameter, object payload)
+    {
+        ParameterBag parameterBag = new ParameterBag(parameter, this.UID.ManufacturerID, this.deviceInfo.DeviceModelId, this.deviceInfo.SoftwareVersionId);
+        DataTreeBranch dataTreeBranch = DataTreeBranch.FromObject(payload, null, parameterBag, command);
 
-            await updateSenaphoreSlim.WaitAsync();
-            try
+        PeerToPeerProcess ptpProcess = new PeerToPeerProcess(command, this.UID, this.Subdevice, parameterBag, dataTreeBranch);
+        await ptpProcess.Run();
+        if (ptpProcess.State == PeerToPeerProcess.EPeerToPeerProcessState.Finished)
+            return ptpProcess.ResponsePayloadObject.ParsedObject ?? ptpProcess.ResponsePayloadObject;
+
+        return null;
+    }
+
+    private readonly SemaphoreSlim updateSenaphoreSlim = new SemaphoreSlim(1);
+    private async Task updateParameters()
+    {
+        var supportedParameters = this.DeviceModel?.GetSupportedNonBlueprintParameters();
+
+        if (updateSenaphoreSlim.CurrentCount == 0)
+            return;
+
+        await updateSenaphoreSlim.WaitAsync();
+        try
+        {
+            await retryUnansweredRequests();
+            await requestQueuedMessages();
+            var loopDetectionCache = new HashSet<ParameterUpdatedBag>();
+            while (ParameterUpdatedBag.TryPeek(out ParameterUpdatedBag bag))
             {
-                if (QueuedSupported && !deviceModel.KnownNotSupportedParameters.Contains(ERDM_Parameter.QUEUED_MESSAGE))
-                {
-                    if (DateTime.UtcNow - lastSendQueuedMessage < TimeSpan.FromMilliseconds(GlobalTimers.Instance.QueuedUpdateTime))
-                        return;
-                    ParameterBag parameterBag = new ParameterBag(ERDM_Parameter.QUEUED_MESSAGE, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
-                    var define = MetadataFactory.GetDefine(parameterBag);
-                    if (define.GetRequest.HasValue)
+                TimeSpan updateTime = TimeSpan.FromMilliseconds(GlobalTimers.Instance.NonQueuedUpdateTime);
+                //if (bag.Parameter.GetAttribute<ParameterUpdateTimeAttribute>() is ParameterUpdateTimeAttribute attribute)
+                //    updateTime = TimeSpan.FromMilliseconds(attribute.Milliseconds);
+                if ((supportedParameters.FirstOrDefault(spm => spm.Parameter == bag.Parameter)?.ParameterUpdateTimeMilliseconds is int milliseconds) && milliseconds >= 0)
+                    updateTime = TimeSpan.FromMilliseconds(milliseconds);
+                if (GlobalTimers.Instance.ParameterUpdateTimeLimit >= 0 && updateTime.TotalMilliseconds > GlobalTimers.Instance.ParameterUpdateTimeLimit)
+                    updateTime = TimeSpan.FromMilliseconds(GlobalTimers.Instance.ParameterUpdateTimeLimit);
+
+                if (loopDetectionCache.Any(b => b.Parameter == bag.Parameter && b.Index == bag.Index))
+                    return;
+
+                bool performRequestToDetectIsStillConnected = ((DateTime.UtcNow - this.lastSeen).TotalMilliseconds / (double)GlobalTimers.Instance.PresentLostTime) >= 0.9;
+
+                if (!performRequestToDetectIsStillConnected)
+                    if (DateTime.UtcNow - bag.Timestamp < updateTime)
                     {
-                        byte mc = 0;
-                        do
-                        {
-                            var cts = new CancellationTokenSource();
-                            cts.CancelAfter(TimeSpan.FromMilliseconds(GlobalTimers.Instance.ParameterUpdateTimerInterval));
-                            var task = Task.Run(async () =>
-                            {
-                                lastSendQueuedMessage = DateTime.UtcNow;
+                        ParameterUpdatedBag.TryDequeue(out _);
+                        ParameterUpdatedBag.Enqueue(bag);
 
-                                Stopwatch sw = new Stopwatch();
-                                sw?.Restart();
-                                var result = await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice, ERDM_Status.ADVISORY);
-                                mc = result.MessageCounter;
-                                sw?.Stop();
-                                if (result.State == PeerToPeerProcess.EPeerToPeerProcessState.Failed)
-                                {
-                                    if (sw.Elapsed.TotalSeconds > 3)
-                                        QueuedSupported = false;
-                                    Logger?.LogWarning($"Queued Parameter failed after {sw.ElapsedMilliseconds}ms, Queued seems not supported, and wil be disabled");
-                                    return;
-                                }
-                                Logger?.LogTrace($"Queued Parameter update took {sw.ElapsedMilliseconds}ms for {mc} messages.");
-                            }, cts.Token);
-                            await task;
-
-                            if (task.IsCompletedSuccessfully)
-                                await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenQueuedUpdateRequests);
-                            else
-                            {
-                                Logger?.LogTrace(task.Exception, $"Queue Parameter update failed: {task.Exception?.Message}");
-                                return;
-                            }
-
-                        }
-                        while (mc != 0);
-                        return;
+                        loopDetectionCache.Add(bag);
+                        continue;
                     }
-                }
-                while (ParameterUpdatedBag.TryPeek(out ParameterUpdatedBag bag))
-                {
-                    if (DateTime.UtcNow - bag.Timestamp < TimeSpan.FromMilliseconds(GlobalTimers.Instance.NonQueuedUpdateTime))
-                        return;
 
+                loopDetectionCache.Add(bag);
+
+                var cts = new CancellationTokenSource();
+                cts.CancelAfter(TimeSpan.FromMilliseconds(GlobalTimers.Instance.ParameterUpdateTimerInterval));
+                var task = Task.Run(async () =>
+                {
+                    Stopwatch sw = new Stopwatch();
+                    sw?.Restart();
+                    if (!isParked(bag.Parameter, bag.Index))
+                        await requestParameter(bag.Parameter, bag.Index);
+                    sw?.Stop();
+                    Logger?.LogTrace($"Parameter update for {bag.Parameter} with index {bag.Index} took {sw.ElapsedMilliseconds}ms");
+
+                    UpdateParameterUpdatedBag(bag.Parameter, bag.Index);
+                }, cts.Token);
+                await task;
+
+                if (task.IsCompletedSuccessfully)
+                    await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenNonQueuedUpdateRequests);
+                else
+                    Logger?.LogTrace(task.Exception, $"Parameter update for {bag.Parameter} with index {bag.Index} failed: {task.Exception?.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex);
+        }
+        finally
+        {
+            updateSenaphoreSlim.Release();
+        }
+    }
+
+    private async Task requestQueuedMessages()
+    {
+        var supportedParameters = this.deviceModel?.GetSupportedNonBlueprintParameters();
+        if (supportedParameters?.FirstOrDefault(spm => spm.Parameter == ERDM_Parameter.QUEUED_MESSAGE)?.IsSupported ?? false)
+        {
+            if (DateTime.UtcNow - lastSendQueuedMessage < TimeSpan.FromMilliseconds(GlobalTimers.Instance.QueuedUpdateTime))
+                return;
+            ParameterBag parameterBag = new ParameterBag(ERDM_Parameter.QUEUED_MESSAGE, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
+            var define = MetadataFactory.GetDefine(parameterBag);
+            if (define.GetRequest.HasValue)
+            {
+                List<byte> backlog = new List<byte>();
+                byte mc = 0;
+                do
+                {
                     var cts = new CancellationTokenSource();
                     cts.CancelAfter(TimeSpan.FromMilliseconds(GlobalTimers.Instance.ParameterUpdateTimerInterval));
                     var task = Task.Run(async () =>
                     {
+                        lastSendQueuedMessage = DateTime.UtcNow;
+
                         Stopwatch sw = new Stopwatch();
                         sw?.Restart();
-                        await requestParameter(bag.Parameter, bag.Index);
+                        var result = await requestGetParameterWithPayload(parameterBag, define, UID, Subdevice, ERDM_Status.ADVISORY);
+                        mc = result.MessageCounter;
+                        backlog.Add(mc);
                         sw?.Stop();
-                        Logger?.LogTrace($"Parameter update for {bag.Parameter} with index {bag.Index} took {sw.ElapsedMilliseconds}ms");
-
-                        UpdateParameterUpdatedBag(bag.Parameter, bag.Index);
+                        if (result.State == PeerToPeerProcess.EPeerToPeerProcessState.Failed)
+                            return;
+                        Logger?.LogTrace($"Queued Parameter update took {sw.ElapsedMilliseconds}ms for {mc} messages.");
                     }, cts.Token);
                     await task;
 
                     if (task.IsCompletedSuccessfully)
-                        await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenNonQueuedUpdateRequests);
+                        await Task.Delay(GlobalTimers.Instance.UpdateDelayBetweenQueuedUpdateRequests);
                     else
-                        Logger?.LogTrace(task.Exception, $"Parameter update for {bag.Parameter} with index {bag.Index} failed: {task.Exception?.Message}");
+                    {
+                        Logger?.LogTrace(task.Exception, $"Queue Parameter update failed: {task.Exception?.Message}");
+                        return;
+                    }
+
+                    if (Last5AreEquals(backlog))
+                    {
+                        Logger?.LogTrace(task.Exception, $"Queue Parameter Returned five times the same MessageCount({mc}), probably bad Firmware from Manufacturer");
+                        return;
+                    }
+                }
+                while (mc != 0);
+                return;
+            }
+        }
+        static bool Last5AreEquals(List<byte> list)
+        {
+            if (list == null || list.Count < 5)
+                return false;
+
+            var last = list[list.Count - 1];
+
+            for (int i = list.Count - 5; i < list.Count; i++)
+            {
+                if (list[i] != last)
+                    return false;
+            }
+
+            return true;
+        }
+    }
+
+    #endregion
+    private async Task getDeviceModelAndCollectAllParameters()
+    {
+        if (deviceModel != null)
+            return;
+        deviceModel = RDMDeviceModel.getDeviceModel(UID, Subdevice, DeviceInfo, new Func<RDMMessage, Task>(RDMSharp.Instance.SendMessage));
+
+        if (!deviceModel.IsInitialized)
+            while (deviceModel.IsInitializing)
+                await Task.Delay(3000);
+
+        if (!deviceModel.IsInitialized)
+        {
+            deviceModel.Initialized += DeviceModel_Initialized;
+            deviceModel.ParameterValueAdded += DeviceModel_ParameterValueAdded;
+            if (!deviceModel.IsInitializing)
+            {
+                // the model is initialized by the first device that can: if this one does not answer (not reachable, or too busy) it is tried again
+                await deviceModel.Initialize(UID, Subdevice);
+                while (!deviceModel.IsInitialized && !IsDisposed && !IsDisposing)
+                {
+                    await Task.Delay(GlobalTimers.Instance.MissedRequestRetryInterval);
+                    while (deviceModel.IsInitializing)
+                        await Task.Delay(100);
+                    if (!deviceModel.IsInitialized)
+                        await deviceModel.Initialize(UID, Subdevice);
                 }
             }
-            catch (Exception ex)
-            {
-                Logger?.LogError(ex);
-            }
-            finally
-            {
-                updateSenaphoreSlim.Release();
-            }
-        }
-
-        #endregion
-        private async Task getDeviceModelAndCollectAllParameters()
-        {
-            if (deviceModel != null)
-                return;
-            deviceModel = RDMDeviceModel.getDeviceModel(UID, Subdevice, DeviceInfo, new Func<RDMMessage, Task>(RDMSharp.Instance.SendMessage));
-            if (!deviceModel.IsInitialized)
-            {
-                deviceModel.Initialized += DeviceModel_Initialized;
-                deviceModel.ParameterValueAdded += DeviceModel_ParameterValueAdded;
-                if (!deviceModel.IsInitializing)
-                    await deviceModel.Initialize();
-                else
-                    InvkoeDeviceModelParameterValueAdded();
-            }
             else
-            {
                 InvkoeDeviceModelParameterValueAdded();
-                await collectParameters();
-            }
-            void InvkoeDeviceModelParameterValueAdded()
-            {
-                foreach (var item in this.deviceModel.ParameterValues)
-                    base.InvokeParameterValueAdded(new ParameterValueAddedEventArgs(item.Key, item.Value));
-            }
+        }
+        else
+        {
+            InvkoeDeviceModelParameterValueAdded();
+            await collectParameters();
         }
 
-        private void DeviceModel_ParameterValueAdded(object sender, ParameterValueAddedEventArgs e)
+        if (deviceModel is null)
         {
-            base.InvokeParameterValueAdded(e);
-        }
 
-        private async Task collectAllParametersOnRoot()
-        {
-            await requestParameters();
         }
-
-        private async Task getPersonalityModelAndCollectAllParameters()
+        void InvkoeDeviceModelParameterValueAdded()
         {
-            byte? personalityId = DeviceInfo.Dmx512CurrentPersonality.Value;
+            foreach (var item in this.deviceModel.ParameterValues)
+                base.InvokeParameterValueAdded(new ParameterValueAddedEventArgs(item.Key, item.Value));
+        }
+    }
+
+    private void DeviceModel_ParameterValueAdded(object sender, ParameterValueAddedEventArgs e)
+    {
+        base.InvokeParameterValueAdded(e);
+    }
+
+    private async Task collectAllParametersOnRoot()
+    {
+        await requestParameters();
+    }
+
+    private async Task getPersonalityModelAndCollectAllParameters(byte? personalityId = null)
+    {
+        if (personalityId is null)
+        {
+            personalityId ??= DeviceInfo.Dmx512CurrentPersonality.Value;
             if (parameterValues.TryGetValue(ERDM_Parameter.DMX_PERSONALITY, out object value) && value is RDMDMXPersonality personality)
                 personalityId = personality.CurrentPersonality;
-
-            PersonalityModel = DeviceModel.getPersonalityModel(this, personalityId ?? 0);
-            if (!PersonalityModel.IsInitialized)
-                await PersonalityModel.Initialize();
         }
 
-        private async void AbstractRDMDevice_ParameterValueAdded(object sender, ParameterValueAddedEventArgs e)
+        PersonalityModel = DeviceModel.getPersonalityModel(this, personalityId ?? 0);
+        if (!PersonalityModel.IsInitialized)
+            await PersonalityModel.Initialize();
+    }
+
+    private async void AbstractRDMDevice_ParameterValueAdded(object sender, ParameterValueAddedEventArgs e)
+    {
+        try // async void: an escaping exception would terminate the host application
         {
             switch (e.Parameter)
             {
                 case ERDM_Parameter.DMX_PERSONALITY:
                     if (DeviceModel.IsInitialized)
-                        await getPersonalityModelAndCollectAllParameters();
+                    {
+                        if (e.Value is RDMDMXPersonality personality)
+                            await getPersonalityModelAndCollectAllParameters(personality.CurrentPersonality);
+                    }
                     break;
                 case ERDM_Parameter.SENSOR_VALUE when e.Value is RDMSensorValue sensorValue:
                     var sensor = sensors.GetOrAdd(sensorValue.SensorId, (a) => new Sensor(a));
@@ -454,12 +846,19 @@ namespace RDMSharp
                     break;
             }
         }
-        private async void AbstractRDMDevice_ParameterValueChanged(object sender, ParameterValueChangedEventArgs e)
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, $"{UID}: error in AbstractRDMDevice_ParameterValueAdded");
+        }
+    }
+    private async void AbstractRDMDevice_ParameterValueChanged(object sender, ParameterValueChangedEventArgs e)
+    {
+        try // async void: an escaping exception would terminate the host application
         {
             switch (e.Parameter)
             {
                 case ERDM_Parameter.DEVICE_INFO:
-                    if (this.PersonalityModel.PersonalityID != this.DeviceInfo.Dmx512CurrentPersonality)
+                    if (this.PersonalityModel?.PersonalityID != this.DeviceInfo.Dmx512CurrentPersonality)
                         goto case ERDM_Parameter.DMX_PERSONALITY;
                     break;
                 case ERDM_Parameter.DMX_PERSONALITY:
@@ -474,107 +873,126 @@ namespace RDMSharp
                     break;
             }
         }
-        private void AbstractRDMDevice_ParameterRequested(object sender, ParameterRequestedEventArgs e)
+        catch (Exception ex)
         {
-            LastSeen = DateTime.UtcNow;
-            UpdateParameterUpdatedBag(e.Parameter, e.Index);
+            Logger?.LogError(ex, $"{UID}: error in AbstractRDMDevice_ParameterValueChanged");
         }
-        private void UpdateParameterUpdatedBag(ERDM_Parameter parameter, object index)
+    }
+    private void AbstractRDMDevice_ParameterRequested(object sender, ParameterRequestedEventArgs e)
+    {
+        LastSeen = DateTime.UtcNow;
+        UpdateParameterUpdatedBag(e.Parameter, e.Index);
+    }
+    private void UpdateParameterUpdatedBag(ERDM_Parameter parameter, object index)
+    {
+        if (!Constants.BLUEPRINT_MODEL_PARAMETERS.Contains(parameter) && !Constants.BLUEPRINT_MODEL_PERSONALITY_PARAMETERS.Contains(parameter))
         {
-            if (!Constants.BLUEPRINT_MODEL_PARAMETERS.Contains(parameter) && !Constants.BLUEPRINT_MODEL_PERSONALITY_PARAMETERS.Contains(parameter))
+            if (ParameterUpdatedBag.Any(p => p.Parameter == parameter && p.Index == index))
             {
-                if (ParameterUpdatedBag.Any(p => p.Parameter == parameter && p.Index == index))
-                {
-                    var tempQueue = new ConcurrentQueue<ParameterUpdatedBag>();
-                    while (ParameterUpdatedBag.TryDequeue(out var item))
-                        if (!(item.Parameter.Equals(parameter) && Equals(item.Index, index)))
-                            tempQueue.Enqueue(item);
+                var tempQueue = new ConcurrentQueue<ParameterUpdatedBag>();
+                while (ParameterUpdatedBag.TryDequeue(out var item))
+                    if (!(item.Parameter.Equals(parameter) && Equals(item.Index, index)))
+                        tempQueue.Enqueue(item);
 
 
-                    while (tempQueue.TryDequeue(out var item))
-                        ParameterUpdatedBag.Enqueue(item);
-                }
-                ParameterUpdatedBag.Enqueue(new ParameterUpdatedBag(parameter, index));
+                while (tempQueue.TryDequeue(out var item))
+                    ParameterUpdatedBag.Enqueue(item);
+            }
+            ParameterUpdatedBag.Enqueue(new ParameterUpdatedBag(parameter, index));
+        }
+    }
+
+    public async Task<bool> SetParameter(ERDM_Parameter parameter, object value = null)
+    {
+        try
+        {
+            ParameterBag parameterBag = new ParameterBag(parameter, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
+            var define = MetadataFactory.GetDefine(parameterBag);
+            if (define.SetRequest.HasValue)
+            {
+                if (define.SetRequest.Value.GetIsEmpty())
+                    return await requestSetParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
+                else
+                    return await requestSetParameterWithPayload(parameterBag, define, UID, Subdevice, value);
             }
         }
-
-        public async Task<bool> SetParameter(ERDM_Parameter parameter, object value = null)
+        catch (Exception e)
         {
-            try
-            {
-                ParameterBag parameterBag = new ParameterBag(parameter, this.DeviceModel.ManufacturerID, DeviceInfo.DeviceModelId, DeviceInfo.SoftwareVersionId);
-                var define = MetadataFactory.GetDefine(parameterBag);
-                if (define.SetRequest.HasValue)
-                {
-                    if (define.SetRequest.Value.GetIsEmpty())
-                        return await requestSetParameterWithEmptyPayload(parameterBag, define, UID, Subdevice);
-                    else
-                        return await requestSetParameterWithPayload(parameterBag, define, UID, Subdevice, value);
-                }
-            }
-            catch (Exception e)
-            {
-                Logger?.LogError(string.Empty, e);
-            }
-            return false;
+            Logger?.LogError(e, $"{UID}: Failed to set {parameter} to {value}");
         }
+        return false;
+    }
 
-        protected sealed override async Task OnResponseMessage(RDMMessage rdmMessage)
-        {
-            LastSeen = DateTime.UtcNow;
+    protected sealed override async Task OnResponseMessage(RDMMessage rdmMessage)
+    {
+        LastSeen = DateTime.UtcNow;
 
-            if (rdmMessage?.ResponseType == ERDM_ResponseType.NACK_REASON)
-                this.deviceModel?.handleNACKReason(rdmMessage);
+        if (rdmMessage?.ResponseType == ERDM_ResponseType.NACK_REASON)
+            this.deviceModel?.handleNACKReason(rdmMessage);
 
-            await base.OnResponseMessage(rdmMessage);
-        }
+        await base.OnResponseMessage(rdmMessage);
+    }
 
-        public sealed override IReadOnlyDictionary<ERDM_Parameter, object> GetAllParameterValues()
-        {
+    public sealed override IReadOnlyDictionary<ERDM_Parameter, object> GetAllParameterValues()
+    {
 
-            IReadOnlyDictionary<ERDM_Parameter, object> res = null;
-            if (this.DeviceModel is not null)
-                res = this.DeviceModel.ParameterValues;
-            if(this.PersonalityModel is not null)
-                res=res.Concat(this.PersonalityModel.ParameterValues)
-                    .ToLookup(x => x.Key, x => x.Value)
-                    .ToDictionary(x => x.Key, g => g.First()); ;
-            if (res is not null)
-                return res.Concat(this.ParameterValues)
-                    .ToLookup(x => x.Key, x => x.Value)
-                    .ToDictionary(x => x.Key, g => g.First());
-            else
-                return base.GetAllParameterValues();
-        }
+        IReadOnlyDictionary<ERDM_Parameter, object> res = null;
+        if (this.DeviceModel is not null)
+            res = this.DeviceModel.ParameterValues;
+        if (this.PersonalityModel is not null)
+            res = res.Concat(this.PersonalityModel.ParameterValues)
+                .ToLookup(x => x.Key, x => x.Value)
+                .ToDictionary(x => x.Key, g => g.First()); ;
+        if (res is not null)
+            return res.Concat(this.ParameterValues)
+                .ToLookup(x => x.Key, x => x.Value)
+                .ToDictionary(x => x.Key, g => g.First());
+        else
+            return base.GetAllParameterValues();
+    }
 
 
-        private async void Instance_ParameterUpdateTimerElapsed(object sender, EventArgs e)
+    private async void Instance_ParameterUpdateTimerElapsed(object sender, EventArgs e)
+    {
+        try // async void: an escaping exception would terminate the host application
         {
             await updateParameters();
         }
-
-        public override string ToString()
+        catch (Exception ex)
         {
-            return $"{base.ToString()} {this.DeviceModel}";
+            Logger?.LogError(ex, $"{UID}: error in Instance_ParameterUpdateTimerElapsed");
         }
-        protected sealed override void OnDispose()
-        {
-            GlobalTimers.Instance.PresentUpdateTimerElapsed -= Instance_PresentUpdateTimerElapsed;
-            GlobalTimers.Instance.ParameterUpdateTimerElapsed -= Instance_ParameterUpdateTimerElapsed;
-            try
-            {
-                onDispose();
-            }
-            catch (Exception e)
-            {
-                Logger?.LogError(e);
-            }
-            ParameterValueAdded -= AbstractRDMDevice_ParameterValueAdded;
-            ParameterValueChanged -= AbstractRDMDevice_ParameterValueChanged;
-            ParameterRequested -= AbstractRDMDevice_ParameterRequested;
-        }
-        protected abstract void onDispose();
-
-        
     }
+
+    public override string ToString()
+    {
+        return $"{base.ToString()} {this.DeviceModel}";
+    }
+    protected sealed override void OnDispose()
+    {
+        GlobalTimers.Instance.PresentUpdateTimerElapsed -= Instance_PresentUpdateTimerElapsed;
+        GlobalTimers.Instance.ParameterUpdateTimerElapsed -= Instance_ParameterUpdateTimerElapsed;
+        try
+        {
+            disposeModules();
+        }
+        catch (Exception e)
+        {
+            Logger?.LogError(e);
+        }
+        try
+        {
+            onDispose();
+        }
+        catch (Exception e)
+        {
+            Logger?.LogError(e);
+        }
+        ParameterValueAdded -= AbstractRDMDevice_ParameterValueAdded;
+        ParameterValueChanged -= AbstractRDMDevice_ParameterValueChanged;
+        ParameterRequested -= AbstractRDMDevice_ParameterRequested;
+    }
+    protected abstract void onDispose();
+
+
 }

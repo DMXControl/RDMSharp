@@ -1,0 +1,154 @@
+using RDMSharp.Metadata;
+using RDMSharp.PayloadObject;
+using RDMSharp.RDM.Device.Module;
+using RDMSharpTests.Devices.Mock;
+
+namespace RDMSharpTests.RDM.Devices.Modules;
+
+public class TestRealTimeClockModule
+{
+    private RealTimeClockModuleMockDevice? generated;
+
+    private static readonly UID CONTROLLER_UID = new UID(0x1fff, 333);
+    private static readonly UID DEVCIE_UID = new UID(876, 555198);
+
+    [OneTimeSetUp]
+    public async Task OneTimeSetup()
+    {
+        await MetadataFactory.AwaitInitialize();
+    }
+
+    [SetUp]
+    public async Task Setup()
+    {
+        var defines = MetadataFactory.GetMetadataDefineVersions();
+        Assert.That(defines, Is.Not.Null);
+        generated = new RealTimeClockModuleMockDevice(DEVCIE_UID);
+        while (!generated.IsInitialized)
+            await Task.Delay(100);
+    }
+    [TearDown]
+    public void TearDown()
+    {
+        generated?.Dispose();
+        generated = null;
+    }
+
+    [Test]
+    public void TestDisplayName()
+    {
+        Assert.That(generated, Is.Not.Null);
+        var realTimeClockModule = generated.Modules.OfType<RealTimeClockModule>().Single();
+        Assert.That(realTimeClockModule, Is.Not.Null);
+        Assert.That(realTimeClockModule.DisplayName, Is.EqualTo("Real Time Clock"));
+    }
+
+    [Test, Retry(3), DependsOnTest(nameof(TestDisplayName))]
+    public async Task TestGetREAL_TIME_CLOCK()
+    {
+        #region Test Basic
+        Assert.That(generated, Is.Not.Null);
+        Assert.That(generated.Parameters.Contains(ERDM_Parameter.REAL_TIME_CLOCK), Is.True);
+        await Wait.UntilAsync(() => generated.Modules.OfType<RealTimeClockModule>().FirstOrDefault()?.RealTimeClock is not null);
+        var realTimeClockModule = generated.Modules.OfType<RealTimeClockModule>().FirstOrDefault();
+        Assert.That(realTimeClockModule, Is.Not.Null);
+        Assert.That(realTimeClockModule.RealTimeClock, Is.Not.Null);
+        Assert.That(realTimeClockModule.RealTimeClock.Value.Minute, Is.EqualTo(DateTime.Now.Minute));
+        RDMMessage request = new RDMMessage()
+        {
+            Command = ERDM_Command.GET_COMMAND,
+            DestUID = DEVCIE_UID,
+            SourceUID = CONTROLLER_UID,
+            Parameter = ERDM_Parameter.REAL_TIME_CLOCK,
+            SubDevice = SubDevice.Root,
+        };
+
+        RDMMessage? response = generated.ProcessRequestMessage_Internal(request);
+        Assert.That(response, Is.Not.Null);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(response.Command, Is.EqualTo(ERDM_Command.GET_COMMAND | ERDM_Command.RESPONSE));
+            Assert.That(response.DestUID, Is.EqualTo(CONTROLLER_UID));
+            Assert.That(response.SourceUID, Is.EqualTo(DEVCIE_UID));
+            Assert.That(response.Parameter, Is.EqualTo(ERDM_Parameter.REAL_TIME_CLOCK));
+            Assert.That(response.SubDevice, Is.EqualTo(SubDevice.Root));
+            Assert.That(response.ResponseType, Is.EqualTo(ERDM_ResponseType.ACK));
+            Assert.That(response.ParameterData, Has.Length.EqualTo(7));
+            Assert.That(response.Value, Is.TypeOf(typeof(RDMRealTimeClock)));
+        }
+        var timeGen = new RDMRealTimeClock(realTimeClockModule.RealTimeClock.Value);
+        var timeRem = (RDMRealTimeClock)response.Value;
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(timeRem.Year, Is.EqualTo(timeGen.Year));
+            Assert.That(timeRem.Month, Is.EqualTo(timeGen.Month));
+            Assert.That(timeRem.Day, Is.EqualTo(timeGen.Day));
+            Assert.That(timeRem.Minute, Is.EqualTo(timeGen.Minute));
+            Assert.That(timeRem.Second, Is.AtLeast(timeGen.Second - 2).And.AtMost(timeGen.Second + 2));
+        }
+        #endregion
+
+    }
+
+    [Test, Retry(3), DependsOnTest(nameof(TestGetREAL_TIME_CLOCK))]
+    public async Task TestRemoteDevice()
+    {
+        Assert.That(generated, Is.Not.Null);
+        Assert.That(generated.Parameters.Contains(ERDM_Parameter.REAL_TIME_CLOCK), Is.True);
+        var generatedModule = generated.Modules.OfType<RealTimeClockModule>().Single();
+        Assert.That(generatedModule, Is.Not.Null);
+        Assert.That(generatedModule.RealTimeClock, Is.Not.Null);
+        Assert.That(generatedModule.RealTimeClock.Value.Minute, Is.EqualTo(DateTime.Now.Minute));
+
+        using MockDevice mockDevice = new MockDevice(DEVCIE_UID);
+        while (!mockDevice.IsInitialized)
+            await Task.Delay(100);
+
+        bool parameterPresent = mockDevice.DeviceModel.GetSupportedParameters().Any(sp => sp.Parameter == ERDM_Parameter.REAL_TIME_CLOCK);
+        Assert.That(parameterPresent, Is.True);
+        var module = mockDevice.Modules.OfType<RealTimeClockModule>().Single();
+        Assert.That(module, Is.Not.Null);
+        Assert.That(module.RealTimeClock, Is.Not.Null);
+        Assert.That(module.RealTimeClock.Value.Minute, Is.EqualTo(DateTime.Now.Minute));
+
+        SemaphoreSlim semaphoreSlim = new SemaphoreSlim(0, 1);
+        module.PropertyChanged += (o, e) =>
+        {
+            semaphoreSlim.Release();
+        };
+        DateTime newDate = new DateTime(2026, 12, 30, 23, 29, 45);
+        module.RealTimeClock = newDate;
+        await semaphoreSlim.WaitAsync();
+    }
+
+    class RealTimeClockModuleMockDevice : MockGeneratedDevice1
+    {
+        public RealTimeClockModuleMockDevice(UID uid) : base(uid, new IModule[] { new RealTimeClockModule() })
+        {
+        }
+    }
+    [Test]
+    public void TestDisposingTheDeviceReleasesTheModule()
+    {
+        // the module subscribes to the global timers: without dispose it stays alive and keeps updating a device that is gone
+        Assert.That(generated, Is.Not.Null);
+        var module = generated.Modules.OfType<RealTimeClockModule>().Single();
+        Assert.That(timerSubscribers("presentUpdateTimerElapsed"), Does.Contain(module), "precondition");
+
+        generated.Dispose();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(module.IsDisposed, Is.True);
+            Assert.That(generated.Modules.OfType<AbstractParameterIDModule>().All(m => m.IsDisposed), Is.True);
+            Assert.That(timerSubscribers("presentUpdateTimerElapsed"), Does.Not.Contain(module));
+            Assert.That(timerSubscribers("realTimeClockUpdateTimerElapsed"), Does.Not.Contain(module));
+        }
+    }
+
+    private static object?[] timerSubscribers(string eventField)
+    {
+        var field = typeof(GlobalTimers).GetField(eventField, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var handler = (Delegate?)field.GetValue(GlobalTimers.Instance);
+        return handler?.GetInvocationList().Select(d => d.Target).ToArray() ?? Array.Empty<object?>();
+    }
+}

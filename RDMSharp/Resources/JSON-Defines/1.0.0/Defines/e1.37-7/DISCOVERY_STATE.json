@@ -29,7 +29,7 @@
       ]
     },
     {
-      "name": "state",
+      "name": "discovery_state",
       "type": "uint8",
       "ranges": [
         { "minimum": 0, "maximum": 223 }
@@ -56,7 +56,7 @@
       ]
     },
     {
-      "name": "state",
+      "name": "discovery_state",
       "type": "uint8",
       "ranges": [
         { "minimum": 1, "maximum": 223 }
